@@ -47,6 +47,17 @@ settings:
 packages:
   LiquorEngine:
     path: Packages/LiquorEngine
+  # The app imports LiquorData directly -- AppEnvironment, the repositories and
+  # every screen that reads a bottle. A package a target imports has to be
+  # declared for that target: without this the build fails at module resolution
+  # with "unable to resolve module dependency", which says nothing about which
+  # target is missing it.
+  #
+  # GRDB is deliberately absent. No file under App/ imports it or names a GRDB
+  # type -- LiquorData wraps all of that -- so the app links what it actually
+  # uses and nothing more.
+  LiquorData:
+    path: Packages/LiquorData
 
 targets:
   LiquorLog:
@@ -58,6 +69,7 @@ targets:
           - "**/.DS_Store"
     dependencies:
       - package: LiquorEngine
+      - package: LiquorData
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.talastack.liquorlog
@@ -91,6 +103,7 @@ targets:
       # does not cover it: the host links these for itself, and the test bundle
       # is a separate binary that resolves its own references.
       - package: LiquorEngine
+      - package: LiquorData
     settings:
       base:
         BUNDLE_LOADER: "$(TEST_HOST)"

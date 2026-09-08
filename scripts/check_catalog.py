@@ -6,10 +6,10 @@ somewhere; it does not prove it is right, and a catalog of real-but-wrong rows
 is worse than a small one because every downstream calculation inherits the
 error in silence.
 
-Most of the rules below are federal regulation, which makes them checkable
-rather than arguable. The CONSTANTS ARE READ FROM THE SWIFT so the two cannot
-drift: LiquorEngine/Classification.swift is the authority, and this script
-asserts the shipped JSON agrees with it. That is the same arrangement
+Most of the rules below are regulation, which makes them checkable rather than
+arguable. The CONSTANTS AND THE CLASS VOCABULARY ARE READ FROM THE SWIFT so the
+two cannot drift: LiquorEngine/Classification.swift is the authority and this
+script asserts the shipped JSON agrees with it. That is the same arrangement
 Reef-Ledger uses for its safety clamps -- a remotely-updatable data file is
 exactly where a bad value could otherwise arrive without review.
 
@@ -26,45 +26,63 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 CATALOG = ROOT / "shared" / "data" / "spirits.v1.json"
-ENGINE = (ROOT / "IOS" / "Packages" / "LiquorEngine" / "Sources" / "LiquorEngine")
+ENGINE = ROOT / "IOS" / "Packages" / "LiquorEngine" / "Sources" / "LiquorEngine"
 CLASSIFICATION = ENGINE / "Classification.swift"
 RECIPE = ENGINE / "RecipeCode.swift"
 
 KEY = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 PRODUCTION_TYPES = {"singleBarrel", "smallBatch", "blend", "singleCask", "unspecified"}
 
+# Families with no bottling-strength floor, mirroring
+# ClassType.minimumBottlingStrength. A 16% vermouth is not under-strength, and
+# rejecting it would be the app being wrong with confidence.
+NO_FLOOR_FAMILIES = {"liqueur", "beer", "other"}
+
 
 def swift_constant(text, name):
-    m = re.search(r"static let %s\s*=\s*ABV\(percent:\s*([0-9.]+)\)" % name, text)
+    m = re.search(r"static let " + name + r"\s*=\s*ABV\(percent:\s*([0-9.]+)\)", text)
     if m:
         return float(m.group(1))
-    m = re.search(r"static let %s\s*=\s*([0-9]+)" % name, text)
+    m = re.search(r"static let " + name + r"\s*=\s*([0-9]+)", text)
     return int(m.group(1)) if m else None
 
 
 def swift_class_types(text):
+    """Returns (all cases, straight cases, {case: family})."""
     block = text.split("public enum ClassType", 1)
     if len(block) < 2:
-        return None, None
+        return None, None, None
     body = block[1].split("\n}", 1)[0]
+
     cases = set(re.findall(r"^\s*case\s+([a-zA-Z]+)\s*$", body, re.MULTILINE))
 
-    straight_block = body.split("var isStraight", 1)
     straight = set()
+    straight_block = body.split("var isStraight", 1)
     if len(straight_block) > 1:
-        straight = set(re.findall(r"\.([a-zA-Z]+)", straight_block[1].split("return true", 1)[0]))
+        head = straight_block[1].split("return true", 1)[0]
+        straight = set(re.findall(r"\.([a-zA-Z]+)", head))
 
-    return cases, straight
+    # The strength floor is a FAMILY rule, so read which family each class is
+    # in rather than restating a list of exemptions here.
+    families = {}
+    family_block = body.split("public var family: Family", 1)
+    if len(family_block) > 1:
+        chunk = family_block[1].split("\n    }", 1)[0]
+        pattern = re.compile(
+            r"case\s+((?:\.[a-zA-Z]+\s*,?\s*)+):\s*\n?\s*return\s+\.([a-zA-Z]+)")
+        for cases_text, family in pattern.findall(chunk):
+            for name in re.findall(r"\.([a-zA-Z]+)", cases_text):
+                families[name] = family
+
+    return cases, straight, families
 
 
 def swift_recipe_codes(text):
-    mash = set(re.findall(r'case\s+[a-z]\s*=\s*"([A-Z])"', text))
-    # Two enums in the file: mashbills then yeasts. Rebuild the full code set.
     letters = re.findall(r'case\s+([a-z])\s*=\s*"([A-Z])"', text)
     if len(letters) < 7:
         return None
-    mashbills = [u for _, u in letters[:2]]
-    yeasts = [u for _, u in letters[2:]]
+    mashbills = [upper for _, upper in letters[:2]]
+    yeasts = [upper for _, upper in letters[2:]]
     return {"O" + m + "S" + y for m in mashbills for y in yeasts}
 
 
@@ -79,22 +97,22 @@ def main():
     min_abv = swift_constant(classification, "americanMinimumABV")
     straight_years = swift_constant(classification, "straightMinimumYears")
     bond_years = swift_constant(classification, "bottledInBondMinimumYears")
-    class_types, straight_types = swift_class_types(classification)
+    class_types, straight_types, families = swift_class_types(classification)
     valid_codes = swift_recipe_codes(RECIPE.read_text(encoding="utf-8"))
 
-    missing = [n for n, v in [
+    missing = [name for name, value in [
         ("bottledInBondABV", bond_abv), ("americanMinimumABV", min_abv),
         ("straightMinimumYears", straight_years),
         ("bottledInBondMinimumYears", bond_years),
-        ("ClassType cases", class_types), ("recipe codes", valid_codes),
-    ] if not v]
+        ("ClassType cases", class_types), ("ClassType families", families),
+        ("recipe codes", valid_codes),
+    ] if not value]
     if missing:
         print("could not read from the engine: %s" % ", ".join(missing), file=sys.stderr)
         return 1
 
-    # Classes NOT held to the American minimum, mirroring the Swift.
-    imported = {"maltBeverage", "singleMaltScotch", "blendedScotch", "irishWhiskey",
-                "canadianWhisky", "japaneseWhisky"}
+    def has_strength_floor(class_type):
+        return families.get(class_type, "other") not in NO_FLOOR_FAMILIES
 
     try:
         catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
@@ -107,8 +125,8 @@ def main():
     seen_products = set()
     verified = 0
 
-    for p in catalog.get("products", []):
-        pid = p.get("id", "")
+    for product in catalog.get("products", []):
+        pid = product.get("id", "")
         where = pid or "<no id>"
 
         if not KEY.match(pid):
@@ -118,30 +136,31 @@ def main():
         seen_ids.add(pid)
 
         for field in ("distillery", "brand"):
-            if not p.get(field):
+            if not product.get(field):
                 problems.append("%s: missing %s" % (where, field))
 
-        identity = (p.get("distillery", "").lower(), p.get("brand", "").lower(),
-                    p.get("expression", "").lower())
+        identity = (product.get("distillery", "").lower(),
+                    product.get("brand", "").lower(),
+                    product.get("expression", "").lower())
         if identity in seen_products:
             problems.append(
                 "%s: duplicate product %s -- the shelf check must return one answer, "
                 "not two" % (where, identity))
         seen_products.add(identity)
 
-        class_type = p.get("class_type")
+        class_type = product.get("class_type")
         if class_type not in class_types:
             problems.append("%s: class_type %r is not a ClassType case" % (where, class_type))
             continue
 
-        production = p.get("production_type", "unspecified")
+        production = product.get("production_type", "unspecified")
         if production not in PRODUCTION_TYPES:
             problems.append("%s: production_type %r is unknown" % (where, production))
 
-        abv = p.get("abv")
-        barrel_proof = bool(p.get("is_barrel_proof"))
-        bonded = bool(p.get("is_bottled_in_bond"))
-        age = p.get("stated_age_years")
+        abv = product.get("abv")
+        barrel_proof = bool(product.get("is_barrel_proof"))
+        bonded = bool(product.get("is_bottled_in_bond"))
+        age = product.get("stated_age_years")
 
         # A barrel-proof release is a different strength every batch. A catalog
         # claiming one number is wrong for almost every bottle on the shelf.
@@ -153,7 +172,7 @@ def main():
         if abv is not None:
             if not (0.5 < abv <= 95.0):
                 problems.append("%s: abv %s is outside 0.5-95" % (where, abv))
-            if class_type not in imported and abv < min_abv:
+            if has_strength_floor(class_type) and abv < min_abv:
                 problems.append(
                     "%s: %s bottles at no less than %s%% ABV; got %s"
                     % (where, class_type, min_abv, abv))
@@ -173,33 +192,41 @@ def main():
                     % (where, class_type))
             if age is not None and age < bond_years:
                 problems.append(
-                    "%s: bottled in bond requires %d years; got %s" % (where, bond_years, age))
+                    "%s: bottled in bond requires %d years; got %s"
+                    % (where, bond_years, age))
 
         if class_type in straight_types and age is not None and age < straight_years:
             problems.append(
                 "%s: straight requires %d years; got %s" % (where, straight_years, age))
 
-        code = p.get("recipe_code")
+        code = product.get("recipe_code")
         if code and code not in valid_codes:
-            problems.append("%s: recipe_code %r is not one of the ten valid codes" % (where, code))
+            problems.append(
+                "%s: recipe_code %r is not one of the ten valid codes" % (where, code))
 
-        if not p.get("source"):
+        if not product.get("source"):
             problems.append("%s: no source -- a number nobody can check is not data" % where)
-        if p.get("verified"):
+        if product.get("verified"):
             verified += 1
-            if not p.get("source_url"):
-                problems.append(
-                    "%s: marked verified but has no source_url" % where)
+            if not product.get("source_url"):
+                problems.append("%s: marked verified but has no source_url" % where)
 
     if problems:
         print("catalog FAILED\n", file=sys.stderr)
-        for p in problems:
-            print("  - %s" % p, file=sys.stderr)
+        for problem in problems:
+            print("  - %s" % problem, file=sys.stderr)
         print("\n%d problem(s)." % len(problems), file=sys.stderr)
         return 1
 
     total = len(catalog.get("products", []))
+    by_family = {}
+    for product in catalog.get("products", []):
+        family = families.get(product["class_type"], "other")
+        by_family[family] = by_family.get(family, 0) + 1
+
     print("catalog ok: %d products, %d verified against a source url" % (total, verified))
+    for family in sorted(by_family, key=lambda f: -by_family[f]):
+        print("  %-10s %d" % (family, by_family[family]))
     if verified < total:
         print("  NOTE: %d rows still need COLA verification before release."
               % (total - verified))

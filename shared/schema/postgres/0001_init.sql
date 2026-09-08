@@ -64,8 +64,15 @@ create domain class_type as text
     'bourbon', 'straightBourbon', 'kentuckyStraightBourbon', 'blendOfStraightBourbon',
     'rye', 'straightRye', 'wheatWhiskey', 'straightWheatWhiskey',
     'cornWhiskey', 'straightCornWhiskey', 'tennesseeWhiskey', 'americanSingleMalt',
-    'lightWhiskey', 'blendedWhiskey', 'singleMaltScotch', 'blendedScotch',
-    'irishWhiskey', 'canadianWhisky', 'japaneseWhisky', 'maltBeverage'
+    'lightWhiskey', 'blendedWhiskey', 'singleMaltScotch', 'blendedMaltScotch',
+    'singleGrainScotch', 'blendedScotch', 'irishWhiskey', 'singlePotStillIrish',
+    'singleMaltIrish', 'canadianWhisky', 'japaneseWhisky', 'tequilaBlanco',
+    'tequilaReposado', 'tequilaAnejo', 'tequilaExtraAnejo', 'mezcal',
+    'rum', 'rhumAgricole', 'londonDryGin', 'distilledGin',
+    'genever', 'vodka', 'aquavit', 'cognac',
+    'armagnac', 'calvados', 'brandy', 'pisco',
+    'liqueur', 'amaro', 'vermouth', 'absinthe',
+    'maltBeverage'
   ));
 
 create domain production_type as text

@@ -64,10 +64,43 @@ final class ClassificationTests: XCTestCase {
         XCTAssertTrue(issues(.bourbon, abv: 45.0, age: 1).isEmpty)
     }
 
-    /// Scotch and Irish are not bound by the American 40% floor in our rules.
-    func testImportedClassesSkipTheAmericanMinimum() {
-        XCTAssertFalse(ClassType.singleMaltScotch.hasAmericanMinimumStrength)
-        XCTAssertTrue(ClassType.straightBourbon.hasAmericanMinimumStrength)
+    /// Corrected: imported whisky is NOT exempt. Scotch, Irish, Canadian and
+    /// Japanese whisky each carry a 40% floor under their own rules, so the
+    /// minimum is the same wherever the bottle came from. Exempting them was
+    /// caution rather than accuracy.
+    func testEveryWhiskyCarriesTheFortyPercentFloor() {
+        for type in ClassType.allCases where type.family == .whiskey {
+            XCTAssertEqual(
+                type.minimumBottlingStrength?.percent, 40,
+                "\(type) should carry the 40% floor")
+        }
+    }
+
+    /// The real exception is the sugar-bearing classes. A 16% amaro is not
+    /// under-strength, and rejecting it would be the app being wrong loudly.
+    func testLiqueursHaveNoStrengthFloor() {
+        XCTAssertNil(ClassType.liqueur.minimumBottlingStrength)
+        XCTAssertNil(ClassType.amaro.minimumBottlingStrength)
+        XCTAssertNil(ClassType.vermouth.minimumBottlingStrength)
+        XCTAssertNil(ClassType.maltBeverage.minimumBottlingStrength)
+
+        let amaro = Classification.validate(
+            classType: .amaro, abv: ABV(percent: 16), statedAgeYears: nil,
+            isBottledInBond: false, volumeMilliliters: 750)
+        XCTAssertTrue(amaro.isEmpty)
+    }
+
+    func testGinAndTequilaAreHeldToFortyToo() {
+        XCTAssertEqual(ClassType.londonDryGin.minimumBottlingStrength?.percent, 40)
+        XCTAssertEqual(ClassType.tequilaBlanco.minimumBottlingStrength?.percent, 40)
+        XCTAssertEqual(ClassType.rum.minimumBottlingStrength?.percent, 40)
+    }
+
+    func testEveryClassHasALabelAndAFamily() {
+        for type in ClassType.allCases {
+            XCTAssertFalse(type.label.isEmpty, "\(type) has no label")
+            XCTAssertFalse(type.label == type.rawValue, "\(type) label is a storage key")
+        }
     }
 
     func testMissingABVIsAnIssue() {
