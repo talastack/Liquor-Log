@@ -1,4 +1,88 @@
-<!doctype html>
+# Generates the interactive flavour-wheel artboard from the real data.
+#
+#     python build_wheel.py
+#
+# The wheel screen and shared/data/flavor-wheel.v1.json must show the same
+# families and the same descriptors. Hand-maintaining the artboard let them
+# drift immediately -- the canvas drew eight segments while the data had ten.
+# Now the geometry and the descriptor lists are computed from the file.
+
+import io
+import json
+import math
+import os
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+WHEEL = os.path.join(HERE, "..", "shared", "data", "flavor-wheel.v1.json")
+OUT = os.path.join(HERE, "FlavourWheel.dc.html")
+
+CX = CY = 150.0
+R_OUTER = 136.0
+R_INNER = 63.0
+R_LABEL = 100.0
+
+
+def point(radius, degrees):
+    rad = math.radians(degrees)
+    return (round(CX + radius * math.cos(rad), 1),
+            round(CY + radius * math.sin(rad), 1))
+
+
+def segment_path(index, count):
+    """One wedge, from the top, clockwise."""
+    step = 360.0 / count
+    a1 = -90.0 + step * index
+    a2 = a1 + step
+    ox1, oy1 = point(R_OUTER, a1)
+    ox2, oy2 = point(R_OUTER, a2)
+    ix2, iy2 = point(R_INNER, a2)
+    ix1, iy1 = point(R_INNER, a1)
+    # Arc sweep flag 1 outward (clockwise), 0 back along the inner edge.
+    large = 1 if step > 180 else 0
+    return ("M{ox1},{oy1} A{ro},{ro} 0 {lg} 1 {ox2},{oy2} "
+            "L{ix2},{iy2} A{ri},{ri} 0 {lg} 0 {ix1},{iy1} Z").format(
+        ox1=ox1, oy1=oy1, ox2=ox2, oy2=oy2, ix1=ix1, iy1=iy1, ix2=ix2, iy2=iy2,
+        ro=R_OUTER, ri=R_INNER, lg=large)
+
+
+def label_point(index, count):
+    step = 360.0 / count
+    mid = -90.0 + step * index + step / 2
+    return point(R_LABEL, mid)
+
+
+def js_string(value):
+    return "'" + value.replace("\\", "\\\\").replace("'", "\\'") + "'"
+
+
+def main():
+    wheel = json.load(io.open(WHEEL, encoding="utf-8"))
+    families = wheel["families"]
+    count = len(families)
+
+    entries = []
+    for i, family in enumerate(families):
+        lx, ly = label_point(i, count)
+        items = ", ".join(js_string(d["label"]) for d in family["descriptors"])
+        entries.append(
+            "      { name: %s, path: '%s',\n"
+            "        lx: %s, ly: %s,\n"
+            "        items: [%s] }"
+            % (js_string(family["label"]), segment_path(i, count), lx, ly, items))
+    families_js = "    var FAMILIES = [\n" + ",\n".join(entries) + "\n    ];"
+
+    # Labels get tighter as the family count rises.
+    label_size = 13 if count <= 8 else (12 if count <= 10 else 11)
+
+    html = TEMPLATE.replace("__FAMILIES__", families_js) \
+                   .replace("__LABEL_SIZE__", str(label_size))
+    io.open(OUT, "w", encoding="utf-8").write(html)
+
+    total = sum(len(f["descriptors"]) for f in families)
+    print("wrote FlavourWheel.dc.html: %d families, %d descriptors" % (count, total))
+
+
+TEMPLATE = r"""<!doctype html>
 <html>
 <head>
   <meta charset="utf-8">
@@ -73,7 +157,7 @@
           <path d="{{f.path}}" fill="{{f.fill}}" onClick="{{f.pick}}" style="cursor:pointer"></path>
         </sc-for>
       </g>
-      <g font-family="Public Sans, Helvetica, Arial, sans-serif" font-size="12" text-anchor="middle" dominant-baseline="middle">
+      <g font-family="Public Sans, Helvetica, Arial, sans-serif" font-size="__LABEL_SIZE__" text-anchor="middle" dominant-baseline="middle">
         <sc-for list="{{families}}" as="f" hint-placeholder-count="10">
           <text x="{{f.lx}}" y="{{f.ly}}" fill="{{f.textFill}}" font-weight="{{f.weight}}" onClick="{{f.pick}}" style="cursor:pointer">{{f.name}}</text>
         </sc-for>
@@ -137,38 +221,7 @@ class Component extends DCLogic {
 
     // GENERATED from shared/data/flavor-wheel.v1.json by design/build_wheel.py.
     // Do not hand-edit: the artboard and the data must not drift.
-    var FAMILIES = [
-      { name: 'Grain', path: 'M150.0,14.0 A136.0,136.0 0 0 1 229.9,40.0 L187.0,99.0 A63.0,63.0 0 0 0 150.0,87.0 Z',
-        lx: 180.9, ly: 54.9,
-        items: ['Corn', 'Cornbread', 'Sweet grain', 'Malt', 'Cereal', 'Biscuit', 'Bread dough', 'Oatmeal', 'Rye bread', 'Wheat', 'Barley'] },
-      { name: 'Sweet', path: 'M229.9,40.0 A136.0,136.0 0 0 1 279.3,108.0 L209.9,130.5 A63.0,63.0 0 0 0 187.0,99.0 Z',
-        lx: 230.9, ly: 91.2,
-        items: ['Caramel', 'Toffee', 'Butterscotch', 'Brown sugar', 'Molasses', 'Maple syrup', 'Honey', 'Vanilla', 'Marshmallow', 'Chocolate', 'Cocoa', 'Butter', 'Creme brulee'] },
-      { name: 'Fruit', path: 'M279.3,108.0 A136.0,136.0 0 0 1 279.3,192.0 L209.9,169.5 A63.0,63.0 0 0 0 209.9,130.5 Z',
-        lx: 250.0, ly: 150.0,
-        items: ['Cherry', 'Apple', 'Baked apple', 'Pear', 'Orange peel', 'Lemon', 'Banana', 'Pineapple', 'Raisin', 'Dried fig', 'Date', 'Prune', 'Apricot', 'Berry jam', 'Cherry pie'] },
-      { name: 'Floral', path: 'M279.3,192.0 A136.0,136.0 0 0 1 229.9,260.0 L187.0,201.0 A63.0,63.0 0 0 0 209.9,169.5 Z',
-        lx: 230.9, ly: 208.8,
-        items: ['Rose', 'Violet', 'Honeysuckle', 'Lavender', 'Orange blossom', 'Perfume', 'Potpourri'] },
-      { name: 'Spice', path: 'M229.9,260.0 A136.0,136.0 0 0 1 150.0,286.0 L150.0,213.0 A63.0,63.0 0 0 0 187.0,201.0 Z',
-        lx: 180.9, ly: 245.1,
-        items: ['Cinnamon', 'Clove', 'Nutmeg', 'Allspice', 'Baking spice', 'Black pepper', 'White pepper', 'Rye spice', 'Ginger', 'Anise'] },
-      { name: 'Wood', path: 'M150.0,286.0 A136.0,136.0 0 0 1 70.1,260.0 L113.0,201.0 A63.0,63.0 0 0 0 150.0,213.0 Z',
-        lx: 119.1, ly: 245.1,
-        items: ['Charred oak', 'Toasted oak', 'New oak', 'Cedar', 'Sandalwood', 'Sawdust', 'Pencil shavings', 'Coconut', 'Tannin', 'Dry oak', 'Old books'] },
-      { name: 'Nutty', path: 'M70.1,260.0 A136.0,136.0 0 0 1 20.7,192.0 L90.1,169.5 A63.0,63.0 0 0 0 113.0,201.0 Z',
-        lx: 69.1, ly: 208.8,
-        items: ['Almond', 'Marzipan', 'Walnut', 'Pecan', 'Hazelnut', 'Peanut', 'Toasted nut'] },
-      { name: 'Herbal', path: 'M20.7,192.0 A136.0,136.0 0 0 1 20.7,108.0 L90.1,130.5 A63.0,63.0 0 0 0 90.1,169.5 Z',
-        lx: 50.0, ly: 150.0,
-        items: ['Mint', 'Menthol', 'Eucalyptus', 'Tobacco', 'Leather', 'Hay', 'Grass', 'Dill', 'Fennel', 'Black tea'] },
-      { name: 'Smoke', path: 'M20.7,108.0 A136.0,136.0 0 0 1 70.1,40.0 L113.0,99.0 A63.0,63.0 0 0 0 90.1,130.5 Z',
-        lx: 69.1, ly: 91.2,
-        items: ['Char', 'Campfire', 'Ash', 'Bonfire', 'Roasted', 'Tar', 'Creosote', 'Peat', 'Medicinal'] },
-      { name: 'Off-notes', path: 'M70.1,40.0 A136.0,136.0 0 0 1 150.0,14.0 L150.0,87.0 A63.0,63.0 0 0 0 113.0,99.0 Z',
-        lx: 119.1, ly: 54.9,
-        items: ['Nail polish', 'Solvent', 'Sulphur', 'Cabbage', 'Green apple', 'Wet cardboard', 'Musty', 'Soapy', 'Metallic', 'Flat', 'Bitter'] }
-    ];
+__FAMILIES__
 
     var STAGES = [
       { key: 'nose', label: 'Nose' },
@@ -250,3 +303,8 @@ class Component extends DCLogic {
 </script>
 </body>
 </html>
+"""
+
+
+if __name__ == "__main__":
+    main()
