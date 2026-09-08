@@ -17,6 +17,7 @@ struct BottleDetailView: View {
     /// show how a bottle changed as it sat open, instead of only asserting that
     /// it did.
     @State private var justPouredId: String?
+    @State private var isSettingLevel = false
 
     var body: some View {
         ScrollView {
@@ -45,6 +46,11 @@ struct BottleDetailView: View {
         .background(Palette.background)
         .navigationBarTitleDisplayMode(.inline)
         .task { reload() }
+        .sheet(isPresented: $isSettingLevel) {
+            NavigationStack {
+                SetLevelView(bottleId: bottleId, onSave: { reload() })
+            }
+        }
         .alert("Something went wrong", isPresented: .constant(error != nil)) {
             Button("OK") { error = nil }
         } message: {
@@ -80,7 +86,19 @@ struct BottleDetailView: View {
 
     private func fill(_ summary: BottleSummary) -> some View {
         VStack(alignment: .leading, spacing: Space.m) {
-            SectionLabel("Fill level")
+            HStack {
+                SectionLabel("Fill level")
+                Spacer()
+                // The pour log cannot know about the bottle you opened two
+                // years ago or the pours you pulled at a party. This is the
+                // way to tell it.
+                Button { isSettingLevel = true } label: {
+                    Text("Set level")
+                        .font(TypeScale.secondary())
+                        .foregroundStyle(Palette.gold)
+                        .frame(minHeight: Space.tapTarget)
+                }
+            }
             FillBar(status: summary.status)
 
             HStack {

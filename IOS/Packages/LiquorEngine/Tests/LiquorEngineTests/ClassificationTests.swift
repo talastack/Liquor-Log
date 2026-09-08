@@ -116,3 +116,38 @@ final class ClassificationTests: XCTestCase {
         XCTAssertTrue(issues(.maltBeverage, abv: 6.2, volume: 355).isEmpty)
     }
 }
+
+/// Tennessee whiskey meets the straight bourbon requirements and then adds the
+/// Lincoln County Process. Treating it as not-straight said that a bonded
+/// Tennessee whiskey cannot exist, which two bottles on the shelf contradict.
+final class TennesseeWhiskeyTests: XCTestCase {
+
+    func testTennesseeWhiskeyIsStraight() {
+        XCTAssertTrue(ClassType.tennesseeWhiskey.isStraight)
+    }
+
+    /// Jack Daniel's Bonded and George Dickel Bottled in Bond are both real.
+    func testABondedTennesseeWhiskeyIsValid() {
+        let issues = Classification.validate(
+            classType: .tennesseeWhiskey,
+            abv: ABV(percent: 50),
+            statedAgeYears: 4,
+            isBottledInBond: true,
+            volumeMilliliters: nil)
+        XCTAssertTrue(
+            issues.isEmpty,
+            "expected no issues, got \(issues.map(\.rule))")
+    }
+
+    /// Straight still means straight: the four-year floor for bond applies here
+    /// exactly as it does to bourbon.
+    func testABondedTennesseeWhiskeyStillNeedsFourYears() {
+        let issues = Classification.validate(
+            classType: .tennesseeWhiskey,
+            abv: ABV(percent: 50),
+            statedAgeYears: 2,
+            isBottledInBond: true,
+            volumeMilliliters: nil)
+        XCTAssertTrue(issues.contains { $0.rule == "bond.minimumAge" })
+    }
+}

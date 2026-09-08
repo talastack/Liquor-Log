@@ -164,6 +164,160 @@ ROWS = [
     ("fernet-branca", "Fratelli Branca", "Fernet-Branca", "", "amaro", "unspecified", 39.0, None, [], None),
     ("cointreau", "Cointreau", "Cointreau", "", "liqueur", "unspecified", 40.0, None, [], None),
     ("carpano-antica", "Carpano", "Carpano", "Antica Formula", "vermouth", "unspecified", 16.5, None, [], None),
+
+    # =========================================================================
+    # Second pass: the bourbon shelf in depth.
+    #
+    # The first pass proved the structure. This one makes the catalogue usable
+    # in a shop, because a lookup that misses Jefferson's or Blanton's Gold
+    # sends somebody straight to typing it in -- which works, but not on the
+    # screen the app exists for.
+    #
+    # The catalogue stays a CONVENIENCE, not the foundation: a store pick never
+    # needs approval to exist, which is what keeps this app clear of the
+    # moderation queue that has OnlyDrams sitting on a 3,000-bottle backlog
+    # ("Cannot enter items unless it's in the database already. The review
+    # process to add new items to the database takes too long."). Depth here
+    # only reduces how often somebody has to fall back to typing.
+    #
+    # The ranges below are the ones r/bourbon reviewers name unprompted:
+    # Blanton's with its warehouse and rick, the Four Roses recipe codes, the
+    # Elijah Craig and E.H. Taylor batches, Stagg, Weller.
+    #
+    # abv is still null ONLY where the strength genuinely varies by release.
+    # Everything else states a strength, and every row is verified:false until
+    # somebody checks it against a COLA.
+    # =========================================================================
+
+    # ----------------------------------------------------------- Jefferson's
+    ("jeffersons-very-small-batch", "Jefferson's", "Jefferson's", "Very Small Batch", "straightBourbon", "smallBatch", 41.15, None, [], None),
+    ("jeffersons-reserve", "Jefferson's", "Jefferson's", "Reserve Very Old", "straightBourbon", "smallBatch", 45.1, None, [], None),
+    ("jeffersons-ocean", "Jefferson's", "Jefferson's", "Ocean Aged at Sea", "straightBourbon", "smallBatch", 45.0, None, [], None),
+
+    # ------------------------------------------------- Buffalo Trace, in full
+    ("blantons-gold", "Buffalo Trace", "Blanton's", "Gold Edition", "kentuckyStraightBourbon", "singleBarrel", 51.5, None, [], None),
+    ("blantons-sftb", "Buffalo Trace", "Blanton's", "Straight From the Barrel", "kentuckyStraightBourbon", "singleBarrel", None, None, [BP], None),
+    ("eh-taylor-barrel-proof", "Buffalo Trace", "E.H. Taylor", "Barrel Proof", "kentuckyStraightBourbon", "unspecified", None, None, [BP], None),
+    ("eh-taylor-rye", "Buffalo Trace", "E.H. Taylor", "Straight Rye", "straightRye", "unspecified", 50.0, 4, [BIB], None),
+    ("eh-taylor-four-grain", "Buffalo Trace", "E.H. Taylor", "Four Grain", "kentuckyStraightBourbon", "unspecified", 50.0, 4, [BIB], None),
+    ("elmer-t-lee", "Buffalo Trace", "Elmer T. Lee", "Single Barrel", "kentuckyStraightBourbon", "singleBarrel", 45.0, None, [], None),
+    ("rock-hill-farms", "Buffalo Trace", "Rock Hill Farms", "Single Barrel", "kentuckyStraightBourbon", "singleBarrel", 50.0, None, [], None),
+    ("hancocks-president", "Buffalo Trace", "Hancock's", "President's Reserve", "kentuckyStraightBourbon", "singleBarrel", 44.45, None, [], None),
+    ("weller-full-proof", "Buffalo Trace", "W L Weller", "Full Proof", "kentuckyStraightBourbon", "unspecified", 57.0, None, [], "wheated"),
+    ("weller-single-barrel", "Buffalo Trace", "W L Weller", "Single Barrel", "kentuckyStraightBourbon", "singleBarrel", 48.5, None, [], "wheated"),
+    ("weller-cypb", "Buffalo Trace", "W L Weller", "C.Y.P.B.", "kentuckyStraightBourbon", "unspecified", 47.5, None, [], "wheated"),
+    ("stagg", "Buffalo Trace", "Stagg", "", "kentuckyStraightBourbon", "smallBatch", None, None, [BP], None),
+    ("george-t-stagg", "Buffalo Trace", "George T. Stagg", "", "kentuckyStraightBourbon", "unspecified", None, None, [BP], None),
+    ("william-larue-weller", "Buffalo Trace", "William Larue Weller", "", "kentuckyStraightBourbon", "unspecified", None, None, [BP], "wheated"),
+    ("thomas-h-handy", "Buffalo Trace", "Thomas H. Handy", "Sazerac Rye", "straightRye", "unspecified", None, None, [BP], None),
+    ("sazerac-18", "Buffalo Trace", "Sazerac", "18 Year", "straightRye", "unspecified", 45.0, 18, [], None),
+    ("eagle-rare-17", "Buffalo Trace", "Eagle Rare", "17 Year", "kentuckyStraightBourbon", "unspecified", 50.5, 17, [], None),
+
+    # -------------------------------------------------- Heaven Hill, in full
+    ("evan-williams-1783", "Heaven Hill", "Evan Williams", "1783 Small Batch", "kentuckyStraightBourbon", "smallBatch", 43.0, None, [], None),
+    ("mellow-corn", "Heaven Hill", "Mellow Corn", "Bottled in Bond", "straightCornWhiskey", "unspecified", 50.0, 4, [BIB], None),
+    ("bernheim-wheat", "Heaven Hill", "Bernheim", "Original Wheat Whiskey", "straightWheatWhiskey", "smallBatch", 45.0, 7, [], None),
+    ("jts-brown-bib", "Heaven Hill", "J.T.S. Brown", "Bottled in Bond", "kentuckyStraightBourbon", "unspecified", 50.0, 4, [BIB], None),
+
+    # ------------------------------------------------------ Jim Beam, in full
+    ("knob-creek-12", "Jim Beam", "Knob Creek", "12 Year", "kentuckyStraightBourbon", "smallBatch", 50.0, 12, [], None),
+    ("knob-creek-15", "Jim Beam", "Knob Creek", "15 Year", "kentuckyStraightBourbon", "smallBatch", 50.0, 15, [], None),
+    ("jim-beam-black", "Jim Beam", "Jim Beam", "Black Label", "kentuckyStraightBourbon", "unspecified", 43.0, None, [], None),
+    ("jim-beam-rye", "Jim Beam", "Jim Beam", "Pre-Prohibition Style Rye", "straightRye", "unspecified", 45.0, None, [], None),
+    ("old-crow", "Jim Beam", "Old Crow", "", "kentuckyStraightBourbon", "unspecified", 40.0, None, [], None),
+    ("old-overholt-bib", "Jim Beam", "Old Overholt", "Bottled in Bond", "straightRye", "unspecified", 50.0, 4, [BIB], None),
+    ("old-overholt-86", "Jim Beam", "Old Overholt", "86 Proof", "straightRye", "unspecified", 43.0, None, [], None),
+    ("basil-hayden-toast", "Jim Beam", "Basil Hayden", "Toast", "kentuckyStraightBourbon", "unspecified", 40.0, None, [], None),
+
+    # -------------------------------------------------- Brown-Forman, in full
+    ("old-forester-1870", "Brown-Forman", "Old Forester", "1870 Original Batch", "kentuckyStraightBourbon", "smallBatch", 45.0, None, [], None),
+    ("old-forester-rye", "Brown-Forman", "Old Forester", "Rye 100 Proof", "straightRye", "unspecified", 50.0, None, [], None),
+    ("old-forester-single-barrel-bs", "Brown-Forman", "Old Forester", "Single Barrel Barrel Strength", "kentuckyStraightBourbon", "singleBarrel", None, None, [BP], None),
+    ("woodford-rye", "Woodford Reserve", "Woodford Reserve", "Straight Rye", "straightRye", "unspecified", 45.2, None, [], None),
+    ("woodford-wheat", "Woodford Reserve", "Woodford Reserve", "Straight Wheat", "straightWheatWhiskey", "unspecified", 45.2, None, [], None),
+    ("coopers-craft", "Brown-Forman", "Coopers' Craft", "", "kentuckyStraightBourbon", "unspecified", 41.1, None, [], None),
+    ("early-times-bib", "Brown-Forman", "Early Times", "Bottled in Bond", "kentuckyStraightBourbon", "unspecified", 50.0, 4, [BIB], None),
+
+    # ------------------------------------------------- Jack Daniel's, in full
+    ("gentleman-jack", "Jack Daniel's", "Jack Daniel's", "Gentleman Jack", "tennesseeWhiskey", "unspecified", 40.0, None, [], None),
+    ("jack-daniels-bonded", "Jack Daniel's", "Jack Daniel's", "Bonded", "tennesseeWhiskey", "unspecified", 50.0, 4, [BIB], None),
+    ("jack-daniels-rye", "Jack Daniel's", "Jack Daniel's", "Tennessee Rye", "tennesseeWhiskey", "unspecified", 45.0, None, [], None),
+    ("jack-daniels-sbbp", "Jack Daniel's", "Jack Daniel's", "Single Barrel Barrel Proof", "tennesseeWhiskey", "singleBarrel", None, None, [BP], None),
+    ("george-dickel-12", "George Dickel", "George Dickel", "No. 12", "tennesseeWhiskey", "unspecified", 45.0, None, [], None),
+    ("george-dickel-bib", "George Dickel", "George Dickel", "Bottled in Bond", "tennesseeWhiskey", "unspecified", 50.0, 13, [BIB], None),
+    ("george-dickel-rye", "George Dickel", "George Dickel", "Straight Rye", "straightRye", "unspecified", 45.0, None, [], None),
+
+    # ------------------------------------------------------- Barton / Sazerac
+    ("1792-small-batch", "Barton 1792", "1792", "Small Batch", "kentuckyStraightBourbon", "smallBatch", 46.85, None, [], None),
+    ("1792-full-proof", "Barton 1792", "1792", "Full Proof", "kentuckyStraightBourbon", "unspecified", 62.5, None, [], None),
+    ("1792-single-barrel", "Barton 1792", "1792", "Single Barrel", "kentuckyStraightBourbon", "singleBarrel", 49.3, None, [], None),
+    ("1792-bib", "Barton 1792", "1792", "Bottled in Bond", "kentuckyStraightBourbon", "unspecified", 50.0, 4, [BIB], None),
+    ("very-old-barton-bib", "Barton 1792", "Very Old Barton", "Bottled in Bond", "kentuckyStraightBourbon", "unspecified", 50.0, 6, [BIB], None),
+
+    # -------------------------------------------------------------- Lux Row
+    ("ezra-brooks-99", "Lux Row", "Ezra Brooks", "99", "kentuckyStraightBourbon", "unspecified", 49.5, None, [], None),
+    ("old-ezra-7", "Lux Row", "Old Ezra", "7 Year Barrel Strength", "kentuckyStraightBourbon", "smallBatch", 58.5, 7, [], None),
+    ("rebel-100", "Lux Row", "Rebel", "100 Proof", "kentuckyStraightBourbon", "unspecified", 50.0, None, [], "wheated"),
+    ("david-nicholson-1843", "Lux Row", "David Nicholson", "1843", "kentuckyStraightBourbon", "unspecified", 50.0, None, [], "wheated"),
+    ("daviess-county", "Lux Row", "Daviess County", "Straight Bourbon", "kentuckyStraightBourbon", "unspecified", 48.0, None, [], None),
+
+    # -------------------------------------------------------------- Michter's
+    ("michters-10-bourbon", "Michter's", "Michter's", "10 Year Bourbon", "kentuckyStraightBourbon", "singleBarrel", 47.2, 10, [], None),
+    ("michters-toasted-bourbon", "Michter's", "Michter's", "US*1 Toasted Barrel Bourbon", "kentuckyStraightBourbon", "smallBatch", 45.7, None, [], None),
+
+    # ---------------------------------------------------------------- Willett
+    ("noahs-mill", "Willett", "Noah's Mill", "", "kentuckyStraightBourbon", "smallBatch", 57.15, None, [], None),
+    ("rowans-creek", "Willett", "Rowan's Creek", "", "kentuckyStraightBourbon", "smallBatch", 50.05, None, [], None),
+    ("old-bardstown-estate", "Willett", "Old Bardstown", "Estate Bottled", "kentuckyStraightBourbon", "unspecified", 50.5, None, [], None),
+    ("johnny-drum", "Willett", "Johnny Drum", "Private Stock", "kentuckyStraightBourbon", "smallBatch", 50.5, None, [], None),
+    ("willett-family-estate-rye", "Willett", "Willett", "Family Estate Rye", "straightRye", "singleBarrel", None, None, [BP], None),
+
+    # ----------------------------------------------------- Wild Turkey, more
+    ("wild-turkey-81", "Wild Turkey", "Wild Turkey", "81", "kentuckyStraightBourbon", "unspecified", 40.5, None, [], None),
+    ("russells-reserve-13", "Wild Turkey", "Russell's Reserve", "13 Year", "kentuckyStraightBourbon", "smallBatch", 57.3, 13, [], None),
+    ("russells-reserve-6-rye", "Wild Turkey", "Russell's Reserve", "6 Year Rye", "straightRye", "smallBatch", 45.0, 6, [], None),
+
+    # --------------------------------------------------- Independent bottlers
+    ("angels-envy-cask-strength", "Angel's Envy", "Angel's Envy", "Cask Strength", "kentuckyStraightBourbon", "smallBatch", None, None, [BP], None),
+    ("angels-envy-rye", "Angel's Envy", "Angel's Envy", "Rye Rum Cask Finish", "rye", "smallBatch", 50.0, None, [], None),
+    ("bulleit-10", "Bulleit", "Bulleit", "10 Year", "straightBourbon", "unspecified", 45.6, 10, [], None),
+    ("bulleit-barrel-strength", "Bulleit", "Bulleit", "Barrel Strength", "straightBourbon", "unspecified", None, None, [BP], None),
+    ("barrell-bourbon", "Barrell Craft Spirits", "Barrell", "Bourbon", "blendOfStraightBourbon", "blend", None, None, [BP], None),
+    ("barrell-seagrass", "Barrell Craft Spirits", "Barrell", "Seagrass", "rye", "blend", None, None, [BP], None),
+    ("barrell-dovetail", "Barrell Craft Spirits", "Barrell", "Dovetail", "blendedWhiskey", "blend", None, None, [BP], None),
+    ("high-west-rendezvous", "High West", "High West", "Rendezvous Rye", "straightRye", "blend", 46.0, None, [], None),
+    ("high-west-american-prairie", "High West", "High West", "American Prairie", "blendOfStraightBourbon", "blend", 46.0, None, [], None),
+    ("smooth-ambler-contradiction", "Smooth Ambler", "Smooth Ambler", "Contradiction", "blendOfStraightBourbon", "blend", 50.0, None, [], None),
+    ("smooth-ambler-old-scout", "Smooth Ambler", "Smooth Ambler", "Old Scout", "straightBourbon", "unspecified", 49.5, None, [], None),
+    ("redemption-rye", "Redemption", "Redemption", "Straight Rye", "straightRye", "unspecified", 46.0, None, [], None),
+    ("widow-jane-10", "Widow Jane", "Widow Jane", "10 Year", "blendOfStraightBourbon", "blend", 45.5, 10, [], None),
+    ("templeton-rye-4", "Templeton", "Templeton", "4 Year Rye", "straightRye", "unspecified", 40.0, 4, [], None),
+
+    # ------------------------------------------------------ Craft distilleries
+    ("new-riff-single-barrel", "New Riff", "New Riff", "Single Barrel", "straightBourbon", "singleBarrel", None, None, [BP], None),
+    ("new-riff-rye-bib", "New Riff", "New Riff", "Bottled in Bond Rye", "straightRye", "unspecified", 50.0, 4, [BIB], None),
+    ("wilderness-trail-bib", "Wilderness Trail", "Wilderness Trail", "Small Batch Bottled in Bond", "straightBourbon", "smallBatch", 50.0, 4, [BIB], None),
+    ("green-river-bourbon", "Green River", "Green River", "Straight Bourbon", "kentuckyStraightBourbon", "unspecified", 45.0, None, [], None),
+    ("castle-key-small-batch", "Castle & Key", "Castle & Key", "Small Batch Bourbon", "kentuckyStraightBourbon", "smallBatch", 50.0, None, [], None),
+    ("old-elk-blended", "Old Elk", "Old Elk", "Blended Straight Bourbon", "blendOfStraightBourbon", "blend", 44.0, None, [], None),
+    ("frey-ranch-bourbon", "Frey Ranch", "Frey Ranch", "Straight Bourbon", "straightBourbon", "unspecified", 45.0, None, [], None),
+    ("penelope-four-grain", "Penelope", "Penelope", "Four Grain", "straightBourbon", "blend", 40.0, None, [], None),
+    ("penelope-architect", "Penelope", "Penelope", "Architect", "straightBourbon", "blend", 50.0, None, [], None),
+    ("penelope-barrel-strength", "Penelope", "Penelope", "Barrel Strength", "straightBourbon", "blend", None, None, [BP], None),
+    ("smoke-wagon-uncut", "Nevada H&C", "Smoke Wagon", "Uncut Unfiltered", "straightBourbon", "smallBatch", None, None, [BP], None),
+    ("smoke-wagon-small-batch", "Nevada H&C", "Smoke Wagon", "Small Batch", "straightBourbon", "smallBatch", 45.0, None, [], None),
+    ("yellowstone-select", "Limestone Branch", "Yellowstone", "Select", "kentuckyStraightBourbon", "smallBatch", 46.5, None, [], None),
+    ("laws-four-grain", "Laws Whiskey House", "Laws", "Four Grain", "straightBourbon", "unspecified", 47.5, 4, [], None),
+    ("leopold-three-chamber", "Leopold Bros", "Leopold Bros", "Three Chamber Rye", "straightRye", "unspecified", 50.0, None, [], None),
+    ("kings-county-bourbon", "Kings County", "Kings County", "Straight Bourbon", "straightBourbon", "unspecified", 45.0, None, [], None),
+    ("woodinville-bourbon", "Woodinville", "Woodinville", "Straight Bourbon", "straightBourbon", "unspecified", 45.0, None, [], None),
+    ("few-bourbon", "FEW Spirits", "FEW", "Straight Bourbon", "straightBourbon", "unspecified", 46.5, None, [], None),
+    ("garrison-brothers-small-batch", "Garrison Brothers", "Garrison Brothers", "Small Batch", "straightBourbon", "smallBatch", 47.0, None, [], None),
+    ("balcones-pot-still", "Balcones", "Balcones", "Pot Still Bourbon", "straightBourbon", "unspecified", 46.0, None, [], None),
+    ("hudson-bright-lights", "Hudson", "Hudson", "Bright Lights Big Bourbon", "straightBourbon", "unspecified", 46.0, None, [], None),
+    ("breckenridge-bourbon", "Breckenridge", "Breckenridge", "Blended Bourbon", "blendOfStraightBourbon", "blend", 43.0, None, [], None),
+    ("stranahans-original", "Stranahan's", "Stranahan's", "Original", "americanSingleMalt", "smallBatch", 47.0, None, [], None),
+    ("westland-american-oak", "Westland", "Westland", "American Oak", "americanSingleMalt", "smallBatch", 46.0, None, [], None),
 ]
 
 RECIPE_CODES = {"four-roses-single-barrel": "OBSV"}

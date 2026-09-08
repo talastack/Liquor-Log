@@ -286,6 +286,61 @@ create table pours (
 );
 
 -- ---------------------------------------------------------------------------
+-- fill_readings
+-- ---------------------------------------------------------------------------
+--
+-- "There is this much left in the bottle, and I am looking at it right now."
+--
+-- The pour log alone cannot answer that. It assumes every bottle started full
+-- and that every pour since was logged, and both are routinely false: people
+-- add bottles they opened years ago, and pour for guests without reaching for
+-- a phone. An app that can only say "750 ml minus what you told me" is wrong
+-- about most real shelves, and it is wrong in the direction that makes the
+-- oxidation estimate and the cost-per-pour figure quietly useless.
+--
+-- So a reading is an OBSERVATION at a moment, and the fill is derived as:
+--
+--     remaining = latest reading  -  pours logged after that reading
+--
+-- with the bottle's capacity standing in when there has never been a reading.
+-- That keeps the pour log as the record of what you drank while letting a
+-- human overrule it, and it means correcting a bottle never rewrites history:
+-- the pours you logged stay logged.
+--
+-- Readings accumulate rather than replace each other. Two readings a year
+-- apart on the same bottle are a real record of how fast it went down.
+
+create table fill_readings (
+  id                 text primary key,
+  user_id            uuid not null references auth.users (id) on delete cascade,
+  bottle_id          text not null references bottles (id) on delete cascade,
+
+  -- When the level was OBSERVED, which is not necessarily when it was typed
+  -- in. Ordering is on this column, so a reading backdated to the day a bottle
+  -- was opened behaves correctly against pours logged since.
+  read_at            bigint not null,
+
+  -- Millilitres, always. A percentage is what the user may type, but a
+  -- percentage stored against a bottle whose size is later corrected would
+  -- silently change how much whiskey the app thinks is in it.
+  remaining_ml       double precision not null,
+
+  -- How the figure was arrived at, for the user's own benefit: eyeballed
+  -- against the label, weighed, measured.
+  note               text,
+
+  created_at         bigint not null,
+  updated_at         bigint not null,
+  deleted_at         bigint,
+  server_updated_at  bigint not null default 0,
+
+  constraint reading_is_not_negative check (remaining_ml >= 0)
+  -- Deliberately NOT constrained against the bottle's capacity. A cross-table
+  -- check cannot be expressed here, and a bottle filled slightly over its
+  -- stated size is a real thing. The engine clamps on read instead.
+);
+
+-- ---------------------------------------------------------------------------
 -- tastings
 -- ---------------------------------------------------------------------------
 --
@@ -443,6 +498,9 @@ create trigger bottles_server_clock
 create trigger pours_server_clock
   before insert or update on pours
   for each row execute function set_server_updated_at();
+create trigger fill_readings_server_clock
+  before insert or update on fill_readings
+  for each row execute function set_server_updated_at();
 create trigger tastings_server_clock
   before insert or update on tastings
   for each row execute function set_server_updated_at();
@@ -469,6 +527,7 @@ create trigger subscriptions_server_clock
 create index custom_catalog_entries_pull on custom_catalog_entries (user_id, server_updated_at);
 create index bottles_pull on bottles (user_id, server_updated_at);
 create index pours_pull on pours (user_id, server_updated_at);
+create index fill_readings_pull on fill_readings (user_id, server_updated_at);
 create index tastings_pull on tastings (user_id, server_updated_at);
 create index tasting_notes_pull on tasting_notes (user_id, server_updated_at);
 create index wishlist_items_pull on wishlist_items (user_id, server_updated_at);
@@ -477,6 +536,9 @@ create index subscriptions_pull on subscriptions (user_id, server_updated_at);
 
 -- Reads the app actually makes.
 create index pours_by_bottle on pours (bottle_id, poured_at);
+-- Deriving a fill means finding the newest reading for a bottle and then the
+-- pours after it, so both halves of that read are indexed.
+create index fill_readings_by_bottle on fill_readings (bottle_id, read_at);
 create index tastings_by_bottle on tastings (bottle_id, tasted_at);
 create index tastings_by_product on tastings (catalog_product_id, tasted_at);
 create index tasting_notes_by_tasting on tasting_notes (tasting_id);

@@ -131,7 +131,13 @@ public enum ClassType: String, Sendable, CaseIterable, Codable {
     public var isStraight: Bool {
         switch self {
         case .straightBourbon, .kentuckyStraightBourbon, .blendOfStraightBourbon,
-             .straightRye, .straightWheatWhiskey, .straightCornWhiskey:
+             .straightRye, .straightWheatWhiskey, .straightCornWhiskey,
+             // Tennessee whiskey meets the straight bourbon requirements and
+             // then adds the Lincoln County Process. Leaving it out here said
+             // that a bonded Tennessee whiskey cannot exist, which is
+             // contradicted by two on the shelf: Jack Daniel's Bonded and
+             // George Dickel Bottled in Bond.
+             .tennesseeWhiskey:
             return true
         default:
             return false

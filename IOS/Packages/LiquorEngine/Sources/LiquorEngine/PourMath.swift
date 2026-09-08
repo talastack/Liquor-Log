@@ -26,8 +26,38 @@ public enum PourMath: Sendable {
 
     /// Volume left after everything poured so far. Never negative: over-pouring
     /// past empty is a logging mistake, not a bottle that owes you whiskey.
-    public static func remainingMilliliters(capacity: Double, poured: Double) -> Double {
-        max(0, capacity - poured)
+    ///
+    /// `startingFrom` is the level the count runs down from -- the most recent
+    /// reading somebody took by eye. Nil means "assume it was full", which is
+    /// only true for a bottle opened after it was added to the app.
+    ///
+    /// The starting level is clamped to the bottle's capacity. A reading can be
+    /// stored slightly over (a bottle filled generously, a rounded guess) but a
+    /// fill bar showing 105% is the app being visibly wrong.
+    public static func remainingMilliliters(
+        capacity: Double,
+        poured: Double,
+        startingFrom starting: Double? = nil
+    ) -> Double {
+        let start = min(capacity, max(0, starting ?? capacity))
+        return max(0, start - poured)
+    }
+
+    /// Millilitres for a percentage of a bottle, for a screen that lets people
+    /// think in fractions -- "about a third left" -- rather than volumes.
+    ///
+    /// Millilitres are what gets stored. A percentage kept against a bottle
+    /// whose size is later corrected would silently change how much whiskey the
+    /// app believes is in it.
+    public static func milliliters(percentFull percent: Double, capacity: Double) -> Double {
+        guard capacity > 0 else { return 0 }
+        return capacity * min(1, max(0, percent / 100))
+    }
+
+    /// The inverse, for showing a stored volume back as a percentage.
+    public static func percentFull(remaining: Double, capacity: Double) -> Double {
+        guard capacity > 0 else { return 0 }
+        return min(100, max(0, remaining / capacity * 100))
     }
 
     /// Cost of one pour, in cents, derived from the pour count the user is
@@ -47,12 +77,17 @@ public enum PourMath: Sendable {
     }
 
     /// Everything the bottle detail and the shelf check need in one value.
+    /// - Parameters:
+    ///   - poured: everything poured SINCE the reading, when there is one.
+    ///   - startingMilliliters: the reading itself. Nil assumes a full bottle.
     public static func status(
         capacityMilliliters capacity: Double,
         pouredMilliliters poured: Double,
+        startingMilliliters starting: Double? = nil,
         pourSize: PourSize = .standard
     ) -> PourStatus {
-        let remaining = remainingMilliliters(capacity: capacity, poured: poured)
+        let remaining = remainingMilliliters(
+            capacity: capacity, poured: poured, startingFrom: starting)
         return PourStatus(
             capacityMilliliters: capacity,
             remainingMilliliters: remaining,

@@ -54,6 +54,11 @@ struct AddBottleView: View {
     @State private var storageLocation = ""
     @State private var shelfNumber = ""
 
+    // How full it is right now
+    @State private var isAlreadyOpen = false
+    @State private var openedOn = Date()
+    @State private var fillPercent: Double = 100
+
     @State private var error: String?
 
     /// Three states, not two. Most labels say nothing at all, and recording
@@ -273,6 +278,8 @@ struct AddBottleView: View {
                     .foregroundStyle(Palette.gold)
             }
 
+            alreadyOpen
+
             VStack(alignment: .leading, spacing: Space.s) {
                 Text("Chill filtration")
                     .font(TypeScale.caption())
@@ -286,6 +293,74 @@ struct AddBottleView: View {
                 .pickerStyle(.segmented)
             }
         }
+    }
+
+    /// Most bottles somebody adds are not new.
+    ///
+    /// An app that can only start a bottle full is wrong about most of a real
+    /// shelf on the day it is filled in, and wrong in the direction that makes
+    /// the oxidation estimate and the cost-per-pour figure quietly useless.
+    /// Somebody with two hundred bottles is not going to log the pours they
+    /// already took -- *"I have 200+ bottles, and zero interest in manually
+    /// adding each one"* -- so the only way to be right about that shelf is to
+    /// let them say roughly where each bottle stands.
+    ///
+    /// Defaulted OFF. Fill tracking is contested in the research and the
+    /// verdict is explicit: ship it, make it optional, do not make it a
+    /// required step.
+    private var alreadyOpen: some View {
+        VStack(alignment: .leading, spacing: Space.m) {
+            Toggle(isOn: $isAlreadyOpen) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Already opened")
+                        .font(TypeScale.body())
+                        .foregroundStyle(Palette.text)
+                    Text("Say when, and roughly how much is left")
+                        .font(TypeScale.caption())
+                        .textCase(nil)
+                        .foregroundStyle(Palette.textMuted)
+                }
+            }
+            .tint(Palette.gold)
+            .padding(Space.l)
+            .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.line, lineWidth: 1))
+
+            if isAlreadyOpen {
+                DatePicker("Opened on", selection: $openedOn, displayedComponents: .date)
+                    .datePickerStyle(.compact)
+                    .tint(Palette.gold)
+                    .font(TypeScale.secondary())
+                    .foregroundStyle(Palette.textSecondary)
+
+                VStack(alignment: .leading, spacing: Space.s) {
+                    HStack {
+                        Text("About \(Int(fillPercent.rounded()))% left")
+                            .font(TypeScale.body())
+                            .foregroundStyle(Palette.text)
+                        Spacer()
+                        Text("\(Int(remainingMilliliters.rounded())) ml")
+                            .font(TypeScale.code(13))
+                            .foregroundStyle(Palette.textMuted)
+                    }
+                    Slider(value: $fillPercent, in: 0...100, step: 1)
+                        .tint(Palette.gold)
+                }
+
+                Text("A rough answer is worth far more than none: it is what makes "
+                     + "the fill bar and the days-open estimate mean anything. You "
+                     + "can correct it any time.")
+                    .font(TypeScale.caption())
+                    .textCase(nil)
+                    .foregroundStyle(Palette.textMuted)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
+
+    private var remainingMilliliters: Double {
+        PourMath.milliliters(
+            percentFull: fillPercent, capacity: Double(volumeMl) ?? 750)
     }
 
     // MARK: - Where you keep it
@@ -488,12 +563,14 @@ struct AddBottleView: View {
             volumeMl: Double(volumeMl) ?? 750,
             purchasePriceCents: price.isEmpty ? nil : Int((Double(price) ?? 0) * 100),
             purchaseStore: store.isEmpty ? nil : store,
+            openedAt: isAlreadyOpen ? Int64(openedOn.timeIntervalSince1970 * 1000) : nil,
             storageLocation: storageLocation.isEmpty ? nil : storageLocation,
             shelfNumber: Int(shelfNumber))
 
         do {
             if chosen != nil {
                 try env.bottles.add(bottle)
+                try recordOpeningLevel(bottle)
             } else {
                 let product = CustomCatalogEntry(
                     distillery: customDistillery.isEmpty ? customBrand : customDistillery,
@@ -501,12 +578,24 @@ struct AddBottleView: View {
                     expression: customExpression,
                     classType: customClass)
                 bottle.customName = customName
-                try env.bottles.addCustom(product: product, bottle: bottle)
+                let saved = try env.bottles.addCustom(product: product, bottle: bottle)
+                try recordOpeningLevel(saved.bottle)
             }
             dismiss()
         } catch {
             self.error = error.localizedDescription
         }
+    }
+
+    /// A full bottle needs no reading -- that is what the app assumes anyway,
+    /// and an unnecessary row is one more thing to sync.
+    private func recordOpeningLevel(_ bottle: Bottle) throws {
+        guard isAlreadyOpen, fillPercent < 100 else { return }
+        try env.bottles.setLevel(
+            bottleId: bottle.id,
+            remainingMl: remainingMilliliters,
+            note: "Set when the bottle was added",
+            at: Int64(openedOn.timeIntervalSince1970 * 1000))
     }
 
     private var customName: String {

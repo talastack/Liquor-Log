@@ -172,9 +172,13 @@ public struct BottleRepository: Sendable {
             guard let bottle = try Bottle.filter(key: bottleId).fetchOne(db) else {
                 throw DataError.bottleNotFound(bottleId)
             }
-            let poured = try Self.pouredMilliliters(bottleId: bottleId, in: db)
+            let reading = try Self.latestReading(bottleId: bottleId, in: db)
+            let poured = try Self.pouredMilliliters(
+                bottleId: bottleId, since: reading?.readAt, in: db)
             let remaining = PourMath.remainingMilliliters(
-                capacity: bottle.volumeMl, poured: poured)
+                capacity: bottle.volumeMl,
+                poured: poured,
+                startingFrom: reading?.remainingMl)
             let requested = volumeMl ?? bottle.pourSizeMl
             guard remaining > 0 else { throw DataError.bottleIsEmpty(bottleId) }
 
@@ -218,6 +222,78 @@ public struct BottleRepository: Sendable {
         }
     }
 
+    /// Records how much is actually left, as observed right now.
+    ///
+    /// This is how somebody adds a bottle they opened two years ago, and how
+    /// they correct a bottle they poured from at a party without logging it.
+    /// It does not touch the pour log: the pours you logged stay logged, and
+    /// the fill is derived from this reading forward.
+    ///
+    /// Readings accumulate rather than replace. Two of them a year apart on one
+    /// bottle are a real record of how fast it went down.
+    @discardableResult
+    public func setLevel(
+        bottleId: String,
+        remainingMl: Double,
+        note: String? = nil,
+        at when: Int64 = FillReading.nowMilliseconds()
+    ) throws -> FillReading {
+        try db.queue.write { db in
+            guard let bottle = try Bottle.filter(key: bottleId).fetchOne(db) else {
+                throw DataError.bottleNotFound(bottleId)
+            }
+            var reading = FillReading(
+                bottleId: bottleId,
+                readAt: when,
+                // Clamped on the way in as well as on the way out. A negative
+                // reading is a typo, not a bottle in debt.
+                remainingMl: min(bottle.volumeMl, max(0, remainingMl)),
+                note: note)
+            try reading.saveLocal(db)
+
+            // Saying there is something in a bottle you never marked open is
+            // saying it is open. Not inferring that leaves every age and
+            // oxidation figure on the screen lying.
+            if bottle.openedAt == nil, reading.remainingMl < bottle.volumeMl {
+                var opened = bottle
+                opened.openedAt = when
+                try opened.saveLocal(db)
+            }
+            return reading
+        }
+    }
+
+    /// Sets the level as a percentage of the bottle, for a screen where people
+    /// think in fractions. Stored as millilitres either way.
+    @discardableResult
+    public func setLevel(
+        bottleId: String,
+        percentFull: Double,
+        note: String? = nil,
+        at when: Int64 = FillReading.nowMilliseconds()
+    ) throws -> FillReading {
+        guard let bottle = try summary(id: bottleId)?.bottle else {
+            throw DataError.bottleNotFound(bottleId)
+        }
+        return try setLevel(
+            bottleId: bottleId,
+            remainingMl: PourMath.milliliters(
+                percentFull: percentFull, capacity: bottle.volumeMl),
+            note: note,
+            at: when)
+    }
+
+    /// Every level ever recorded for a bottle, newest first.
+    public func fillHistory(bottleId: String) throws -> [FillReading] {
+        try db.queue.read { db in
+            try FillReading
+                .live()
+                .filter(Column("bottle_id") == bottleId)
+                .order(Column("read_at").desc)
+                .fetchAll(db)
+        }
+    }
+
     /// Soft delete. A hard delete would break sync and destroy the history the
     /// product is sold on.
     public func remove(bottleId: String) throws {
@@ -230,22 +306,47 @@ public struct BottleRepository: Sendable {
 
     // MARK: - Derivation
 
-    /// Sum of every live pour. Tombstoned pours do not count against the
-    /// bottle, so undoing a mis-logged pour restores the fill.
-    static func pouredMilliliters(bottleId: String, in db: Database) throws -> Double {
+    /// Sum of live pours, optionally only those AFTER a level reading.
+    ///
+    /// Tombstoned pours do not count against the bottle, so undoing a
+    /// mis-logged pour restores the fill.
+    ///
+    /// When a reading exists, pours logged before it are already reflected in
+    /// what somebody saw in the glass. Counting them again would subtract the
+    /// same whiskey twice.
+    static func pouredMilliliters(
+        bottleId: String,
+        since readAt: Int64? = nil,
+        in db: Database
+    ) throws -> Double {
         // Fetched as a Double rather than through the record request: the
         // request's element type is Pour, so `fetchOne` on it would try to
         // decode a whole row from a single aggregate column. SUM over no rows
         // is NULL, which arrives here as nil and means an untouched bottle.
-        let request = Pour
+        var request = Pour
             .live()
             .filter(Column("bottle_id") == bottleId)
-            .select(sum(Column("volume_ml")))
-        return try Double.fetchOne(db, request) ?? 0
+        if let readAt {
+            request = request.filter(Column("poured_at") > readAt)
+        }
+        return try Double.fetchOne(db, request.select(sum(Column("volume_ml")))) ?? 0
+    }
+
+    /// The most recent level somebody actually looked at, if there is one.
+    static func latestReading(bottleId: String, in db: Database) throws -> FillReading? {
+        try FillReading
+            .live()
+            .filter(Column("bottle_id") == bottleId)
+            .order(Column("read_at").desc)
+            .fetchOne(db)
     }
 
     static func summary(for bottle: Bottle, in db: Database) throws -> BottleSummary {
-        let poured = try pouredMilliliters(bottleId: bottle.id, in: db)
+        // A reading is a human overruling the pour log. Everything poured
+        // before it is already accounted for in what they saw.
+        let reading = try latestReading(bottleId: bottle.id, in: db)
+        let poured = try pouredMilliliters(
+            bottleId: bottle.id, since: reading?.readAt, in: db)
         let tastings = try Tasting
             .live()
             .filter(Column("bottle_id") == bottle.id)
@@ -263,6 +364,7 @@ public struct BottleRepository: Sendable {
             status: PourMath.status(
                 capacityMilliliters: bottle.volumeMl,
                 pouredMilliliters: poured,
+                startingMilliliters: reading?.remainingMl,
                 pourSize: bottle.pourSize
             ),
             latestRating: tastings.first?.rating,

@@ -430,6 +430,76 @@ public struct Pour: SyncableRecord {
     }
 }
 
+// MARK: - fill_readings
+
+/// "There is this much left in the bottle, and I am looking at it right now."
+///
+/// The pour log cannot answer that on its own. It assumes every bottle started
+/// full and that every pour since was logged, and both are routinely false:
+/// people add bottles they opened years ago, and pour for guests without
+/// reaching for a phone.
+///
+/// So the fill is derived as **the latest reading minus the pours logged after
+/// it**, with the bottle's capacity standing in when there has never been a
+/// reading. Correcting a bottle therefore never rewrites history -- the pours
+/// you logged stay logged -- and two readings a year apart are a real record of
+/// how fast that bottle went down.
+public struct FillReading: SyncableRecord {
+    public static let databaseTableName = "fill_readings"
+
+    public var id: String
+    public var userId: String?
+    public var bottleId: String
+
+    /// When the level was OBSERVED, which is not necessarily when it was typed
+    /// in. Ordering is on this, so a reading backdated to the day a bottle was
+    /// opened behaves correctly against the pours logged since.
+    public var readAt: Int64
+
+    /// Millilitres, always. A percentage is what somebody may type, but a
+    /// percentage stored against a bottle whose size is later corrected would
+    /// silently change how much whiskey the app thinks is in it.
+    public var remainingMl: Double
+
+    /// How the figure was arrived at, for the user's own benefit: eyeballed
+    /// against the label, weighed, measured.
+    public var note: String?
+
+    public var createdAt: Int64
+    public var updatedAt: Int64
+    public var deletedAt: Int64?
+    public var dirty: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case id, userId = "user_id", bottleId = "bottle_id"
+        case readAt = "read_at", remainingMl = "remaining_ml", note
+        case createdAt = "created_at", updatedAt = "updated_at"
+        case deletedAt = "deleted_at", dirty
+    }
+
+    public init(
+        id: String = UUID().uuidString,
+        userId: String? = nil,
+        bottleId: String,
+        readAt: Int64 = Self.nowMilliseconds(),
+        remainingMl: Double,
+        note: String? = nil,
+        createdAt: Int64 = Self.nowMilliseconds(),
+        updatedAt: Int64 = Self.nowMilliseconds(),
+        deletedAt: Int64? = nil,
+        dirty: Bool = true
+    ) {
+        self.id = id; self.userId = userId; self.bottleId = bottleId
+        self.readAt = readAt; self.remainingMl = remainingMl; self.note = note
+        self.createdAt = createdAt; self.updatedAt = updatedAt
+        self.deletedAt = deletedAt; self.dirty = dirty
+    }
+
+    public var readDate: Date {
+        Date(timeIntervalSince1970: Double(readAt) / 1000)
+    }
+}
+
 // MARK: - tastings
 
 /// A tasting hangs off a bottle **or** a product.

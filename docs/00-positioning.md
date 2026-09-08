@@ -50,6 +50,66 @@ use their eyes.
 | Suppressible money | `CollectionValue`, off by default |
 | Pick my pour | `PickMyPour` |
 | Open-date oxidation clock | `OxidationBand` — no other app markets this |
+| Fill level as a real quantity | `fill_readings`, `PourMath`, `SetLevelView` — optional, never required |
+
+### Fill level, and why it is a reading rather than a subtraction
+
+The research verdict on fill level is **contested**, and both halves are real:
+
+> Real demand (*"track purchase location, cost, bottle status (% full)"*, 8
+> upvotes) but also open derision: *"At least I don't track fill level like some
+> people, that seems extreme."* **Ship it, make it optional, do not make it a
+> required step.** — §5
+
+And the capability is close to unserved:
+
+> **Fill level as a real quantity** — 5 tiny apps. Absent from Distiller,
+> Whiskybase, BAXUS, Whizzky, Drammer, Whiskey Searcher. Whiskybase Plus's
+> workaround is letting you *upload a photo of the fill line*. — §6
+
+So it ships, and nothing requires it. Adding a bottle defaults to sealed and
+full; the level control appears only if somebody says the bottle is already
+open, and skipping it costs nothing.
+
+The modelling decision behind it: a fill is a **reading**, not a subtraction.
+Deriving the level purely from the pour log assumes every bottle started full
+and that every pour since was logged, and §3f says plainly that neither holds:
+
+> *"I forget to add a bottle sometimes and forget to delete on sometimes when
+> it's finished. According to only drams, I'm sitting on 307 bottles with 120
+> open."*
+
+And §3b is the reason a 200-bottle shelf cannot be entered pour by pour:
+
+> *"So I have 200+ bottles, and zero interest in manually adding each one."*
+
+`fill_readings` records what somebody observed at a moment, and the fill is the
+latest reading minus the pours logged after it. Correcting a bottle therefore
+never rewrites history — `FillReadingTests` pins that the pours stay logged —
+and two readings a year apart are a real record of how fast that bottle went
+down.
+
+### Catalogue depth, and what it is for
+
+The catalogue is *"a convenience fallback, not the foundation"* (§1), because a
+store pick must never need approval to exist. That stands. But depth still
+matters, because every miss pushes somebody into typing, and §3c is what that
+feels like at scale:
+
+> *"Cannot enter items unless it's in the database already. The review process
+> to add new items to the database takes too long."* / *"they have a backlog of
+> around 3,000 bottles."*
+
+So the shipped catalogue covers the bourbon shelf properly — 172 American
+whiskey rows across 74 producers, including the ranges people name unprompted in
+§5: Blanton's, Four Roses recipe codes, Elijah Craig batches, E.H. Taylor,
+Stagg, Weller. Two rules keep it from becoming the other failure mode in §3d
+(*"198 options for Arran 10"*): `check_catalog.py` rejects a duplicate
+distillery/brand/expression, and it rejects an ABV on anything barrel proof,
+because a catalogue claiming one number for a barrel-proof release is wrong for
+almost every bottle on the shelf.
+
+Every row is still `verified: false`. None has been checked against a TTB COLA.
 
 Still unbuilt, and the research ranks them first: **label capture as the primary
 entry path**, and **bulk onboarding** — point a camera down a shelf, confirm a

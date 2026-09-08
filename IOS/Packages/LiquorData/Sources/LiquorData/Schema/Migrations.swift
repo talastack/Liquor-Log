@@ -111,6 +111,26 @@ public enum Migrations {
                 t.column("dirty", .boolean).notNull().defaults(to: true)
             }
 
+            // "There is this much left, and I am looking at it right now."
+            //
+            // The pour log assumes a bottle started full and that every pour
+            // since was logged. Both are routinely false. A reading lets a
+            // human overrule that without rewriting the pours: the fill is the
+            // latest reading minus the pours logged after it.
+            try db.create(table: "fill_readings") { t in
+                t.primaryKey("id", .text).notNull()
+                t.column("user_id", .text)
+                t.column("bottle_id", .text).notNull()
+                    .references("bottles", onDelete: .cascade)
+                t.column("read_at", .integer).notNull()
+                t.column("remaining_ml", .double).notNull()
+                t.column("note", .text)
+                t.column("created_at", .integer).notNull()
+                t.column("updated_at", .integer).notNull()
+                t.column("deleted_at", .integer)
+                t.column("dirty", .boolean).notNull().defaults(to: true)
+            }
+
             try db.create(table: "tastings") { t in
                 t.primaryKey("id", .text).notNull()
                 t.column("user_id", .text)
