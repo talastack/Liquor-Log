@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # LiquorEngine has no dependencies, so it tests on Linux -- free, fast, and
+  # roughly ten times cheaper than a macOS runner. It is also the code whose
+  # result matters most: a wrong pour count or a wrong proof is what a user
+  # would actually notice.
+  #
+  # This job is what verifies the scaffold compiles at all. It was authored on
+  # Windows with no Swift toolchain, so until this runs green, nothing here has
+  # been near a compiler.
+  engine:
+    name: LiquorEngine (Linux)
+    runs-on: ubuntu-latest
+    container: swift:5.9
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test
+        working-directory: IOS/Packages/LiquorEngine
+        run: swift test

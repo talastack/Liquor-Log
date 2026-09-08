@@ -1,0 +1,8 @@
+# Normalise to LF in the repository. The scaffold is authored on Windows and
+# built on a Mac and a Linux CI runner; without this, Swift sources land with
+# CRLF and every cross-platform diff is noise.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.pdf binary
