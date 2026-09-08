@@ -91,21 +91,36 @@ final class AppEnvironment {
         return Set(owned)
     }
 
+    /// A product id resolves against the BUNDLED catalog first and the user's
+    /// own entries second. A bottle somebody typed in has to answer the shelf
+    /// check exactly like a catalogue one, or half their collection is invisible
+    /// to the screen the app exists for.
     func identity(_ productId: String) -> ProductIdentity? {
-        catalog.identity(productId)
+        if let identity = catalog.identity(productId) { return identity }
+        guard let custom = try? bottles.customProduct(id: productId) else { return nil }
+        return ProductIdentity(
+            productId: custom.id,
+            distillery: custom.distillery,
+            brand: custom.brand,
+            expression: custom.expression,
+            classType: custom.classType,
+            productionType: custom.productionType)
     }
 
-    /// Resolves a bottle to a display name, falling back through the catalog to
-    /// whatever the user typed.
     func name(for bottle: Bottle) -> String {
-        if let id = bottle.catalogProductId, let product = catalog.product(id) {
-            return product.identity.displayName
+        if let id = bottle.catalogProductId, let identity = identity(id) {
+            return identity.displayName
         }
         return bottle.customName ?? "Untitled bottle"
     }
 
     func distillery(for bottle: Bottle) -> String? {
-        bottle.catalogProductId.flatMap { catalog.product($0)?.distillery }
+        bottle.catalogProductId.flatMap { identity($0)?.distillery }
+    }
+
+    /// The class of what is in the bottle, from either catalog.
+    func classType(for bottle: Bottle) -> ClassType? {
+        bottle.catalogProductId.flatMap { identity($0)?.classType }
     }
 
     func product(for bottle: Bottle) -> CatalogProduct? {

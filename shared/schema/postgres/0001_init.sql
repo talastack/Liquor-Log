@@ -160,6 +160,32 @@ create table bottles (
   barrel_number       text,
   batch_number        text,
 
+  -- WHAT A STORE PICK ACTUALLY PRINTS, and what most apps drop on the floor.
+  -- A Four Roses pick states its recipe, warehouse and age to the month; a
+  -- Willett states barrel and bottle count; a Buffalo Trace pick states the
+  -- warehouse and floor. None of this is product-level: the next barrel out of
+  -- the same programme is a different whiskey.
+  --
+  -- pick_group is who SELECTED it, which is often not who sells it -- a club,
+  -- a bar or a society picks the barrel and a shop puts it on the shelf.
+  pick_group          text,
+  warehouse           text,
+  -- Bottle-level recipe code. For a Four Roses pick the code is on THIS label
+  -- and differs barrel to barrel, so it overrides the product's standard one.
+  recipe_code         text,
+  -- Age at bottling in months, because a single barrel is 9 years 4 months and
+  -- rounding that to 9 throws away the thing the pick was chosen for.
+  age_months          integer,
+  entry_proof         double precision,
+  char_level          integer,
+  -- Secondary cask, where there is one: port, sherry, toasted oak.
+  finish              text,
+  bottle_number       integer,
+  bottles_in_batch    integer,
+  -- Dump date. More precise than a bottling year and often the only date on
+  -- the label.
+  dumped_at           bigint,
+
   -- MEASURED strength of this bottle, which for a barrel-proof release differs
   -- from the catalog's standard figure batch to batch.
   abv                 double precision,
@@ -189,6 +215,21 @@ create table bottles (
   constraint abv_is_plausible check (abv is null or (abv > 0.5 and abv <= 95.0)),
   constraint price_is_not_negative
     check (purchase_price_cents is null or purchase_price_cents >= 0),
+  constraint age_months_is_positive
+    check (age_months is null or age_months > 0),
+  -- Char levels run #1 to #4 in practice; the range is wider than that so an
+  -- unusual cooperage spec is recorded rather than rejected.
+  constraint char_level_is_a_char_level
+    check (char_level is null or char_level between 1 and 7),
+  constraint entry_proof_is_plausible
+    check (entry_proof is null or (entry_proof > 1 and entry_proof <= 190)),
+  constraint bottle_number_is_positive
+    check (bottle_number is null or bottle_number > 0),
+  constraint batch_size_is_positive
+    check (bottles_in_batch is null or bottles_in_batch > 0),
+  constraint bottle_number_fits_the_batch
+    check (bottle_number is null or bottles_in_batch is null
+           or bottle_number <= bottles_in_batch),
   -- A bottle has to be identified by something.
   constraint has_an_identity
     check (catalog_product_id is not null or custom_name is not null)

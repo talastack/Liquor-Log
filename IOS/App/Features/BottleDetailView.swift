@@ -20,6 +20,9 @@ struct BottleDetailView: View {
                         OxidationCard(estimate: estimate)
                     }
                     facts(summary)
+                    if summary.bottle.hasPickDetail {
+                        pickDetail(summary)
+                    }
                     actions(summary)
                 }
                 .padding(.horizontal, Space.xl)
@@ -104,15 +107,10 @@ struct BottleDetailView: View {
             if let batch = summary.bottle.batchNumber {
                 FactRow(label: "Batch", value: batch)
             }
-            if summary.bottle.isStorePick {
-                if let barrel = summary.bottle.barrelNumber {
-                    FactRow(label: "Barrel", value: barrel)
-                }
-                if let store = summary.bottle.pickStore {
-                    FactRow(label: "Picked by", value: store)
-                }
-            }
-            if let code = env.product(for: summary.bottle)?.code {
+            // Barrel, pick and recipe live in "This barrel" below when the
+            // bottle carries them. Printing them twice reads as a bug.
+            if summary.bottle.code == nil,
+               let code = env.product(for: summary.bottle)?.code {
                 FactRow(label: "Recipe", value: "\(code.code) · \(code.yeast.character)")
                 FactRow(label: "Mashbill", value: code.mashbill.summary)
             }
@@ -123,6 +121,45 @@ struct BottleDetailView: View {
                 label: "Size",
                 value: "\(Int(summary.bottle.volumeMl.rounded())) ml",
                 isLast: true)
+        }
+    }
+
+    /// The barrel's own facts. This is the section most apps do not have, and
+    /// the reason somebody who buys picks would keep using this one.
+    private func pickDetail(_ summary: BottleSummary) -> some View {
+        let bottle = summary.bottle
+        return VStack(alignment: .leading, spacing: 0) {
+            SectionLabel("This barrel")
+                .padding(.bottom, Space.xs)
+
+            if let group = bottle.pickGroup {
+                FactRow(label: "Selected by", value: group)
+            }
+            if let store = bottle.pickStore, bottle.isStorePick {
+                FactRow(label: "Picked at", value: store)
+            }
+            if let warehouse = bottle.warehouse {
+                FactRow(label: "Warehouse", value: warehouse)
+            }
+            if let code = bottle.code {
+                FactRow(label: "Recipe", value: "\(code.code) · \(code.yeast.character)")
+                FactRow(label: "Mashbill", value: code.mashbill.summary)
+            }
+            if let age = bottle.ageDescription {
+                FactRow(label: "Age at bottling", value: age)
+            }
+            if let entry = bottle.entryProof {
+                FactRow(label: "Entry proof", value: String(format: "%.1f", entry))
+            }
+            if let char = bottle.charLevel {
+                FactRow(label: "Char", value: "#\(char)")
+            }
+            if let finish = bottle.finish {
+                FactRow(label: "Finish", value: finish)
+            }
+            if let numbered = bottle.bottleNumberDescription {
+                FactRow(label: "Bottle", value: numbered, isLast: true)
+            }
         }
     }
 

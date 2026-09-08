@@ -154,6 +154,26 @@ public struct Bottle: SyncableRecord {
     public var barrelNumber: String?
     public var batchNumber: String?
 
+    /// What a store pick actually prints, and what most apps drop.
+    ///
+    /// `pickGroup` is who SELECTED the barrel, which is often not who sells it
+    /// -- a club, a bar or a society picks it and a shop puts it on the shelf.
+    public var pickGroup: String?
+    public var warehouse: String?
+    /// Bottle-level recipe code. A Four Roses pick prints its code on THIS
+    /// label and it differs barrel to barrel, so it overrides the product's.
+    public var recipeCode: String?
+    /// Age at bottling in months: a single barrel is 9 years 4 months, and
+    /// rounding that to 9 throws away the thing it was picked for.
+    public var ageMonths: Int?
+    public var entryProof: Double?
+    public var charLevel: Int?
+    public var finish: String?
+    public var bottleNumber: Int?
+    public var bottlesInBatch: Int?
+    /// Dump date, often the only date on a single-barrel label.
+    public var dumpedAt: Int64?
+
     /// MEASURED strength of this bottle, which for a barrel-proof release
     /// differs from the catalog's standard figure batch to batch.
     public var abv: Double?
@@ -182,6 +202,11 @@ public struct Bottle: SyncableRecord {
         case category, customName = "custom_name"
         case isStorePick = "is_store_pick", pickStore = "pick_store", pickName = "pick_name"
         case barrelNumber = "barrel_number", batchNumber = "batch_number"
+        case pickGroup = "pick_group", warehouse, recipeCode = "recipe_code"
+        case ageMonths = "age_months", entryProof = "entry_proof"
+        case charLevel = "char_level", finish
+        case bottleNumber = "bottle_number", bottlesInBatch = "bottles_in_batch"
+        case dumpedAt = "dumped_at"
         case abv, distilledYear = "distilled_year", bottledYear = "bottled_year"
         case vintageYear = "vintage_year"
         case volumeMl = "volume_ml", pourSizeMl = "pour_size_ml"
@@ -203,6 +228,16 @@ public struct Bottle: SyncableRecord {
         pickName: String? = nil,
         barrelNumber: String? = nil,
         batchNumber: String? = nil,
+        pickGroup: String? = nil,
+        warehouse: String? = nil,
+        recipeCode: String? = nil,
+        ageMonths: Int? = nil,
+        entryProof: Double? = nil,
+        charLevel: Int? = nil,
+        finish: String? = nil,
+        bottleNumber: Int? = nil,
+        bottlesInBatch: Int? = nil,
+        dumpedAt: Int64? = nil,
         abv: Double? = nil,
         distilledYear: Int? = nil,
         bottledYear: Int? = nil,
@@ -224,6 +259,12 @@ public struct Bottle: SyncableRecord {
         self.customName = customName
         self.isStorePick = isStorePick; self.pickStore = pickStore; self.pickName = pickName
         self.barrelNumber = barrelNumber; self.batchNumber = batchNumber
+        self.pickGroup = pickGroup; self.warehouse = warehouse
+        self.recipeCode = recipeCode; self.ageMonths = ageMonths
+        self.entryProof = entryProof; self.charLevel = charLevel
+        self.finish = finish
+        self.bottleNumber = bottleNumber; self.bottlesInBatch = bottlesInBatch
+        self.dumpedAt = dumpedAt
         self.abv = abv
         self.distilledYear = distilledYear; self.bottledYear = bottledYear
         self.vintageYear = vintageYear
@@ -233,6 +274,35 @@ public struct Bottle: SyncableRecord {
         self.openedAt = openedAt; self.finishedAt = finishedAt
         self.createdAt = createdAt; self.updatedAt = updatedAt
         self.deletedAt = deletedAt; self.dirty = dirty
+    }
+
+    /// The barrel's own recipe code where it has one, decoded.
+    public var code: RecipeCode? { recipeCode.flatMap(RecipeCode.init) }
+
+    /// "9 years 4 months". Months matter on a single barrel: two picks a few
+    /// months apart taste different, which is the whole reason people chase
+    /// them.
+    public var ageDescription: String? {
+        guard let months = ageMonths, months > 0 else { return nil }
+        let years = months / 12
+        let rest = months % 12
+        if years == 0 { return "\(rest) \(rest == 1 ? "month" : "months")" }
+        if rest == 0 { return "\(years) \(years == 1 ? "year" : "years")" }
+        return "\(years) \(years == 1 ? "year" : "years") \(rest) \(rest == 1 ? "month" : "months")"
+    }
+
+    /// "Bottle 47 of 240".
+    public var bottleNumberDescription: String? {
+        guard let number = bottleNumber else { return nil }
+        guard let total = bottlesInBatch else { return "Bottle \(number)" }
+        return "Bottle \(number) of \(total)"
+    }
+
+    /// True when this bottle carries release detail worth its own section.
+    public var hasPickDetail: Bool {
+        isStorePick || warehouse != nil || recipeCode != nil || ageMonths != nil
+            || bottleNumber != nil || entryProof != nil || charLevel != nil
+            || finish != nil || pickGroup != nil
     }
 
     public var isOpen: Bool { openedAt != nil && finishedAt == nil }

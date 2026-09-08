@@ -32,7 +32,9 @@ enum Tab: Hashable, CaseIterable {
 struct MainTabView: View {
     @Environment(AppEnvironment.self) private var env
     @State private var tab: Tab = .shelfCheck
+    @State private var isAddingBottle = false
     @State private var isAddingTasting = false
+    @State private var isChoosingWhatToAdd = false
 
     var body: some View {
         TabView(selection: $tab) {
@@ -47,7 +49,7 @@ struct MainTabView: View {
             // tab button needs a custom bar, which has real safe-area and
             // accessibility pitfalls; this floats above the system one so the
             // action exists from day one without faking the chrome.
-            Button { isAddingTasting = true } label: {
+            Button { isChoosingWhatToAdd = true } label: {
                 Image(systemName: "plus")
                     .font(.system(size: 22, weight: .bold))
                     .foregroundStyle(Palette.onGold)
@@ -55,8 +57,16 @@ struct MainTabView: View {
                     .background(Circle().fill(Palette.gold))
                     .shadow(color: .black.opacity(0.35), radius: 8, y: 2)
             }
-            .accessibilityLabel("Record a tasting")
+            .accessibilityLabel("Add a bottle or a tasting")
             .padding(.bottom, 52)
+        }
+        .confirmationDialog("Add", isPresented: $isChoosingWhatToAdd) {
+            Button("Add a bottle") { isAddingBottle = true }
+            Button("Record a tasting") { isAddingTasting = true }
+            Button("Cancel", role: .cancel) { }
+        }
+        .sheet(isPresented: $isAddingBottle) {
+            NavigationStack { AddBottleView() }
         }
         .sheet(isPresented: $isAddingTasting) {
             NavigationStack { TastingSheetView() }

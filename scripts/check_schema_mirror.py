@@ -54,15 +54,26 @@ def postgres_tables(text):
         if name.lower() in IGNORED_TABLES:
             continue
         columns = set()
+        # Depth tracks unclosed parentheses so a CONSTRAINT that wraps across
+        # lines is skipped whole. Without it the continuation of
+        #
+        #     check (a is null or b is null
+        #            or a <= b)
+        #
+        # reads as a column called "or", and the mirror fails on a table that is
+        # perfectly correct.
+        depth = 0
         for raw in body.splitlines():
             line = raw.strip()
             if not line or line.startswith("--"):
                 continue
-            token = line.split()[0].strip(",").lower()
-            if token in NOT_A_COLUMN:
-                continue
-            if re.fullmatch(r"[a-z_][a-z0-9_]*", token):
-                columns.add(token)
+
+            if depth == 0:
+                token = line.split()[0].strip(",").lower()
+                if token not in NOT_A_COLUMN and re.fullmatch(r"[a-z_][a-z0-9_]*", token):
+                    columns.add(token)
+
+            depth = max(0, depth + line.count("(") - line.count(")"))
         if columns:
             tables[name.lower()] = columns
     return tables

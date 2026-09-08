@@ -108,6 +108,46 @@ public struct BottleRepository: Sendable {
         return copy
     }
 
+    /// Adds a bottle of a product that is not in the bundled catalog.
+    ///
+    /// ONE transaction. A custom product that saved while its bottle failed
+    /// would leave an orphan nobody can see or delete, and a bottle whose
+    /// product failed would show as "Untitled bottle" forever.
+    ///
+    /// The catalog is small and always will be relative to what exists -- there
+    /// is a new store pick every week -- so typing one in has to be a first
+    /// class path, not a fallback.
+    @discardableResult
+    public func addCustom(
+        product: CustomCatalogEntry,
+        bottle: Bottle
+    ) throws -> (product: CustomCatalogEntry, bottle: Bottle) {
+        var savedProduct = product
+        var savedBottle = bottle
+        savedBottle.catalogProductId = product.id
+
+        try db.queue.write { db in
+            try savedProduct.saveLocal(db)
+            try savedBottle.saveLocal(db)
+        }
+        return (savedProduct, savedBottle)
+    }
+
+    /// Products the user added themselves, newest first.
+    public func customProducts() throws -> [CustomCatalogEntry] {
+        try db.queue.read { db in
+            try CustomCatalogEntry.live()
+                .order(Column("created_at").desc)
+                .fetchAll(db)
+        }
+    }
+
+    public func customProduct(id: String) throws -> CustomCatalogEntry? {
+        try db.queue.read { db in
+            try CustomCatalogEntry.filter(key: id).fetchOne(db)
+        }
+    }
+
     /// Logs a pour. The pour log is the source of truth for what is left, so
     /// this is the ONLY way the fill level changes.
     ///
