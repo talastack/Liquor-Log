@@ -23,16 +23,16 @@ public struct CollectionExport: Sendable {
     public static let header = [
         "name", "distillery", "brand", "expression",
         "class", "production", "status",
-        "size_ml", "abv", "proof",
+        "size_ml", "abv", "proof", "chill_filtered",
         "batch", "barrel", "store_pick", "pick_group", "pick_store",
         "warehouse", "rick", "floor", "recipe_code",
         "age_months", "entry_proof", "char_level", "finish",
         "bottle_number", "bottles_in_batch",
         "distilled_year", "bottled_year", "vintage_year",
-        "purchased", "opened", "killed",
+        "purchased", "opened", "killed", "last_poured", "last_verified",
         "price", "bought_at", "storage_location", "shelf_number",
         "pours_remaining", "pours_total", "ml_remaining", "cost_per_pour",
-        "rating", "would_rebuy", "liked", "disliked",
+        "rating", "would_rebuy", "finish_seconds", "liked", "disliked",
     ]
 
     public func csv(
@@ -63,6 +63,7 @@ public struct CollectionExport: Sendable {
                 CSVWriter.decimal(bottle.volumeMl, places: 0),
                 CSVWriter.decimal(bottle.abv),
                 CSVWriter.decimal(bottle.abv.map { ABV(percent: $0).proof }),
+                bottle.chillFiltered.map { $0 ? "yes" : "no" } ?? "",
 
                 CSVWriter.text(bottle.batchNumber),
                 CSVWriter.text(bottle.barrelNumber),
@@ -87,6 +88,10 @@ public struct CollectionExport: Sendable {
                 CSVWriter.date(millis: bottle.purchaseDate),
                 CSVWriter.date(millis: bottle.openedAt),
                 CSVWriter.date(millis: bottle.finishedAt),
+                CSVWriter.date(millis: summary.lastPouredAt.map {
+                    Int64($0.timeIntervalSince1970 * 1000)
+                }),
+                CSVWriter.date(millis: bottle.lastVerifiedAt),
 
                 CSVWriter.money(cents: bottle.purchasePriceCents),
                 CSVWriter.text(bottle.purchaseStore),
@@ -100,6 +105,7 @@ public struct CollectionExport: Sendable {
 
                 CSVWriter.number(latest?.tasting.rating),
                 CSVWriter.text(latest?.tasting.wouldRebuy?.rawValue),
+                CSVWriter.number(latest?.tasting.finishSeconds),
                 CSVWriter.text(latest?.tasting.liked),
                 CSVWriter.text(latest?.tasting.disliked),
             ]
@@ -123,25 +129,16 @@ public struct CollectionExport: Sendable {
 
     /// What the user has, for a bottle chooser. Last-poured comes from the pour
     /// log rather than a stored column, like every other derived number here.
-    public func pourCandidates() throws -> [PickMyPour.Candidate] {
-        let bottles = try BottleRepository(db).summaries()
-        return try db.queue.read { db in
-            try bottles.map { summary in
-                let last = try Pour
-                    .live()
-                    .filter(Column("bottle_id") == summary.id)
-                    .order(Column("poured_at").desc)
-                    .fetchOne(db)
-
-                return PickMyPour.Candidate(
-                    id: summary.id,
-                    name: summary.bottle.customName ?? summary.id,
-                    lastPouredAt: last.map {
-                        Date(timeIntervalSince1970: Double($0.pouredAt) / 1000)
-                    },
-                    isOpen: summary.bottle.isOpen,
-                    remainingMilliliters: summary.status.remainingMilliliters)
-            }
+    public func pourCandidates(
+        resolveName: (Bottle) -> String = { $0.customName ?? $0.id }
+    ) throws -> [PickMyPour.Candidate] {
+        try BottleRepository(db).summaries().map { summary in
+            PickMyPour.Candidate(
+                id: summary.id,
+                name: resolveName(summary.bottle),
+                lastPouredAt: summary.lastPouredAt,
+                isOpen: summary.bottle.isOpen,
+                remainingMilliliters: summary.status.remainingMilliliters)
         }
     }
 }

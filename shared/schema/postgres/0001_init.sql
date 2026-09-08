@@ -195,6 +195,10 @@ create table bottles (
   -- from the catalog's standard figure batch to batch.
   abv                 double precision,
 
+  -- Chill filtration. Null means the label does not say, which is the common
+  -- case: only producers who skip it tend to advertise it.
+  chill_filtered      boolean,
+
   distilled_year      integer,
   bottled_year        integer,
   vintage_year        integer,
@@ -219,6 +223,12 @@ create table bottles (
 
   opened_at           bigint,
   finished_at         bigint,
+
+  -- Last time a human laid eyes on this bottle during a shelf walk. Every
+  -- long-running collection decays -- people buy, drink and trade faster than
+  -- they log -- and the coping mechanism they arrive at independently is a
+  -- periodic re-inventory. This column is what orders that walk.
+  last_verified_at    bigint,
 
   created_at          bigint not null,
   updated_at          bigint not null,
@@ -288,10 +298,30 @@ create table tastings (
   user_id             uuid not null references auth.users (id) on delete cascade,
   bottle_id           text references bottles (id) on delete cascade,
   catalog_product_id  text,
+
+  -- The specific pour this tasting is of, when there was one.
+  --
+  -- This is what makes the oxidation clock checkable instead of merely
+  -- asserted: three tastings of one bottle, each tied to a pour on a known
+  -- date, is a record of how that bottle actually changed after opening.
+  -- Nullable, because plenty of tastings happen at a bar with no bottle of
+  -- your own behind them.
+  --
+  -- ON DELETE SET NULL, not cascade: deleting a pour must never take the note
+  -- with it. The opinion outlives the ounce and a tasting is far more
+  -- expensive to re-create than a pour row.
+  pour_id             text references pours (id) on delete set null,
+
   tasted_at           bigint not null,
   rating              integer,
   would_rebuy         text,
   worth_the_price     boolean,
+
+  -- How long the finish lasted, in seconds. Recorded because length is the
+  -- part of a finish people compare between bottles, and it is the one
+  -- dimension free text is worst at holding still.
+  finish_seconds      integer,
+
   liked               text,
   disliked            text,
   created_at          bigint not null,
@@ -300,6 +330,10 @@ create table tastings (
   server_updated_at   bigint not null default 0,
 
   constraint rating_is_one_to_ten check (rating is null or (rating between 1 and 10)),
+  -- An hour is already absurd for a finish; the ceiling is there to catch a
+  -- minutes-entered-as-seconds slip, not to judge anybody's palate.
+  constraint finish_seconds_is_plausible
+    check (finish_seconds is null or (finish_seconds > 0 and finish_seconds <= 3600)),
   constraint rebuy_is_known
     check (would_rebuy is null or would_rebuy in ('yes', 'maybe', 'no')),
   constraint tasting_has_a_subject

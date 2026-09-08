@@ -10,6 +10,13 @@ public struct BottleSummary: Sendable, Identifiable, Hashable {
     public let latestRating: Int?
     public let tastingCount: Int
 
+    /// When this bottle was last poured from. Nil means never.
+    ///
+    /// Derived from the pour log rather than stored, like every other number
+    /// here. People use it to dig out a bottle they liked and have not touched
+    /// in months.
+    public let lastPouredAt: Date?
+
     public var id: String { bottle.id }
 
     public var fillLevel: FillLevel {
@@ -27,6 +34,12 @@ public struct BottleSummary: Sendable, Identifiable, Hashable {
             capacityMilliliters: bottle.volumeMl,
             pourSize: bottle.pourSize
         )
+    }
+
+    /// Days since the last pour. Nil when it has never been poured from.
+    public func daysSinceLastPour(now: Date = Date()) -> Int? {
+        guard let last = lastPouredAt else { return nil }
+        return max(0, Int(now.timeIntervalSince(last) / 86_400))
     }
 
     public func daysOpen(now: Date = Date()) -> Int? {
@@ -239,6 +252,12 @@ public struct BottleRepository: Sendable {
             .order(Column("tasted_at").desc)
             .fetchAll(db)
 
+        let lastPour = try Pour
+            .live()
+            .filter(Column("bottle_id") == bottle.id)
+            .order(Column("poured_at").desc)
+            .fetchOne(db)
+
         return BottleSummary(
             bottle: bottle,
             status: PourMath.status(
@@ -247,7 +266,10 @@ public struct BottleRepository: Sendable {
                 pourSize: bottle.pourSize
             ),
             latestRating: tastings.first?.rating,
-            tastingCount: tastings.count
+            tastingCount: tastings.count,
+            lastPouredAt: lastPour.map {
+                Date(timeIntervalSince1970: Double($0.pouredAt) / 1000)
+            }
         )
     }
 }

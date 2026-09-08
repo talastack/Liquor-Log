@@ -180,6 +180,10 @@ public struct Bottle: SyncableRecord {
     /// differs from the catalog's standard figure batch to batch.
     public var abv: Double?
 
+    /// Nil means the label does not say, which is the usual case: producers who
+    /// skip chill filtration advertise it, and everyone else stays quiet.
+    public var chillFiltered: Bool?
+
     public var distilledYear: Int?
     public var bottledYear: Int?
     public var vintageYear: Int?
@@ -204,6 +208,10 @@ public struct Bottle: SyncableRecord {
     public var openedAt: Int64?
     public var finishedAt: Int64?
 
+    /// Last time somebody laid eyes on this bottle during a shelf walk. Every
+    /// collection record decays; this is what orders the walk that fixes it.
+    public var lastVerifiedAt: Int64?
+
     public var createdAt: Int64
     public var updatedAt: Int64
     public var deletedAt: Int64?
@@ -220,13 +228,15 @@ public struct Bottle: SyncableRecord {
         case charLevel = "char_level", finish
         case bottleNumber = "bottle_number", bottlesInBatch = "bottles_in_batch"
         case dumpedAt = "dumped_at"
-        case abv, distilledYear = "distilled_year", bottledYear = "bottled_year"
+        case abv, chillFiltered = "chill_filtered"
+        case distilledYear = "distilled_year", bottledYear = "bottled_year"
         case vintageYear = "vintage_year"
         case volumeMl = "volume_ml", pourSizeMl = "pour_size_ml"
         case purchaseDate = "purchase_date", purchasePriceCents = "purchase_price_cents"
         case purchaseStore = "purchase_store"
         case storageLocation = "storage_location", shelfNumber = "shelf_number"
         case openedAt = "opened_at", finishedAt = "finished_at"
+        case lastVerifiedAt = "last_verified_at"
         case createdAt = "created_at", updatedAt = "updated_at"
         case deletedAt = "deleted_at", dirty
     }
@@ -255,6 +265,7 @@ public struct Bottle: SyncableRecord {
         bottlesInBatch: Int? = nil,
         dumpedAt: Int64? = nil,
         abv: Double? = nil,
+        chillFiltered: Bool? = nil,
         distilledYear: Int? = nil,
         bottledYear: Int? = nil,
         vintageYear: Int? = nil,
@@ -267,6 +278,7 @@ public struct Bottle: SyncableRecord {
         shelfNumber: Int? = nil,
         openedAt: Int64? = nil,
         finishedAt: Int64? = nil,
+        lastVerifiedAt: Int64? = nil,
         createdAt: Int64 = Self.nowMilliseconds(),
         updatedAt: Int64 = Self.nowMilliseconds(),
         deletedAt: Int64? = nil,
@@ -284,7 +296,7 @@ public struct Bottle: SyncableRecord {
         self.finish = finish
         self.bottleNumber = bottleNumber; self.bottlesInBatch = bottlesInBatch
         self.dumpedAt = dumpedAt
-        self.abv = abv
+        self.abv = abv; self.chillFiltered = chillFiltered
         self.distilledYear = distilledYear; self.bottledYear = bottledYear
         self.vintageYear = vintageYear
         self.volumeMl = volumeMl; self.pourSizeMl = pourSizeMl
@@ -292,6 +304,7 @@ public struct Bottle: SyncableRecord {
         self.purchaseStore = purchaseStore
         self.storageLocation = storageLocation; self.shelfNumber = shelfNumber
         self.openedAt = openedAt; self.finishedAt = finishedAt
+        self.lastVerifiedAt = lastVerifiedAt
         self.createdAt = createdAt; self.updatedAt = updatedAt
         self.deletedAt = deletedAt; self.dirty = dirty
     }
@@ -323,7 +336,7 @@ public struct Bottle: SyncableRecord {
         isStorePick || warehouse != nil || rick != nil || floor != nil
             || recipeCode != nil || ageMonths != nil
             || bottleNumber != nil || entryProof != nil || charLevel != nil
-            || finish != nil || pickGroup != nil
+            || finish != nil || pickGroup != nil || dumpedAt != nil
     }
 
     /// Sealed, Open or Killed -- the enum every collector's spreadsheet has.
@@ -430,10 +443,25 @@ public struct Tasting: SyncableRecord {
     public var userId: String?
     public var bottleId: String?
     public var catalogProductId: String?
+
+    /// The specific pour this is a tasting of, when there was one.
+    ///
+    /// This is what makes the oxidation clock checkable rather than merely
+    /// asserted: three tastings of one bottle, each pinned to a pour on a known
+    /// date, is a record of how that bottle actually changed after opening.
+    /// Nil for a tasting at a bar, where there is no pour of your own behind it.
+    public var pourId: String?
+
     public var tastedAt: Int64
     public var rating: Int?
     public var wouldRebuy: Rebuy?
     public var worthThePrice: Bool?
+
+    /// How long the finish lasted, in seconds. Length is the part of a finish
+    /// people compare between bottles, and the one dimension free text is
+    /// worst at holding still.
+    public var finishSeconds: Int?
+
     public var liked: String?
     public var disliked: String?
     public var createdAt: Int64
@@ -444,8 +472,10 @@ public struct Tasting: SyncableRecord {
     enum CodingKeys: String, CodingKey {
         case id, userId = "user_id", bottleId = "bottle_id"
         case catalogProductId = "catalog_product_id"
+        case pourId = "pour_id"
         case tastedAt = "tasted_at", rating, wouldRebuy = "would_rebuy"
-        case worthThePrice = "worth_the_price", liked, disliked
+        case worthThePrice = "worth_the_price"
+        case finishSeconds = "finish_seconds", liked, disliked
         case createdAt = "created_at", updatedAt = "updated_at"
         case deletedAt = "deleted_at", dirty
     }
@@ -455,10 +485,12 @@ public struct Tasting: SyncableRecord {
         userId: String? = nil,
         bottleId: String? = nil,
         catalogProductId: String? = nil,
+        pourId: String? = nil,
         tastedAt: Int64 = Self.nowMilliseconds(),
         rating: Int? = nil,
         wouldRebuy: Rebuy? = nil,
         worthThePrice: Bool? = nil,
+        finishSeconds: Int? = nil,
         liked: String? = nil,
         disliked: String? = nil,
         createdAt: Int64 = Self.nowMilliseconds(),
@@ -468,8 +500,10 @@ public struct Tasting: SyncableRecord {
     ) {
         self.id = id; self.userId = userId
         self.bottleId = bottleId; self.catalogProductId = catalogProductId
+        self.pourId = pourId
         self.tastedAt = tastedAt; self.rating = rating; self.wouldRebuy = wouldRebuy
-        self.worthThePrice = worthThePrice; self.liked = liked; self.disliked = disliked
+        self.worthThePrice = worthThePrice; self.finishSeconds = finishSeconds
+        self.liked = liked; self.disliked = disliked
         self.createdAt = createdAt; self.updatedAt = updatedAt
         self.deletedAt = deletedAt; self.dirty = dirty
     }

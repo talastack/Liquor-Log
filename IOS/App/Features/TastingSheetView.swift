@@ -14,17 +14,62 @@ struct TastingSheetView: View {
     let bottleId: String?
     var catalogProductId: String?
 
+    /// The pour this tasting is of, when the sheet was opened from one.
+    ///
+    /// This is what turns a pile of tastings into a record of how a bottle
+    /// changed after it was opened — each opinion pinned to a pour on a known
+    /// date. Nil for a tasting at a bar, where there is no pour of your own.
+    var pourId: String?
+
     @State private var rating: Int?
     @State private var rebuy: Rebuy?
     @State private var liked = ""
     @State private var disliked = ""
     @State private var picks: [TastingStage: [String]] = [:]
     @State private var editingStage: TastingStage?
+    @State private var finishLength: FinishLength = .notRecorded
     @State private var error: String?
 
-    init(bottleId: String? = nil, catalogProductId: String? = nil) {
+    init(bottleId: String? = nil, catalogProductId: String? = nil, pourId: String? = nil) {
         self.bottleId = bottleId
         self.catalogProductId = catalogProductId
+        self.pourId = pourId
+    }
+
+    /// Bands, not a stopwatch. Nobody times a finish, but everybody can say
+    /// whether it was gone straight away or still there a minute later — and
+    /// that comparison between bottles is the thing free text loses.
+    enum FinishLength: String, CaseIterable, Identifiable {
+        case notRecorded = "—"
+        case brief = "Brief"
+        case medium = "Medium"
+        case long = "Long"
+        case veryLong = "Very long"
+
+        var id: String { rawValue }
+
+        /// Representative seconds for the band. Stored as a number so it can be
+        /// compared and exported; shown as a band because that is the precision
+        /// anybody actually has.
+        var seconds: Int? {
+            switch self {
+            case .notRecorded: return nil
+            case .brief: return 10
+            case .medium: return 30
+            case .long: return 60
+            case .veryLong: return 120
+            }
+        }
+
+        var caption: String {
+            switch self {
+            case .notRecorded: return "Not recorded"
+            case .brief: return "Gone in a few seconds"
+            case .medium: return "Around half a minute"
+            case .long: return "About a minute"
+            case .veryLong: return "Still there minutes later"
+            }
+        }
     }
 
     var body: some View {
@@ -33,6 +78,7 @@ struct TastingSheetView: View {
                 ForEach(TastingStage.allCases, id: \.self) { stage in
                     stageRow(stage)
                 }
+                finishLengthRow
                 ratingRow
                 rebuyRow
                 noteField("What you liked", text: $liked)
@@ -154,6 +200,23 @@ struct TastingSheetView: View {
         }
     }
 
+    /// Sits with the finish stage it describes, not with the rating.
+    private var finishLengthRow: some View {
+        VStack(alignment: .leading, spacing: Space.s) {
+            SectionLabel("How long the finish lasted")
+            Picker("Finish length", selection: $finishLength) {
+                ForEach(FinishLength.allCases) { option in
+                    Text(option.rawValue).tag(option)
+                }
+            }
+            .pickerStyle(.segmented)
+            Text(finishLength.caption)
+                .font(TypeScale.caption())
+                .textCase(nil)
+                .foregroundStyle(Palette.textMuted)
+        }
+    }
+
     private var saveButton: some View {
         VStack(spacing: Space.m) {
             Button(action: save) {
@@ -177,8 +240,10 @@ struct TastingSheetView: View {
         let tasting = Tasting(
             bottleId: bottleId,
             catalogProductId: catalogProductId ?? resolvedProductId(),
+            pourId: pourId,
             rating: rating,
             wouldRebuy: rebuy,
+            finishSeconds: finishLength.seconds,
             liked: liked.isEmpty ? nil : liked,
             disliked: disliked.isEmpty ? nil : disliked)
         do {

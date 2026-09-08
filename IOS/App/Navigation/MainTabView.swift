@@ -211,43 +211,6 @@ struct TastingHistoryView: View {
     }
 }
 
-/// Settings and the things that do not belong on a tab of their own yet.
-struct MoreView: View {
-    @Environment(AppEnvironment.self) private var env
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: Space.l) {
-                Text("More")
-                    .font(TypeScale.largeTitle())
-                    .foregroundStyle(Palette.text)
-                    .padding(.top, Space.s)
-
-                VStack(alignment: .leading, spacing: 0) {
-                    SectionLabel("Data on this phone")
-                        .padding(.bottom, Space.xs)
-                    FactRow(label: "Catalogue", value: "\(env.catalog.products.count) products")
-                    FactRow(
-                        label: "Flavour wheel",
-                        value: "\(env.wheel.families.count) families · "
-                            + "\(env.wheel.allDescriptors.count) descriptors")
-                    FactRow(label: "Works offline", value: "Always", isLast: true)
-                }
-
-                Text("Every bottle, note and pour is stored on this phone. Nothing "
-                     + "here needs a network.")
-                    .font(TypeScale.secondary())
-                    .foregroundStyle(Palette.textMuted)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            .padding(.horizontal, Space.xl)
-            .padding(.bottom, 96)
-        }
-        .background(Palette.background)
-        .navigationBarTitleDisplayMode(.inline)
-    }
-}
-
 #Preview {
     MainTabView()
         .environment(AppEnvironment.preview())

@@ -44,8 +44,35 @@ struct AddBottleView: View {
     @State private var finish = ""
     @State private var bottleNumber = ""
     @State private var bottlesInBatch = ""
+    @State private var rick = ""
+    @State private var floor = ""
+    @State private var dumpedAt: Date = Date()
+    @State private var hasDumpDate = false
+    @State private var chillFiltered: ChillFiltration = .notStated
+
+    // Where you put it
+    @State private var storageLocation = ""
+    @State private var shelfNumber = ""
 
     @State private var error: String?
+
+    /// Three states, not two. Most labels say nothing at all, and recording
+    /// "no" for every one of those would be inventing a fact.
+    enum ChillFiltration: String, CaseIterable, Identifiable {
+        case notStated = "Not stated"
+        case filtered = "Chill filtered"
+        case notFiltered = "Non-chill filtered"
+
+        var id: String { rawValue }
+
+        var value: Bool? {
+            switch self {
+            case .notStated: return nil
+            case .filtered: return true
+            case .notFiltered: return false
+            }
+        }
+    }
 
     var body: some View {
         ScrollView {
@@ -54,6 +81,7 @@ struct AddBottleView: View {
                 if chosen != nil || isTypingItIn {
                     thisBottle
                     releaseDetail
+                    whereYouKeepIt
                     saveButton
                 }
             }
@@ -244,6 +272,41 @@ struct AddBottleView: View {
                     .textCase(nil)
                     .foregroundStyle(Palette.gold)
             }
+
+            VStack(alignment: .leading, spacing: Space.s) {
+                Text("Chill filtration")
+                    .font(TypeScale.caption())
+                    .textCase(nil)
+                    .foregroundStyle(Palette.textMuted)
+                Picker("Chill filtration", selection: $chillFiltered) {
+                    ForEach(ChillFiltration.allCases) { option in
+                        Text(option.rawValue).tag(option)
+                    }
+                }
+                .pickerStyle(.segmented)
+            }
+        }
+    }
+
+    // MARK: - Where you keep it
+
+    /// People report this mattering more than remembering what they own:
+    /// *"I learned it is MORE important to remember WHERE I put the stuff."*
+    /// It is also what makes a shelf walk finishable, because the walk is
+    /// ordered by location.
+    private var whereYouKeepIt: some View {
+        VStack(alignment: .leading, spacing: Space.m) {
+            SectionLabel("Where you keep it")
+            HStack(spacing: Space.m) {
+                field("Location", text: $storageLocation, placeholder: "Hall closet")
+                field("Your number", text: $shelfNumber, keyboard: .numberPad, placeholder: "12")
+            }
+            Text("Your number is the sticker on the glass, not the “47 of 240” "
+                 + "printed on a pick. It is what connects a shelf to this list.")
+                .font(TypeScale.caption())
+                .textCase(nil)
+                .foregroundStyle(Palette.textMuted)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 
@@ -274,13 +337,38 @@ struct AddBottleView: View {
 
             if isStorePick {
                 // Everything a real pick prints and most apps drop.
+                field("Selected by", text: $pickGroup, placeholder: "Bourbon club")
+
+                // Warehouse, rick and floor are three separate things and a
+                // Blanton's label prints all three. Merging them into one box
+                // is what stops an app answering "anything else from rick 41?"
                 HStack(spacing: Space.m) {
-                    field("Selected by", text: $pickGroup, placeholder: "Bourbon club")
-                    field("Warehouse", text: $warehouse, placeholder: "QN / Floor 5")
+                    field("Warehouse", text: $warehouse, placeholder: "H")
+                    field("Rick", text: $rick, placeholder: "41")
+                    field("Floor", text: $floor, placeholder: "5")
                 }
                 HStack(spacing: Space.m) {
                     field("Recipe code", text: $recipeCode, placeholder: "OESQ")
                     field("Entry proof", text: $entryProof, keyboard: .decimalPad, placeholder: "125")
+                }
+
+                // Often the only date on a single-barrel label, and more precise
+                // than a bottling year.
+                Toggle(isOn: $hasDumpDate) {
+                    Text("Dump date on the label")
+                        .font(TypeScale.body())
+                        .foregroundStyle(Palette.text)
+                }
+                .tint(Palette.gold)
+                .frame(minHeight: Space.tapTarget)
+
+                if hasDumpDate {
+                    DatePicker(
+                        "Dumped", selection: $dumpedAt, displayedComponents: .date)
+                        .datePickerStyle(.compact)
+                        .tint(Palette.gold)
+                        .foregroundStyle(Palette.textSecondary)
+                        .font(TypeScale.secondary())
                 }
                 HStack(spacing: Space.m) {
                     field("Age (years)", text: $ageYears, keyboard: .numberPad, placeholder: "9")
@@ -385,6 +473,8 @@ struct AddBottleView: View {
             batchNumber: batchNumber.isEmpty ? nil : batchNumber,
             pickGroup: pickGroup.isEmpty ? nil : pickGroup,
             warehouse: warehouse.isEmpty ? nil : warehouse,
+            rick: rick.isEmpty ? nil : rick,
+            floor: floor.isEmpty ? nil : floor,
             recipeCode: recipeCode.isEmpty ? nil : recipeCode.uppercased(),
             ageMonths: months > 0 ? months : nil,
             entryProof: Double(entryProof),
@@ -392,10 +482,14 @@ struct AddBottleView: View {
             finish: finish.isEmpty ? nil : finish,
             bottleNumber: Int(bottleNumber),
             bottlesInBatch: Int(bottlesInBatch),
+            dumpedAt: hasDumpDate ? Int64(dumpedAt.timeIntervalSince1970 * 1000) : nil,
             abv: Double(proof).map { $0 / 2 },
+            chillFiltered: chillFiltered.value,
             volumeMl: Double(volumeMl) ?? 750,
             purchasePriceCents: price.isEmpty ? nil : Int((Double(price) ?? 0) * 100),
-            purchaseStore: store.isEmpty ? nil : store)
+            purchaseStore: store.isEmpty ? nil : store,
+            storageLocation: storageLocation.isEmpty ? nil : storageLocation,
+            shelfNumber: Int(shelfNumber))
 
         do {
             if chosen != nil {

@@ -1,7 +1,12 @@
 # Liquor-Log
 
-A spirits and beer cellar and tasting journal. Native iOS (Swift), with a shared
-backend and data layer a future Android client consumes.
+A bourbon and American whiskey collection log. Native iOS (Swift), with a
+shared backend and data layer a future Android client consumes.
+
+The barrel is the object, not the label. Store picks, single barrels, recipe
+codes, batch codes, dump dates, warehouse and rick: every one of those lives on
+the bottle, which is why a catalogue lookup is a convenience here and never the
+foundation. Beer is deliberately out of v1 -- see `docs/00-positioning.md`.
 
 > You are standing in a shop with a bottle in your hand. Do you already have it?
 > Do you have *this* release, or just the standard bottling? Did you like it?
@@ -22,9 +27,11 @@ scripts/    repo checks
 
 ## Status
 
-Early scaffold. `LiquorEngine` is real and tested; everything else is still to
-come. The engine compiles and its tests pass on a Linux CI runner -- see the
-badge on the Actions tab -- but **nothing here has been built on a Mac yet.**
+`LiquorEngine` and `LiquorData` are real and tested. The SwiftUI layer is
+written but **has never been compiled**: there is no Swift toolchain on the
+machine it was authored on. The engine's tests pass on a Linux CI runner -- see
+the badge on the Actions tab -- but **the app has not been built on a Mac
+yet.**
 It was authored on Windows, with no Swift toolchain or Xcode. Expect small
 import and signature fixes on the first Xcode build; the surface is bounded
 because there are few implementation bodies to be wrong.

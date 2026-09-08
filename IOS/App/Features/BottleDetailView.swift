@@ -10,6 +10,14 @@ struct BottleDetailView: View {
     @State private var summary: BottleSummary?
     @State private var error: String?
 
+    /// The pour just logged on this screen, if any.
+    ///
+    /// While it is set, a tasting recorded here is attached to THAT pour rather
+    /// than floating loose against the bottle. That link is what lets the app
+    /// show how a bottle changed as it sat open, instead of only asserting that
+    /// it did.
+    @State private var justPouredId: String?
+
     var body: some View {
         ScrollView {
             if let summary {
@@ -22,6 +30,9 @@ struct BottleDetailView: View {
                     facts(summary)
                     if summary.bottle.hasPickDetail {
                         pickDetail(summary)
+                    }
+                    if hasLocation(summary) {
+                        whereItIs(summary)
                     }
                     actions(summary)
                 }
@@ -89,6 +100,17 @@ struct BottleDetailView: View {
                         .foregroundStyle(Palette.gold)
                 }
             }
+
+            // Stated as a fact, never as a prompt. People use it to dig out a
+            // bottle they liked and forgot about; nothing here suggests that
+            // pouring more often would be better.
+            if let days = summary.daysSinceLastPour() {
+                Text(days == 0
+                     ? "Last poured today"
+                     : "Last poured \(days) \(days == 1 ? "day" : "days") ago")
+                    .font(TypeScale.secondary())
+                    .foregroundStyle(Palette.textSecondary)
+            }
         }
     }
 
@@ -114,6 +136,11 @@ struct BottleDetailView: View {
                 FactRow(label: "Recipe", value: "\(code.code) · \(code.yeast.character)")
                 FactRow(label: "Mashbill", value: code.mashbill.summary)
             }
+            if let filtered = summary.bottle.chillFiltered {
+                FactRow(
+                    label: "Chill filtration",
+                    value: filtered ? "Chill filtered" : "Non-chill filtered")
+            }
             if let paid = summary.bottle.purchasePriceCents {
                 FactRow(label: "Paid", value: Money.short(paid))
             }
@@ -138,8 +165,23 @@ struct BottleDetailView: View {
             if let store = bottle.pickStore, bottle.isStorePick {
                 FactRow(label: "Picked at", value: store)
             }
+            // Three rows, not one. A Blanton's label prints warehouse, rick and
+            // floor separately, and people follow a specific rick across
+            // releases — which only works if they were never merged.
             if let warehouse = bottle.warehouse {
                 FactRow(label: "Warehouse", value: warehouse)
+            }
+            if let rick = bottle.rick {
+                FactRow(label: "Rick", value: rick)
+            }
+            if let floor = bottle.floor {
+                FactRow(label: "Floor", value: floor)
+            }
+            if let dumped = bottle.dumpedAt {
+                FactRow(
+                    label: "Dumped",
+                    value: Date(timeIntervalSince1970: Double(dumped) / 1000)
+                        .formatted(date: .abbreviated, time: .omitted))
             }
             if let code = bottle.code {
                 FactRow(label: "Recipe", value: "\(code.code) · \(code.yeast.character)")
@@ -163,6 +205,41 @@ struct BottleDetailView: View {
         }
     }
 
+    /// Where the bottle physically is, and the walk that keeps that honest.
+    ///
+    /// People report this mattering more than remembering what they own:
+    /// *"I learned it is MORE important to remember WHERE I put the stuff."*
+    private func whereItIs(_ summary: BottleSummary) -> some View {
+        let bottle = summary.bottle
+        return VStack(alignment: .leading, spacing: 0) {
+            SectionLabel("Where you keep it")
+                .padding(.bottom, Space.xs)
+
+            if let location = bottle.storageLocation {
+                FactRow(label: "Location", value: location)
+            }
+            if let number = bottle.shelfNumber {
+                FactRow(label: "Your number", value: "#\(number)")
+            }
+            FactRow(
+                label: "Last checked",
+                value: lastChecked(bottle),
+                isLast: true)
+        }
+    }
+
+    private func hasLocation(_ summary: BottleSummary) -> Bool {
+        summary.bottle.storageLocation != nil
+            || summary.bottle.shelfNumber != nil
+            || summary.bottle.lastVerifiedAt != nil
+    }
+
+    private func lastChecked(_ bottle: Bottle) -> String {
+        guard let verified = bottle.lastVerifiedAt else { return "Never" }
+        return Date(timeIntervalSince1970: Double(verified) / 1000)
+            .formatted(date: .abbreviated, time: .omitted)
+    }
+
     private func actions(_ summary: BottleSummary) -> some View {
         HStack(spacing: Space.m) {
             Button {
@@ -178,9 +255,9 @@ struct BottleDetailView: View {
             .opacity(summary.status.isEmpty ? 0.5 : 1)
 
             NavigationLink {
-                TastingSheetView(bottleId: summary.id)
+                TastingSheetView(bottleId: summary.id, pourId: justPouredId)
             } label: {
-                Text("New tasting")
+                Text(justPouredId == nil ? "New tasting" : "Taste this pour")
                     .font(TypeScale.headline())
                     .foregroundStyle(Palette.text)
                     .frame(maxWidth: .infinity, minHeight: 50)
@@ -243,7 +320,7 @@ struct BottleDetailView: View {
 
     private func logPour(_ summary: BottleSummary) {
         do {
-            try env.bottles.logPour(bottleId: summary.id)
+            justPouredId = try env.bottles.logPour(bottleId: summary.id).id
             reload()
         } catch DataError.bottleIsEmpty {
             error = "That bottle is empty."

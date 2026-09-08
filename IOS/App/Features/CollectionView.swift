@@ -14,6 +14,11 @@ struct CollectionView: View {
     @State private var showFinished = false
     @State private var error: String?
 
+    /// Shared with the switch in More. Off unless somebody turned it on: the
+    /// figure is wanted by some people and actively avoided by others, and a
+    /// total nobody asked for is the version that causes harm.
+    @AppStorage("showsCollectionValue") private var showsValue = CollectionValue.shownByDefault
+
     var body: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: Space.m) {
@@ -61,6 +66,19 @@ struct CollectionView: View {
                 .font(TypeScale.secondary())
                 .foregroundStyle(Palette.textSecondary)
 
+            if showsValue {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(Money.short(shelfValue.cents))
+                        .font(TypeScale.title())
+                        .foregroundStyle(Palette.gold)
+                    Text(shelfValue.caveat)
+                        .font(TypeScale.caption())
+                        .textCase(nil)
+                        .foregroundStyle(Palette.textMuted)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+
             Picker("", selection: $showFinished) {
                 Text("On the shelf").tag(false)
                 Text("All").tag(true)
@@ -69,6 +87,16 @@ struct CollectionView: View {
             .onChange(of: showFinished) { _, _ in reload() }
         }
         .padding(.top, Space.s)
+    }
+
+    /// What is on the shelf cost, never what it is worth. We have no market
+    /// data and will not invent any.
+    private var shelfValue: CollectionValue.Total {
+        CollectionValue.onTheShelf(summaries.map {
+            CollectionValue.Holding(
+                purchasePriceCents: $0.bottle.purchasePriceCents,
+                isFinished: $0.bottle.isFinished)
+        })
     }
 
     private var countLine: String {
@@ -154,11 +182,43 @@ struct BottleCard: View {
                     }
                     Spacer()
                 }
+
+                // People use this to dig out a bottle they liked and have not
+                // poured from in months. It is a fact about the bottle, never a
+                // nudge to drink: no streak, no "it has been too long".
+                if let line = lastPourLine {
+                    Text(line)
+                        .font(TypeScale.caption())
+                        .textCase(nil)
+                        .foregroundStyle(Palette.textMuted)
+                }
+
+                if let location = summary.bottle.storageLocation {
+                    Text(location)
+                        .font(TypeScale.caption())
+                        .textCase(nil)
+                        .foregroundStyle(Palette.textMuted)
+                }
             }
         }
         .padding(Space.l)
         .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.line, lineWidth: 1))
+    }
+
+    /// Nil for a bottle that has never been poured from — "never poured" on a
+    /// sealed bottle states the obvious, and on an open one it reads as a
+    /// reproach.
+    private var lastPourLine: String? {
+        guard let days = summary.daysSinceLastPour() else { return nil }
+        switch days {
+        case 0: return "Last poured today"
+        case 1: return "Last poured yesterday"
+        case ..<30: return "Last poured \(days) days ago"
+        case ..<60: return "Last poured about a month ago"
+        case ..<365: return "Last poured \(days / 30) months ago"
+        default: return "Last poured over a year ago"
+        }
     }
 }
 
