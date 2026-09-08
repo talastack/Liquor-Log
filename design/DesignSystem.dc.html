@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Public+Sans:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500&display=swap">
+  <style>
+    :root{
+      --bg:#15100a; --surface:#1e1710; --surface2:#2a2016; --line:#3a2d1e;
+      --text:#f2e9db; --dim:#c0b19a; --faint:#968771;
+      --gold:#c9973a; --gold-soft:#e2b661; --on-gold:#1a1309;
+      --v-shelf:#c9973a; --v-line:#a5763c; --v-bar:#9d84b8; --v-had:#7f96ab;
+      --v-never:#b5705a; --good:#7faa72; --bad:#c07862;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);
+      font:400 16px/1.5 "Public Sans","Helvetica Neue",Arial,sans-serif;
+      -webkit-font-smoothing:antialiased}
+    a{color:var(--gold)} a:hover{opacity:.82}
+    .sc{width:390px;min-height:844px;background:var(--bg);display:flex;flex-direction:column}
+    .serif{font-family:Newsreader,Georgia,"Times New Roman",serif;font-weight:500}
+    .mono{font-family:"Spline Sans Mono",ui-monospace,Menlo,monospace}
+    .dim{color:var(--dim)} .faint{color:var(--faint)} .gold{color:var(--gold)}
+    /* Nothing below 12px anywhere on any screen. */
+    .lab{font-size:12px;letter-spacing:.09em;text-transform:uppercase;font-weight:700;color:var(--dim)}
+    .h1{font-family:Newsreader,Georgia,serif;font-size:32px;line-height:1.06;font-weight:600;margin:0}
+    .name{font-family:Newsreader,Georgia,serif;font-size:23px;line-height:1.15;font-weight:500;margin:0}
+    .meta{font-family:"Spline Sans Mono",Menlo,monospace;font-size:13px;color:var(--faint)}
+    .body{font-size:15px;line-height:1.55;color:var(--dim);text-wrap:pretty}
+
+    /* Status strip is presentation only -- the real app never draws one,
+       because iOS paints the real thing on top. */
+    .status{display:flex;justify-content:space-between;align-items:center;
+      padding:14px 20px 0;font-size:13px;font-weight:600;color:var(--text)}
+    .nav{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 18px 4px}
+    .navbtn{min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;
+      color:var(--dim)}
+
+    .field{display:flex;align-items:center;gap:11px;min-height:50px;padding:0 15px;font-size:16px;
+      background:var(--surface);border:1px solid var(--line);border-radius:11px}
+
+    .badge{display:inline-flex;align-items:center;gap:6px;min-height:26px;padding:4px 11px;
+      border-radius:6px;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+      line-height:1.2}
+    .b-shelf{background:var(--v-shelf);color:var(--on-gold)}
+    .b-line{background:var(--v-line);color:var(--on-gold)}
+    .b-bar{background:transparent;color:var(--v-bar);border:1px solid var(--v-bar)}
+    .b-had{background:transparent;color:var(--v-had);border:1px solid var(--v-had)}
+    .b-never{background:transparent;color:var(--v-never);border:1px solid var(--v-never)}
+    .b-wish{background:transparent;color:var(--gold);border:1px solid var(--gold)}
+    .b-open{background:transparent;color:var(--gold);border:1px solid var(--gold);
+      font-size:12px;padding:2px 9px;min-height:22px}
+
+    .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;
+      padding:14px;margin-bottom:11px;display:flex;gap:13px}
+    .plain{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:15px}
+    .thumb{flex:none;width:46px;display:flex;align-items:flex-start;justify-content:center;padding-top:2px}
+
+    .fill{height:9px;background:var(--surface2);border-radius:5px;flex:1;overflow:hidden}
+    .fill > i{display:block;height:100%;border-radius:5px;
+      background:linear-gradient(90deg,var(--gold),var(--gold-soft))}
+
+    .rate{display:inline-flex;align-items:center;gap:5px;min-height:28px;padding:3px 10px;
+      border-radius:7px;border:1px solid var(--line);background:var(--surface2);
+      font-size:14px;font-weight:600;color:var(--gold);white-space:nowrap}
+
+    .fact{display:flex;justify-content:space-between;gap:16px;padding:12px 0;
+      border-bottom:1px solid var(--line)}
+    .fact > span:first-child{color:var(--dim);font-size:15px;flex:none}
+    .fact > span:last-child{text-align:right;font-size:15px;text-wrap:pretty}
+    .fact.last{border-bottom:none}
+
+    .btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:50px;
+      border-radius:11px;background:var(--gold);color:var(--on-gold);font-weight:700;font-size:16px;flex:1}
+    .btn2{display:flex;align-items:center;justify-content:center;gap:8px;min-height:50px;
+      border-radius:11px;border:1px solid var(--line);color:var(--text);font-weight:600;
+      font-size:16px;flex:1;background:transparent}
+
+    .chip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:9px 14px;
+      border-radius:9px;font-size:15px;background:var(--surface2);color:var(--dim)}
+    .chip.on{background:var(--gold);color:var(--on-gold);font-weight:700}
+    .chip.ghost{background:transparent;border:1px solid var(--line)}
+    .chips{display:flex;flex-wrap:wrap;gap:8px}
+
+    .tabs{margin-top:auto;display:flex;align-items:flex-end;border-top:1px solid var(--line);
+      background:var(--surface);padding:9px 0 30px}
+    .tab{flex:1;min-height:46px;display:flex;flex-direction:column;align-items:center;
+      justify-content:center;gap:4px;font-size:12px;font-weight:600;color:var(--faint)}
+    .tab.on{color:var(--gold)}
+    .tabadd{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;
+      font-size:12px;font-weight:600;color:var(--faint)}
+    .tabadd > div{width:44px;height:44px;border-radius:22px;background:var(--gold);
+      color:var(--on-gold);display:flex;align-items:center;justify-content:center}
+  </style>
+</helmet>
+
+<div class="sc"><div class="status"><span>9:41</span><span style="display:flex;gap:6px;align-items:center"><svg width="17" height="11" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"></rect><rect x="5" y="5.5" width="3" height="6.5" rx="1"></rect><rect x="10" y="3" width="3" height="9" rx="1"></rect><rect x="15" y="0" width="3" height="12" rx="1"></rect></svg><svg width="15" height="11" viewBox="0 0 16 12" fill="currentColor"><path d="M8 11.2l-2.3-2.5a3.3 3.3 0 014.6 0z"></path><path d="M8 6.2a6 6 0 00-4.2 1.7L2.4 6.4a8 8 0 0111.2 0l-1.4 1.5A6 6 0 008 6.2z" opacity=".9"></path></svg><svg width="24" height="12" viewBox="0 0 26 12" fill="none"><rect x="0.6" y="0.6" width="21" height="10.8" rx="3" stroke="currentColor" stroke-opacity=".5"></rect><rect x="2.4" y="2.4" width="15" height="7.2" rx="1.6" fill="currentColor"></rect><path d="M23.6 4.2v3.6a2 2 0 000-3.6z" fill="currentColor" fill-opacity=".5"></path></svg></span></div><div style="padding:16px 20px 10px"><h1 class="h1">Liquor&#8209;Log</h1><div class="serif gold" style="font-size:23px;line-height:1.2">Design system</div></div><div style="padding:0 20px 26px"><div class="lab" style="margin-bottom:10px">Colour tokens</div><div class="faint" style="font-size:13px;margin-bottom:7px">Dark</div><div style="display:flex;gap:8px;flex-wrap:wrap"><div style="width:34px;height:34px;border-radius:8px;background:#15100a;border:1px solid rgba(255,255,255,.08)"></div><div style="width:34px;height:34px;border-radius:8px;background:#1e1710;border:1px solid rgba(255,255,255,.08)"></div><div style="width:34px;height:34px;border-radius:8px;background:#2a2016;border:1px solid rgba(255,255,255,.08)"></div><div style="width:34px;height:34px;border-radius:8px;background:#3a2d1e;border:1px solid rgba(255,255,255,.08)"></div><div style="width:34px;height:34px;border-radius:8px;background:#c9973a;border:1px solid rgba(255,255,255,.08)"></div><div style="width:34px;height:34px;border-radius:8px;background:#e2b661;border:1px solid rgba(255,255,255,.08)"></div><div style="width:34px;height:34px;border-radius:8px;background:#f2e9db;border:1px solid rgba(255,255,255,.08)"></div></div><div class="faint" style="font-size:13px;margin:14px 0 7px">Light</div><div style="display:flex;gap:8px;flex-wrap:wrap"><div style="width:34px;height:34px;border-radius:8px;background:#f6f1e7;border:1px solid rgba(255,255,255,.08)"></div><div style="width:34px;height:34px;border-radius:8px;background:#fffdf7;border:1px solid rgba(255,255,255,.08)"></div><div style="width:34px;height:34px;border-radius:8px;background:#ece4d4;border:1px solid rgba(255,255,255,.08)"></div><div style="width:34px;height:34px;border-radius:8px;background:#dcd0ba;border:1px solid rgba(255,255,255,.08)"></div><div style="width:34px;height:34px;border-radius:8px;background:#8a5f18;border:1px solid rgba(255,255,255,.08)"></div><div style="width:34px;height:34px;border-radius:8px;background:#a87c2c;border:1px solid rgba(255,255,255,.08)"></div><div style="width:34px;height:34px;border-radius:8px;background:#1b1510;border:1px solid rgba(255,255,255,.08)"></div></div><div class="lab" style="margin:26px 0 6px">Semantics</div><div style="display:flex;align-items:center;gap:10px;padding:7px 0"><span style="width:13px;height:13px;border-radius:7px;background:#15100a;border:1px solid rgba(255,255,255,.12);flex:none"></span><span style="font-size:14px" class="dim">Background</span></div><div style="display:flex;align-items:center;gap:10px;padding:7px 0"><span style="width:13px;height:13px;border-radius:7px;background:#1e1710;border:1px solid rgba(255,255,255,.12);flex:none"></span><span style="font-size:14px" class="dim">Surface</span></div><div style="display:flex;align-items:center;gap:10px;padding:7px 0"><span style="width:13px;height:13px;border-radius:7px;background:#2a2016;border:1px solid rgba(255,255,255,.12);flex:none"></span><span style="font-size:14px" class="dim">Card</span></div><div style="display:flex;align-items:center;gap:10px;padding:7px 0"><span style="width:13px;height:13px;border-radius:7px;background:#f2e9db;border:1px solid rgba(255,255,255,.12);flex:none"></span><span style="font-size:14px" class="dim">Text primary</span></div><div style="display:flex;align-items:center;gap:10px;padding:7px 0"><span style="width:13px;height:13px;border-radius:7px;background:#c0b19a;border:1px solid rgba(255,255,255,.12);flex:none"></span><span style="font-size:14px" class="dim">Text secondary</span></div><div style="display:flex;align-items:center;gap:10px;padding:7px 0"><span style="width:13px;height:13px;border-radius:7px;background:#c9973a;border:1px solid rgba(255,255,255,.12);flex:none"></span><span style="font-size:14px" class="dim">Brand / accent</span></div><div style="display:flex;align-items:center;gap:10px;padding:7px 0"><span style="width:13px;height:13px;border-radius:7px;background:#7faa72;border:1px solid rgba(255,255,255,.12);flex:none"></span><span style="font-size:14px" class="dim">Success</span></div><div style="display:flex;align-items:center;gap:10px;padding:7px 0"><span style="width:13px;height:13px;border-radius:7px;background:#c9973a;border:1px solid rgba(255,255,255,.12);flex:none"></span><span style="font-size:14px" class="dim">Warning</span></div><div style="display:flex;align-items:center;gap:10px;padding:7px 0"><span style="width:13px;height:13px;border-radius:7px;background:#c07862;border:1px solid rgba(255,255,255,.12);flex:none"></span><span style="font-size:14px" class="dim">Error</span></div><div class="lab" style="margin:26px 0 12px">Verdict badges</div><div class="chips" style="gap:9px"><span class="badge b-shelf">On your shelf</span><span class="badge b-line">Have the line</span><span class="badge b-bar">Tasted, not owned</span><span class="badge b-had">Had it before</span><span class="badge b-never">Never had it</span><span class="badge b-wish">Wishlist</span></div><div class="body" style="font-size:14px;margin-top:12px">Owned states are filled; states you do not own are outlined. The fill is what carries at arm&#8217;s length in a shop.</div><div class="lab" style="margin:26px 0 6px">Typography</div><div style="display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:9px 0;border-bottom:1px solid var(--line)"><span style="font-family:Newsreader,Georgia,serif;font-size:30px;font-weight:600">Large title</span><span class="mono faint" style="font-size:12px">h1</span></div><div style="display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:9px 0;border-bottom:1px solid var(--line)"><span style="font-family:Newsreader,Georgia,serif;font-size:23px;font-weight:500">Title</span><span class="mono faint" style="font-size:12px">h2</span></div><div style="display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:9px 0;border-bottom:1px solid var(--line)"><span style="font-size:17px;font-weight:700">Headline</span><span class="mono faint" style="font-size:12px">h3</span></div><div style="display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:9px 0;border-bottom:1px solid var(--line)"><span style="font-size:16px">Body</span><span class="mono faint" style="font-size:12px">body</span></div><div style="display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:9px 0;border-bottom:1px solid var(--line)"><span style="font-size:12px;letter-spacing:.09em;text-transform:uppercase;font-weight:700">Caption</span><span class="mono faint" style="font-size:12px">caption</span></div><div class="lab" style="margin:26px 0 12px">Components</div><div style="display:flex;gap:11px;align-items:center;margin-bottom:14px"><div class="fill"><i style="width:76%"></i></div><span class="mono" style="font-size:14px">76%</span></div><div style="display:flex;gap:12px;align-items:center"><span class="rate"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l2.7 5.8 6.3.8-4.6 4.4 1.2 6.3L12 17.3 6.4 20.3l1.2-6.3L3 9.6l6.3-.8z"></path></svg> 8/10</span><span class="badge b-open">Open</span><span class="mono faint" style="font-size:13px">13 of 17</span></div><div class="lab" style="margin:26px 0 12px">Spacing rhythm</div><div style="display:flex;gap:16px;align-items:flex-end"><div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:4px;height:8px;background:var(--gold);border-radius:2px"></div><span class="mono faint" style="font-size:12px">4</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:8px;height:8px;background:var(--gold);border-radius:2px"></div><span class="mono faint" style="font-size:12px">8</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:12px;height:8px;background:var(--gold);border-radius:2px"></div><span class="mono faint" style="font-size:12px">12</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:16px;height:8px;background:var(--gold);border-radius:2px"></div><span class="mono faint" style="font-size:12px">16</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:24px;height:8px;background:var(--gold);border-radius:2px"></div><span class="mono faint" style="font-size:12px">24</span></div></div></div></div>
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,3 @@
+# The seeded canvas is a build product: ~2 MB of editor payload wrapped around
+# the artboards. Regenerate it with seed-canvas.mjs from the .dc.html sources.
+liquor-log-screens.html

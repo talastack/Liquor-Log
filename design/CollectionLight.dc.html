@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Public+Sans:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500&display=swap">
+  <style>
+    :root{
+      --bg:#f6f1e7; --surface:#fffdf7; --surface2:#ece4d4; --line:#dcd0ba;
+      --text:#1b1510; --dim:#4a4036; --faint:#6b5f50;
+      --gold:#8a5f18; --gold-soft:#a87c2c; --on-gold:#fffdf7;
+      --v-shelf:#8a5f18; --v-line:#8a5f18; --v-bar:#4e4176; --v-had:#3a5670;
+      --v-never:#94402a; --good:#356038; --bad:#94402a;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);
+      font:400 16px/1.5 "Public Sans","Helvetica Neue",Arial,sans-serif;
+      -webkit-font-smoothing:antialiased}
+    a{color:var(--gold)} a:hover{opacity:.82}
+    .sc{width:390px;min-height:844px;background:var(--bg);display:flex;flex-direction:column}
+    .serif{font-family:Newsreader,Georgia,"Times New Roman",serif;font-weight:500}
+    .mono{font-family:"Spline Sans Mono",ui-monospace,Menlo,monospace}
+    .dim{color:var(--dim)} .faint{color:var(--faint)} .gold{color:var(--gold)}
+    /* Nothing below 12px anywhere on any screen. */
+    .lab{font-size:12px;letter-spacing:.09em;text-transform:uppercase;font-weight:700;color:var(--dim)}
+    .h1{font-family:Newsreader,Georgia,serif;font-size:32px;line-height:1.06;font-weight:600;margin:0}
+    .name{font-family:Newsreader,Georgia,serif;font-size:23px;line-height:1.15;font-weight:500;margin:0}
+    .meta{font-family:"Spline Sans Mono",Menlo,monospace;font-size:13px;color:var(--faint)}
+    .body{font-size:15px;line-height:1.55;color:var(--dim);text-wrap:pretty}
+
+    /* Status strip is presentation only -- the real app never draws one,
+       because iOS paints the real thing on top. */
+    .status{display:flex;justify-content:space-between;align-items:center;
+      padding:14px 20px 0;font-size:13px;font-weight:600;color:var(--text)}
+    .nav{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 18px 4px}
+    .navbtn{min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;
+      color:var(--dim)}
+
+    .field{display:flex;align-items:center;gap:11px;min-height:50px;padding:0 15px;font-size:16px;
+      background:var(--surface);border:1px solid var(--line);border-radius:11px}
+
+    .badge{display:inline-flex;align-items:center;gap:6px;min-height:26px;padding:4px 11px;
+      border-radius:6px;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+      line-height:1.2}
+    .b-shelf{background:var(--v-shelf);color:var(--on-gold)}
+    .b-line{background:var(--v-line);color:var(--on-gold)}
+    .b-bar{background:transparent;color:var(--v-bar);border:1px solid var(--v-bar)}
+    .b-had{background:transparent;color:var(--v-had);border:1px solid var(--v-had)}
+    .b-never{background:transparent;color:var(--v-never);border:1px solid var(--v-never)}
+    .b-wish{background:transparent;color:var(--gold);border:1px solid var(--gold)}
+    .b-open{background:transparent;color:var(--gold);border:1px solid var(--gold);
+      font-size:12px;padding:2px 9px;min-height:22px}
+
+    .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;
+      padding:14px;margin-bottom:11px;display:flex;gap:13px}
+    .plain{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:15px}
+    .thumb{flex:none;width:46px;display:flex;align-items:flex-start;justify-content:center;padding-top:2px}
+
+    .fill{height:9px;background:var(--surface2);border-radius:5px;flex:1;overflow:hidden}
+    .fill > i{display:block;height:100%;border-radius:5px;
+      background:linear-gradient(90deg,var(--gold),var(--gold-soft))}
+
+    .rate{display:inline-flex;align-items:center;gap:5px;min-height:28px;padding:3px 10px;
+      border-radius:7px;border:1px solid var(--line);background:var(--surface2);
+      font-size:14px;font-weight:600;color:var(--gold);white-space:nowrap}
+
+    .fact{display:flex;justify-content:space-between;gap:16px;padding:12px 0;
+      border-bottom:1px solid var(--line)}
+    .fact > span:first-child{color:var(--dim);font-size:15px;flex:none}
+    .fact > span:last-child{text-align:right;font-size:15px;text-wrap:pretty}
+    .fact.last{border-bottom:none}
+
+    .btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:50px;
+      border-radius:11px;background:var(--gold);color:var(--on-gold);font-weight:700;font-size:16px;flex:1}
+    .btn2{display:flex;align-items:center;justify-content:center;gap:8px;min-height:50px;
+      border-radius:11px;border:1px solid var(--line);color:var(--text);font-weight:600;
+      font-size:16px;flex:1;background:transparent}
+
+    .chip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:9px 14px;
+      border-radius:9px;font-size:15px;background:var(--surface2);color:var(--dim)}
+    .chip.on{background:var(--gold);color:var(--on-gold);font-weight:700}
+    .chip.ghost{background:transparent;border:1px solid var(--line)}
+    .chips{display:flex;flex-wrap:wrap;gap:8px}
+
+    .tabs{margin-top:auto;display:flex;align-items:flex-end;border-top:1px solid var(--line);
+      background:var(--surface);padding:9px 0 30px}
+    .tab{flex:1;min-height:46px;display:flex;flex-direction:column;align-items:center;
+      justify-content:center;gap:4px;font-size:12px;font-weight:600;color:var(--faint)}
+    .tab.on{color:var(--gold)}
+    .tabadd{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;
+      font-size:12px;font-weight:600;color:var(--faint)}
+    .tabadd > div{width:44px;height:44px;border-radius:22px;background:var(--gold);
+      color:var(--on-gold);display:flex;align-items:center;justify-content:center}
+  </style>
+</helmet>
+
+<div class="sc"><div class="status"><span>9:41</span><span style="display:flex;gap:6px;align-items:center"><svg width="17" height="11" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"></rect><rect x="5" y="5.5" width="3" height="6.5" rx="1"></rect><rect x="10" y="3" width="3" height="9" rx="1"></rect><rect x="15" y="0" width="3" height="12" rx="1"></rect></svg><svg width="15" height="11" viewBox="0 0 16 12" fill="currentColor"><path d="M8 11.2l-2.3-2.5a3.3 3.3 0 014.6 0z"></path><path d="M8 6.2a6 6 0 00-4.2 1.7L2.4 6.4a8 8 0 0111.2 0l-1.4 1.5A6 6 0 008 6.2z" opacity=".9"></path></svg><svg width="24" height="12" viewBox="0 0 26 12" fill="none"><rect x="0.6" y="0.6" width="21" height="10.8" rx="3" stroke="currentColor" stroke-opacity=".5"></rect><rect x="2.4" y="2.4" width="15" height="7.2" rx="1.6" fill="currentColor"></rect><path d="M23.6 4.2v3.6a2 2 0 000-3.6z" fill="currentColor" fill-opacity=".5"></path></svg></span></div><div class="nav"><div class="navbtn" style="justify-content:flex-start"></div><div class="lab" style="letter-spacing:.06em"></div><div class="navbtn" style="justify-content:flex-end"><span class="faint"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M8.5 7.5L12 4l3.5 3.5"></path><path d="M6 12v7h12v-7"></path></svg></span></div></div><div style="padding:14px 20px 16px"><h1 class="h1">My Collection</h1></div><div style="padding:0 20px 12px;display:flex;gap:8px"><span class="chip on">Owned 3</span><span class="chip ghost">Wishlist 1</span><span class="chip ghost">All</span></div><div style="padding:0 20px 14px;display:flex;gap:8px"><span class="chip ghost" style="min-height:38px;font-size:14px">Class type</span><span class="chip ghost" style="min-height:38px;font-size:14px">Production type</span><span class="chip ghost" style="min-height:38px;font-size:14px">Open</span></div><div style="padding:0 20px"><div class="card"><div class="thumb"><svg width="35" height="58" viewBox="0 0 36 58" fill="none"><path d="M14 2h8v9.5l4.2 6.8A6 6 0 0127 21.5V52a4 4 0 01-4 4H13a4 4 0 01-4-4V21.5a6 6 0 01.8-3.2L14 11.5z" fill="var(--glass)" fill-opacity=".55" stroke="var(--glass)" stroke-width="1.4"/><rect x="13.4" y="1.4" width="9.2" height="4.6" rx="1.4" fill="var(--glass)" fill-opacity=".8"/><rect x="9.6" y="28" width="16.8" height="15" rx="2" fill="var(--gold)" fill-opacity=".85"/></svg></div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div style="min-width:0"><div class="lab">Elijah Craig</div><div class="name" style="font-size:20px;margin:4px 0 0">Barrel Proof B523</div></div><span class="badge b-open">Open</span></div><div class="meta" style="margin-top:7px">62.1% ABV &middot; 124.2 proof</div><div style="display:flex;gap:10px;align-items:center;margin-top:11px"><div class="fill"><i style="width:76%"></i></div><span class="mono" style="font-size:13px;white-space:nowrap">13 of 17</span></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:9px"><span class="mono faint" style="font-size:13px">573 ml left</span><span class="rate"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l2.7 5.8 6.3.8-4.6 4.4 1.2 6.3L12 17.3 6.4 20.3l1.2-6.3L3 9.6l6.3-.8z"></path></svg> 8/10</span></div></div></div><div class="card"><div class="thumb"><svg width="35" height="58" viewBox="0 0 36 58" fill="none"><path d="M14 2h8v9.5l4.2 6.8A6 6 0 0127 21.5V52a4 4 0 01-4 4H13a4 4 0 01-4-4V21.5a6 6 0 01.8-3.2L14 11.5z" fill="var(--glass)" fill-opacity=".55" stroke="var(--glass)" stroke-width="1.4"/><rect x="13.4" y="1.4" width="9.2" height="4.6" rx="1.4" fill="var(--glass)" fill-opacity=".8"/><rect x="9.6" y="28" width="16.8" height="15" rx="2" fill="var(--gold)" fill-opacity=".85"/></svg></div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div style="min-width:0"><div class="lab">Four Roses</div><div class="name" style="font-size:20px;margin:4px 0 0">Store Pick, OESQ</div></div><span class="badge b-open">Open</span></div><div class="meta" style="margin-top:7px">57.7% ABV &middot; 115.4 proof</div><div style="display:flex;gap:10px;align-items:center;margin-top:11px"><div class="fill"><i style="width:53%"></i></div><span class="mono" style="font-size:13px;white-space:nowrap">9 of 17</span></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:9px"><span class="mono faint" style="font-size:13px">399 ml left</span><span class="rate"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l2.7 5.8 6.3.8-4.6 4.4 1.2 6.3L12 17.3 6.4 20.3l1.2-6.3L3 9.6l6.3-.8z"></path></svg> 9/10</span></div></div></div><div class="card"><div class="thumb"><svg width="35" height="58" viewBox="0 0 36 58" fill="none"><path d="M14 2h8v9.5l4.2 6.8A6 6 0 0127 21.5V52a4 4 0 01-4 4H13a4 4 0 01-4-4V21.5a6 6 0 01.8-3.2L14 11.5z" fill="var(--glass)" fill-opacity=".55" stroke="var(--glass)" stroke-width="1.4"/><rect x="13.4" y="1.4" width="9.2" height="4.6" rx="1.4" fill="var(--glass)" fill-opacity=".8"/><rect x="9.6" y="28" width="16.8" height="15" rx="2" fill="var(--gold)" fill-opacity=".85"/></svg></div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div style="min-width:0"><div class="lab">W L Weller</div><div class="name" style="font-size:20px;margin:4px 0 0">Antique 107</div></div><span class="badge b-open">Open</span></div><div class="meta" style="margin-top:7px">53.5% ABV &middot; 107 proof</div><div style="display:flex;gap:10px;align-items:center;margin-top:11px"><div class="fill"><i style="width:30%"></i></div><span class="mono" style="font-size:13px;white-space:nowrap">5 of 17</span></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:9px"><span class="mono faint" style="font-size:13px">222 ml left</span><span class="rate"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l2.7 5.8 6.3.8-4.6 4.4 1.2 6.3L12 17.3 6.4 20.3l1.2-6.3L3 9.6l6.3-.8z"></path></svg> 7/10</span></div></div></div><div class="lab" style="margin:18px 0 11px">Other beverages</div><div class="card"><div class="thumb"><svg width="35" height="58" viewBox="0 0 36 58" fill="none"><path d="M14 2h8v9.5l4.2 6.8A6 6 0 0127 21.5V52a4 4 0 01-4 4H13a4 4 0 01-4-4V21.5a6 6 0 01.8-3.2L14 11.5z" fill="var(--glass)" fill-opacity=".55" stroke="var(--glass)" stroke-width="1.4"/><rect x="13.4" y="1.4" width="9.2" height="4.6" rx="1.4" fill="var(--glass)" fill-opacity=".8"/><rect x="9.6" y="28" width="16.8" height="15" rx="2" fill="var(--v-had)" fill-opacity=".85"/></svg></div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div style="min-width:0"><div class="lab">Goose Island</div><div class="name" style="font-size:20px;margin:4px 0 0">Bourbon County</div></div><span class="badge b-had">Beer</span></div><div class="meta" style="margin-top:7px">Barrel&#8209;aged imperial stout<br>14.7% ABV &middot; 500 ml</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:11px"><span style="font-size:14px;color:var(--good)">Cellars well &mdash; no rush</span><span class="rate"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l2.7 5.8 6.3.8-4.6 4.4 1.2 6.3L12 17.3 6.4 20.3l1.2-6.3L3 9.6l6.3-.8z"></path></svg> 9/10</span></div></div></div></div><div class="tabs">
+  <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.6-3.6"></path></svg>Shelf Check</div>
+  <div class="tab on"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3h4v4l2.5 4v10H7.5V11L10 7z"></path><path d="M7.5 14h9"></path></svg>Collection</div>
+  <div class="tabadd"><div><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></div>Add</div>
+  <div class="tab"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10l-1.4 9.5a2 2 0 01-2 1.7h-3.2a2 2 0 01-2-1.7z"></path><path d="M12 15.2V20M9 20h6"></path></svg>Tasting</div>
+  <div class="tab"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="5" cy="12" r="1.4"></circle><circle cx="12" cy="12" r="1.4"></circle><circle cx="19" cy="12" r="1.4"></circle></svg>More</div>
+  </div></div>
+</x-dc>
+</body>
+</html>
