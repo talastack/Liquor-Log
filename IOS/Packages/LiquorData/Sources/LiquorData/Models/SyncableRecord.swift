@@ -8,8 +8,11 @@ import GRDB
 /// cannot conform, and cannot be handed to the sync client — so it cannot be
 /// added to the schema and quietly left out of sync, which is the failure this
 /// protocol exists to prevent.
+/// `Hashable` is here so records can sit in SwiftUI collections and in the
+/// summary types the repositories return. Every conformer is a value type whose
+/// members are themselves Hashable, so synthesis covers it.
 public protocol SyncableRecord:
-    Codable, FetchableRecord, MutablePersistableRecord, Identifiable, Sendable
+    Codable, Hashable, FetchableRecord, MutablePersistableRecord, Identifiable, Sendable
 {
     /// uuid v4, generated on device. Text, not a native UUID column: the same
     /// string has to round-trip through SQLite, PostgREST and JSON unchanged.

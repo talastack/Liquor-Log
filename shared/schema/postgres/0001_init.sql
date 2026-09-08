@@ -99,6 +99,15 @@ create table custom_catalog_entries (
   abv                 double precision,
   stated_age_years    integer,
   recipe_code         text,
+
+  -- A published SHELF price, not a market value: a state control board's
+  -- posted price, or a producer's stated SRP. Every one names its source,
+  -- because a price with no provenance is a number nobody can check.
+  -- NULL is the honest value for anything with no published figure.
+  msrp_cents          integer,
+  msrp_source         text,
+  msrp_as_of_year     integer,
+
   created_at          bigint not null,
   updated_at          bigint not null,
   deleted_at          bigint,
@@ -112,7 +121,13 @@ create table custom_catalog_entries (
   constraint bond_is_four_years
     check (not is_bottled_in_bond or stated_age_years is null or stated_age_years >= 4),
   constraint abv_is_plausible
-    check (abv is null or (abv > 0.5 and abv <= 95.0))
+    check (abv is null or (abv > 0.5 and abv <= 95.0)),
+  constraint msrp_is_not_negative
+    check (msrp_cents is null or msrp_cents >= 0),
+  -- A figure with no source cannot be shown to the user, so it may not be
+  -- stored either.
+  constraint msrp_cites_a_source
+    check (msrp_cents is null or msrp_source is not null)
 );
 
 -- ---------------------------------------------------------------------------

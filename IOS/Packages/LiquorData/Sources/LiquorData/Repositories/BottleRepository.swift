@@ -180,11 +180,15 @@ public struct BottleRepository: Sendable {
     /// Sum of every live pour. Tombstoned pours do not count against the
     /// bottle, so undoing a mis-logged pour restores the fill.
     static func pouredMilliliters(bottleId: String, in db: Database) throws -> Double {
-        try Pour
+        // Fetched as a Double rather than through the record request: the
+        // request's element type is Pour, so `fetchOne` on it would try to
+        // decode a whole row from a single aggregate column. SUM over no rows
+        // is NULL, which arrives here as nil and means an untouched bottle.
+        let request = Pour
             .live()
             .filter(Column("bottle_id") == bottleId)
             .select(sum(Column("volume_ml")))
-            .fetchOne(db) ?? 0
+        return try Double.fetchOne(db, request) ?? 0
     }
 
     static func summary(for bottle: Bottle, in db: Database) throws -> BottleSummary {

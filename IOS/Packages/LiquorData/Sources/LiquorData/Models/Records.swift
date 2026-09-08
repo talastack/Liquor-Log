@@ -49,6 +49,14 @@ public struct CustomCatalogEntry: SyncableRecord {
     public var abv: Double?
     public var statedAgeYears: Int?
     public var recipeCode: String?
+
+    /// A published SHELF price and where it came from -- a control board's
+    /// posted price, or a producer's stated SRP. Never a resale value, and the
+    /// database refuses a figure with no source.
+    public var msrpCents: Int?
+    public var msrpSource: String?
+    public var msrpAsOfYear: Int?
+
     public var createdAt: Int64
     public var updatedAt: Int64
     public var deletedAt: Int64?
@@ -59,6 +67,8 @@ public struct CustomCatalogEntry: SyncableRecord {
         case classType = "class_type", productionType = "production_type"
         case isBarrelProof = "is_barrel_proof", isBottledInBond = "is_bottled_in_bond"
         case abv, statedAgeYears = "stated_age_years", recipeCode = "recipe_code"
+        case msrpCents = "msrp_cents", msrpSource = "msrp_source"
+        case msrpAsOfYear = "msrp_as_of_year"
         case createdAt = "created_at", updatedAt = "updated_at"
         case deletedAt = "deleted_at", dirty
     }
@@ -76,6 +86,9 @@ public struct CustomCatalogEntry: SyncableRecord {
         abv: Double? = nil,
         statedAgeYears: Int? = nil,
         recipeCode: String? = nil,
+        msrpCents: Int? = nil,
+        msrpSource: String? = nil,
+        msrpAsOfYear: Int? = nil,
         createdAt: Int64 = Self.nowMilliseconds(),
         updatedAt: Int64 = Self.nowMilliseconds(),
         deletedAt: Int64? = nil,
@@ -86,8 +99,17 @@ public struct CustomCatalogEntry: SyncableRecord {
         self.classType = classType; self.productionType = productionType
         self.isBarrelProof = isBarrelProof; self.isBottledInBond = isBottledInBond
         self.abv = abv; self.statedAgeYears = statedAgeYears; self.recipeCode = recipeCode
+        self.msrpCents = msrpCents; self.msrpSource = msrpSource
+        self.msrpAsOfYear = msrpAsOfYear
         self.createdAt = createdAt; self.updatedAt = updatedAt
         self.deletedAt = deletedAt; self.dirty = dirty
+    }
+
+    /// The shelf-price reference, if this product has one. Nil is the honest
+    /// answer for anything with no published figure.
+    public var priceReference: PriceReference? {
+        guard let cents = msrpCents, let source = msrpSource else { return nil }
+        return PriceReference(cents: cents, source: source, asOfYear: msrpAsOfYear)
     }
 
     /// Validated against the same federal rules the engine enforces, so a bad
