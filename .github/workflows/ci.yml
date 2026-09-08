@@ -41,6 +41,22 @@ jobs:
       - name: Check schema mirror
         run: python3 scripts/check_schema_mirror.py
 
+      # Descriptor keys are stored in tasting_notes.descriptor_key and are
+      # therefore permanent: a duplicate makes a saved note ambiguous and a
+      # rename orphans every note that used it. This also enforces that every
+      # descriptor carries an `origin`, which is the axis the taxonomy is
+      # organised on and the evidence that it is our own work rather than a
+      # copy of a published wheel -- see docs/06-flavour-wheel-provenance.md.
+      - name: Check flavour wheel
+        run: python3 scripts/check_flavor_wheel.py
+
+      - name: Validate shipped JSON
+        run: |
+          for file in shared/data/*.json; do
+            echo "Checking $file"
+            python3 -m json.tool "$file" > /dev/null
+          done
+
       - name: Start Postgres
         run: |
           docker run -d --name pg -e POSTGRES_PASSWORD=postgres \
