@@ -15,10 +15,6 @@ jobs:
   # roughly ten times cheaper than a macOS runner. It is also the code whose
   # result matters most: a wrong pour count or a wrong proof is what a user
   # would actually notice.
-  #
-  # This job is what verifies the scaffold compiles at all. It was authored on
-  # Windows with no Swift toolchain, so until this runs green, nothing here has
-  # been near a compiler.
   engine:
     name: LiquorEngine (Linux)
     runs-on: ubuntu-latest
@@ -28,3 +24,114 @@ jobs:
       - name: Test
         working-directory: IOS/Packages/LiquorEngine
         run: swift test
+
+  # Validates the shared layer without needing either platform toolchain.
+  # Runs before the macOS job so a schema typo fails in seconds rather than
+  # after an Xcode build.
+  shared:
+    name: Shared schema
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Catches the drift this repo is most exposed to. The local GRDB schema
+      # and the Postgres schema are a paired edit, and nothing else would
+      # notice if one moved without the other: a column present in one and
+      # absent from the other syncs into a void with no error at runtime.
+      - name: Check schema mirror
+        run: python3 scripts/check_schema_mirror.py
+
+      - name: Start Postgres
+        run: |
+          docker run -d --name pg -e POSTGRES_PASSWORD=postgres \
+            -p 5432:5432 postgres:16
+          for i in $(seq 1 30); do
+            docker exec pg pg_isready -U postgres && break
+            sleep 1
+          done
+
+      # Applies the schema for real, so a syntax error cannot reach the
+      # Supabase project. Then applies RLS on top, which is where a policy
+      # referring to a column that does not exist would surface.
+      - name: Apply schema and RLS
+        run: |
+          docker exec -i pg psql -U postgres -v ON_ERROR_STOP=1 \
+            < shared/schema/postgres/0001_init.sql
+          # auth.uid() is Supabase-provided; stubbed so the policies parse.
+          docker exec -i pg psql -U postgres -v ON_ERROR_STOP=1 <<'SQL'
+          create or replace function auth.uid() returns uuid
+            language sql stable as $$ select null::uuid $$;
+          SQL
+          docker exec -i pg psql -U postgres -v ON_ERROR_STOP=1 \
+            < shared/schema/rls/policies.sql
+
+      # Proves the server clock trigger actually fires, rather than trusting
+      # that a CREATE TRIGGER statement did something.
+      - name: Verify the server clock stamps every write
+        run: |
+          docker exec -i pg psql -U postgres -v ON_ERROR_STOP=1 <<'SQL'
+          insert into auth.users (id) values ('11111111-1111-1111-1111-111111111111');
+          insert into bottles (id, user_id, custom_name, volume_ml, created_at, updated_at)
+          values ('t1', '11111111-1111-1111-1111-111111111111', 'test', 750, 1, 1);
+          do $$
+          declare stamped bigint;
+          begin
+            select server_updated_at into stamped from bottles where id = 't1';
+            if stamped is null or stamped = 0 then
+              raise exception 'server_updated_at was not stamped on insert';
+            end if;
+          end $$;
+          SQL
+
+  # Everything that genuinely needs a Mac. Kept last and gated behind the two
+  # cheap jobs above.
+  ios:
+    name: iOS build
+    runs-on: macos-latest
+    needs: [engine, shared]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tools
+        run: brew install xcodegen xcbeautify
+
+      - name: Generate project
+        working-directory: IOS
+        run: xcodegen generate
+
+      # LiquorData does NOT run on the Linux job: GRDB calls
+      # sqlite3_snapshot_open/get/free/cmp and Ubuntu's libsqlite3 is not built
+      # with SQLITE_ENABLE_SNAPSHOT, so the package compiles there and then
+      # fails to link. macOS ships a SQLite that has it.
+      #
+      # Runs BEFORE the simulator build deliberately: it takes seconds, needs
+      # no simulator, and a data-layer break should not wait behind an app
+      # build.
+      - name: LiquorData package tests
+        working-directory: IOS/Packages/LiquorData
+        run: swift test
+
+      # The destination is resolved at run time rather than named. Pinning
+      # `name=iPhone 15` ties the job to a device current runner images may no
+      # longer ship, and the failure is an opaque "Unable to find a
+      # destination" months after anyone touched this file.
+      - name: Pick a simulator
+        run: |
+          UDID=$(xcrun simctl list devices available \
+            | grep 'iPhone' | head -1 | grep -oE '[0-9A-F-]{36}')
+          if [ -z "$UDID" ]; then
+            echo "No iPhone simulator on this runner:"
+            xcrun simctl list devices available
+            exit 1
+          fi
+          echo "SIMULATOR_UDID=$UDID" >> "$GITHUB_ENV"
+
+      - name: Build and test
+        working-directory: IOS
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -scheme LiquorLog \
+            -destination "id=$SIMULATOR_UDID" \
+            CODE_SIGNING_ALLOWED=NO \
+          | xcbeautify
