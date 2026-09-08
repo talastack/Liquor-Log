@@ -50,6 +50,12 @@ jobs:
       - name: Check flavour wheel
         run: python3 scripts/check_flavor_wheel.py
 
+      # Federal rules live in compiled Swift (Classification.swift) and this
+      # script READS THE CONSTANTS FROM IT rather than restating them, so the
+      # catalog and the validation cannot describe different worlds.
+      - name: Check catalog
+        run: python3 scripts/check_catalog.py
+
       - name: Validate shipped JSON
         run: |
           for file in shared/data/*.json; do
