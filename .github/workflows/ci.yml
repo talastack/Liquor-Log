@@ -56,6 +56,13 @@ jobs:
       - name: Check catalog
         run: python3 scripts/check_catalog.py
 
+      # shared/data is canonical; the app target needs its own copy because
+      # Xcode bundles resources from under IOS/App/ and cannot reach outside it.
+      # Two files meant to be identical will drift, and the app would ship a
+      # stale catalog while shared/ looked perfectly correct.
+      - name: Check bundled data
+        run: python3 scripts/check_bundled_data.py
+
       - name: Validate shipped JSON
         run: |
           for file in shared/data/*.json; do

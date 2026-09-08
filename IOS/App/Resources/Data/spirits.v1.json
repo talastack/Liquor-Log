@@ -1,0 +1,286 @@
+{
+  "version": 1,
+  "name": "Liquor-Log spirits catalog",
+  "status": "SEED. Every row is marked verified:false. These are stable, widely-published product facts used to make the app work end to end, and each one still needs checking against the TTB COLA registry before release. scripts/check_catalog.py refuses a row marked verified:true without a source_url. See docs/05-data-sourcing.md.",
+  "notes": [
+    "abv is NULL for barrel-proof releases on purpose. Their strength changes every batch, so a catalog claiming one number would be wrong for almost every bottle on almost every shelf. The user reads it off the label.",
+    "Product-level facts only. Batch numbers, barrel numbers, pick stores and measured proof belong on the bottle, not here."
+  ],
+  "products": [
+    {
+      "id": "ec-small-batch",
+      "distillery": "Heaven Hill",
+      "brand": "Elijah Craig",
+      "expression": "Small Batch",
+      "class_type": "kentuckyStraightBourbon",
+      "production_type": "smallBatch",
+      "abv": 47.0,
+      "source": "Producer label",
+      "verified": false
+    },
+    {
+      "id": "ec-barrel-proof",
+      "distillery": "Heaven Hill",
+      "brand": "Elijah Craig",
+      "expression": "Barrel Proof",
+      "class_type": "kentuckyStraightBourbon",
+      "production_type": "smallBatch",
+      "is_barrel_proof": true,
+      "abv": null,
+      "source": "Producer label",
+      "verified": false
+    },
+    {
+      "id": "ec-18-year",
+      "distillery": "Heaven Hill",
+      "brand": "Elijah Craig",
+      "expression": "18 Year",
+      "class_type": "kentuckyStraightBourbon",
+      "production_type": "singleBarrel",
+      "abv": 45.0,
+      "stated_age_years": 18,
+      "source": "Producer label",
+      "verified": false
+    },
+    {
+      "id": "ec-toasted-barrel",
+      "distillery": "Heaven Hill",
+      "brand": "Elijah Craig",
+      "expression": "Toasted Barrel",
+      "class_type": "kentuckyStraightBourbon",
+      "production_type": "smallBatch",
+      "abv": 47.0,
+      "source": "Producer label",
+      "verified": false
+    },
+    {
+      "id": "henry-mckenna-10",
+      "distillery": "Heaven Hill",
+      "brand": "Henry McKenna",
+      "expression": "10 Year Single Barrel",
+      "class_type": "kentuckyStraightBourbon",
+      "production_type": "singleBarrel",
+      "is_bottled_in_bond": true,
+      "abv": 50.0,
+      "stated_age_years": 10,
+      "source": "Producer label",
+      "verified": false
+    },
+    {
+      "id": "evan-williams-bib",
+      "distillery": "Heaven Hill",
+      "brand": "Evan Williams",
+      "expression": "Bottled in Bond",
+      "class_type": "kentuckyStraightBourbon",
+      "production_type": "unspecified",
+      "is_bottled_in_bond": true,
+      "abv": 50.0,
+      "stated_age_years": 4,
+      "source": "Producer label",
+      "verified": false
+    },
+
+    {
+      "id": "four-roses-single-barrel",
+      "distillery": "Four Roses",
+      "brand": "Four Roses",
+      "expression": "Single Barrel",
+      "class_type": "kentuckyStraightBourbon",
+      "production_type": "singleBarrel",
+      "abv": 50.0,
+      "recipe_code": "OBSV",
+      "source": "Producer label",
+      "verified": false
+    },
+    {
+      "id": "four-roses-small-batch",
+      "distillery": "Four Roses",
+      "brand": "Four Roses",
+      "expression": "Small Batch",
+      "class_type": "kentuckyStraightBourbon",
+      "production_type": "smallBatch",
+      "abv": 45.0,
+      "source": "Producer label",
+      "verified": false
+    },
+    {
+      "id": "four-roses-small-batch-select",
+      "distillery": "Four Roses",
+      "brand": "Four Roses",
+      "expression": "Small Batch Select",
+      "class_type": "kentuckyStraightBourbon",
+      "production_type": "smallBatch",
+      "abv": 52.0,
+      "source": "Producer label",
+      "verified": false
+    },
+    {
+      "id": "four-roses-bourbon",
+      "distillery": "Four Roses",
+      "brand": "Four Roses",
+      "expression": "Bourbon",
+      "class_type": "kentuckyStraightBourbon",
+      "production_type": "blend",
+      "abv": 40.0,
+      "source": "Producer label",
+      "verified": false
+    },
+
+    {
+      "id": "weller-special-reserve",
+      "distillery": "Buffalo Trace",
+      "brand": "W L Weller",
+      "expression": "Special Reserve",
+      "class_type": "kentuckyStraightBourbon",
+      "production_type": "unspecified",
+      "abv": 45.0,
+      "mashbill_key": "wheated",
+      "source": "Producer label",
+      "verified": false
+    },
+    {
+      "id": "weller-antique-107",
+      "distillery": "Buffalo Trace",
+      "brand": "W L Weller",
+      "expression": "Antique 107",
+      "class_type": "kentuckyStraightBourbon",
+      "production_type": "unspecified",
+      "abv": 53.5,
+      "mashbill_key": "wheated",
+      "source": "Producer label",
+      "verified": false
+    },
+    {
+      "id": "buffalo-trace",
+      "distillery": "Buffalo Trace",
+      "brand": "Buffalo Trace",
+      "expression": "",
+      "class_type": "kentuckyStraightBourbon",
+      "production_type": "unspecified",
+      "abv": 45.0,
+      "source": "Producer label",
+      "verified": false
+    },
+    {
+      "id": "eagle-rare-10",
+      "distillery": "Buffalo Trace",
+      "brand": "Eagle Rare",
+      "expression": "10 Year",
+      "class_type": "kentuckyStraightBourbon",
+      "production_type": "unspecified",
+      "abv": 45.0,
+      "stated_age_years": 10,
+      "source": "Producer label",
+      "verified": false
+    },
+
+    {
+      "id": "wild-turkey-101",
+      "distillery": "Wild Turkey",
+      "brand": "Wild Turkey",
+      "expression": "101",
+      "class_type": "kentuckyStraightBourbon",
+      "production_type": "unspecified",
+      "abv": 50.5,
+      "source": "Producer label",
+      "verified": false
+    },
+    {
+      "id": "wild-turkey-rare-breed",
+      "distillery": "Wild Turkey",
+      "brand": "Wild Turkey",
+      "expression": "Rare Breed",
+      "class_type": "kentuckyStraightBourbon",
+      "production_type": "smallBatch",
+      "is_barrel_proof": true,
+      "abv": null,
+      "source": "Producer label",
+      "verified": false
+    },
+    {
+      "id": "russells-reserve-10",
+      "distillery": "Wild Turkey",
+      "brand": "Russell's Reserve",
+      "expression": "10 Year",
+      "class_type": "kentuckyStraightBourbon",
+      "production_type": "smallBatch",
+      "abv": 45.0,
+      "stated_age_years": 10,
+      "source": "Producer label",
+      "verified": false
+    },
+
+    {
+      "id": "makers-mark",
+      "distillery": "Maker's Mark",
+      "brand": "Maker's Mark",
+      "expression": "",
+      "class_type": "kentuckyStraightBourbon",
+      "production_type": "unspecified",
+      "abv": 45.0,
+      "mashbill_key": "wheated",
+      "source": "Producer label",
+      "verified": false
+    },
+    {
+      "id": "knob-creek-9",
+      "distillery": "Jim Beam",
+      "brand": "Knob Creek",
+      "expression": "9 Year",
+      "class_type": "kentuckyStraightBourbon",
+      "production_type": "smallBatch",
+      "abv": 50.0,
+      "stated_age_years": 9,
+      "source": "Producer label",
+      "verified": false
+    },
+    {
+      "id": "woodford-reserve",
+      "distillery": "Woodford Reserve",
+      "brand": "Woodford Reserve",
+      "expression": "Distiller's Select",
+      "class_type": "kentuckyStraightBourbon",
+      "production_type": "smallBatch",
+      "abv": 45.2,
+      "source": "Producer label",
+      "verified": false
+    },
+    {
+      "id": "old-forester-1920",
+      "distillery": "Brown-Forman",
+      "brand": "Old Forester",
+      "expression": "1920 Prohibition Style",
+      "class_type": "kentuckyStraightBourbon",
+      "production_type": "unspecified",
+      "abv": 57.5,
+      "source": "Producer label",
+      "verified": false
+    },
+
+    {
+      "id": "rittenhouse-rye-bib",
+      "distillery": "Heaven Hill",
+      "brand": "Rittenhouse",
+      "expression": "Rye",
+      "class_type": "straightRye",
+      "production_type": "unspecified",
+      "is_bottled_in_bond": true,
+      "abv": 50.0,
+      "stated_age_years": 4,
+      "source": "Producer label",
+      "verified": false
+    },
+    {
+      "id": "pikesville-rye",
+      "distillery": "Heaven Hill",
+      "brand": "Pikesville",
+      "expression": "Straight Rye",
+      "class_type": "straightRye",
+      "production_type": "unspecified",
+      "abv": 55.0,
+      "stated_age_years": 6,
+      "source": "Producer label",
+      "verified": false
+    }
+  ]
+}

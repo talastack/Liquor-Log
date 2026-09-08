@@ -1,0 +1,179 @@
+{
+  "version": 1,
+  "name": "Liquor-Log flavour wheel",
+  "provenance": "Own work. Descriptors are the ordinary sensory vocabulary in common use and are not owned by anyone. The grouping is by ORIGIN - where the flavour comes from in the grain, the ferment, the still or the barrel - which is a chemical and process fact rather than a copy of any published wheel's arrangement. See docs/06-flavour-wheel-provenance.md.",
+  "origins": [
+    { "key": "grain", "label": "From the grain", "note": "The mashbill itself." },
+    { "key": "fermentation", "label": "From the ferment", "note": "Made by yeast. Esters, mostly fruit and flowers." },
+    { "key": "distillation", "label": "From the still", "note": "Congeners carried or created during distillation." },
+    { "key": "maturation", "label": "From the barrel", "note": "Oak, char and time." },
+    { "key": "oxidation", "label": "From air and time", "note": "Appears as an open bottle ages." },
+    { "key": "fault", "label": "Something went wrong", "note": "Present above threshold, not desirable." }
+  ],
+  "families": [
+    {
+      "key": "grain",
+      "label": "Grain",
+      "descriptors": [
+        { "key": "corn", "label": "Corn", "origin": "grain" },
+        { "key": "cornbread", "label": "Cornbread", "origin": "grain" },
+        { "key": "sweet-grain", "label": "Sweet grain", "origin": "grain" },
+        { "key": "malt", "label": "Malt", "origin": "grain" },
+        { "key": "cereal", "label": "Cereal", "origin": "grain" },
+        { "key": "biscuit", "label": "Biscuit", "origin": "grain" },
+        { "key": "bread-dough", "label": "Bread dough", "origin": "fermentation" },
+        { "key": "oatmeal", "label": "Oatmeal", "origin": "grain" },
+        { "key": "rye-bread", "label": "Rye bread", "origin": "grain" },
+        { "key": "wheat", "label": "Wheat", "origin": "grain" },
+        { "key": "barley", "label": "Barley", "origin": "grain" }
+      ]
+    },
+    {
+      "key": "sweet",
+      "label": "Sweet",
+      "descriptors": [
+        { "key": "caramel", "label": "Caramel", "origin": "maturation" },
+        { "key": "toffee", "label": "Toffee", "origin": "maturation" },
+        { "key": "butterscotch", "label": "Butterscotch", "origin": "maturation" },
+        { "key": "brown-sugar", "label": "Brown sugar", "origin": "maturation" },
+        { "key": "molasses", "label": "Molasses", "origin": "maturation" },
+        { "key": "maple", "label": "Maple syrup", "origin": "maturation" },
+        { "key": "honey", "label": "Honey", "origin": "maturation" },
+        { "key": "vanilla", "label": "Vanilla", "origin": "maturation", "compound": "vanillin", "why": "Oak lignin breaking down under char." },
+        { "key": "marshmallow", "label": "Marshmallow", "origin": "maturation" },
+        { "key": "chocolate", "label": "Chocolate", "origin": "maturation" },
+        { "key": "cocoa", "label": "Cocoa", "origin": "maturation" },
+        { "key": "butter", "label": "Butter", "origin": "fermentation", "compound": "diacetyl", "why": "A fermentation by-product." },
+        { "key": "creme-brulee", "label": "Creme brulee", "origin": "maturation" }
+      ]
+    },
+    {
+      "key": "fruit",
+      "label": "Fruit",
+      "descriptors": [
+        { "key": "cherry", "label": "Cherry", "origin": "fermentation" },
+        { "key": "apple", "label": "Apple", "origin": "fermentation" },
+        { "key": "baked-apple", "label": "Baked apple", "origin": "fermentation" },
+        { "key": "pear", "label": "Pear", "origin": "fermentation" },
+        { "key": "orange-peel", "label": "Orange peel", "origin": "fermentation" },
+        { "key": "lemon", "label": "Lemon", "origin": "fermentation" },
+        { "key": "banana", "label": "Banana", "origin": "fermentation", "compound": "isoamyl acetate", "why": "A fermentation ester." },
+        { "key": "pineapple", "label": "Pineapple", "origin": "fermentation" },
+        { "key": "raisin", "label": "Raisin", "origin": "maturation" },
+        { "key": "dried-fig", "label": "Dried fig", "origin": "maturation" },
+        { "key": "date", "label": "Date", "origin": "maturation" },
+        { "key": "prune", "label": "Prune", "origin": "maturation" },
+        { "key": "apricot", "label": "Apricot", "origin": "fermentation" },
+        { "key": "berry-jam", "label": "Berry jam", "origin": "fermentation" },
+        { "key": "cherry-pie", "label": "Cherry pie", "origin": "maturation" }
+      ]
+    },
+    {
+      "key": "floral",
+      "label": "Floral",
+      "descriptors": [
+        { "key": "rose", "label": "Rose", "origin": "fermentation", "compound": "damascenone", "why": "Carotenoid breakdown. Also reads as cooked apple." },
+        { "key": "violet", "label": "Violet", "origin": "fermentation" },
+        { "key": "honeysuckle", "label": "Honeysuckle", "origin": "fermentation" },
+        { "key": "lavender", "label": "Lavender", "origin": "fermentation" },
+        { "key": "orange-blossom", "label": "Orange blossom", "origin": "fermentation" },
+        { "key": "perfume", "label": "Perfume", "origin": "fermentation" },
+        { "key": "potpourri", "label": "Potpourri", "origin": "fermentation" }
+      ]
+    },
+    {
+      "key": "spice",
+      "label": "Spice",
+      "descriptors": [
+        { "key": "cinnamon", "label": "Cinnamon", "origin": "maturation" },
+        { "key": "clove", "label": "Clove", "origin": "maturation", "compound": "eugenol", "why": "From the oak." },
+        { "key": "nutmeg", "label": "Nutmeg", "origin": "maturation" },
+        { "key": "allspice", "label": "Allspice", "origin": "maturation" },
+        { "key": "baking-spice", "label": "Baking spice", "origin": "maturation" },
+        { "key": "black-pepper", "label": "Black pepper", "origin": "grain" },
+        { "key": "white-pepper", "label": "White pepper", "origin": "grain" },
+        { "key": "rye-spice", "label": "Rye spice", "origin": "grain", "why": "The signature of a high-rye mashbill." },
+        { "key": "ginger", "label": "Ginger", "origin": "maturation" },
+        { "key": "anise", "label": "Anise", "origin": "distillation" }
+      ]
+    },
+    {
+      "key": "wood",
+      "label": "Wood",
+      "descriptors": [
+        { "key": "charred-oak", "label": "Charred oak", "origin": "maturation" },
+        { "key": "toasted-oak", "label": "Toasted oak", "origin": "maturation" },
+        { "key": "new-oak", "label": "New oak", "origin": "maturation" },
+        { "key": "cedar", "label": "Cedar", "origin": "maturation" },
+        { "key": "sandalwood", "label": "Sandalwood", "origin": "maturation" },
+        { "key": "sawdust", "label": "Sawdust", "origin": "maturation" },
+        { "key": "pencil-shavings", "label": "Pencil shavings", "origin": "maturation" },
+        { "key": "coconut", "label": "Coconut", "origin": "maturation", "compound": "whisky lactone", "why": "More pronounced in American oak." },
+        { "key": "tannin", "label": "Tannin", "origin": "maturation" },
+        { "key": "dry-oak", "label": "Dry oak", "origin": "maturation" },
+        { "key": "old-books", "label": "Old books", "origin": "maturation" }
+      ]
+    },
+    {
+      "key": "nutty",
+      "label": "Nutty",
+      "descriptors": [
+        { "key": "almond", "label": "Almond", "origin": "maturation", "compound": "furfural", "why": "Sugar degradation during toasting." },
+        { "key": "marzipan", "label": "Marzipan", "origin": "maturation", "compound": "furfural", "why": "Sugar degradation during toasting, as with almond." },
+        { "key": "walnut", "label": "Walnut", "origin": "maturation" },
+        { "key": "pecan", "label": "Pecan", "origin": "maturation" },
+        { "key": "hazelnut", "label": "Hazelnut", "origin": "maturation" },
+        { "key": "peanut", "label": "Peanut", "origin": "maturation" },
+        { "key": "toasted-nut", "label": "Toasted nut", "origin": "maturation" }
+      ]
+    },
+    {
+      "key": "herbal",
+      "label": "Herbal",
+      "descriptors": [
+        { "key": "mint", "label": "Mint", "origin": "distillation" },
+        { "key": "menthol", "label": "Menthol", "origin": "distillation" },
+        { "key": "eucalyptus", "label": "Eucalyptus", "origin": "distillation" },
+        { "key": "tobacco", "label": "Tobacco", "origin": "maturation" },
+        { "key": "leather", "label": "Leather", "origin": "maturation" },
+        { "key": "hay", "label": "Hay", "origin": "grain" },
+        { "key": "grass", "label": "Grass", "origin": "distillation" },
+        { "key": "dill", "label": "Dill", "origin": "distillation" },
+        { "key": "fennel", "label": "Fennel", "origin": "distillation" },
+        { "key": "black-tea", "label": "Black tea", "origin": "maturation" }
+      ]
+    },
+    {
+      "key": "smoke",
+      "label": "Smoke",
+      "descriptors": [
+        { "key": "char", "label": "Char", "origin": "maturation" },
+        { "key": "campfire", "label": "Campfire", "origin": "maturation" },
+        { "key": "ash", "label": "Ash", "origin": "maturation" },
+        { "key": "bonfire", "label": "Bonfire", "origin": "maturation" },
+        { "key": "roasted", "label": "Roasted", "origin": "maturation" },
+        { "key": "tar", "label": "Tar", "origin": "maturation" },
+        { "key": "creosote", "label": "Creosote", "origin": "maturation" },
+        { "key": "peat", "label": "Peat", "origin": "grain", "compound": "phenols", "why": "From peat smoke drying the malt. Scotch, not bourbon." },
+        { "key": "medicinal", "label": "Medicinal", "origin": "maturation", "compound": "guaiacol", "why": "Lignin pyrolysis." }
+      ]
+    },
+    {
+      "key": "faults",
+      "label": "Off-notes",
+      "descriptors": [
+        { "key": "nail-polish", "label": "Nail polish", "origin": "fault", "compound": "ethyl acetate", "why": "A normal ester; a fault above threshold." },
+        { "key": "solvent", "label": "Solvent", "origin": "fault" },
+        { "key": "sulphur", "label": "Sulphur", "origin": "fault" },
+        { "key": "cabbage", "label": "Cabbage", "origin": "fault" },
+        { "key": "green-apple", "label": "Green apple", "origin": "oxidation", "compound": "acetaldehyde", "why": "Rises as a bottle sits open." },
+        { "key": "wet-cardboard", "label": "Wet cardboard", "origin": "oxidation", "compound": "trans-2-nonenal", "why": "Staling. Chiefly a beer fault." },
+        { "key": "musty", "label": "Musty", "origin": "fault" },
+        { "key": "soapy", "label": "Soapy", "origin": "fault" },
+        { "key": "metallic", "label": "Metallic", "origin": "fault" },
+        { "key": "flat", "label": "Flat", "origin": "oxidation", "why": "The bottle has lost its sweetness. See OxidationBand." },
+        { "key": "bitter", "label": "Bitter", "origin": "maturation", "why": "Over-oaked rather than spoiled." }
+      ]
+    }
+  ]
+}
