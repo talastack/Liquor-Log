@@ -24,8 +24,17 @@ public enum TastingStage: String, Codable, Sendable, CaseIterable, DatabaseValue
 
 // Engine vocabularies are stored by their raw values, so the database and the
 // validation rules cannot describe different worlds.
+//
+// Retroactive because LiquorEngine must not depend on GRDB -- that is the whole
+// point of it having no dependencies. The compiler guard is for Xcode 15, whose
+// Swift 5.9 cannot parse the @retroactive attribute at all.
+#if compiler(>=6.0)
+extension ClassType: @retroactive DatabaseValueConvertible {}
+extension ProductionType: @retroactive DatabaseValueConvertible {}
+#else
 extension ClassType: DatabaseValueConvertible {}
 extension ProductionType: DatabaseValueConvertible {}
+#endif
 
 // MARK: - custom_catalog_entries
 
@@ -514,4 +523,8 @@ public struct Subscription: SyncableRecord {
     }
 }
 
+#if compiler(>=6.0)
+extension Tier: @retroactive DatabaseValueConvertible {}
+#else
 extension Tier: DatabaseValueConvertible {}
+#endif

@@ -100,31 +100,8 @@ public struct TastingRepository: Sendable {
         keys: [String]
     ) throws {
         try db.queue.write { db in
-            let existing = try TastingNote
-                .live()
-                .filter(Column("tasting_id") == tastingId)
-                .filter(Column("stage") == stage.rawValue)
-                .fetchAll(db)
-
-            // Tombstone rather than delete, so the removal syncs.
-            for var note in existing where !keys.contains(note.descriptorKey) {
-                note.softDelete()
-                try note.save(db)
-            }
-
-            let kept = Set(existing.filter { !$0.isDeleted }.map(\.descriptorKey))
-            for key in keys where !kept.contains(key) {
-                // Revive a previously removed pick rather than inserting a
-                // duplicate row for the same descriptor.
-                if var tombstoned = existing.first(where: { $0.descriptorKey == key }) {
-                    tombstoned.deletedAt = nil
-                    try tombstoned.saveLocal(db)
-                } else {
-                    var note = TastingNote(
-                        tastingId: tastingId, stage: stage, descriptorKey: key)
-                    try note.saveLocal(db)
-                }
-            }
+            try Self.applyDescriptors(
+                tastingId: tastingId, stage: stage, keys: keys, in: db)
         }
     }
 
@@ -144,22 +121,51 @@ public struct TastingRepository: Sendable {
         in db: Database
     ) throws {
         for stage in TastingStage.allCases {
-            let keys = descriptors[stage] ?? []
-            let existing = try TastingNote
-                .live()
-                .filter(Column("tasting_id") == tastingId)
-                .filter(Column("stage") == stage.rawValue)
-                .fetchAll(db)
+            try applyDescriptors(
+                tastingId: tastingId, stage: stage,
+                keys: descriptors[stage] ?? [], in: db)
+        }
+    }
 
-            for var note in existing where !keys.contains(note.descriptorKey) {
+    /// Makes one stage hold exactly `keys`, and nothing else.
+    ///
+    /// **Fetches every row for the stage, tombstones included.** Filtering to
+    /// live rows here was a real bug: a descriptor removed and then re-selected
+    /// could not find its own tombstone, so it inserted a second row for the
+    /// same descriptor on the same stage. The row count is what caught it.
+    ///
+    /// Reviving rather than inserting also keeps the sync honest -- the server
+    /// already has that id, and a second row for it would arrive as a duplicate
+    /// on every other device.
+    static func applyDescriptors(
+        tastingId: String,
+        stage: TastingStage,
+        keys: [String],
+        in db: Database
+    ) throws {
+        let all = try TastingNote
+            .filter(Column("tasting_id") == tastingId)
+            .filter(Column("stage") == stage.rawValue)
+            .fetchAll(db)
+
+        let wanted = Set(keys)
+
+        for var note in all {
+            let shouldBePresent = wanted.contains(note.descriptorKey)
+            if shouldBePresent, note.isDeleted {
+                note.deletedAt = nil
+                try note.saveLocal(db)
+            } else if !shouldBePresent, !note.isDeleted {
+                // Tombstone rather than delete, so the removal syncs.
                 note.softDelete()
                 try note.save(db)
             }
-            let kept = Set(existing.filter { !$0.isDeleted }.map(\.descriptorKey))
-            for key in keys where !kept.contains(key) {
-                var note = TastingNote(tastingId: tastingId, stage: stage, descriptorKey: key)
-                try note.saveLocal(db)
-            }
+        }
+
+        let known = Set(all.map(\.descriptorKey))
+        for key in keys where !known.contains(key) {
+            var note = TastingNote(tastingId: tastingId, stage: stage, descriptorKey: key)
+            try note.saveLocal(db)
         }
     }
 
