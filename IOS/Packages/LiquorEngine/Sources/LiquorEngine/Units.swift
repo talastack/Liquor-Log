@@ -46,8 +46,11 @@ public struct ABV: Hashable, Sendable, Comparable, Codable {
 
     public static func < (lhs: ABV, rhs: ABV) -> Bool { lhs.percent < rhs.percent }
 
-    /// Below this is water with an opinion; above it does not exist commercially.
-    /// A value outside the range is a decimal slip -- 6.26 typed for 62.6.
+    /// A coarse sanity check spanning everything from a light beer to overproof
+    /// rum. It is deliberately wide, and therefore weak: it accepts 6.26%,
+    /// because that is a real beer strength. Catching a bourbon typed as 6.26
+    /// when 62.6 was meant needs the class -- see `Classification`, which holds
+    /// American whiskey to a 40% floor.
     public static let plausibleRange: ClosedRange<Double> = 0.5...95.0
 
     public var isPlausible: Bool { Self.plausibleRange.contains(percent) }
