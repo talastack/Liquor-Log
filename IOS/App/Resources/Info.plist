@@ -2,18 +2,57 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+  <!--
+    When a target points at an explicit INFOPLIST_FILE, Xcode does NOT
+    synthesise the core bundle keys for it. Leaving CFBundleIdentifier out
+    builds and archives perfectly happily and then fails at install with
+    "missing bundle id", which says nothing about where to look.
+
+    Everything here that reads $(...) is substituted from the build settings in
+    project.yml, so the identifier and version live in one place.
+  -->
+  <key>CFBundleDevelopmentRegion</key>
+  <string>en</string>
+  <key>CFBundleExecutable</key>
+  <string>$(EXECUTABLE_NAME)</string>
+  <key>CFBundleIdentifier</key>
+  <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+  <key>CFBundleInfoDictionaryVersion</key>
+  <string>6.0</string>
+  <key>CFBundleName</key>
+  <string>$(PRODUCT_NAME)</string>
+  <!-- Hardcoded rather than $(PRODUCT_BUNDLE_PACKAGE_TYPE): if that setting is
+       empty the key ships blank, and an app bundle with no package type is
+       rejected at submission rather than at build. -->
+  <key>CFBundlePackageType</key>
+  <string>APPL</string>
+
+  <!-- The name under the icon. The product has no final name yet. -->
   <key>CFBundleDisplayName</key>
   <string>Liquor-Log</string>
   <key>CFBundleShortVersionString</key>
   <string>$(MARKETING_VERSION)</string>
   <key>CFBundleVersion</key>
   <string>$(CURRENT_PROJECT_VERSION)</string>
+
   <key>UILaunchScreen</key>
   <dict/>
   <key>UISupportedInterfaceOrientations</key>
   <array>
     <string>UIInterfaceOrientationPortrait</string>
   </array>
+  <key>UISupportedInterfaceOrientations~ipad</key>
+  <array>
+    <string>UIInterfaceOrientationPortrait</string>
+    <string>UIInterfaceOrientationPortraitUpsideDown</string>
+    <string>UIInterfaceOrientationLandscapeLeft</string>
+    <string>UIInterfaceOrientationLandscapeRight</string>
+  </array>
+
+  <!-- No UIUserInterfaceStyle key, deliberately. The app ships both palettes
+       and honours the system setting; pinning either one here would silently
+       override that. -->
+
   <key>ITSAppUsesNonExemptEncryption</key>
   <false/>
 </dict>
