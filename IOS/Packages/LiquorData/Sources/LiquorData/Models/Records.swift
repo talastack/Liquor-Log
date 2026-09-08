@@ -160,6 +160,8 @@ public struct Bottle: SyncableRecord {
     /// -- a club, a bar or a society picks it and a shop puts it on the shelf.
     public var pickGroup: String?
     public var warehouse: String?
+    public var rick: String?
+    public var floor: String?
     /// Bottle-level recipe code. A Four Roses pick prints its code on THIS
     /// label and it differs barrel to barrel, so it overrides the product's.
     public var recipeCode: String?
@@ -189,6 +191,16 @@ public struct Bottle: SyncableRecord {
     public var purchasePriceCents: Int?
     public var purchaseStore: String?
 
+    /// Where the bottle physically is. Collections scatter across closets and
+    /// boxes, and people report this mattering more than remembering what they
+    /// own at all.
+    public var storageLocation: String?
+
+    /// The user's OWN number, keyed to a sticker on the glass. Distinct from
+    /// `bottleNumber`, which is the "47 of 240" the pick was bottled with. This
+    /// is what bridges a shelf to a database.
+    public var shelfNumber: Int?
+
     public var openedAt: Int64?
     public var finishedAt: Int64?
 
@@ -202,7 +214,8 @@ public struct Bottle: SyncableRecord {
         case category, customName = "custom_name"
         case isStorePick = "is_store_pick", pickStore = "pick_store", pickName = "pick_name"
         case barrelNumber = "barrel_number", batchNumber = "batch_number"
-        case pickGroup = "pick_group", warehouse, recipeCode = "recipe_code"
+        case pickGroup = "pick_group", warehouse, rick, floor
+        case recipeCode = "recipe_code"
         case ageMonths = "age_months", entryProof = "entry_proof"
         case charLevel = "char_level", finish
         case bottleNumber = "bottle_number", bottlesInBatch = "bottles_in_batch"
@@ -212,6 +225,7 @@ public struct Bottle: SyncableRecord {
         case volumeMl = "volume_ml", pourSizeMl = "pour_size_ml"
         case purchaseDate = "purchase_date", purchasePriceCents = "purchase_price_cents"
         case purchaseStore = "purchase_store"
+        case storageLocation = "storage_location", shelfNumber = "shelf_number"
         case openedAt = "opened_at", finishedAt = "finished_at"
         case createdAt = "created_at", updatedAt = "updated_at"
         case deletedAt = "deleted_at", dirty
@@ -230,6 +244,8 @@ public struct Bottle: SyncableRecord {
         batchNumber: String? = nil,
         pickGroup: String? = nil,
         warehouse: String? = nil,
+        rick: String? = nil,
+        floor: String? = nil,
         recipeCode: String? = nil,
         ageMonths: Int? = nil,
         entryProof: Double? = nil,
@@ -247,6 +263,8 @@ public struct Bottle: SyncableRecord {
         purchaseDate: Int64? = nil,
         purchasePriceCents: Int? = nil,
         purchaseStore: String? = nil,
+        storageLocation: String? = nil,
+        shelfNumber: Int? = nil,
         openedAt: Int64? = nil,
         finishedAt: Int64? = nil,
         createdAt: Int64 = Self.nowMilliseconds(),
@@ -260,6 +278,7 @@ public struct Bottle: SyncableRecord {
         self.isStorePick = isStorePick; self.pickStore = pickStore; self.pickName = pickName
         self.barrelNumber = barrelNumber; self.batchNumber = batchNumber
         self.pickGroup = pickGroup; self.warehouse = warehouse
+        self.rick = rick; self.floor = floor
         self.recipeCode = recipeCode; self.ageMonths = ageMonths
         self.entryProof = entryProof; self.charLevel = charLevel
         self.finish = finish
@@ -271,6 +290,7 @@ public struct Bottle: SyncableRecord {
         self.volumeMl = volumeMl; self.pourSizeMl = pourSizeMl
         self.purchaseDate = purchaseDate; self.purchasePriceCents = purchasePriceCents
         self.purchaseStore = purchaseStore
+        self.storageLocation = storageLocation; self.shelfNumber = shelfNumber
         self.openedAt = openedAt; self.finishedAt = finishedAt
         self.createdAt = createdAt; self.updatedAt = updatedAt
         self.deletedAt = deletedAt; self.dirty = dirty
@@ -300,13 +320,45 @@ public struct Bottle: SyncableRecord {
 
     /// True when this bottle carries release detail worth its own section.
     public var hasPickDetail: Bool {
-        isStorePick || warehouse != nil || recipeCode != nil || ageMonths != nil
+        isStorePick || warehouse != nil || rick != nil || floor != nil
+            || recipeCode != nil || ageMonths != nil
             || bottleNumber != nil || entryProof != nil || charLevel != nil
             || finish != nil || pickGroup != nil
     }
 
-    public var isOpen: Bool { openedAt != nil && finishedAt == nil }
-    public var isFinished: Bool { finishedAt != nil }
+    /// Sealed, Open or Killed -- the enum every collector's spreadsheet has.
+    ///
+    /// A killed bottle is ARCHIVED, never deleted: the row keeps its notes, its
+    /// price and its dates, and the history is the point of the app.
+    public enum Status: String, Sendable, Hashable, CaseIterable {
+        case sealed, open, killed
+
+        public var label: String {
+            switch self {
+            case .sealed: return "Sealed"
+            case .open: return "Open"
+            case .killed: return "Killed"
+            }
+        }
+    }
+
+    public var status: Status {
+        if finishedAt != nil { return .killed }
+        return openedAt != nil ? .open : .sealed
+    }
+
+    public var isOpen: Bool { status == .open }
+    public var isFinished: Bool { status == .killed }
+
+    /// Where the barrel came from, as one line: "Warehouse H · Rick 41 · Floor 5".
+    public var warehouseDescription: String? {
+        let parts = [
+            warehouse.map { "Warehouse \($0)" },
+            rick.map { "Rick \($0)" },
+            floor.map { "Floor \($0)" },
+        ].compactMap { $0 }
+        return parts.isEmpty ? nil : parts.joined(separator: " · ")
+    }
     public var pourSize: PourSize { PourSize(milliliters: pourSizeMl) }
 
     /// The release label that distinguishes this bottle from another of the

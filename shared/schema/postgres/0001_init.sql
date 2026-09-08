@@ -169,7 +169,12 @@ create table bottles (
   -- pick_group is who SELECTED it, which is often not who sells it -- a club,
   -- a bar or a society picks the barrel and a shop puts it on the shelf.
   pick_group          text,
+  -- Blanton's prints "Warehouse H / Rick #41 / Barrel 421" and collectors chase
+  -- specific warehouses and floors, so these are three fields rather than one
+  -- string somebody has to parse back out later.
   warehouse           text,
+  rick                text,
+  floor               text,
   -- Bottle-level recipe code. For a Four Roses pick the code is on THIS label
   -- and differs barrel to barrel, so it overrides the product's standard one.
   recipe_code         text,
@@ -202,6 +207,16 @@ create table bottles (
   purchase_price_cents integer,
   purchase_store      text,
 
+  -- Where the bottle physically IS. Collections scatter across closets,
+  -- basements and boxes, and people report this mattering more than remembering
+  -- what they own.
+  storage_location    text,
+
+  -- The user's OWN number, keyed to a sticker on the actual glass. Distinct
+  -- from bottle_number, which is the "47 of 240" the pick was bottled with.
+  -- It is what bridges a shelf to a database.
+  shelf_number        integer,
+
   opened_at           bigint,
   finished_at         bigint,
 
@@ -225,6 +240,8 @@ create table bottles (
     check (entry_proof is null or (entry_proof > 1 and entry_proof <= 190)),
   constraint bottle_number_is_positive
     check (bottle_number is null or bottle_number > 0),
+  constraint shelf_number_is_positive
+    check (shelf_number is null or shelf_number > 0),
   constraint batch_size_is_positive
     check (bottles_in_batch is null or bottles_in_batch > 0),
   constraint bottle_number_fits_the_batch
