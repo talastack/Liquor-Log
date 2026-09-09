@@ -38,9 +38,23 @@ A price attached to the wrong bottle is worse than no price, because nobody can
 tell by looking. Anything short of a confident match is reported for a human
 rather than written, and the report is the normal output -- --write is opt-in.
 
-BEFORE SHIPPING ANY BOARD'S DATA: 17 U.S.C. 105 removes copyright from FEDERAL
-works and does not apply to the states. Check that board's terms. See
-docs/05-data-sourcing.md.
+NOTHING THIS SCRIPT PRODUCES SHIPS BY DEFAULT.
+
+17 U.S.C. 105 removes copyright from FEDERAL works. It does not apply to the
+states, and a state may assert rights in its own publications. In practice
+these lists are public records that get republished constantly -- but "in
+practice" is not a licence, and the standing instruction on this project is to
+avoid legal issues rather than argue them.
+
+So --write is gated behind --licence-checked, which exists to make importing a
+DECISION rather than a default. Read that board's terms first, and prefer a
+board publishing under an explicit open-data policy.
+
+The app is complete without any of this. The price comparison runs on the
+user's own record -- what they paid, and what they saw on the shelf -- which is
+their data, needs no licence, and cannot go stale in a way that misleads
+anybody. See PriceHistory. This importer is an optional extra for somebody who
+has done the legal work, not a dependency.
 """
 
 import argparse
@@ -317,6 +331,24 @@ def cmd_match(args):
         print("\nDry run. Nothing written. Add --write when the report looks right.")
         return 0
 
+    # Deliberately awkward. Importing a state's data is a decision with a legal
+    # question attached, and a flag somebody has to type is the cheapest way to
+    # stop it happening by habit.
+    if not args.licence_checked:
+        print(
+            "\nRefusing to write.\n\n"
+            "  %s publishes this list as a public record, but 17 U.S.C. 105\n"
+            "  covers FEDERAL works only and does not extend to the states.\n"
+            "  Read this board's terms before shipping its data:\n\n"
+            "      %s\n\n"
+            "  Then re-run with --licence-checked.\n\n"
+            "  The app does not need this. The price comparison already works\n"
+            "  from the user's own record -- what they paid, and what they saw\n"
+            "  on the shelf -- which needs no licence at all."
+            % (board["source"], board["home"]),
+            file=sys.stderr)
+        return 1
+
     if not matched:
         print("\nnothing matched, so nothing to write", file=sys.stderr)
         return 1
@@ -365,6 +397,9 @@ def main():
     match.add_argument(
         "--write", action="store_true",
         help="actually write. Without it this is a dry run and a report.")
+    match.add_argument(
+        "--licence-checked", action="store_true",
+        help="you have read this board's terms and may republish its price list")
     match.set_defaults(func=cmd_match)
 
     args = parser.parse_args()

@@ -175,7 +175,12 @@ struct BottleDetailView: View {
             capacityMilliliters: summary.bottle.volumeMl,
             pourSize: summary.bottle.pourSize,
             history: priceHistory,
-            reference: env.product(for: summary.bottle)?.priceReference)
+            // YOUR OWN shelf sightings first. A bundled figure is somebody
+            // else's data with a licence attached and no board has been
+            // imported, so in practice this is always the user's own record --
+            // which is the point.
+            reference: priceHistory.flatMap { PriceHistory.shelfReference($0.purchases) }
+                ?? env.product(for: summary.bottle)?.priceReference)
     }
 
     /// The barrel's own facts. This is the section most apps do not have, and

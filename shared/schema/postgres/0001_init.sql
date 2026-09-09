@@ -211,6 +211,17 @@ create table bottles (
   purchase_price_cents integer,
   purchase_store      text,
 
+  -- The price ON THE SHELF, which is not always what you paid: a sale, a club
+  -- discount and a bundle all make the two differ.
+  --
+  -- This is the app's price reference, and it belongs to the USER. Third-party
+  -- price data is a licensing question in every direction -- state boards
+  -- assert rights, retailers have terms, and resale figures have no free and
+  -- stable source at all. What somebody wrote down about a shelf they stood in
+  -- front of has none of those problems, never goes stale in a way that
+  -- misleads them, and gets better the more they use the app.
+  shelf_price_cents   integer,
+
   -- Where the bottle physically IS. Collections scatter across closets,
   -- basements and boxes, and people report this mattering more than remembering
   -- what they own.
@@ -240,6 +251,8 @@ create table bottles (
   constraint abv_is_plausible check (abv is null or (abv > 0.5 and abv <= 95.0)),
   constraint price_is_not_negative
     check (purchase_price_cents is null or purchase_price_cents >= 0),
+  constraint shelf_price_is_not_negative
+    check (shelf_price_cents is null or shelf_price_cents >= 0),
   constraint age_months_is_positive
     check (age_months is null or age_months > 0),
   -- Char levels run #1 to #4 in practice; the range is wider than that so an

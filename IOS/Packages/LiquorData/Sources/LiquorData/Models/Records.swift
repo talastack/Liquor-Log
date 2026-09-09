@@ -195,6 +195,13 @@ public struct Bottle: SyncableRecord {
     public var purchasePriceCents: Int?
     public var purchaseStore: String?
 
+    /// The price ON THE SHELF, which is not always what you paid.
+    ///
+    /// This is the app's price reference, and it belongs to the user. Every
+    /// third-party price source carries a licensing question; what somebody
+    /// wrote down about a shelf they stood in front of carries none.
+    public var shelfPriceCents: Int?
+
     /// Where the bottle physically is. Collections scatter across closets and
     /// boxes, and people report this mattering more than remembering what they
     /// own at all.
@@ -234,6 +241,7 @@ public struct Bottle: SyncableRecord {
         case volumeMl = "volume_ml", pourSizeMl = "pour_size_ml"
         case purchaseDate = "purchase_date", purchasePriceCents = "purchase_price_cents"
         case purchaseStore = "purchase_store"
+        case shelfPriceCents = "shelf_price_cents"
         case storageLocation = "storage_location", shelfNumber = "shelf_number"
         case openedAt = "opened_at", finishedAt = "finished_at"
         case lastVerifiedAt = "last_verified_at"
@@ -274,6 +282,7 @@ public struct Bottle: SyncableRecord {
         purchaseDate: Int64? = nil,
         purchasePriceCents: Int? = nil,
         purchaseStore: String? = nil,
+        shelfPriceCents: Int? = nil,
         storageLocation: String? = nil,
         shelfNumber: Int? = nil,
         openedAt: Int64? = nil,
@@ -301,7 +310,7 @@ public struct Bottle: SyncableRecord {
         self.vintageYear = vintageYear
         self.volumeMl = volumeMl; self.pourSizeMl = pourSizeMl
         self.purchaseDate = purchaseDate; self.purchasePriceCents = purchasePriceCents
-        self.purchaseStore = purchaseStore
+        self.purchaseStore = purchaseStore; self.shelfPriceCents = shelfPriceCents
         self.storageLocation = storageLocation; self.shelfNumber = shelfNumber
         self.openedAt = openedAt; self.finishedAt = finishedAt
         self.lastVerifiedAt = lastVerifiedAt

@@ -299,7 +299,12 @@ public struct BottleRepository: Sendable {
             var request = Bottle
                 .live()
                 .filter(Column("catalog_product_id") == catalogProductId)
-                .filter(Column("purchase_price_cents") != nil)
+                // Either number is a price sighting. Requiring a PURCHASE
+                // price would throw away every bottle somebody priced but got
+                // as a gift, and every one they recorded before buying.
+                .filter(
+                    Column("purchase_price_cents") != nil
+                    || Column("shelf_price_cents") != nil)
             if let bottleId {
                 request = request.filter(Column("id") != bottleId)
             }
@@ -307,9 +312,11 @@ public struct BottleRepository: Sendable {
                 .order(Column("purchase_date").desc)
                 .fetchAll(db)
                 .compactMap { bottle in
-                    guard let cents = bottle.purchasePriceCents else { return nil }
+                    guard let cents = bottle.purchasePriceCents
+                        ?? bottle.shelfPriceCents else { return nil }
                     return PriceHistory.Purchase(
                         cents: cents,
+                        shelfCents: bottle.shelfPriceCents,
                         purchasedAt: bottle.purchaseDate.map {
                             Date(timeIntervalSince1970: Double($0) / 1000)
                         },

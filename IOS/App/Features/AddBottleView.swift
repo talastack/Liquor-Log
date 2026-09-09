@@ -29,6 +29,7 @@ struct AddBottleView: View {
     @State private var proof = ""
     @State private var price = ""
     @State private var store = ""
+    @State private var shelfPrice = ""
 
     // Release detail
     @State private var isStorePick = false
@@ -275,6 +276,17 @@ struct AddBottleView: View {
                 field("Paid", text: $price, keyboard: .decimalPad, placeholder: "79.99")
                 field("Bought at", text: $store, placeholder: "Total Wine")
             }
+
+            // The shelf price, which is not always what you paid -- a sale, a
+            // club discount and a bundle all make the two differ.
+            //
+            // This is the app's price reference and it belongs to you. Every
+            // third-party source carries a licensing question; a price you
+            // wrote down about a shelf you stood in front of carries none, and
+            // it gets better with use rather than staler.
+            field(
+                "Shelf price (if it differed)", text: $shelfPrice,
+                keyboard: .decimalPad, placeholder: "89.99")
 
             // Quiet on purpose. It reports a comparison with YOUR OWN record
             // and stops -- it never tells anybody not to buy a bottle they are
@@ -592,6 +604,7 @@ struct AddBottleView: View {
             volumeMl: Double(volumeMl) ?? 750,
             purchasePriceCents: price.isEmpty ? nil : Int((Double(price) ?? 0) * 100),
             purchaseStore: store.isEmpty ? nil : store,
+            shelfPriceCents: Double(shelfPrice).map { Int(($0 * 100).rounded()) },
             storageLocation: storageLocation.isEmpty ? nil : storageLocation,
             shelfNumber: Int(shelfNumber),
             openedAt: isAlreadyOpen ? Int64(openedOn.timeIntervalSince1970 * 1000) : nil)

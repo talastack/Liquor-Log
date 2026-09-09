@@ -20,11 +20,18 @@ public enum PriceHistory: Sendable {
     /// One previous purchase of the same product.
     public struct Purchase: Hashable, Sendable {
         public let cents: Int
+        /// What the shelf said, which is not always what was paid: a sale, a
+        /// club discount and a bundle all make the two differ.
+        public let shelfCents: Int?
         public let purchasedAt: Date?
         public let store: String?
 
-        public init(cents: Int, purchasedAt: Date? = nil, store: String? = nil) {
+        public init(
+            cents: Int, shelfCents: Int? = nil,
+            purchasedAt: Date? = nil, store: String? = nil
+        ) {
             self.cents = cents
+            self.shelfCents = shelfCents
             self.purchasedAt = purchasedAt
             self.store = store
         }
@@ -58,6 +65,39 @@ public enum PriceHistory: Sendable {
             return "You have bought this \(count) times, from "
                 + "\(Money.short(lowestCents)) to \(Money.short(highestCents))."
         }
+    }
+
+    /// A price reference built from what the USER has seen on shelves.
+    ///
+    /// This is the app's answer to "what should this cost", and it deliberately
+    /// uses nobody else's data. Every third-party price source carries a
+    /// licensing question -- state boards may assert rights in their lists,
+    /// retailers have terms, and resale figures have no free stable source at
+    /// all. What somebody wrote down about a shelf they stood in front of has
+    /// none of those problems.
+    ///
+    /// It also gets better with use rather than staler, which no published
+    /// figure does.
+    ///
+    /// Nil until at least one shelf price has been recorded: a reference built
+    /// from nothing would be a number nobody could defend.
+    public static func shelfReference(
+        _ purchases: [Purchase], asOfYear: Int? = nil
+    ) -> PriceReference? {
+        let seen = purchases.compactMap(\.shelfCents).filter { $0 > 0 }.sorted()
+        guard !seen.isEmpty else { return nil }
+
+        let middle = seen.count / 2
+        let median = seen.count % 2 == 1
+            ? seen[middle]
+            : (seen[middle - 1] + seen[middle]) / 2
+
+        return PriceReference(
+            cents: median,
+            source: seen.count == 1
+                ? "the shelf price you recorded"
+                : "the \(seen.count) shelf prices you recorded",
+            asOfYear: asOfYear)
     }
 
     /// Builds the summary. Nil when there is nothing to compare against, which

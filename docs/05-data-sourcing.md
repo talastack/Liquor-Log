@@ -107,10 +107,25 @@ photographs to other users.
 | Who actually distilled it — DSP numbers, permit holders | **TTB permit / DSP listings** | Same basis. |
 | Distillery and brand ownership | **Wikidata** | CC0 public-domain dedication. No attribution burden, nothing to propagate. |
 | Four Roses recipe codes and mashbills | **Distillery-published material** | Facts the distillery states publicly about its own product. |
-| Retail price reference | **State control-board price lists** — Oregon OLCC, Virginia ABC, Pennsylvania PLCB and peers | Public records. **See the caveat below.** |
+| Retail price reference | **The user's own recorded shelf prices** | Their data. No third party, no licence, no staleness. |
 | Beer shelf life | **Per-brewery published freshness statements**, quoted per row | Facts, individually cited. |
 
-### The state price list caveat — ASK A LAWYER
+### The app ships NO third-party price data
+
+The price reference is what the user wrote down about a shelf they stood in
+front of — `bottles.shelf_price_cents`. That has no owner but them, needs no
+licence, cannot be revoked, and improves with use rather than going stale.
+
+It is also the honest answer to a question the research says apps lose on:
+*"the fair price on a ton of bottles is absolute horse shit making the app
+useless as a guide."* You cannot be wrong about what you saw.
+
+`scripts/import_price_list.py` exists for anyone who has done the legal work
+below and wants a board's figures as well. It refuses to write without
+`--licence-checked`, and **no board has been imported** — every one of the 201
+catalogue rows has `msrp_cents: null`.
+
+### The state price list caveat — ASK A LAWYER BEFORE IMPORTING
 
 17 U.S.C. §105 removes copyright from **federal** government works. It does not
 apply to the states, and a state may assert copyright in its own publications.
