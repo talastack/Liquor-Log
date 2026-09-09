@@ -146,6 +146,65 @@ public struct BottleRepository: Sendable {
         return (savedProduct, savedBottle)
     }
 
+    /// Saves an edited bottle.
+    ///
+    /// **The identity columns are not writable through here.** `id` addresses
+    /// the row, and `createdAt`, `userId` and the sync columns are taken from
+    /// the stored copy rather than from the caller — a screen that round-trips
+    /// a record can otherwise send back a stale `createdAt` or, worse, a
+    /// `user_id` it guessed, and RLS would then hide the row from its owner
+    /// forever.
+    ///
+    /// `saveLocal` stamps `updated_at` and queues the push, so an edit made
+    /// offline reaches other devices with the time of the EDIT on it rather
+    /// than the time it happened to sync.
+    @discardableResult
+    public func update(_ bottle: Bottle) throws -> Bottle {
+        try db.queue.write { db in
+            guard let stored = try Bottle.filter(key: bottle.id).fetchOne(db) else {
+                throw DataError.bottleNotFound(bottle.id)
+            }
+
+            var edited = bottle
+            edited.userId = stored.userId
+            edited.createdAt = stored.createdAt
+            // Editing a bottle is not un-deleting one. A tombstone stays a
+            // tombstone until something explicitly revives it.
+            edited.deletedAt = stored.deletedAt
+
+            try edited.saveLocal(db)
+            return edited
+        }
+    }
+
+    /// Regulation problems with a bottle as it stands.
+    ///
+    /// The engine has held these rules since the first commit and NOTHING
+    /// called them, so a "bottled in bond" at 43% saved silently. They are
+    /// surfaced as warnings rather than enforced as errors: a label really can
+    /// contradict the regulations, an old bottle can predate a rule, and
+    /// refusing to save somebody's real bottle because it fails a check is how
+    /// an app loses to a spreadsheet.
+    public func validationIssues(for bottle: Bottle) -> [Classification.Issue] {
+        guard let classType = try? classType(of: bottle) else { return [] }
+        return Classification.validate(
+            classType: classType,
+            abv: bottle.abv.map { ABV(percent: $0) },
+            statedAgeYears: bottle.ageMonths.map { $0 / 12 },
+            isBottledInBond: false,
+            volumeMilliliters: bottle.volumeMl)
+    }
+
+    /// The class of what is in a bottle, from the custom catalogue.
+    ///
+    /// The BUNDLED catalogue is a file the app layer holds, so a bottle
+    /// matched to it resolves there instead — this covers the rows that live
+    /// in the database.
+    private func classType(of bottle: Bottle) throws -> ClassType? {
+        guard let id = bottle.catalogProductId else { return nil }
+        return try customProduct(id: id)?.classType
+    }
+
     /// Products the user added themselves, newest first.
     public func customProducts() throws -> [CustomCatalogEntry] {
         try db.queue.read { db in

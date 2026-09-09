@@ -18,6 +18,7 @@ struct BottleDetailView: View {
     /// it did.
     @State private var justPouredId: String?
     @State private var isSettingLevel = false
+    @State private var isEditing = false
     /// What you paid for OTHER bottles of this product. Excludes this one --
     /// comparing a price against itself always reports "about what you usually
     /// pay".
@@ -60,6 +61,17 @@ struct BottleDetailView: View {
         .background(Palette.background)
         .navigationBarTitleDisplayMode(.inline)
         .task { reload() }
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button("Edit") { isEditing = true }
+                    .foregroundStyle(Palette.gold)
+            }
+        }
+        .sheet(isPresented: $isEditing) {
+            NavigationStack {
+                EditBottleView(bottleId: bottleId, onSave: { reload() })
+            }
+        }
         .sheet(isPresented: $isSettingLevel) {
             NavigationStack {
                 SetLevelView(bottleId: bottleId, onSave: { reload() })
