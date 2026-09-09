@@ -209,11 +209,17 @@ struct TastingSheetView: View {
     /// scorches at the same strength, and the label cannot tell you which you
     /// have. It is the reason people chase cask strength at all.
     ///
-    /// Only shown when the strength is known, because the whole value is the
-    /// COMPARISON — heat on its own is just a number.
+    /// Shown whenever the tasting has a bottle, and the STRENGTH only gates the
+    /// verdict. It used to gate the whole section, which meant that on a
+    /// barrel-proof bottle nobody had typed a proof into — exactly the bottles
+    /// this question is for — the feature silently did not exist.
+    ///
+    /// Recording that something drank hot is worth keeping on its own. The
+    /// comparison is a bonus, and when it is missing the app says what is
+    /// needed rather than hiding.
     @ViewBuilder
     private var heatRow: some View {
-        if let abv = bottleABV {
+        if bottleId != nil {
             VStack(alignment: .leading, spacing: Space.s) {
                 SectionLabel("How hot did it drink?")
 
@@ -234,24 +240,36 @@ struct TastingSheetView: View {
                     }
                 }
 
-                if let heat {
-                    let result = PerceivedProof.compare(abv: abv, felt: heat)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(result.headline)
-                            .font(TypeScale.body())
-                            .foregroundStyle(tint(result.verdict))
-                        Text(result.summary)
+                if let abv = bottleABV {
+                    if let heat {
+                        let result = PerceivedProof.compare(abv: abv, felt: heat)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(result.headline)
+                                .font(TypeScale.body())
+                                .foregroundStyle(tint(result.verdict))
+                            Text(result.summary)
+                                .font(TypeScale.caption())
+                                .textCase(nil)
+                                .foregroundStyle(Palette.textMuted)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    } else {
+                        Text(String(format: "%.1f proof usually drinks ", abv.proof)
+                             + PerceivedProof.expectedHeat(for: abv).label.lowercased() + ".")
                             .font(TypeScale.caption())
                             .textCase(nil)
                             .foregroundStyle(Palette.textMuted)
-                            .fixedSize(horizontal: false, vertical: true)
                     }
                 } else {
-                    Text(String(format: "%.1f proof usually drinks ", abv.proof)
-                         + PerceivedProof.expectedHeat(for: abv).label.lowercased() + ".")
+                    // Actionable rather than absent. This is the barrel-proof
+                    // case, which is precisely where the comparison is worth
+                    // the most.
+                    Text("Add the proof on this bottle and the app will tell you "
+                         + "whether it drinks above or below it.")
                         .font(TypeScale.caption())
                         .textCase(nil)
                         .foregroundStyle(Palette.textMuted)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
         }
