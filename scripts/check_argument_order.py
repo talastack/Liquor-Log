@@ -24,6 +24,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SOURCES = [ROOT / "IOS"]
 
+# Build output and vendored dependencies. Only OUR call sites are our business,
+# and a Mac that has run `swift test` or opened Xcode has thousands of files
+# under these that a Windows checkout never sees -- which is exactly how this
+# script passed here and crashed there.
+SKIP = {".build", "DerivedData", "Pods", "Carthage", ".swiftpm", "checkouts"}
+
 # A parameter line inside an initialiser: `label: Type = default,`
 PARAM = re.compile(r"^\s*([a-z][A-Za-z0-9]*)\s*:\s*[^=,]+")
 
@@ -142,7 +148,17 @@ def first_disorder(labels, declared):
 def main():
     swift = []
     for root in SOURCES:
-        swift.extend(sorted(root.rglob("*.swift")))
+        for path in sorted(root.rglob("*.swift")):
+            # A checked-out dependency is literally a DIRECTORY named
+            # "GRDB.swift", so the pattern matches it and reading it raises
+            # IsADirectoryError. Requiring a file is the fix for that; skipping
+            # build directories is the fix for the larger mistake of auditing
+            # somebody else's source at all.
+            if not path.is_file():
+                continue
+            if any(part in SKIP for part in path.parts):
+                continue
+            swift.append(path)
 
     declarations = {}
     for path in swift:
