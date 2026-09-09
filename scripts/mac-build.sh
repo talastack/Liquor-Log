@@ -86,13 +86,13 @@ echo "ok: all $count Swift files under IOS/App are in the project"
 # 4. Repo checks, which need no Swift toolchain
 # ---------------------------------------------------------------------------
 
-for check in check_schema_mirror check_catalog check_bundled_data check_flavor_wheel check_argument_order; do
+for check in check_schema_mirror check_catalog check_bundled_data check_flavor_wheel check_argument_order check_plist; do
   python3 "scripts/$check.py" >/dev/null || {
     echo "FAILED: scripts/$check.py -- run it directly to see why" >&2
     exit 1
   }
 done
-echo "ok: schema, catalog, bundled data, flavour wheel and argument order pass"
+echo "ok: schema, catalog, bundled data, wheel, argument order and plists pass"
 
 echo
 echo "Now open it and build:"

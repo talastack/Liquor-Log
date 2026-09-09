@@ -62,6 +62,7 @@ struct AddBottleView: View {
     @State private var fillPercent: Double = 100
 
     @State private var error: String?
+    @State private var isScanning = false
 
     /// What you have paid for the chosen product before, for the live verdict
     /// as a price is typed.
@@ -106,6 +107,11 @@ struct AddBottleView: View {
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button("Cancel") { dismiss() }.foregroundStyle(Palette.textSecondary)
+            }
+        }
+        .sheet(isPresented: $isScanning) {
+            NavigationStack {
+                ScanLabelView { reading, product in apply(reading, product) }
             }
         }
         .alert("Could not save", isPresented: .constant(error != nil)) {
@@ -199,6 +205,23 @@ struct AddBottleView: View {
                 }
                 Divider().overlay(Palette.line)
             }
+
+            // Offered ALONGSIDE search and typing, never instead of them.
+            // The research has a developer who built label recognition and
+            // removed it because it was slower than typing; if that turns out
+            // to be true here, this button goes and nothing else changes.
+            Button { isScanning = true } label: {
+                HStack(spacing: Space.s) {
+                    Image(systemName: "camera")
+                    Text("Scan the label")
+                }
+                .font(TypeScale.body().weight(.semibold))
+                .foregroundStyle(Palette.text)
+                .frame(maxWidth: .infinity, minHeight: 50)
+                .overlay(RoundedRectangle(cornerRadius: 11)
+                    .stroke(Palette.line, lineWidth: 1))
+            }
+            .padding(.top, Space.s)
 
             Button { isTypingItIn = true } label: {
                 HStack(spacing: Space.s) {
@@ -582,6 +605,39 @@ struct AddBottleView: View {
     private var canSave: Bool {
         if chosen != nil { return true }
         return !customBrand.trimmingCharacters(in: .whitespaces).isEmpty
+    }
+
+    /// Fills the form from a scan. **Only fields the label actually carried**,
+    /// so a second scan cannot blank something already typed, and a field the
+    /// reader is unsure about is left alone rather than overwritten with a
+    /// guess.
+    private func apply(_ reading: LabelReader.Reading, _ product: CatalogProduct?) {
+        if let product {
+            choose(product)
+        } else if !reading.nameCandidate.isEmpty, chosen == nil {
+            // No catalogue match: fall into the type-it-in path with the name
+            // already there, rather than leaving somebody at an empty form
+            // holding a bottle the catalogue has never heard of.
+            isTypingItIn = true
+            if customBrand.isEmpty {
+                customBrand = reading.nameCandidate.capitalized
+            }
+        }
+
+        // The proof, not the ABV. It is what the label prints and what the
+        // rest of the form expects.
+        if let proof = reading.proof { self.proof = String(format: "%.1f", proof) }
+        if let size = reading.volumeMilliliters { volumeMl = String(Int(size)) }
+        if let batch = reading.batchCode { batchNumber = batch }
+        if let barrel = reading.barrelNumber { barrelNumber = barrel }
+        if let code = reading.recipeCode { recipeCode = code }
+        if let age = reading.statedAgeYears { ageYears = String(age) }
+
+        // A label saying "single barrel" or naming a barrel is a store pick or
+        // a single barrel, so the section holding those fields opens itself.
+        if reading.isSingleBarrel || reading.barrelNumber != nil {
+            isStorePick = true
+        }
     }
 
     private var typedPriceCents: Int? {

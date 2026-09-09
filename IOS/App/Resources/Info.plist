@@ -53,6 +53,18 @@
        and honours the system setting; pinning either one here would silently
        override that. -->
 
+  <!-- Required, and not optional in the ordinary sense: iOS terminates the
+       app outright the first time it touches the camera or the photo library
+       without a reason string. It is not a permission failure with an error to
+       handle; it is an immediate crash, and only on a real device.
+
+       Written as what the app does with the photo rather than as a request,
+       because this is the sentence somebody reads while deciding. -->
+  <key>NSCameraUsageDescription</key>
+  <string>To read a bottle label. The photo is processed on this phone and is never uploaded.</string>
+  <key>NSPhotoLibraryUsageDescription</key>
+  <string>To read a bottle label from a photo you already took. It is processed on this phone and is never uploaded.</string>
+
   <!-- Sync configuration, substituted from Config/Base.xcconfig. Both are
        EMPTY unless somebody has created IOS/Secrets.xcconfig, and the app
        treats empty as "no account features" rather than as an error: the whole

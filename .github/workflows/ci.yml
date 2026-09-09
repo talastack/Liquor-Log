@@ -70,6 +70,12 @@ jobs:
       - name: Check argument order
         run: python3 scripts/check_argument_order.py
 
+      # A malformed Info.plist fails only on a Mac, and a missing usage string
+      # does not fail at all -- iOS terminates the app the first time it opens
+      # the camera, on a device, with nothing useful logged.
+      - name: Check plists
+        run: python3 scripts/check_plist.py
+
       - name: Validate shipped JSON
         run: |
           for file in shared/data/*.json; do
