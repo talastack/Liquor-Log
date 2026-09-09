@@ -35,6 +35,14 @@ begin
     'tasting_notes', 'wishlist_items', 'knowledge_notes'
   ]
   loop
+    -- Dropped first because CREATE POLICY has no IF NOT EXISTS, and this file
+    -- gets re-run every time the schema is reworked. A script you cannot run
+    -- twice is one people edit by hand instead, which is how a policy quietly
+    -- stops matching the file that is supposed to define it.
+    execute format('drop policy if exists %I_owner_select on %I', t, t);
+    execute format('drop policy if exists %I_owner_insert on %I', t, t);
+    execute format('drop policy if exists %I_owner_update on %I', t, t);
+
     execute format(
       'create policy %I_owner_select on %I for select using (auth.uid() = user_id)', t, t);
     execute format(
@@ -51,6 +59,7 @@ end $$;
 
 -- Server-owned. Pulled, never pushed: no insert or update policy exists, so a
 -- client attempting either is refused by RLS rather than by client-side code.
+drop policy if exists subscriptions_owner_select on subscriptions;
 create policy subscriptions_owner_select on subscriptions
   for select using (auth.uid() = user_id);
 

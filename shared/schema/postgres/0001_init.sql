@@ -30,9 +30,23 @@
 
 begin;
 
--- Supabase manages auth.users. Stubbed in CI so this file applies standalone.
-create schema if not exists auth;
-create table if not exists auth.users (id uuid primary key);
+-- Supabase already provides auth.users, and does NOT grant the SQL editor
+-- rights inside the auth schema -- that schema is owned by supabase_auth_admin.
+-- Creating it unconditionally fails with "permission denied for schema auth".
+--
+-- CI applies this file to a bare Postgres where auth.users does not exist, so
+-- the stub still has to happen there. Hence the guard: create it only when it
+-- is genuinely missing, and never touch it when Supabase owns it.
+--
+-- EXECUTE rather than plain DDL so the statements are not even parsed on a
+-- database where the branch is skipped.
+do $$
+begin
+  if to_regclass('auth.users') is null then
+    execute 'create schema if not exists auth';
+    execute 'create table auth.users (id uuid primary key)';
+  end if;
+end $$;
 
 -- ---------------------------------------------------------------------------
 -- Server clock
