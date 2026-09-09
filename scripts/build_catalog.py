@@ -318,6 +318,144 @@ ROWS = [
     ("breckenridge-bourbon", "Breckenridge", "Breckenridge", "Blended Bourbon", "blendOfStraightBourbon", "blend", 43.0, None, [], None),
     ("stranahans-original", "Stranahan's", "Stranahan's", "Original", "americanSingleMalt", "smallBatch", 47.0, None, [], None),
     ("westland-american-oak", "Westland", "Westland", "American Oak", "americanSingleMalt", "smallBatch", 46.0, None, [], None),
+
+    # =========================================================================
+    # Third pass: what a bourbon drinker branches into.
+    #
+    # American whiskey was 172 rows and everything else was one to five, so a
+    # shelf check missed every Scotch on the shelf. The app still launches on
+    # bourbon -- that is not changing -- but somebody with a dozen single malts
+    # beside their bourbon should not have to type all twelve.
+    #
+    # Same rules as the other passes: a stated strength or an honest null for a
+    # cask-strength release, no duplicate identity, and verified:false until a
+    # COLA says otherwise.
+    # =========================================================================
+
+    # ---------------------------------------------------------- Scotch, malt
+    ("glenfiddich-15", "William Grant", "Glenfiddich", "15 Year Solera", "singleMaltScotch", "unspecified", 40.0, 15, [], None),
+    ("glenfiddich-18", "William Grant", "Glenfiddich", "18 Year", "singleMaltScotch", "unspecified", 40.0, 18, [], None),
+    ("glenlivet-12", "The Glenlivet", "The Glenlivet", "12 Year", "singleMaltScotch", "unspecified", 40.0, 12, [], None),
+    ("glenlivet-18", "The Glenlivet", "The Glenlivet", "18 Year", "singleMaltScotch", "unspecified", 43.0, 18, [], None),
+    ("macallan-18-sherry", "The Macallan", "The Macallan", "18 Year Sherry Oak", "singleMaltScotch", "unspecified", 43.0, 18, [], None),
+    ("macallan-double-cask-12", "The Macallan", "The Macallan", "Double Cask 12 Year", "singleMaltScotch", "unspecified", 40.0, 12, [], None),
+    ("highland-park-12", "Highland Park", "Highland Park", "12 Year Viking Honour", "singleMaltScotch", "unspecified", 40.0, 12, [], None),
+    ("highland-park-18", "Highland Park", "Highland Park", "18 Year", "singleMaltScotch", "unspecified", 43.0, 18, [], None),
+    ("balvenie-doublewood-12", "William Grant", "The Balvenie", "DoubleWood 12 Year", "singleMaltScotch", "unspecified", 43.0, 12, [], None),
+    ("balvenie-caribbean-14", "William Grant", "The Balvenie", "Caribbean Cask 14 Year", "singleMaltScotch", "unspecified", 43.0, 14, [], None),
+    ("glenmorangie-10", "Glenmorangie", "Glenmorangie", "Original 10 Year", "singleMaltScotch", "unspecified", 40.0, 10, [], None),
+    ("glenmorangie-lasanta", "Glenmorangie", "Glenmorangie", "Lasanta 12 Year", "singleMaltScotch", "unspecified", 43.0, 12, [], None),
+    ("glenmorangie-nectar-dor", "Glenmorangie", "Glenmorangie", "Nectar d'Or", "singleMaltScotch", "unspecified", 46.0, None, [], None),
+    ("ardbeg-uigeadail", "Ardbeg", "Ardbeg", "Uigeadail", "singleMaltScotch", "unspecified", 54.2, None, [], None),
+    ("ardbeg-corryvreckan", "Ardbeg", "Ardbeg", "Corryvreckan", "singleMaltScotch", "unspecified", 57.1, None, [], None),
+    ("lagavulin-8", "Lagavulin", "Lagavulin", "8 Year", "singleMaltScotch", "unspecified", 48.0, 8, [], None),
+    ("laphroaig-quarter-cask", "Laphroaig", "Laphroaig", "Quarter Cask", "singleMaltScotch", "unspecified", 48.0, None, [], None),
+    ("laphroaig-lore", "Laphroaig", "Laphroaig", "Lore", "singleMaltScotch", "unspecified", 48.0, None, [], None),
+    ("talisker-10", "Talisker", "Talisker", "10 Year", "singleMaltScotch", "unspecified", 45.8, 10, [], None),
+    ("talisker-storm", "Talisker", "Talisker", "Storm", "singleMaltScotch", "unspecified", 45.8, None, [], None),
+    ("oban-14", "Oban", "Oban", "14 Year", "singleMaltScotch", "unspecified", 43.0, 14, [], None),
+    ("springbank-10", "Springbank", "Springbank", "10 Year", "singleMaltScotch", "unspecified", 46.0, 10, [], None),
+    ("bruichladdich-classic", "Bruichladdich", "Bruichladdich", "The Classic Laddie", "singleMaltScotch", "unspecified", 50.0, None, [], None),
+    ("port-charlotte-10", "Bruichladdich", "Port Charlotte", "10 Year", "singleMaltScotch", "unspecified", 50.0, 10, [], None),
+    ("bowmore-12", "Bowmore", "Bowmore", "12 Year", "singleMaltScotch", "unspecified", 40.0, 12, [], None),
+    ("bunnahabhain-12", "Bunnahabhain", "Bunnahabhain", "12 Year", "singleMaltScotch", "unspecified", 46.3, 12, [], None),
+    ("caol-ila-12", "Caol Ila", "Caol Ila", "12 Year", "singleMaltScotch", "unspecified", 43.0, 12, [], None),
+    ("aberlour-12", "Aberlour", "Aberlour", "12 Year Double Cask", "singleMaltScotch", "unspecified", 40.0, 12, [], None),
+    ("aberlour-abunadh", "Aberlour", "Aberlour", "A'bunadh", "singleMaltScotch", "unspecified", None, None, [BP], None),
+    ("glendronach-12", "GlenDronach", "GlenDronach", "12 Year Original", "singleMaltScotch", "unspecified", 43.0, 12, [], None),
+    ("glendronach-15", "GlenDronach", "GlenDronach", "15 Year Revival", "singleMaltScotch", "unspecified", 46.0, 15, [], None),
+    ("dalmore-12", "The Dalmore", "The Dalmore", "12 Year", "singleMaltScotch", "unspecified", 40.0, 12, [], None),
+    ("glenfarclas-12", "Glenfarclas", "Glenfarclas", "12 Year", "singleMaltScotch", "unspecified", 43.0, 12, [], None),
+    ("glenfarclas-105", "Glenfarclas", "Glenfarclas", "105 Cask Strength", "singleMaltScotch", "unspecified", 60.0, None, [], None),
+    ("kilchoman-machir-bay", "Kilchoman", "Kilchoman", "Machir Bay", "singleMaltScotch", "unspecified", 46.0, None, [], None),
+    ("arran-10", "Arran", "Arran", "10 Year", "singleMaltScotch", "unspecified", 46.0, 10, [], None),
+    ("craigellachie-13", "Craigellachie", "Craigellachie", "13 Year", "singleMaltScotch", "unspecified", 46.0, 13, [], None),
+
+    # ------------------------------------------------------ Scotch, blended
+    ("jw-green", "Johnnie Walker", "Johnnie Walker", "Green Label 15 Year", "blendedMaltScotch", "blend", 43.0, 15, [], None),
+    ("jw-blue", "Johnnie Walker", "Johnnie Walker", "Blue Label", "blendedScotch", "blend", 40.0, None, [], None),
+    ("chivas-12", "Chivas Brothers", "Chivas Regal", "12 Year", "blendedScotch", "blend", 40.0, 12, [], None),
+    ("dewars-white", "Dewar's", "Dewar's", "White Label", "blendedScotch", "blend", 40.0, None, [], None),
+    ("famous-grouse", "Edrington", "The Famous Grouse", "", "blendedScotch", "blend", 40.0, None, [], None),
+
+    # ----------------------------------------------------------------- Irish
+    ("jameson-black-barrel", "Midleton", "Jameson", "Black Barrel", "irishWhiskey", "blend", 40.0, None, [], None),
+    ("redbreast-15", "Midleton", "Redbreast", "15 Year", "singlePotStillIrish", "unspecified", 46.0, 15, [], None),
+    ("yellow-spot-12", "Midleton", "Yellow Spot", "12 Year", "singlePotStillIrish", "unspecified", 46.0, 12, [], None),
+    ("powers-gold", "Midleton", "Powers", "Gold Label", "irishWhiskey", "blend", 43.2, None, [], None),
+    ("powers-johns-lane", "Midleton", "Powers", "John's Lane 12 Year", "singlePotStillIrish", "unspecified", 46.0, 12, [], None),
+    ("bushmills-10", "Bushmills", "Bushmills", "10 Year Single Malt", "singleMaltIrish", "unspecified", 40.0, 10, [], None),
+    ("bushmills-black-bush", "Bushmills", "Bushmills", "Black Bush", "irishWhiskey", "blend", 40.0, None, [], None),
+    ("teeling-small-batch", "Teeling", "Teeling", "Small Batch", "irishWhiskey", "smallBatch", 46.0, None, [], None),
+    ("tullamore-dew", "Tullamore", "Tullamore D.E.W.", "Original", "irishWhiskey", "blend", 40.0, None, [], None),
+
+    # -------------------------------------------------------------- Japanese
+    ("nikka-from-the-barrel", "Nikka", "Nikka", "From The Barrel", "japaneseWhisky", "blend", 51.4, None, [], None),
+    ("nikka-coffey-malt", "Nikka", "Nikka", "Coffey Malt", "japaneseWhisky", "unspecified", 45.0, None, [], None),
+    ("hibiki-harmony", "Suntory", "Hibiki", "Japanese Harmony", "japaneseWhisky", "blend", 43.0, None, [], None),
+    ("yamazaki-12", "Suntory", "Yamazaki", "12 Year", "japaneseWhisky", "unspecified", 43.0, 12, [], None),
+    ("hakushu-12", "Suntory", "Hakushu", "12 Year", "japaneseWhisky", "unspecified", 43.0, 12, [], None),
+
+    # ------------------------------------------------------------------- Rum
+    ("appleton-signature", "Appleton Estate", "Appleton Estate", "Signature", "rum", "blend", 40.0, None, [], None),
+    ("mount-gay-black-barrel", "Mount Gay", "Mount Gay", "Black Barrel", "rum", "blend", 43.0, None, [], None),
+    ("mount-gay-xo", "Mount Gay", "Mount Gay", "XO", "rum", "blend", 43.0, None, [], None),
+    ("diplomatico-reserva", "Diplomatico", "Diplomatico", "Reserva Exclusiva", "rum", "blend", 40.0, None, [], None),
+    ("el-dorado-12", "Demerara Distillers", "El Dorado", "12 Year", "rum", "blend", 40.0, 12, [], None),
+    ("el-dorado-15", "Demerara Distillers", "El Dorado", "15 Year", "rum", "blend", 43.0, 15, [], None),
+    ("flor-de-cana-12", "Flor de Caña", "Flor de Caña", "12 Year", "rum", "blend", 40.0, 12, [], None),
+    ("smith-and-cross", "Hampden", "Smith & Cross", "Navy Strength", "rum", "blend", 57.0, None, [], None),
+    ("wray-and-nephew", "J. Wray", "Wray & Nephew", "White Overproof", "rum", "unspecified", 63.0, None, [], None),
+
+    # ----------------------------------------------------------------- Agave
+    ("fortaleza-reposado", "Fortaleza", "Fortaleza", "Reposado", "tequilaReposado", "unspecified", 40.0, None, [], None),
+    ("fortaleza-anejo", "Fortaleza", "Fortaleza", "Añejo", "tequilaAnejo", "unspecified", 40.0, None, [], None),
+    ("espolon-blanco", "Espolon", "Espolon", "Blanco", "tequilaBlanco", "unspecified", 40.0, None, [], None),
+    ("don-julio-blanco", "Don Julio", "Don Julio", "Blanco", "tequilaBlanco", "unspecified", 40.0, None, [], None),
+    ("don-julio-reposado", "Don Julio", "Don Julio", "Reposado", "tequilaReposado", "unspecified", 40.0, None, [], None),
+    ("tequila-ocho-plata", "Tequila Ocho", "Tequila Ocho", "Plata", "tequilaBlanco", "unspecified", 40.0, None, [], None),
+    ("herradura-reposado", "Herradura", "Herradura", "Reposado", "tequilaReposado", "unspecified", 40.0, None, [], None),
+    ("del-maguey-chichicapa", "Del Maguey", "Del Maguey", "Chichicapa", "mezcal", "unspecified", 46.0, None, [], None),
+    ("montelobos-joven", "Montelobos", "Montelobos", "Joven", "mezcal", "unspecified", 43.2, None, [], None),
+
+    # ------------------------------------------------------------------- Gin
+    ("tanqueray-ten", "Tanqueray", "Tanqueray", "No. Ten", "distilledGin", "unspecified", 47.3, None, [], None),
+    ("bombay-sapphire", "Bombay", "Bombay Sapphire", "", "londonDryGin", "unspecified", 47.0, None, [], None),
+    ("plymouth-gin", "Plymouth", "Plymouth", "Original", "distilledGin", "unspecified", 41.2, None, [], None),
+    ("sipsmith-london-dry", "Sipsmith", "Sipsmith", "London Dry", "londonDryGin", "unspecified", 41.6, None, [], None),
+    ("roku-gin", "Suntory", "Roku", "", "distilledGin", "unspecified", 43.0, None, [], None),
+    ("fords-gin", "Ford's", "Ford's", "London Dry", "londonDryGin", "unspecified", 45.0, None, [], None),
+    ("monkey-47", "Black Forest", "Monkey 47", "Schwarzwald Dry", "distilledGin", "unspecified", 47.0, None, [], None),
+    ("aviation-gin", "Aviation", "Aviation", "American Gin", "distilledGin", "unspecified", 42.0, None, [], None),
+
+    # ---------------------------------------------------------------- Brandy
+    ("hennessy-vsop", "Hennessy", "Hennessy", "VSOP Privilège", "cognac", "blend", 40.0, None, [], None),
+    ("remy-xo", "Rémy Martin", "Rémy Martin", "XO", "cognac", "blend", 40.0, None, [], None),
+    ("courvoisier-vs", "Courvoisier", "Courvoisier", "VS", "cognac", "blend", 40.0, None, [], None),
+    ("martell-vs", "Martell", "Martell", "VS Single Distillery", "cognac", "blend", 40.0, None, [], None),
+    ("pierre-ferrand-1840", "Pierre Ferrand", "Pierre Ferrand", "1840 Original Formula", "cognac", "blend", 45.0, None, [], None),
+
+    # ----------------------------------------------------------------- Vodka
+    ("grey-goose", "Grey Goose", "Grey Goose", "", "vodka", "unspecified", 40.0, None, [], None),
+    ("ketel-one", "Nolet", "Ketel One", "", "vodka", "unspecified", 40.0, None, [], None),
+    ("belvedere", "Belvedere", "Belvedere", "", "vodka", "unspecified", 40.0, None, [], None),
+
+    # -------------------------------------------------- Liqueur, amaro, vermouth
+    # No 40% floor on this family, and that is correct rather than lenient: a
+    # 16% vermouth is not under-strength, and rejecting it would be the app
+    # being confidently wrong. See ClassType.minimumBottlingStrength.
+    ("grand-marnier", "Marnier-Lapostolle", "Grand Marnier", "Cordon Rouge", "liqueur", "unspecified", 40.0, None, [], None),
+    ("aperol", "Campari Group", "Aperol", "", "amaro", "unspecified", 11.0, None, [], None),
+    ("amaro-nonino", "Nonino", "Amaro Nonino", "Quintessentia", "amaro", "unspecified", 35.0, None, [], None),
+    ("averna", "Averna", "Averna", "Amaro Siciliano", "amaro", "unspecified", 29.0, None, [], None),
+    ("cynar", "Campari Group", "Cynar", "", "amaro", "unspecified", 16.5, None, [], None),
+    ("chartreuse-green", "Chartreuse", "Chartreuse", "Green", "liqueur", "unspecified", 55.0, None, [], None),
+    ("chartreuse-yellow", "Chartreuse", "Chartreuse", "Yellow", "liqueur", "unspecified", 40.0, None, [], None),
+    ("benedictine", "Bénédictine", "Bénédictine", "D.O.M.", "liqueur", "unspecified", 40.0, None, [], None),
+    ("luxardo-maraschino", "Luxardo", "Luxardo", "Maraschino", "liqueur", "unspecified", 32.0, None, [], None),
+    ("st-germain", "St-Germain", "St-Germain", "Elderflower", "liqueur", "unspecified", 20.0, None, [], None),
+    ("dolin-dry", "Dolin", "Dolin", "Dry", "vermouth", "unspecified", 17.5, None, [], None),
+    ("cocchi-torino", "Cocchi", "Cocchi", "Vermouth di Torino", "vermouth", "unspecified", 16.0, None, [], None),
 ]
 
 RECIPE_CODES = {"four-roses-single-barrel": "OBSV"}
