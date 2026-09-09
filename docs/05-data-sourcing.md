@@ -110,7 +110,40 @@ photographs to other users.
 | Retail price reference | **The user's own recorded shelf prices** | Their data. No third party, no licence, no staleness. |
 | Beer shelf life | **Per-brewery published freshness statements**, quoted per row | Facts, individually cited. |
 
-### The app ships NO third-party price data
+### Where price data comes from, long term
+
+Three options were considered and only one is both legal and durable.
+
+**Copy a control board's list.** Restating somebody's compilation does not
+change where it came from. In the US facts are not copyrightable — *Feist v.
+Rural Telephone* (1991) ended "sweat of the brow", and an alphabetical price
+list has little of the originality in selection and arrangement that a
+compilation copyright needs — and there is no EU-style database right here. So
+extracting facts is a far better position than copying a file. But the exposure
+that remains is the **terms of service** of wherever it was fetched from, which
+is contract and does not care how the result is stored. Not worth it, and this
+project's standing instruction is to avoid the argument rather than win it.
+
+**Buy a feed.** Excluded on day one: a paid API, including a free tier, is a
+pricing decision somebody else can reverse.
+
+**Collect it.** Every person who records a shelf price contributes an
+observation. That data has no owner but us, carries no licence, cannot be
+revoked, and gets more accurate with use rather than staler — which no
+published figure does. It is also the only reference that can answer the
+question people actually ask, since control-state lists only cover control
+states and a suggested retail is not what anybody pays.
+
+This is Vivino's actual moat, and §10 of the research says it is the pattern
+this community welcomes: *"the site is only as good as the data it hosts."*
+
+`CommunityPrice` is the aggregation, built and tested. It stays silent below
+three reports, drops sightings older than eighteen months, uses the median so
+one airport markup cannot move it, prefers a regional figure, and prints the
+full spread beside the number. It never says MSRP and never claims a valuation.
+Collecting the reports needs the sync layer, which does not exist yet.
+
+### Until then, the app ships NO third-party price data
 
 The price reference is what the user wrote down about a shelf they stood in
 front of — `bottles.shelf_price_cents`. That has no owner but them, needs no
