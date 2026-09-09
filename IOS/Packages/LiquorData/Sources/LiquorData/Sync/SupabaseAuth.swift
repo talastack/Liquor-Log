@@ -252,8 +252,13 @@ public final class InMemoryCredentialStore: CredentialStore, @unchecked Sendable
 
     public init(refreshToken: String? = nil) { self.value = refreshToken }
 
+    // No `nonmutating` here: a class setter is already non-mutating, and the
+    // keyword is rejected outright. The protocol still requires it so that a
+    // STRUCT can conform -- KeychainCredentialStore writes to the keychain
+    // rather than to itself, and without `nonmutating` in the protocol it
+    // could not.
     public var refreshToken: String? {
         get { lock.lock(); defer { lock.unlock() }; return value }
-        nonmutating set { lock.lock(); value = newValue; lock.unlock() }
+        set { lock.lock(); value = newValue; lock.unlock() }
     }
 }
