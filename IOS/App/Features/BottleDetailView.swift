@@ -18,7 +18,19 @@ struct BottleDetailView: View {
     /// it did.
     @State private var justPouredId: String?
     @State private var isSettingLevel = false
+    /// What you paid for OTHER bottles of this product. Excludes this one --
+    /// comparing a price against itself always reports "about what you usually
+    /// pay".
     @State private var priceHistory: PriceHistory.Summary?
+
+    /// The shelf price to compare against, from every bottle of this product
+    /// INCLUDING this one.
+    ///
+    /// A separate load on purpose. These are two different questions and one
+    /// query cannot answer both: derived from `priceHistory`, the shelf price
+    /// you just typed onto your only bottle would be invisible on the very
+    /// screen you typed it into.
+    @State private var shelfReference: PriceReference?
 
     var body: some View {
         ScrollView {
@@ -161,6 +173,15 @@ struct BottleDetailView: View {
                     label: "Chill filtration",
                     value: filtered ? "Chill filtered" : "Non-chill filtered")
             }
+            if let bought = summary.bottle.purchaseDate {
+                FactRow(
+                    label: "Bought",
+                    value: Date(timeIntervalSince1970: Double(bought) / 1000)
+                        .formatted(date: .abbreviated, time: .omitted))
+            }
+            if let store = summary.bottle.purchaseStore {
+                FactRow(label: "Bought at", value: store)
+            }
             FactRow(
                 label: "Size",
                 value: "\(Int(summary.bottle.volumeMl.rounded())) ml",
@@ -179,7 +200,7 @@ struct BottleDetailView: View {
             // else's data with a licence attached and no board has been
             // imported, so in practice this is always the user's own record --
             // which is the point.
-            reference: priceHistory.flatMap { PriceHistory.shelfReference($0.purchases) }
+            reference: shelfReference
                 ?? env.product(for: summary.bottle)?.priceReference)
     }
 
@@ -196,6 +217,12 @@ struct BottleDetailView: View {
             }
             if let store = bottle.pickStore, bottle.isStorePick {
                 FactRow(label: "Picked at", value: store)
+            }
+            // The barrel number was being captured and never shown anywhere.
+            // On a product built around barrel identity that is the one field
+            // least allowed to go missing.
+            if let barrel = bottle.barrelNumber {
+                FactRow(label: "Barrel", value: barrel)
             }
             // Three rows, not one. A Blanton's label prints warehouse, rick and
             // floor separately, and people follow a specific rick across
@@ -351,6 +378,12 @@ struct BottleDetailView: View {
                 priceHistory = PriceHistory.summarise(
                     try env.bottles.purchaseHistory(
                         catalogProductId: productId, excluding: bottleId))
+
+                // Not excluding this bottle. Its own shelf price is a sighting
+                // like any other, and the most common collection has exactly
+                // one bottle of a thing.
+                shelfReference = PriceHistory.shelfReference(
+                    try env.bottles.purchaseHistory(catalogProductId: productId))
             }
         } catch {
             self.error = error.localizedDescription

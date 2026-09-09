@@ -30,6 +30,7 @@ struct AddBottleView: View {
     @State private var price = ""
     @State private var store = ""
     @State private var shelfPrice = ""
+    @State private var purchasedOn = Date()
 
     // Release detail
     @State private var isStorePick = false
@@ -287,6 +288,25 @@ struct AddBottleView: View {
             field(
                 "Shelf price (if it differed)", text: $shelfPrice,
                 keyboard: .decimalPad, placeholder: "89.99")
+
+            // The third of the three dates people keep -- purchased, opened,
+            // killed -- and the only one that was never captured. Without it
+            // "which of these has sat longest" cannot be answered, the price
+            // history has no dates on it, and the CSV column is always blank.
+            //
+            // Defaults to today because adding a bottle usually means having
+            // just bought it, and is editable for one that has been on the
+            // shelf for years.
+            VStack(alignment: .leading, spacing: Space.xs + 2) {
+                Text("Bought on")
+                    .font(TypeScale.caption())
+                    .textCase(nil)
+                    .foregroundStyle(Palette.textMuted)
+                DatePicker("", selection: $purchasedOn, displayedComponents: .date)
+                    .datePickerStyle(.compact)
+                    .labelsHidden()
+                    .tint(Palette.gold)
+            }
 
             // Quiet on purpose. It reports a comparison with YOUR OWN record
             // and stops -- it never tells anybody not to buy a bottle they are
@@ -602,6 +622,7 @@ struct AddBottleView: View {
             abv: Double(proof).map { $0 / 2 },
             chillFiltered: chillFiltered.value,
             volumeMl: Double(volumeMl) ?? 750,
+            purchaseDate: Int64(purchasedOn.timeIntervalSince1970 * 1000),
             purchasePriceCents: price.isEmpty ? nil : Int((Double(price) ?? 0) * 100),
             purchaseStore: store.isEmpty ? nil : store,
             shelfPriceCents: Double(shelfPrice).map { Int(($0 * 100).rounded()) },

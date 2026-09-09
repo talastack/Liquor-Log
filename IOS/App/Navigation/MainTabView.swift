@@ -115,6 +115,11 @@ struct TastingHistoryView: View {
         let title: String
         let rating: Int?
         let liked: String?
+        /// Was being recorded and never shown. The research rates would-buy-
+        /// again as MORE useful than a numeric score -- most people's ratings
+        /// cluster in one narrow band, and this one does not.
+        let rebuy: Rebuy?
+        let disliked: String?
         let descriptors: String
         let date: Date
     }
@@ -152,10 +157,22 @@ struct TastingHistoryView: View {
                             Text(row.date.formatted(date: .abbreviated, time: .omitted))
                                 .font(TypeScale.code(13))
                                 .foregroundStyle(Palette.textMuted)
+                            if let rebuy = row.rebuy {
+                                Text(rebuyLabel(rebuy))
+                                    .font(TypeScale.secondary())
+                                    .foregroundStyle(
+                                        rebuy == .no ? Palette.bad : Palette.gold)
+                            }
                             if let liked = row.liked, !liked.isEmpty {
                                 Text(liked)
                                     .font(TypeScale.secondary())
                                     .foregroundStyle(Palette.textSecondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                            if let disliked = row.disliked, !disliked.isEmpty {
+                                Text(disliked)
+                                    .font(TypeScale.secondary())
+                                    .foregroundStyle(Palette.textMuted)
                                     .fixedSize(horizontal: false, vertical: true)
                             }
                             if !row.descriptors.isEmpty {
@@ -193,11 +210,21 @@ struct TastingHistoryView: View {
                     title: env.name(for: summary.bottle),
                     rating: detail.tasting.rating,
                     liked: detail.tasting.liked,
+                    rebuy: detail.tasting.wouldRebuy,
+                    disliked: detail.tasting.disliked,
                     descriptors: describe(detail),
                     date: Date(timeIntervalSince1970: Double(detail.tasting.tastedAt) / 1000)))
             }
         }
         details = rows.sorted { $0.date > $1.date }
+    }
+
+    private func rebuyLabel(_ rebuy: Rebuy) -> String {
+        switch rebuy {
+        case .yes: return "Would buy again"
+        case .maybe: return "Might buy again"
+        case .no: return "Would not buy again"
+        }
     }
 
     private func describe(_ detail: TastingDetail) -> String {
