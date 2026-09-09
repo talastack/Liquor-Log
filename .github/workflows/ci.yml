@@ -63,6 +63,13 @@ jobs:
       - name: Check bundled data
         run: python3 scripts/check_bundled_data.py
 
+      # Swift requires labelled arguments in declaration order, and getting it
+      # wrong is a COMPILE error -- so on a repo authored without a Swift
+      # toolchain it is invisible until somebody opens Xcode. This finds every
+      # one of them on the Linux runner, for free, before the Mac is involved.
+      - name: Check argument order
+        run: python3 scripts/check_argument_order.py
+
       - name: Validate shipped JSON
         run: |
           for file in shared/data/*.json; do

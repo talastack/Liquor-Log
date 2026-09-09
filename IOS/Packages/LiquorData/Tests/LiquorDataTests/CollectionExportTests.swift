@@ -111,7 +111,7 @@ final class ReInventoryRepositoryTests: XCTestCase {
         let db = try database()
         let bottles = BottleRepository(db)
         let bottle = try bottles.add(
-            Bottle(customName: "Blanton's", storageLocation: "hall closet", volumeMl: 750))
+            Bottle(customName: "Blanton's", volumeMl: 750, storageLocation: "hall closet"))
         XCTAssertNil(bottle.lastVerifiedAt)
 
         try ReInventoryRepository(db).record(.present, for: bottle.id)

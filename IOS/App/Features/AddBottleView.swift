@@ -563,9 +563,9 @@ struct AddBottleView: View {
             volumeMl: Double(volumeMl) ?? 750,
             purchasePriceCents: price.isEmpty ? nil : Int((Double(price) ?? 0) * 100),
             purchaseStore: store.isEmpty ? nil : store,
-            openedAt: isAlreadyOpen ? Int64(openedOn.timeIntervalSince1970 * 1000) : nil,
             storageLocation: storageLocation.isEmpty ? nil : storageLocation,
-            shelfNumber: Int(shelfNumber))
+            shelfNumber: Int(shelfNumber),
+            openedAt: isAlreadyOpen ? Int64(openedOn.timeIntervalSince1970 * 1000) : nil)
 
         do {
             if chosen != nil {
