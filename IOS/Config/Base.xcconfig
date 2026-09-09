@@ -1,0 +1,25 @@
+// Build configuration.
+//
+// Committed. Real values go in IOS/Secrets.xcconfig, which is gitignored and
+// included optionally at the bottom -- so a fresh clone builds and runs with no
+// setup, just with sync switched off.
+//
+// THE ANON KEY IS NOT A SECRET. It ships in every binary and Supabase publishes
+// it deliberately; row-level security is what protects the data, not obscurity.
+// It lives here rather than in the repository because it is project-specific
+// configuration, and because a dev project and a production one must not be one
+// edit apart from each other.
+//
+// A SERVICE ROLE KEY MUST NEVER APPEAR IN ANY OF THESE FILES. It bypasses RLS
+// entirely. If one is ever needed it belongs in a server, never in an app
+// bundle -- anything shipped to a phone is readable by anybody who has the app.
+
+// HOST ONLY, no scheme. In xcconfig, "//" begins a comment -- so writing
+// https://abc.supabase.co silently truncates to "https:" and the failure looks
+// like a network error rather than a config one. Swift adds the scheme.
+SUPABASE_HOST =
+SUPABASE_ANON_KEY =
+
+// Optional include: the "?" means a missing file is not an error, so cloning
+// the repo and pressing build works before anybody has a Supabase project.
+#include? "Secrets.xcconfig"

@@ -47,6 +47,15 @@ struct MoreView: View {
             SectionLabel("Tools")
 
             NavigationLink {
+                SyncView()
+            } label: {
+                row(
+                    "Sync",
+                    detail: "Optional. Only for a second device.",
+                    symbol: "arrow.triangle.2.circlepath")
+            }
+
+            NavigationLink {
                 WishlistView()
             } label: {
                 row(

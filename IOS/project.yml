@@ -59,6 +59,13 @@ packages:
   LiquorData:
     path: Packages/LiquorData
 
+# Real values live in IOS/Secrets.xcconfig, which is gitignored and included
+# optionally by Base.xcconfig -- so a fresh clone builds with sync switched off
+# rather than failing on a missing file.
+configFiles:
+  debug: Config/Base.xcconfig
+  release: Config/Base.xcconfig
+
 targets:
   LiquorLog:
     type: application
