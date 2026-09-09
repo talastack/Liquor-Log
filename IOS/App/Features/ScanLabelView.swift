@@ -20,8 +20,9 @@ struct ScanLabelView: View {
     @Environment(AppEnvironment.self) private var env
     @Environment(\.dismiss) private var dismiss
 
-    /// Called with what was read and whichever catalogue row was chosen, if any.
-    let onUse: (LabelReader.Reading, CatalogProduct?) -> Void
+    /// Called with what was read, whichever catalogue row was chosen, and the
+    /// barcode if the photo happened to contain one.
+    let onUse: (LabelReader.Reading, CatalogProduct?, String?) -> Void
 
     @State private var image: UIImage?
     @State private var reading: LabelReader.Reading?
@@ -30,6 +31,8 @@ struct ScanLabelView: View {
     @State private var isPicking = false
     @State private var source: UIImagePickerController.SourceType = .camera
     @State private var isReading = false
+    @State private var barcode: String?
+    @State private var known: BarcodeIndex.Match?
     @State private var error: String?
 
     var body: some View {
@@ -44,6 +47,7 @@ struct ScanLabelView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, Space.xl)
                 } else if let reading {
+                    if barcode != nil { barcodeCard }
                     found(reading)
                     matches(reading)
                     useButton(reading)
@@ -128,6 +132,53 @@ struct ScanLabelView: View {
                 .foregroundStyle(Palette.textMuted)
                 .fixedSize(horizontal: false, vertical: true)
         }
+    }
+
+    /// What the barcode told us, which is either "you have scanned this
+    /// before" or nothing at all.
+    ///
+    /// There is no UPC database behind this and there is not meant to be: the
+    /// lookup table is your own shelf. The first scan of a product teaches it;
+    /// every scan after that is instant.
+    @ViewBuilder
+    private var barcodeCard: some View {
+        VStack(alignment: .leading, spacing: Space.xs) {
+            SectionLabel("Barcode")
+            Text(barcode ?? "")
+                .font(TypeScale.code(13))
+                .foregroundStyle(Palette.textMuted)
+
+            if let known {
+                Text("You have scanned this before.")
+                    .font(TypeScale.secondary())
+                    .foregroundStyle(Palette.good)
+
+                // Being ambiguous is the POINT, not a failure. Three Elijah
+                // Craig Barrel Proofs share one UPC and are three different
+                // whiskeys -- which is the clearest possible demonstration
+                // that a barcode cannot identify a barrel.
+                if known.isAmbiguous {
+                    Text("\(known.bottleCount) of your bottles share this code. "
+                         + "A barcode identifies the release, not the barrel — "
+                         + "check the batch and barrel below.")
+                        .font(TypeScale.caption())
+                        .textCase(nil)
+                        .foregroundStyle(Palette.gold)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            } else {
+                Text("New to you. Confirm what it is and it will be recognised "
+                     + "next time.")
+                    .font(TypeScale.caption())
+                    .textCase(nil)
+                    .foregroundStyle(Palette.textMuted)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(Space.l)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.line, lineWidth: 1))
     }
 
     private func preview(_ image: UIImage) -> some View {
@@ -237,7 +288,7 @@ struct ScanLabelView: View {
     private func useButton(_ reading: LabelReader.Reading) -> some View {
         VStack(spacing: Space.m) {
             Button {
-                onUse(reading, chosen)
+                onUse(reading, chosen, barcode)
                 dismiss()
             } label: {
                 Text("Use this")
@@ -252,6 +303,8 @@ struct ScanLabelView: View {
                 self.reading = nil
                 chosen = nil
                 lines = []
+                barcode = nil
+                known = nil
             } label: {
                 Text("Try another photo")
                     .font(TypeScale.secondary())
@@ -279,13 +332,32 @@ struct ScanLabelView: View {
         isReading = true
         error = nil
         defer { isReading = false }
+        // The barcode first, and its failure is never fatal. Most label
+        // photos will not contain one, and one photo answering both questions
+        // beats making somebody choose which kind of scan they meant.
+        barcode = try? await LabelScanner.barcode(in: image)
+        if let barcode {
+            known = try? BarcodeIndex(env.database).match(barcode)
+            // A remembered code preselects, but does not confirm. It resolves
+            // to a PRODUCT; whether that means "you own this" or only "you
+            // have this line" is the shelf check's call, not a scanner's.
+            if let productId = known?.catalogProductId {
+                chosen = env.catalog.product(productId)
+            }
+        }
+
         do {
             let found = try await LabelScanner.recognise(image)
             lines = found
             reading = LabelReader.read(found)
         } catch {
-            self.error = error.localizedDescription
-            reading = nil
+            // A barcode with no readable text is still a useful scan.
+            if barcode != nil {
+                reading = LabelReader.Reading()
+            } else {
+                self.error = error.localizedDescription
+                reading = nil
+            }
         }
     }
 }

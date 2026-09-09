@@ -260,6 +260,21 @@ create table bottles (
   -- misleads them, and gets better the more they use the app.
   shelf_price_cents   integer,
 
+  -- The barcode on THIS bottle, when somebody has scanned it.
+  --
+  -- A shortcut, never an identity. The whole argument of this product is that
+  -- a UPC identifies a SKU and cannot identify a barrel: a store pick usually
+  -- carries the base product's barcode, sometimes a generic "barrel select"
+  -- one, and sometimes a sticker over the original. Scanning is therefore
+  -- allowed to answer "you have this LINE" and never "you own this barrel" --
+  -- which is a verdict ShelfCheck already distinguishes.
+  --
+  -- There is no UPC database behind this and there is not meant to be. Those
+  -- are paid or scraped, both excluded. This column is the user's OWN lookup
+  -- table: scan a bottle once, say what it is, and it is recognised forever
+  -- after. It works offline and improves with use.
+  barcode             text,
+
   -- Where the bottle physically IS. Collections scatter across closets,
   -- basements and boxes, and people report this mattering more than remembering
   -- what they own.

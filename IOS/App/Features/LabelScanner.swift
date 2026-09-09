@@ -66,6 +66,29 @@ enum LabelScanner {
         return lines
     }
 
+    /// Any barcode in the image.
+    ///
+    /// The same on-device framework and the same photo, so scanning a label
+    /// finds a barcode for free -- one capture answers both questions rather
+    /// than making somebody choose which kind of scan they wanted.
+    ///
+    /// Restricted to the retail symbologies. QR and Data Matrix appear on
+    /// promotional neckers and shelf talkers and are never the product code.
+    static func barcode(in image: UIImage) async throws -> String? {
+        guard let cgImage = image.cgImage else { throw Failure.unreadableImage }
+
+        let request = VNDetectBarcodesRequest()
+        request.symbologies = [.upce, .ean8, .ean13, .code128]
+
+        let handler = VNImageRequestHandler(
+            cgImage: cgImage, orientation: orientation(of: image))
+        try handler.perform([request])
+
+        return (request.results ?? [])
+            .compactMap(\.payloadStringValue)
+            .first { $0.contains(where: \.isNumber) }
+    }
+
     private static func orientation(of image: UIImage) -> CGImagePropertyOrientation {
         switch image.imageOrientation {
         case .up: return .up

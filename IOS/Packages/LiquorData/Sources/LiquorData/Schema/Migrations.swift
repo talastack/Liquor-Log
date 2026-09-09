@@ -87,6 +87,7 @@ public enum Migrations {
                 t.column("purchase_price_cents", .integer)
                 t.column("purchase_store", .text)
                 t.column("shelf_price_cents", .integer)
+                t.column("barcode", .text)
                 t.column("storage_location", .text)
                 t.column("shelf_number", .integer)
                 t.column("opened_at", .integer)

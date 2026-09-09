@@ -202,6 +202,13 @@ public struct Bottle: SyncableRecord {
     /// wrote down about a shelf they stood in front of carries none.
     public var shelfPriceCents: Int?
 
+    /// The barcode on this bottle, once somebody has scanned it.
+    ///
+    /// A shortcut, never an identity: a UPC identifies a SKU and cannot
+    /// identify a barrel. Scanning answers "you have this line" and never
+    /// "you own this barrel".
+    public var barcode: String?
+
     /// Where the bottle physically is. Collections scatter across closets and
     /// boxes, and people report this mattering more than remembering what they
     /// own at all.
@@ -242,6 +249,7 @@ public struct Bottle: SyncableRecord {
         case purchaseDate = "purchase_date", purchasePriceCents = "purchase_price_cents"
         case purchaseStore = "purchase_store"
         case shelfPriceCents = "shelf_price_cents"
+        case barcode
         case storageLocation = "storage_location", shelfNumber = "shelf_number"
         case openedAt = "opened_at", finishedAt = "finished_at"
         case lastVerifiedAt = "last_verified_at"
@@ -283,6 +291,7 @@ public struct Bottle: SyncableRecord {
         purchasePriceCents: Int? = nil,
         purchaseStore: String? = nil,
         shelfPriceCents: Int? = nil,
+        barcode: String? = nil,
         storageLocation: String? = nil,
         shelfNumber: Int? = nil,
         openedAt: Int64? = nil,
@@ -311,6 +320,7 @@ public struct Bottle: SyncableRecord {
         self.volumeMl = volumeMl; self.pourSizeMl = pourSizeMl
         self.purchaseDate = purchaseDate; self.purchasePriceCents = purchasePriceCents
         self.purchaseStore = purchaseStore; self.shelfPriceCents = shelfPriceCents
+        self.barcode = barcode
         self.storageLocation = storageLocation; self.shelfNumber = shelfNumber
         self.openedAt = openedAt; self.finishedAt = finishedAt
         self.lastVerifiedAt = lastVerifiedAt

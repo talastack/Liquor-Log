@@ -63,6 +63,7 @@ struct AddBottleView: View {
 
     @State private var error: String?
     @State private var isScanning = false
+    @State private var scannedBarcode: String?
 
     /// What you have paid for the chosen product before, for the live verdict
     /// as a price is typed.
@@ -111,7 +112,9 @@ struct AddBottleView: View {
         }
         .sheet(isPresented: $isScanning) {
             NavigationStack {
-                ScanLabelView { reading, product in apply(reading, product) }
+                ScanLabelView { reading, product, code in
+                    apply(reading, product, code)
+                }
             }
         }
         .alert("Could not save", isPresented: .constant(error != nil)) {
@@ -611,7 +614,14 @@ struct AddBottleView: View {
     /// so a second scan cannot blank something already typed, and a field the
     /// reader is unsure about is left alone rather than overwritten with a
     /// guess.
-    private func apply(_ reading: LabelReader.Reading, _ product: CatalogProduct?) {
+    private func apply(
+        _ reading: LabelReader.Reading,
+        _ product: CatalogProduct?,
+        _ code: String? = nil
+    ) {
+        // Remembered on save, which is what turns one confirmation into every
+        // future scan of this product being instant.
+        if let code { scannedBarcode = code }
         if let product {
             choose(product)
         } else if !reading.nameCandidate.isEmpty, chosen == nil {
@@ -682,6 +692,7 @@ struct AddBottleView: View {
             purchasePriceCents: price.isEmpty ? nil : Int((Double(price) ?? 0) * 100),
             purchaseStore: store.isEmpty ? nil : store,
             shelfPriceCents: Double(shelfPrice).map { Int(($0 * 100).rounded()) },
+            barcode: scannedBarcode,
             storageLocation: storageLocation.isEmpty ? nil : storageLocation,
             shelfNumber: Int(shelfNumber),
             openedAt: isAlreadyOpen ? Int64(openedOn.timeIntervalSince1970 * 1000) : nil)
