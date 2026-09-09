@@ -62,9 +62,13 @@ packages:
 # Real values live in IOS/Secrets.xcconfig, which is gitignored and included
 # optionally by Base.xcconfig -- so a fresh clone builds with sync switched off
 # rather than failing on a missing file.
+# Keys here are CONFIGURATION NAMES, which are capitalised -- the schemes below
+# say `config: Debug`. The lowercase debug/release under `settings:` above are a
+# different thing entirely (setting groups), and using that spelling here fails
+# generation with "Config file has invalid config".
 configFiles:
-  debug: Config/Base.xcconfig
-  release: Config/Base.xcconfig
+  Debug: Config/Base.xcconfig
+  Release: Config/Base.xcconfig
 
 targets:
   LiquorLog:
