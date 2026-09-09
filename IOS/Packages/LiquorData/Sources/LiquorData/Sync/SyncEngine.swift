@@ -100,20 +100,51 @@ public actor SyncEngine {
     // MARK: - Push
 
     private func push(_ table: AnySyncTable) async throws -> Int {
-        let pending = try db.queue.read { try table.pendingRows($0) }
+        let pending = try loadPending(table)
         guard !pending.isEmpty else { return 0 }
 
         var sent = 0
         for batch in pending.chunked(into: pageSize) {
-            let bodies = try batch.map { try Self.encodeForServer($0.json) }
-            try await transport.upsert(table: table.name, rows: bodies)
+            try await transport.upsert(table: table.name, rows: batch.map(\.body))
 
             // Only now. If upsert threw, these rows stay dirty and go again.
-            let ids = batch.map(\.id)
-            try db.queue.write { try table.clearDirty(ids, $0) }
+            try clearDirty(table, batch.map(\.id))
             sent += batch.count
         }
         return sent
+    }
+
+    // MARK: - Database access
+    //
+    // Every database call goes through a NON-ASYNC helper, and that is
+    // deliberate rather than stylistic.
+    //
+    // GRDB ships both a synchronous `read`/`write` and an async one. Inside an
+    // `async` function Swift resolves to the ASYNC overload, which then demands
+    // `await` and, under strict concurrency, demands everything crossing the
+    // closure be Sendable. Doing the work from a non-async context picks the
+    // synchronous overload, which is what an actor wants anyway: the writes are
+    // short, and hopping executors mid-transaction buys nothing.
+    //
+    // `nonisolated` because they touch only `db`, which is an immutable
+    // Sendable reference.
+
+    private nonisolated func loadPending(
+        _ table: AnySyncTable
+    ) throws -> [(id: String, body: Data)] {
+        try db.queue.read { try table.pendingRows($0) }
+    }
+
+    private nonisolated func clearDirty(_ table: AnySyncTable, _ ids: [String]) throws {
+        try db.queue.write { try table.clearDirty(ids, $0) }
+    }
+
+    private nonisolated func apply(_ table: AnySyncTable, _ rows: [Data]) throws {
+        // One transaction for the batch: a half-written page would leave the
+        // cursor and the data disagreeing.
+        try db.queue.write { db in
+            for row in rows { try table.applyFromServer(row, db) }
+        }
     }
 
     /// Strips what the server must never receive.
@@ -146,15 +177,18 @@ public actor SyncEngine {
 
             if rows.isEmpty { break }
 
-            let highest = rows.compactMap { $0["server_updated_at"] as? Int64
-                ?? ($0["server_updated_at"] as? NSNumber)?.int64Value }.max()
+            let highest = rows.compactMap {
+                ($0["server_updated_at"] as? NSNumber)?.int64Value
+            }.max()
 
-            try db.queue.write { db in
-                for row in rows {
-                    try table.applyFromServer(Self.decodeFromServer(row), db)
-                }
+            // Converted to Data here, before it reaches the database helper.
+            // A [String: Any] is not Sendable and cannot cross an isolation
+            // boundary under strict concurrency.
+            let bodies = rows.compactMap { row -> Data? in
+                try? JSONSerialization.data(withJSONObject: Self.decodeFromServer(row))
             }
-            applied += rows.count
+            try apply(table, bodies)
+            applied += bodies.count
 
             // Only after the write. Advancing first loses the batch if the
             // write throws.
@@ -195,9 +229,12 @@ public actor SyncEngine {
 struct AnySyncTable: Sendable {
     let name: String
     let isPushable: Bool
-    let pendingRows: @Sendable (Database) throws -> [(id: String, json: [String: Any])]
+    /// Bodies are `Data`, already stripped and ready to send. Returning a
+    /// dictionary would be friendlier to read and is not Sendable, so it could
+    /// not leave the database closure under strict concurrency.
+    let pendingRows: @Sendable (Database) throws -> [(id: String, body: Data)]
     let clearDirty: @Sendable ([String], Database) throws -> Void
-    let applyFromServer: @Sendable ([String: Any], Database) throws -> Void
+    let applyFromServer: @Sendable (Data, Database) throws -> Void
 
     init<R: SyncableRecord & TableRecord>(_ type: R.Type, isPushable: Bool = true) {
         self.name = R.databaseTableName
@@ -208,7 +245,9 @@ struct AnySyncTable: Sendable {
             return try R.pending().fetchAll(db).map { record in
                 let data = try encoder.encode(record)
                 let json = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
-                return (id: record.id, json: json ?? [:])
+                // Stripped here, inside the closure, so nothing that is not
+                // Sendable ever leaves it.
+                return (id: record.id, body: try SyncEngine.encodeForServer(json ?? [:]))
             }
         }
 
@@ -222,8 +261,7 @@ struct AnySyncTable: Sendable {
             }
         }
 
-        self.applyFromServer = { json, db in
-            let data = try JSONSerialization.data(withJSONObject: json)
+        self.applyFromServer = { data, db in
             var record = try JSONDecoder().decode(R.self, from: data)
             try record.saveFromServer(db)
         }
