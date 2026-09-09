@@ -87,6 +87,29 @@ final class FillReadingMathTests: XCTestCase {
             PourMath.percentFull(remaining: -5, capacity: 750), 0, accuracy: 0.001)
     }
 
+    /// The case that shipped wrong: a slider reading "50%" beside "374 ml" on a
+    /// 750 ml bottle. The engine was right; the screen displayed a ROUNDED
+    /// percentage while computing millilitres from the raw slider value, which
+    /// a `step: 1` slider does not guarantee is an integer. Anything showing a
+    /// percentage must derive the millilitres from the SAME rounded number.
+    func testAHalfFullSevenFiftyIsExactlyThreeSeventyFive() {
+        XCTAssertEqual(
+            PourMath.milliliters(percentFull: 50, capacity: 750), 375, accuracy: 0.0001)
+    }
+
+    /// Every whole percentage of a 750 ml bottle has to land somewhere a person
+    /// can read back, so no integer percentage may produce a figure that
+    /// rounds away from its own percentage.
+    func testEveryWholePercentageRoundTripsOnA750() {
+        for percent in 0...100 {
+            let ml = PourMath.milliliters(percentFull: Double(percent), capacity: 750)
+            XCTAssertEqual(
+                Int(PourMath.percentFull(remaining: ml, capacity: 750).rounded()),
+                percent,
+                "\(percent)% of 750 ml came back as a different percentage")
+        }
+    }
+
     /// A bottle with no stated size cannot be expressed as a fraction of
     /// itself. Zero rather than a crash or a NaN on screen.
     func testAZeroCapacityBottleIsNotDividedBy() {

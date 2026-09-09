@@ -335,7 +335,7 @@ struct AddBottleView: View {
 
                 VStack(alignment: .leading, spacing: Space.s) {
                     HStack {
-                        Text("About \(Int(fillPercent.rounded()))% left")
+                        Text("About \(Int(shownFillPercent))% left")
                             .font(TypeScale.body())
                             .foregroundStyle(Palette.text)
                         Spacer()
@@ -358,9 +358,19 @@ struct AddBottleView: View {
         }
     }
 
+    /// The percentage AS SHOWN, and the only one anything derives from.
+    ///
+    /// A SwiftUI slider with `step: 1` does not always land on an exact
+    /// integer, so displaying `Int(percent.rounded())` while computing
+    /// millilitres from the raw value gives "50%" beside "374 ml" on a 750 ml
+    /// bottle. Two derivations of one number that can disagree is the failure
+    /// this codebase already has a rule against: the count and the millilitres
+    /// have to travel together, or the rounding carries weight on its own.
+    private var shownFillPercent: Double { fillPercent.rounded() }
+
     private var remainingMilliliters: Double {
         PourMath.milliliters(
-            percentFull: fillPercent, capacity: Double(volumeMl) ?? 750)
+            percentFull: shownFillPercent, capacity: Double(volumeMl) ?? 750)
     }
 
     // MARK: - Where you keep it
@@ -590,7 +600,7 @@ struct AddBottleView: View {
     /// A full bottle needs no reading -- that is what the app assumes anyway,
     /// and an unnecessary row is one more thing to sync.
     private func recordOpeningLevel(_ bottle: Bottle) throws {
-        guard isAlreadyOpen, fillPercent < 100 else { return }
+        guard isAlreadyOpen, shownFillPercent < 100 else { return }
         try env.bottles.setLevel(
             bottleId: bottle.id,
             remainingMl: remainingMilliliters,

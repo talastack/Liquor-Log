@@ -79,7 +79,7 @@ struct SetLevelView: View {
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
 
-            Text("\(Int(percent.rounded()))%")
+            Text("\(Int(shownPercent))%")
                 .font(TypeScale.largeTitle())
                 .foregroundStyle(Palette.gold)
 
@@ -214,13 +214,19 @@ struct SetLevelView: View {
     }
 
     private func isSelected(_ preset: Preset) -> Bool {
-        abs(percent - preset.percent) < 0.5
+        abs(shownPercent - preset.percent) < 0.5
     }
 
     // MARK: - Derivation
 
+    /// The percentage AS SHOWN, and the only one anything derives from. A
+    /// slider with `step: 1` does not always land on an exact integer, and
+    /// showing "50%" beside "374 ml" on a 750 ml bottle is the app visibly
+    /// disagreeing with itself.
+    private var shownPercent: Double { percent.rounded() }
+
     private func chosenMilliliters(_ summary: BottleSummary) -> Double {
-        PourMath.milliliters(percentFull: percent, capacity: summary.bottle.volumeMl)
+        PourMath.milliliters(percentFull: shownPercent, capacity: summary.bottle.volumeMl)
     }
 
     private func pourCount(_ summary: BottleSummary) -> Int {
