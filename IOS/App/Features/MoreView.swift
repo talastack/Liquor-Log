@@ -47,6 +47,24 @@ struct MoreView: View {
             SectionLabel("Tools")
 
             NavigationLink {
+                StatsView()
+            } label: {
+                row(
+                    "Your collection",
+                    detail: "What is on your shelf, at a glance",
+                    symbol: "chart.bar")
+            }
+
+            NavigationLink {
+                PourMenuView()
+            } label: {
+                row(
+                    "What's open",
+                    detail: "A menu for guests, without the prices",
+                    symbol: "list.bullet.rectangle")
+            }
+
+            NavigationLink {
                 SyncView()
             } label: {
                 row(
