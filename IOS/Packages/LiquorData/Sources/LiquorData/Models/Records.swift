@@ -527,6 +527,13 @@ public struct Tasting: SyncableRecord {
     public var wouldRebuy: Rebuy?
     public var worthThePrice: Bool?
 
+    /// How hot it actually drank, 1-5.
+    ///
+    /// Stored beside the bottle's MEASURED strength so the two can disagree,
+    /// which is the whole point: a barrel-proof bourbon that goes down easy is
+    /// a different bottle from one that scorches at the same proof.
+    public var perceivedHeat: Int?
+
     /// How long the finish lasted, in seconds. Length is the part of a finish
     /// people compare between bottles, and the one dimension free text is
     /// worst at holding still.
@@ -545,6 +552,7 @@ public struct Tasting: SyncableRecord {
         case pourId = "pour_id"
         case tastedAt = "tasted_at", rating, wouldRebuy = "would_rebuy"
         case worthThePrice = "worth_the_price"
+        case perceivedHeat = "perceived_heat"
         case finishSeconds = "finish_seconds", liked, disliked
         case createdAt = "created_at", updatedAt = "updated_at"
         case deletedAt = "deleted_at", dirty
@@ -560,6 +568,7 @@ public struct Tasting: SyncableRecord {
         rating: Int? = nil,
         wouldRebuy: Rebuy? = nil,
         worthThePrice: Bool? = nil,
+        perceivedHeat: Int? = nil,
         finishSeconds: Int? = nil,
         liked: String? = nil,
         disliked: String? = nil,
@@ -572,10 +581,16 @@ public struct Tasting: SyncableRecord {
         self.bottleId = bottleId; self.catalogProductId = catalogProductId
         self.pourId = pourId
         self.tastedAt = tastedAt; self.rating = rating; self.wouldRebuy = wouldRebuy
-        self.worthThePrice = worthThePrice; self.finishSeconds = finishSeconds
+        self.worthThePrice = worthThePrice
+        self.perceivedHeat = perceivedHeat; self.finishSeconds = finishSeconds
         self.liked = liked; self.disliked = disliked
         self.createdAt = createdAt; self.updatedAt = updatedAt
         self.deletedAt = deletedAt; self.dirty = dirty
+    }
+
+    /// The recorded heat as the engine's own type. Nil when nobody said.
+    public var heat: PerceivedProof.Heat? {
+        perceivedHeat.flatMap(PerceivedProof.Heat.init(rawValue:))
     }
 }
 

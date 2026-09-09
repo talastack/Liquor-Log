@@ -1,178 +1,1616 @@
 {
   "version": 1,
   "name": "Liquor-Log flavour wheel",
-  "provenance": "Own work. Descriptors are the ordinary sensory vocabulary in common use and are not owned by anyone. The grouping is by ORIGIN - where the flavour comes from in the grain, the ferment, the still or the barrel - which is a chemical and process fact rather than a copy of any published wheel's arrangement. See docs/06-flavour-wheel-provenance.md.",
+  "provenance": "Own work. Descriptors are the ordinary sensory vocabulary in common use and are not owned by anyone. The grouping is by ORIGIN - where the flavour comes from in the grain, the ferment, the still or the barrel - which is a chemical and process fact rather than a copy of any published wheel's arrangement. Sub-groups within a family are presentational only. See docs/06-flavour-wheel-provenance.md.",
   "origins": [
-    { "key": "grain", "label": "From the grain", "note": "The mashbill itself." },
-    { "key": "fermentation", "label": "From the ferment", "note": "Made by yeast. Esters, mostly fruit and flowers." },
-    { "key": "distillation", "label": "From the still", "note": "Congeners carried or created during distillation." },
-    { "key": "maturation", "label": "From the barrel", "note": "Oak, char and time." },
-    { "key": "oxidation", "label": "From air and time", "note": "Appears as an open bottle ages." },
-    { "key": "fault", "label": "Something went wrong", "note": "Present above threshold, not desirable." }
+    {
+      "key": "grain",
+      "label": "From the grain",
+      "note": "The mashbill itself."
+    },
+    {
+      "key": "fermentation",
+      "label": "From the ferment",
+      "note": "Made by yeast. Esters, mostly fruit and flowers."
+    },
+    {
+      "key": "distillation",
+      "label": "From the still",
+      "note": "Congeners carried or created during distillation."
+    },
+    {
+      "key": "maturation",
+      "label": "From the barrel",
+      "note": "Oak, char and time."
+    },
+    {
+      "key": "oxidation",
+      "label": "From air and time",
+      "note": "Appears as an open bottle ages."
+    },
+    {
+      "key": "fault",
+      "label": "Something went wrong",
+      "note": "A flaw rather than a characteristic."
+    }
   ],
   "families": [
     {
       "key": "grain",
       "label": "Grain",
       "descriptors": [
-        { "key": "corn", "label": "Corn", "origin": "grain" },
-        { "key": "cornbread", "label": "Cornbread", "origin": "grain" },
-        { "key": "sweet-grain", "label": "Sweet grain", "origin": "grain" },
-        { "key": "malt", "label": "Malt", "origin": "grain" },
-        { "key": "cereal", "label": "Cereal", "origin": "grain" },
-        { "key": "biscuit", "label": "Biscuit", "origin": "grain" },
-        { "key": "bread-dough", "label": "Bread dough", "origin": "fermentation" },
-        { "key": "oatmeal", "label": "Oatmeal", "origin": "grain" },
-        { "key": "rye-bread", "label": "Rye bread", "origin": "grain" },
-        { "key": "wheat", "label": "Wheat", "origin": "grain" },
-        { "key": "barley", "label": "Barley", "origin": "grain" }
+        {
+          "key": "corn",
+          "label": "Corn",
+          "origin": "grain",
+          "group": "Corn"
+        },
+        {
+          "key": "cornbread",
+          "label": "Cornbread",
+          "origin": "grain",
+          "group": "Corn"
+        },
+        {
+          "key": "corn-syrup",
+          "label": "Corn syrup",
+          "origin": "grain",
+          "group": "Corn"
+        },
+        {
+          "key": "popcorn",
+          "label": "Popcorn",
+          "origin": "grain",
+          "group": "Corn"
+        },
+        {
+          "key": "polenta",
+          "label": "Polenta",
+          "origin": "grain",
+          "group": "Corn"
+        },
+        {
+          "key": "sweet-grain",
+          "label": "Sweet grain",
+          "origin": "grain",
+          "group": "Corn"
+        },
+        {
+          "key": "malt",
+          "label": "Malt",
+          "origin": "grain",
+          "group": "Malt and barley"
+        },
+        {
+          "key": "barley",
+          "label": "Barley",
+          "origin": "grain",
+          "group": "Malt and barley"
+        },
+        {
+          "key": "malted-milk",
+          "label": "Malted milk",
+          "origin": "grain",
+          "group": "Malt and barley"
+        },
+        {
+          "key": "cereal",
+          "label": "Cereal",
+          "origin": "grain",
+          "group": "Malt and barley"
+        },
+        {
+          "key": "oatmeal",
+          "label": "Oatmeal",
+          "origin": "grain",
+          "group": "Malt and barley"
+        },
+        {
+          "key": "porridge",
+          "label": "Porridge",
+          "origin": "grain",
+          "group": "Malt and barley"
+        },
+        {
+          "key": "wort",
+          "label": "Wort",
+          "origin": "fermentation",
+          "group": "Malt and barley"
+        },
+        {
+          "key": "rye-bread",
+          "label": "Rye bread",
+          "origin": "grain",
+          "group": "Rye and wheat"
+        },
+        {
+          "key": "pumpernickel",
+          "label": "Pumpernickel",
+          "origin": "grain",
+          "group": "Rye and wheat"
+        },
+        {
+          "key": "caraway",
+          "label": "Caraway",
+          "origin": "grain",
+          "group": "Rye and wheat"
+        },
+        {
+          "key": "wheat",
+          "label": "Wheat",
+          "origin": "grain",
+          "group": "Rye and wheat"
+        },
+        {
+          "key": "wheat-toast",
+          "label": "Wheat toast",
+          "origin": "grain",
+          "group": "Rye and wheat"
+        },
+        {
+          "key": "shortbread",
+          "label": "Shortbread",
+          "origin": "grain",
+          "group": "Rye and wheat"
+        },
+        {
+          "key": "biscuit",
+          "label": "Biscuit",
+          "origin": "grain",
+          "group": "Baked"
+        },
+        {
+          "key": "bread-dough",
+          "label": "Bread dough",
+          "origin": "fermentation",
+          "group": "Baked"
+        },
+        {
+          "key": "sourdough",
+          "label": "Sourdough",
+          "origin": "fermentation",
+          "group": "Baked"
+        },
+        {
+          "key": "pie-crust",
+          "label": "Pie crust",
+          "origin": "grain",
+          "group": "Baked"
+        },
+        {
+          "key": "graham-cracker",
+          "label": "Graham cracker",
+          "origin": "grain",
+          "group": "Baked"
+        },
+        {
+          "key": "digestive",
+          "label": "Digestive biscuit",
+          "origin": "grain",
+          "group": "Baked"
+        }
       ]
     },
     {
       "key": "sweet",
       "label": "Sweet",
       "descriptors": [
-        { "key": "caramel", "label": "Caramel", "origin": "maturation" },
-        { "key": "toffee", "label": "Toffee", "origin": "maturation" },
-        { "key": "butterscotch", "label": "Butterscotch", "origin": "maturation" },
-        { "key": "brown-sugar", "label": "Brown sugar", "origin": "maturation" },
-        { "key": "molasses", "label": "Molasses", "origin": "maturation" },
-        { "key": "maple", "label": "Maple syrup", "origin": "maturation" },
-        { "key": "honey", "label": "Honey", "origin": "maturation" },
-        { "key": "vanilla", "label": "Vanilla", "origin": "maturation", "compound": "vanillin", "why": "Oak lignin breaking down under char." },
-        { "key": "marshmallow", "label": "Marshmallow", "origin": "maturation" },
-        { "key": "chocolate", "label": "Chocolate", "origin": "maturation" },
-        { "key": "cocoa", "label": "Cocoa", "origin": "maturation" },
-        { "key": "butter", "label": "Butter", "origin": "fermentation", "compound": "diacetyl", "why": "A fermentation by-product." },
-        { "key": "creme-brulee", "label": "Creme brulee", "origin": "maturation" }
+        {
+          "key": "caramel",
+          "label": "Caramel",
+          "origin": "maturation",
+          "group": "Caramelised sugar"
+        },
+        {
+          "key": "toffee",
+          "label": "Toffee",
+          "origin": "maturation",
+          "group": "Caramelised sugar"
+        },
+        {
+          "key": "butterscotch",
+          "label": "Butterscotch",
+          "origin": "maturation",
+          "group": "Caramelised sugar"
+        },
+        {
+          "key": "burnt-sugar",
+          "label": "Burnt sugar",
+          "origin": "maturation",
+          "group": "Caramelised sugar"
+        },
+        {
+          "key": "brown-sugar",
+          "label": "Brown sugar",
+          "origin": "maturation",
+          "group": "Caramelised sugar"
+        },
+        {
+          "key": "demerara",
+          "label": "Demerara",
+          "origin": "maturation",
+          "group": "Caramelised sugar"
+        },
+        {
+          "key": "molasses",
+          "label": "Molasses",
+          "origin": "maturation",
+          "group": "Caramelised sugar"
+        },
+        {
+          "key": "treacle",
+          "label": "Treacle",
+          "origin": "maturation",
+          "group": "Caramelised sugar"
+        },
+        {
+          "key": "maple-syrup",
+          "label": "Maple syrup",
+          "origin": "maturation",
+          "group": "Syrup and honey"
+        },
+        {
+          "key": "honey",
+          "label": "Honey",
+          "origin": "maturation",
+          "group": "Syrup and honey"
+        },
+        {
+          "key": "honeycomb",
+          "label": "Honeycomb",
+          "origin": "maturation",
+          "group": "Syrup and honey"
+        },
+        {
+          "key": "golden-syrup",
+          "label": "Golden syrup",
+          "origin": "maturation",
+          "group": "Syrup and honey"
+        },
+        {
+          "key": "agave-syrup",
+          "label": "Agave syrup",
+          "origin": "maturation",
+          "group": "Syrup and honey"
+        },
+        {
+          "key": "vanilla",
+          "label": "Vanilla",
+          "origin": "maturation",
+          "group": "Confection"
+        },
+        {
+          "key": "marshmallow",
+          "label": "Marshmallow",
+          "origin": "maturation",
+          "group": "Confection"
+        },
+        {
+          "key": "nougat",
+          "label": "Nougat",
+          "origin": "maturation",
+          "group": "Confection"
+        },
+        {
+          "key": "candy-floss",
+          "label": "Candy floss",
+          "origin": "maturation",
+          "group": "Confection"
+        },
+        {
+          "key": "bubblegum",
+          "label": "Bubblegum",
+          "origin": "fermentation",
+          "group": "Confection"
+        },
+        {
+          "key": "sugared-almond",
+          "label": "Sugared almond",
+          "origin": "maturation",
+          "group": "Confection"
+        },
+        {
+          "key": "butter",
+          "label": "Butter",
+          "origin": "fermentation",
+          "group": "Dairy"
+        },
+        {
+          "key": "cream",
+          "label": "Cream",
+          "origin": "maturation",
+          "group": "Dairy"
+        },
+        {
+          "key": "creme-brulee",
+          "label": "Creme brulee",
+          "origin": "maturation",
+          "group": "Dairy"
+        },
+        {
+          "key": "custard",
+          "label": "Custard",
+          "origin": "maturation",
+          "group": "Dairy"
+        },
+        {
+          "key": "condensed-milk",
+          "label": "Condensed milk",
+          "origin": "maturation",
+          "group": "Dairy"
+        },
+        {
+          "key": "chocolate",
+          "label": "Chocolate",
+          "origin": "maturation",
+          "group": "Chocolate"
+        },
+        {
+          "key": "dark-chocolate",
+          "label": "Dark chocolate",
+          "origin": "maturation",
+          "group": "Chocolate"
+        },
+        {
+          "key": "milk-chocolate",
+          "label": "Milk chocolate",
+          "origin": "maturation",
+          "group": "Chocolate"
+        },
+        {
+          "key": "cocoa",
+          "label": "Cocoa",
+          "origin": "maturation",
+          "group": "Chocolate"
+        },
+        {
+          "key": "mocha",
+          "label": "Mocha",
+          "origin": "maturation",
+          "group": "Chocolate"
+        },
+        {
+          "key": "espresso",
+          "label": "Espresso",
+          "origin": "maturation",
+          "group": "Chocolate"
+        }
       ]
     },
     {
       "key": "fruit",
       "label": "Fruit",
       "descriptors": [
-        { "key": "cherry", "label": "Cherry", "origin": "fermentation" },
-        { "key": "apple", "label": "Apple", "origin": "fermentation" },
-        { "key": "baked-apple", "label": "Baked apple", "origin": "fermentation" },
-        { "key": "pear", "label": "Pear", "origin": "fermentation" },
-        { "key": "orange-peel", "label": "Orange peel", "origin": "fermentation" },
-        { "key": "lemon", "label": "Lemon", "origin": "fermentation" },
-        { "key": "banana", "label": "Banana", "origin": "fermentation", "compound": "isoamyl acetate", "why": "A fermentation ester." },
-        { "key": "pineapple", "label": "Pineapple", "origin": "fermentation" },
-        { "key": "raisin", "label": "Raisin", "origin": "maturation" },
-        { "key": "dried-fig", "label": "Dried fig", "origin": "maturation" },
-        { "key": "date", "label": "Date", "origin": "maturation" },
-        { "key": "prune", "label": "Prune", "origin": "maturation" },
-        { "key": "apricot", "label": "Apricot", "origin": "fermentation" },
-        { "key": "berry-jam", "label": "Berry jam", "origin": "fermentation" },
-        { "key": "cherry-pie", "label": "Cherry pie", "origin": "maturation" }
+        {
+          "key": "apple",
+          "label": "Apple",
+          "origin": "fermentation",
+          "group": "Orchard"
+        },
+        {
+          "key": "baked-apple",
+          "label": "Baked apple",
+          "origin": "maturation",
+          "group": "Orchard"
+        },
+        {
+          "key": "apple-skin",
+          "label": "Apple skin",
+          "origin": "fermentation",
+          "group": "Orchard"
+        },
+        {
+          "key": "pear",
+          "label": "Pear",
+          "origin": "fermentation",
+          "group": "Orchard"
+        },
+        {
+          "key": "quince",
+          "label": "Quince",
+          "origin": "fermentation",
+          "group": "Orchard"
+        },
+        {
+          "key": "apricot",
+          "label": "Apricot",
+          "origin": "fermentation",
+          "group": "Stone fruit"
+        },
+        {
+          "key": "peach",
+          "label": "Peach",
+          "origin": "fermentation",
+          "group": "Stone fruit"
+        },
+        {
+          "key": "nectarine",
+          "label": "Nectarine",
+          "origin": "fermentation",
+          "group": "Stone fruit"
+        },
+        {
+          "key": "plum",
+          "label": "Plum",
+          "origin": "fermentation",
+          "group": "Stone fruit"
+        },
+        {
+          "key": "black-cherry",
+          "label": "Black cherry",
+          "origin": "maturation",
+          "group": "Stone fruit"
+        },
+        {
+          "key": "cherry",
+          "label": "Cherry",
+          "origin": "maturation",
+          "group": "Stone fruit"
+        },
+        {
+          "key": "cherry-pie",
+          "label": "Cherry pie",
+          "origin": "maturation",
+          "group": "Stone fruit"
+        },
+        {
+          "key": "maraschino",
+          "label": "Maraschino",
+          "origin": "maturation",
+          "group": "Stone fruit"
+        },
+        {
+          "key": "orange-peel",
+          "label": "Orange peel",
+          "origin": "maturation",
+          "group": "Citrus"
+        },
+        {
+          "key": "orange-marmalade",
+          "label": "Marmalade",
+          "origin": "maturation",
+          "group": "Citrus"
+        },
+        {
+          "key": "lemon",
+          "label": "Lemon",
+          "origin": "fermentation",
+          "group": "Citrus"
+        },
+        {
+          "key": "lemon-zest",
+          "label": "Lemon zest",
+          "origin": "fermentation",
+          "group": "Citrus"
+        },
+        {
+          "key": "lime",
+          "label": "Lime",
+          "origin": "fermentation",
+          "group": "Citrus"
+        },
+        {
+          "key": "grapefruit",
+          "label": "Grapefruit",
+          "origin": "fermentation",
+          "group": "Citrus"
+        },
+        {
+          "key": "tangerine",
+          "label": "Tangerine",
+          "origin": "fermentation",
+          "group": "Citrus"
+        },
+        {
+          "key": "strawberry",
+          "label": "Strawberry",
+          "origin": "fermentation",
+          "group": "Berry"
+        },
+        {
+          "key": "raspberry",
+          "label": "Raspberry",
+          "origin": "fermentation",
+          "group": "Berry"
+        },
+        {
+          "key": "blackberry",
+          "label": "Blackberry",
+          "origin": "maturation",
+          "group": "Berry"
+        },
+        {
+          "key": "blackcurrant",
+          "label": "Blackcurrant",
+          "origin": "maturation",
+          "group": "Berry"
+        },
+        {
+          "key": "berry-jam",
+          "label": "Berry jam",
+          "origin": "maturation",
+          "group": "Berry"
+        },
+        {
+          "key": "red-berries",
+          "label": "Red berries",
+          "origin": "fermentation",
+          "group": "Berry"
+        },
+        {
+          "key": "banana",
+          "label": "Banana",
+          "origin": "fermentation",
+          "group": "Tropical"
+        },
+        {
+          "key": "pineapple",
+          "label": "Pineapple",
+          "origin": "fermentation",
+          "group": "Tropical"
+        },
+        {
+          "key": "mango",
+          "label": "Mango",
+          "origin": "fermentation",
+          "group": "Tropical"
+        },
+        {
+          "key": "melon",
+          "label": "Melon",
+          "origin": "fermentation",
+          "group": "Tropical"
+        },
+        {
+          "key": "coconut-flesh",
+          "label": "Coconut flesh",
+          "origin": "maturation",
+          "group": "Tropical"
+        },
+        {
+          "key": "passion-fruit",
+          "label": "Passion fruit",
+          "origin": "fermentation",
+          "group": "Tropical"
+        },
+        {
+          "key": "raisin",
+          "label": "Raisin",
+          "origin": "maturation",
+          "group": "Dried"
+        },
+        {
+          "key": "sultana",
+          "label": "Sultana",
+          "origin": "maturation",
+          "group": "Dried"
+        },
+        {
+          "key": "dried-fig",
+          "label": "Dried fig",
+          "origin": "maturation",
+          "group": "Dried"
+        },
+        {
+          "key": "date",
+          "label": "Date",
+          "origin": "maturation",
+          "group": "Dried"
+        },
+        {
+          "key": "prune",
+          "label": "Prune",
+          "origin": "maturation",
+          "group": "Dried"
+        },
+        {
+          "key": "dried-apricot",
+          "label": "Dried apricot",
+          "origin": "maturation",
+          "group": "Dried"
+        },
+        {
+          "key": "candied-fruit",
+          "label": "Candied fruit",
+          "origin": "maturation",
+          "group": "Dried"
+        },
+        {
+          "key": "fruitcake",
+          "label": "Fruitcake",
+          "origin": "maturation",
+          "group": "Dried"
+        }
       ]
     },
     {
       "key": "floral",
       "label": "Floral",
       "descriptors": [
-        { "key": "rose", "label": "Rose", "origin": "fermentation", "compound": "damascenone", "why": "Carotenoid breakdown. Also reads as cooked apple." },
-        { "key": "violet", "label": "Violet", "origin": "fermentation" },
-        { "key": "honeysuckle", "label": "Honeysuckle", "origin": "fermentation" },
-        { "key": "lavender", "label": "Lavender", "origin": "fermentation" },
-        { "key": "orange-blossom", "label": "Orange blossom", "origin": "fermentation" },
-        { "key": "perfume", "label": "Perfume", "origin": "fermentation" },
-        { "key": "potpourri", "label": "Potpourri", "origin": "fermentation" }
+        {
+          "key": "rose",
+          "label": "Rose",
+          "origin": "fermentation",
+          "group": "Flowers"
+        },
+        {
+          "key": "violet",
+          "label": "Violet",
+          "origin": "fermentation",
+          "group": "Flowers"
+        },
+        {
+          "key": "honeysuckle",
+          "label": "Honeysuckle",
+          "origin": "fermentation",
+          "group": "Flowers"
+        },
+        {
+          "key": "lavender",
+          "label": "Lavender",
+          "origin": "fermentation",
+          "group": "Flowers"
+        },
+        {
+          "key": "jasmine",
+          "label": "Jasmine",
+          "origin": "fermentation",
+          "group": "Flowers"
+        },
+        {
+          "key": "elderflower",
+          "label": "Elderflower",
+          "origin": "fermentation",
+          "group": "Flowers"
+        },
+        {
+          "key": "orange-blossom",
+          "label": "Orange blossom",
+          "origin": "fermentation",
+          "group": "Flowers"
+        },
+        {
+          "key": "geranium",
+          "label": "Geranium",
+          "origin": "fermentation",
+          "group": "Flowers"
+        },
+        {
+          "key": "perfume",
+          "label": "Perfume",
+          "origin": "fermentation",
+          "group": "Perfumed"
+        },
+        {
+          "key": "potpourri",
+          "label": "Potpourri",
+          "origin": "maturation",
+          "group": "Perfumed"
+        },
+        {
+          "key": "rose-water",
+          "label": "Rose water",
+          "origin": "fermentation",
+          "group": "Perfumed"
+        },
+        {
+          "key": "talc",
+          "label": "Talc",
+          "origin": "maturation",
+          "group": "Perfumed"
+        }
       ]
     },
     {
       "key": "spice",
       "label": "Spice",
       "descriptors": [
-        { "key": "cinnamon", "label": "Cinnamon", "origin": "maturation" },
-        { "key": "clove", "label": "Clove", "origin": "maturation", "compound": "eugenol", "why": "From the oak." },
-        { "key": "nutmeg", "label": "Nutmeg", "origin": "maturation" },
-        { "key": "allspice", "label": "Allspice", "origin": "maturation" },
-        { "key": "baking-spice", "label": "Baking spice", "origin": "maturation" },
-        { "key": "black-pepper", "label": "Black pepper", "origin": "grain" },
-        { "key": "white-pepper", "label": "White pepper", "origin": "grain" },
-        { "key": "rye-spice", "label": "Rye spice", "origin": "grain", "why": "The signature of a high-rye mashbill." },
-        { "key": "ginger", "label": "Ginger", "origin": "maturation" },
-        { "key": "anise", "label": "Anise", "origin": "distillation" }
+        {
+          "key": "cinnamon",
+          "label": "Cinnamon",
+          "origin": "maturation",
+          "group": "Baking spice"
+        },
+        {
+          "key": "cassia",
+          "label": "Cassia",
+          "origin": "maturation",
+          "group": "Baking spice"
+        },
+        {
+          "key": "clove",
+          "label": "Clove",
+          "origin": "maturation",
+          "group": "Baking spice"
+        },
+        {
+          "key": "nutmeg",
+          "label": "Nutmeg",
+          "origin": "maturation",
+          "group": "Baking spice"
+        },
+        {
+          "key": "allspice",
+          "label": "Allspice",
+          "origin": "maturation",
+          "group": "Baking spice"
+        },
+        {
+          "key": "baking-spice",
+          "label": "Baking spice",
+          "origin": "maturation",
+          "group": "Baking spice"
+        },
+        {
+          "key": "gingerbread",
+          "label": "Gingerbread",
+          "origin": "maturation",
+          "group": "Baking spice"
+        },
+        {
+          "key": "mulling-spice",
+          "label": "Mulling spice",
+          "origin": "maturation",
+          "group": "Baking spice"
+        },
+        {
+          "key": "black-pepper",
+          "label": "Black pepper",
+          "origin": "grain",
+          "group": "Hot spice"
+        },
+        {
+          "key": "white-pepper",
+          "label": "White pepper",
+          "origin": "grain",
+          "group": "Hot spice"
+        },
+        {
+          "key": "pink-peppercorn",
+          "label": "Pink peppercorn",
+          "origin": "grain",
+          "group": "Hot spice"
+        },
+        {
+          "key": "chilli",
+          "label": "Chilli",
+          "origin": "grain",
+          "group": "Hot spice"
+        },
+        {
+          "key": "rye-spice",
+          "label": "Rye spice",
+          "origin": "grain",
+          "group": "Hot spice"
+        },
+        {
+          "key": "ginger",
+          "label": "Ginger",
+          "origin": "maturation",
+          "group": "Hot spice"
+        },
+        {
+          "key": "horseradish",
+          "label": "Horseradish",
+          "origin": "grain",
+          "group": "Hot spice"
+        },
+        {
+          "key": "anise",
+          "label": "Anise",
+          "origin": "grain",
+          "group": "Aromatic"
+        },
+        {
+          "key": "liquorice",
+          "label": "Liquorice",
+          "origin": "maturation",
+          "group": "Aromatic"
+        },
+        {
+          "key": "star-anise",
+          "label": "Star anise",
+          "origin": "grain",
+          "group": "Aromatic"
+        },
+        {
+          "key": "cardamom",
+          "label": "Cardamom",
+          "origin": "grain",
+          "group": "Aromatic"
+        },
+        {
+          "key": "coriander-seed",
+          "label": "Coriander seed",
+          "origin": "grain",
+          "group": "Aromatic"
+        },
+        {
+          "key": "juniper",
+          "label": "Juniper",
+          "origin": "distillation",
+          "group": "Aromatic"
+        }
       ]
     },
     {
       "key": "wood",
       "label": "Wood",
       "descriptors": [
-        { "key": "charred-oak", "label": "Charred oak", "origin": "maturation" },
-        { "key": "toasted-oak", "label": "Toasted oak", "origin": "maturation" },
-        { "key": "new-oak", "label": "New oak", "origin": "maturation" },
-        { "key": "cedar", "label": "Cedar", "origin": "maturation" },
-        { "key": "sandalwood", "label": "Sandalwood", "origin": "maturation" },
-        { "key": "sawdust", "label": "Sawdust", "origin": "maturation" },
-        { "key": "pencil-shavings", "label": "Pencil shavings", "origin": "maturation" },
-        { "key": "coconut", "label": "Coconut", "origin": "maturation", "compound": "whisky lactone", "why": "More pronounced in American oak." },
-        { "key": "tannin", "label": "Tannin", "origin": "maturation" },
-        { "key": "dry-oak", "label": "Dry oak", "origin": "maturation" },
-        { "key": "old-books", "label": "Old books", "origin": "maturation" }
+        {
+          "key": "new-oak",
+          "label": "New oak",
+          "origin": "maturation",
+          "group": "Oak"
+        },
+        {
+          "key": "charred-oak",
+          "label": "Charred oak",
+          "origin": "maturation",
+          "group": "Oak"
+        },
+        {
+          "key": "toasted-oak",
+          "label": "Toasted oak",
+          "origin": "maturation",
+          "group": "Oak"
+        },
+        {
+          "key": "dry-oak",
+          "label": "Dry oak",
+          "origin": "maturation",
+          "group": "Oak"
+        },
+        {
+          "key": "old-oak",
+          "label": "Old oak",
+          "origin": "maturation",
+          "group": "Oak"
+        },
+        {
+          "key": "oak-spice",
+          "label": "Oak spice",
+          "origin": "maturation",
+          "group": "Oak"
+        },
+        {
+          "key": "cedar",
+          "label": "Cedar",
+          "origin": "maturation",
+          "group": "Other woods"
+        },
+        {
+          "key": "sandalwood",
+          "label": "Sandalwood",
+          "origin": "maturation",
+          "group": "Other woods"
+        },
+        {
+          "key": "pine",
+          "label": "Pine",
+          "origin": "maturation",
+          "group": "Other woods"
+        },
+        {
+          "key": "sawdust",
+          "label": "Sawdust",
+          "origin": "maturation",
+          "group": "Other woods"
+        },
+        {
+          "key": "pencil-shavings",
+          "label": "Pencil shavings",
+          "origin": "maturation",
+          "group": "Other woods"
+        },
+        {
+          "key": "cigar-box",
+          "label": "Cigar box",
+          "origin": "maturation",
+          "group": "Other woods"
+        },
+        {
+          "key": "coconut",
+          "label": "Coconut",
+          "origin": "maturation",
+          "group": "Lactone"
+        },
+        {
+          "key": "creamy-oak",
+          "label": "Creamy oak",
+          "origin": "maturation",
+          "group": "Lactone"
+        },
+        {
+          "key": "tannin",
+          "label": "Tannin",
+          "origin": "maturation",
+          "group": "Dry and tannic"
+        },
+        {
+          "key": "old-books",
+          "label": "Old books",
+          "origin": "maturation",
+          "group": "Dry and tannic"
+        },
+        {
+          "key": "library",
+          "label": "Library",
+          "origin": "maturation",
+          "group": "Dry and tannic"
+        },
+        {
+          "key": "parchment",
+          "label": "Parchment",
+          "origin": "maturation",
+          "group": "Dry and tannic"
+        },
+        {
+          "key": "resin",
+          "label": "Resin",
+          "origin": "maturation",
+          "group": "Dry and tannic"
+        },
+        {
+          "key": "varnish",
+          "label": "Varnish",
+          "origin": "maturation",
+          "group": "Dry and tannic"
+        }
       ]
     },
     {
       "key": "nutty",
       "label": "Nutty",
       "descriptors": [
-        { "key": "almond", "label": "Almond", "origin": "maturation", "compound": "furfural", "why": "Sugar degradation during toasting." },
-        { "key": "marzipan", "label": "Marzipan", "origin": "maturation", "compound": "furfural", "why": "Sugar degradation during toasting, as with almond." },
-        { "key": "walnut", "label": "Walnut", "origin": "maturation" },
-        { "key": "pecan", "label": "Pecan", "origin": "maturation" },
-        { "key": "hazelnut", "label": "Hazelnut", "origin": "maturation" },
-        { "key": "peanut", "label": "Peanut", "origin": "maturation" },
-        { "key": "toasted-nut", "label": "Toasted nut", "origin": "maturation" }
+        {
+          "key": "almond",
+          "label": "Almond",
+          "origin": "maturation",
+          "group": "Tree nut"
+        },
+        {
+          "key": "walnut",
+          "label": "Walnut",
+          "origin": "maturation",
+          "group": "Tree nut"
+        },
+        {
+          "key": "pecan",
+          "label": "Pecan",
+          "origin": "maturation",
+          "group": "Tree nut"
+        },
+        {
+          "key": "hazelnut",
+          "label": "Hazelnut",
+          "origin": "maturation",
+          "group": "Tree nut"
+        },
+        {
+          "key": "brazil-nut",
+          "label": "Brazil nut",
+          "origin": "maturation",
+          "group": "Tree nut"
+        },
+        {
+          "key": "chestnut",
+          "label": "Chestnut",
+          "origin": "maturation",
+          "group": "Tree nut"
+        },
+        {
+          "key": "toasted-nut",
+          "label": "Toasted nut",
+          "origin": "maturation",
+          "group": "Roasted"
+        },
+        {
+          "key": "peanut",
+          "label": "Peanut",
+          "origin": "maturation",
+          "group": "Roasted"
+        },
+        {
+          "key": "peanut-brittle",
+          "label": "Peanut brittle",
+          "origin": "maturation",
+          "group": "Roasted"
+        },
+        {
+          "key": "praline",
+          "label": "Praline",
+          "origin": "maturation",
+          "group": "Roasted"
+        },
+        {
+          "key": "marzipan",
+          "label": "Marzipan",
+          "origin": "maturation",
+          "group": "Confected"
+        },
+        {
+          "key": "almond-paste",
+          "label": "Almond paste",
+          "origin": "maturation",
+          "group": "Confected"
+        },
+        {
+          "key": "nut-oil",
+          "label": "Nut oil",
+          "origin": "distillation",
+          "group": "Confected"
+        }
       ]
     },
     {
       "key": "herbal",
-      "label": "Herbal",
+      "label": "Herbal and vegetal",
       "descriptors": [
-        { "key": "mint", "label": "Mint", "origin": "distillation" },
-        { "key": "menthol", "label": "Menthol", "origin": "distillation" },
-        { "key": "eucalyptus", "label": "Eucalyptus", "origin": "distillation" },
-        { "key": "tobacco", "label": "Tobacco", "origin": "maturation" },
-        { "key": "leather", "label": "Leather", "origin": "maturation" },
-        { "key": "hay", "label": "Hay", "origin": "grain" },
-        { "key": "grass", "label": "Grass", "origin": "distillation" },
-        { "key": "dill", "label": "Dill", "origin": "distillation" },
-        { "key": "fennel", "label": "Fennel", "origin": "distillation" },
-        { "key": "black-tea", "label": "Black tea", "origin": "maturation" }
+        {
+          "key": "mint",
+          "label": "Mint",
+          "origin": "grain",
+          "group": "Mint"
+        },
+        {
+          "key": "spearmint",
+          "label": "Spearmint",
+          "origin": "grain",
+          "group": "Mint"
+        },
+        {
+          "key": "menthol",
+          "label": "Menthol",
+          "origin": "grain",
+          "group": "Mint"
+        },
+        {
+          "key": "eucalyptus",
+          "label": "Eucalyptus",
+          "origin": "grain",
+          "group": "Mint"
+        },
+        {
+          "key": "camphor",
+          "label": "Camphor",
+          "origin": "maturation",
+          "group": "Mint"
+        },
+        {
+          "key": "grass",
+          "label": "Grass",
+          "origin": "grain",
+          "group": "Green"
+        },
+        {
+          "key": "hay",
+          "label": "Hay",
+          "origin": "grain",
+          "group": "Green"
+        },
+        {
+          "key": "straw",
+          "label": "Straw",
+          "origin": "grain",
+          "group": "Green"
+        },
+        {
+          "key": "green-stem",
+          "label": "Green stem",
+          "origin": "distillation",
+          "group": "Green"
+        },
+        {
+          "key": "cucumber",
+          "label": "Cucumber",
+          "origin": "distillation",
+          "group": "Green"
+        },
+        {
+          "key": "dill",
+          "label": "Dill",
+          "origin": "grain",
+          "group": "Green"
+        },
+        {
+          "key": "fennel",
+          "label": "Fennel",
+          "origin": "grain",
+          "group": "Green"
+        },
+        {
+          "key": "celery",
+          "label": "Celery",
+          "origin": "distillation",
+          "group": "Green"
+        },
+        {
+          "key": "black-tea",
+          "label": "Black tea",
+          "origin": "maturation",
+          "group": "Tea and tobacco"
+        },
+        {
+          "key": "green-tea",
+          "label": "Green tea",
+          "origin": "grain",
+          "group": "Tea and tobacco"
+        },
+        {
+          "key": "tobacco",
+          "label": "Tobacco",
+          "origin": "maturation",
+          "group": "Tea and tobacco"
+        },
+        {
+          "key": "pipe-tobacco",
+          "label": "Pipe tobacco",
+          "origin": "maturation",
+          "group": "Tea and tobacco"
+        },
+        {
+          "key": "cigar-leaf",
+          "label": "Cigar leaf",
+          "origin": "maturation",
+          "group": "Tea and tobacco"
+        },
+        {
+          "key": "leather",
+          "label": "Leather",
+          "origin": "maturation",
+          "group": "Earthy"
+        },
+        {
+          "key": "saddle-leather",
+          "label": "Saddle leather",
+          "origin": "maturation",
+          "group": "Earthy"
+        },
+        {
+          "key": "forest-floor",
+          "label": "Forest floor",
+          "origin": "maturation",
+          "group": "Earthy"
+        },
+        {
+          "key": "damp-earth",
+          "label": "Damp earth",
+          "origin": "maturation",
+          "group": "Earthy"
+        },
+        {
+          "key": "mushroom",
+          "label": "Mushroom",
+          "origin": "maturation",
+          "group": "Earthy"
+        },
+        {
+          "key": "moss",
+          "label": "Moss",
+          "origin": "maturation",
+          "group": "Earthy"
+        }
       ]
     },
     {
       "key": "smoke",
       "label": "Smoke",
       "descriptors": [
-        { "key": "char", "label": "Char", "origin": "maturation" },
-        { "key": "campfire", "label": "Campfire", "origin": "maturation" },
-        { "key": "ash", "label": "Ash", "origin": "maturation" },
-        { "key": "bonfire", "label": "Bonfire", "origin": "maturation" },
-        { "key": "roasted", "label": "Roasted", "origin": "maturation" },
-        { "key": "tar", "label": "Tar", "origin": "maturation" },
-        { "key": "creosote", "label": "Creosote", "origin": "maturation" },
-        { "key": "peat", "label": "Peat", "origin": "grain", "compound": "phenols", "why": "From peat smoke drying the malt. Scotch, not bourbon." },
-        { "key": "medicinal", "label": "Medicinal", "origin": "maturation", "compound": "guaiacol", "why": "Lignin pyrolysis." }
+        {
+          "key": "char",
+          "label": "Char",
+          "origin": "maturation",
+          "group": "Char and ash"
+        },
+        {
+          "key": "ash",
+          "label": "Ash",
+          "origin": "maturation",
+          "group": "Char and ash"
+        },
+        {
+          "key": "bonfire",
+          "label": "Bonfire",
+          "origin": "maturation",
+          "group": "Char and ash"
+        },
+        {
+          "key": "campfire",
+          "label": "Campfire",
+          "origin": "maturation",
+          "group": "Char and ash"
+        },
+        {
+          "key": "burnt-toast",
+          "label": "Burnt toast",
+          "origin": "maturation",
+          "group": "Char and ash"
+        },
+        {
+          "key": "roasted",
+          "label": "Roasted",
+          "origin": "maturation",
+          "group": "Char and ash"
+        },
+        {
+          "key": "peat",
+          "label": "Peat",
+          "origin": "grain",
+          "group": "Peat"
+        },
+        {
+          "key": "peat-smoke",
+          "label": "Peat smoke",
+          "origin": "grain",
+          "group": "Peat"
+        },
+        {
+          "key": "bog",
+          "label": "Bog",
+          "origin": "grain",
+          "group": "Peat"
+        },
+        {
+          "key": "smoked-meat",
+          "label": "Smoked meat",
+          "origin": "grain",
+          "group": "Peat"
+        },
+        {
+          "key": "tar",
+          "label": "Tar",
+          "origin": "grain",
+          "group": "Industrial"
+        },
+        {
+          "key": "creosote",
+          "label": "Creosote",
+          "origin": "grain",
+          "group": "Industrial"
+        },
+        {
+          "key": "diesel",
+          "label": "Diesel",
+          "origin": "grain",
+          "group": "Industrial"
+        },
+        {
+          "key": "rubber",
+          "label": "Rubber",
+          "origin": "distillation",
+          "group": "Industrial"
+        },
+        {
+          "key": "medicinal",
+          "label": "Medicinal",
+          "origin": "grain",
+          "group": "Medicinal"
+        },
+        {
+          "key": "iodine",
+          "label": "Iodine",
+          "origin": "grain",
+          "group": "Medicinal"
+        },
+        {
+          "key": "antiseptic",
+          "label": "Antiseptic",
+          "origin": "grain",
+          "group": "Medicinal"
+        },
+        {
+          "key": "brine",
+          "label": "Brine",
+          "origin": "grain",
+          "group": "Medicinal"
+        },
+        {
+          "key": "sea-air",
+          "label": "Sea air",
+          "origin": "grain",
+          "group": "Medicinal"
+        }
+      ]
+    },
+    {
+      "key": "mouthfeel",
+      "label": "Mouthfeel",
+      "descriptors": [
+        {
+          "key": "thin",
+          "label": "Thin",
+          "origin": "distillation",
+          "group": "Body"
+        },
+        {
+          "key": "light-body",
+          "label": "Light bodied",
+          "origin": "distillation",
+          "group": "Body"
+        },
+        {
+          "key": "medium-body",
+          "label": "Medium bodied",
+          "origin": "distillation",
+          "group": "Body"
+        },
+        {
+          "key": "full-body",
+          "label": "Full bodied",
+          "origin": "distillation",
+          "group": "Body"
+        },
+        {
+          "key": "viscous",
+          "label": "Viscous",
+          "origin": "distillation",
+          "group": "Body"
+        },
+        {
+          "key": "syrupy",
+          "label": "Syrupy",
+          "origin": "distillation",
+          "group": "Body"
+        },
+        {
+          "key": "oily",
+          "label": "Oily",
+          "origin": "distillation",
+          "group": "Texture"
+        },
+        {
+          "key": "silky",
+          "label": "Silky",
+          "origin": "distillation",
+          "group": "Texture"
+        },
+        {
+          "key": "velvety",
+          "label": "Velvety",
+          "origin": "maturation",
+          "group": "Texture"
+        },
+        {
+          "key": "creamy",
+          "label": "Creamy",
+          "origin": "maturation",
+          "group": "Texture"
+        },
+        {
+          "key": "chewy",
+          "label": "Chewy",
+          "origin": "maturation",
+          "group": "Texture"
+        },
+        {
+          "key": "waxy",
+          "label": "Waxy",
+          "origin": "distillation",
+          "group": "Texture"
+        },
+        {
+          "key": "prickly",
+          "label": "Prickly",
+          "origin": "distillation",
+          "group": "Texture"
+        },
+        {
+          "key": "soft-heat",
+          "label": "Soft heat",
+          "origin": "maturation",
+          "group": "Heat"
+        },
+        {
+          "key": "warming",
+          "label": "Warming",
+          "origin": "distillation",
+          "group": "Heat"
+        },
+        {
+          "key": "hot",
+          "label": "Hot",
+          "origin": "distillation",
+          "group": "Heat"
+        },
+        {
+          "key": "burning",
+          "label": "Burning",
+          "origin": "distillation",
+          "group": "Heat"
+        },
+        {
+          "key": "ethanol-bite",
+          "label": "Ethanol bite",
+          "origin": "distillation",
+          "group": "Heat"
+        },
+        {
+          "key": "drying",
+          "label": "Drying",
+          "origin": "maturation",
+          "group": "Drying"
+        },
+        {
+          "key": "astringent",
+          "label": "Astringent",
+          "origin": "maturation",
+          "group": "Drying"
+        },
+        {
+          "key": "puckering",
+          "label": "Puckering",
+          "origin": "maturation",
+          "group": "Drying"
+        },
+        {
+          "key": "mouth-coating",
+          "label": "Mouth coating",
+          "origin": "distillation",
+          "group": "Drying"
+        },
+        {
+          "key": "clean-finish",
+          "label": "Clean finish",
+          "origin": "distillation",
+          "group": "Drying"
+        }
       ]
     },
     {
       "key": "faults",
-      "label": "Off-notes",
+      "label": "Faults and off notes",
       "descriptors": [
-        { "key": "nail-polish", "label": "Nail polish", "origin": "fault", "compound": "ethyl acetate", "why": "A normal ester; a fault above threshold." },
-        { "key": "solvent", "label": "Solvent", "origin": "fault" },
-        { "key": "sulphur", "label": "Sulphur", "origin": "fault" },
-        { "key": "cabbage", "label": "Cabbage", "origin": "fault" },
-        { "key": "green-apple", "label": "Green apple", "origin": "oxidation", "compound": "acetaldehyde", "why": "Rises as a bottle sits open." },
-        { "key": "wet-cardboard", "label": "Wet cardboard", "origin": "oxidation", "compound": "trans-2-nonenal", "why": "Staling. Chiefly a beer fault." },
-        { "key": "musty", "label": "Musty", "origin": "fault" },
-        { "key": "soapy", "label": "Soapy", "origin": "fault" },
-        { "key": "metallic", "label": "Metallic", "origin": "fault" },
-        { "key": "flat", "label": "Flat", "origin": "oxidation", "why": "The bottle has lost its sweetness. See OxidationBand." },
-        { "key": "bitter", "label": "Bitter", "origin": "maturation", "why": "Over-oaked rather than spoiled." }
+        {
+          "key": "nail-polish",
+          "label": "Nail polish",
+          "origin": "distillation",
+          "group": "Solvent"
+        },
+        {
+          "key": "solvent",
+          "label": "Solvent",
+          "origin": "distillation",
+          "group": "Solvent"
+        },
+        {
+          "key": "acetone",
+          "label": "Acetone",
+          "origin": "distillation",
+          "group": "Solvent"
+        },
+        {
+          "key": "glue",
+          "label": "Glue",
+          "origin": "distillation",
+          "group": "Solvent"
+        },
+        {
+          "key": "plastic",
+          "label": "Plastic",
+          "origin": "distillation",
+          "group": "Solvent"
+        },
+        {
+          "key": "sulphur",
+          "label": "Sulphur",
+          "origin": "fermentation",
+          "group": "Sulphur"
+        },
+        {
+          "key": "struck-match",
+          "label": "Struck match",
+          "origin": "fermentation",
+          "group": "Sulphur"
+        },
+        {
+          "key": "cabbage",
+          "label": "Cabbage",
+          "origin": "fermentation",
+          "group": "Sulphur"
+        },
+        {
+          "key": "rotten-egg",
+          "label": "Rotten egg",
+          "origin": "fermentation",
+          "group": "Sulphur"
+        },
+        {
+          "key": "burnt-rubber",
+          "label": "Burnt rubber",
+          "origin": "fermentation",
+          "group": "Sulphur"
+        },
+        {
+          "key": "wet-cardboard",
+          "label": "Wet cardboard",
+          "origin": "oxidation",
+          "group": "Tired"
+        },
+        {
+          "key": "flat",
+          "label": "Flat",
+          "origin": "oxidation",
+          "group": "Tired"
+        },
+        {
+          "key": "stale",
+          "label": "Stale",
+          "origin": "oxidation",
+          "group": "Tired"
+        },
+        {
+          "key": "dusty",
+          "label": "Dusty",
+          "origin": "oxidation",
+          "group": "Tired"
+        },
+        {
+          "key": "faded-fruit",
+          "label": "Faded fruit",
+          "origin": "oxidation",
+          "group": "Tired"
+        },
+        {
+          "key": "musty",
+          "label": "Musty",
+          "origin": "fault",
+          "group": "Microbial"
+        },
+        {
+          "key": "mouldy",
+          "label": "Mouldy",
+          "origin": "fault",
+          "group": "Microbial"
+        },
+        {
+          "key": "wet-dog",
+          "label": "Wet dog",
+          "origin": "fault",
+          "group": "Microbial"
+        },
+        {
+          "key": "vinegar",
+          "label": "Vinegar",
+          "origin": "fault",
+          "group": "Microbial"
+        },
+        {
+          "key": "sour-milk",
+          "label": "Sour milk",
+          "origin": "fault",
+          "group": "Microbial"
+        },
+        {
+          "key": "soapy",
+          "label": "Soapy",
+          "origin": "fault",
+          "group": "Other off notes"
+        },
+        {
+          "key": "metallic",
+          "label": "Metallic",
+          "origin": "fault",
+          "group": "Other off notes"
+        },
+        {
+          "key": "bitter",
+          "label": "Bitter",
+          "origin": "fault",
+          "group": "Other off notes"
+        },
+        {
+          "key": "green-apple-fault",
+          "label": "Green apple (harsh)",
+          "origin": "distillation",
+          "group": "Other off notes"
+        },
+        {
+          "key": "cork",
+          "label": "Cork taint",
+          "origin": "fault",
+          "group": "Other off notes"
+        }
       ]
     }
   ]

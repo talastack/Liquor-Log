@@ -222,12 +222,9 @@ struct BottleCard: View {
     }
 }
 
-/// Cents to money. One place, so a price never renders two ways.
-enum Money {
-    static func short(_ cents: Int) -> String {
-        String(format: "$%.2f", Double(cents) / 100)
-    }
-}
+// `Money` now lives in LiquorEngine. It moved because the engine renders prices
+// inside sentences of its own -- "You paid $79.99 for this before" -- and two
+// formatters would eventually disagree inside a single screen.
 
 #Preview {
     NavigationStack {

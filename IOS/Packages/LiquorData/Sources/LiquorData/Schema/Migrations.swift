@@ -143,6 +143,7 @@ public enum Migrations {
                 t.column("rating", .integer)
                 t.column("would_rebuy", .text)
                 t.column("worth_the_price", .boolean)
+                t.column("perceived_heat", .integer)
                 t.column("finish_seconds", .integer)
                 t.column("liked", .text)
                 t.column("disliked", .text)

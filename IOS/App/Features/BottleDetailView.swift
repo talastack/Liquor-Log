@@ -18,6 +18,7 @@ struct BottleDetailView: View {
     /// it did.
     @State private var justPouredId: String?
     @State private var isSettingLevel = false
+    @State private var priceHistory: PriceHistory.Summary?
 
     var body: some View {
         ScrollView {
@@ -28,6 +29,7 @@ struct BottleDetailView: View {
                     if let estimate = oxidation(summary) {
                         OxidationCard(estimate: estimate)
                     }
+                    priceCard(summary)
                     facts(summary)
                     if summary.bottle.hasPickDetail {
                         pickDetail(summary)
@@ -159,14 +161,21 @@ struct BottleDetailView: View {
                     label: "Chill filtration",
                     value: filtered ? "Chill filtered" : "Non-chill filtered")
             }
-            if let paid = summary.bottle.purchasePriceCents {
-                FactRow(label: "Paid", value: Money.short(paid))
-            }
             FactRow(
                 label: "Size",
                 value: "\(Int(summary.bottle.volumeMl.rounded())) ml",
                 isLast: true)
         }
+    }
+
+    /// What it cost, what a pour costs, and what you have paid before.
+    private func priceCard(_ summary: BottleSummary) -> some View {
+        PriceCard(
+            paidCents: summary.bottle.purchasePriceCents,
+            capacityMilliliters: summary.bottle.volumeMl,
+            pourSize: summary.bottle.pourSize,
+            history: priceHistory,
+            reference: env.product(for: summary.bottle)?.priceReference)
     }
 
     /// The barrel's own facts. This is the section most apps do not have, and
@@ -331,6 +340,13 @@ struct BottleDetailView: View {
     private func reload() {
         do {
             summary = try env.bottles.summary(id: bottleId)
+            // Excluding this bottle: comparing a price against itself would
+            // always report "about what you usually pay".
+            if let productId = summary?.bottle.catalogProductId {
+                priceHistory = PriceHistory.summarise(
+                    try env.bottles.purchaseHistory(
+                        catalogProductId: productId, excluding: bottleId))
+            }
         } catch {
             self.error = error.localizedDescription
         }

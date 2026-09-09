@@ -195,6 +195,18 @@ def main():
                     "%s: bottled in bond requires %d years; got %s"
                     % (where, bond_years, age))
 
+        # A price with no provenance is a number nobody can check, so it may
+        # not be stored -- the same rule the Postgres constraint enforces on
+        # user-entered products.
+        msrp = product.get("msrp_cents")
+        if msrp is not None:
+            if not product.get("msrp_source"):
+                problems.append(
+                    "%s: msrp_cents needs msrp_source -- a price with no named "
+                    "source cannot be shown to the user" % where)
+            if msrp < 0:
+                problems.append("%s: msrp_cents is negative" % where)
+
         if class_type in straight_types and age is not None and age < straight_years:
             problems.append(
                 "%s: straight requires %d years; got %s" % (where, straight_years, age))

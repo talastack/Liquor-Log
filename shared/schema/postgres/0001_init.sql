@@ -372,6 +372,15 @@ create table tastings (
   would_rebuy         text,
   worth_the_price     boolean,
 
+  -- How hot it actually drank, 1-5.
+  --
+  -- The question behind "do I taste 62.6%": a barrel-proof bourbon that goes
+  -- down easy is a different bottle from one that scorches at the same
+  -- strength, and the label cannot tell you which you have. 1-5 because that
+  -- is the resolution a person actually has; anything finer is invented
+  -- precision.
+  perceived_heat      integer,
+
   -- How long the finish lasted, in seconds. Recorded because length is the
   -- part of a finish people compare between bottles, and it is the one
   -- dimension free text is worst at holding still.
@@ -387,6 +396,8 @@ create table tastings (
   constraint rating_is_one_to_ten check (rating is null or (rating between 1 and 10)),
   -- An hour is already absurd for a finish; the ceiling is there to catch a
   -- minutes-entered-as-seconds slip, not to judge anybody's palate.
+  constraint perceived_heat_is_one_to_five
+    check (perceived_heat is null or (perceived_heat between 1 and 5)),
   constraint finish_seconds_is_plausible
     check (finish_seconds is null or (finish_seconds > 0 and finish_seconds <= 3600)),
   constraint rebuy_is_known

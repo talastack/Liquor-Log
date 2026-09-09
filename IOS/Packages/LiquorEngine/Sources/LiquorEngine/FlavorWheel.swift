@@ -38,6 +38,15 @@ public struct FlavorDescriptor: Codable, Sendable, Hashable, Identifiable {
     public let key: String
     public let label: String
     public let origin: FlavorOrigin
+
+    /// The sub-group inside its family: "Citrus" within Fruit, "Peat" within
+    /// Smoke.
+    ///
+    /// PRESENTATIONAL ONLY, and free to be renamed. A flat list of 250 words is
+    /// unusable on a phone -- nobody opening "Fruit" wants to pass forty
+    /// entries to reach "Lemon". The `key` is what a tasting note stores and
+    /// that can never change.
+    public let group: String?
     /// The compound responsible, where it is well established. Not shown in the
     /// UI until each attribution carries a citation.
     public let compound: String?
@@ -48,10 +57,26 @@ public struct FlavorDescriptor: Codable, Sendable, Hashable, Identifiable {
 
     public init(
         key: String, label: String, origin: FlavorOrigin,
-        compound: String? = nil, why: String? = nil
+        group: String? = nil, compound: String? = nil, why: String? = nil
     ) {
         self.key = key; self.label = label; self.origin = origin
-        self.compound = compound; self.why = why
+        self.group = group; self.compound = compound; self.why = why
+    }
+}
+
+/// A sub-group inside a family: "Citrus" within Fruit.
+///
+/// Derived from the descriptors rather than stored, so the data file stays a
+/// flat list and a descriptor can be moved between groups by editing one field.
+public struct FlavorGroup: Sendable, Hashable, Identifiable {
+    public let name: String
+    public let descriptors: [FlavorDescriptor]
+
+    public var id: String { name }
+
+    public init(name: String, descriptors: [FlavorDescriptor]) {
+        self.name = name
+        self.descriptors = descriptors
     }
 }
 
@@ -64,6 +89,26 @@ public struct FlavorFamily: Codable, Sendable, Hashable, Identifiable {
 
     public init(key: String, label: String, descriptors: [FlavorDescriptor]) {
         self.key = key; self.label = label; self.descriptors = descriptors
+    }
+
+    /// Descriptors in their sub-groups, in the order the data declares them.
+    ///
+    /// Order is taken from first appearance rather than sorted: the groups run
+    /// from the most common note to the least within each family, and
+    /// alphabetising them would bury "Caramel" under "Chocolate".
+    ///
+    /// A named type rather than a tuple because Swift has no key path into a
+    /// tuple element, and `ForEach(groups, id: \.name)` is exactly what the
+    /// picker needs to do with this.
+    public var groups: [FlavorGroup] {
+        var order: [String] = []
+        var buckets: [String: [FlavorDescriptor]] = [:]
+        for descriptor in descriptors {
+            let name = descriptor.group ?? label
+            if buckets[name] == nil { order.append(name) }
+            buckets[name, default: []].append(descriptor)
+        }
+        return order.map { FlavorGroup(name: $0, descriptors: buckets[$0] ?? []) }
     }
 }
 

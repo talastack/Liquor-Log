@@ -1,0 +1,335 @@
+import SwiftUI
+import LiquorData
+import LiquorEngine
+
+/// Bottles you want, and the price you would pay.
+///
+/// The target price is what makes this more than a list of names you already
+/// remember. It answers the question you actually have standing in the aisle:
+/// *I want this, but not at that price.*
+struct WishlistView: View {
+    @Environment(AppEnvironment.self) private var env
+
+    @State private var items: [WishlistItem] = []
+    @State private var isAdding = false
+    @State private var error: String?
+
+    var body: some View {
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: Space.m) {
+                header
+                if items.isEmpty {
+                    empty
+                } else {
+                    ForEach(items) { item in
+                        WishlistRow(
+                            item: item,
+                            name: name(for: item),
+                            onRemove: { remove(item) })
+                    }
+                }
+            }
+            .padding(.horizontal, Space.xl)
+            .padding(.bottom, 96)
+        }
+        .background(Palette.background)
+        .navigationTitle("Wishlist")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button { isAdding = true } label: { Image(systemName: "plus") }
+                    .foregroundStyle(Palette.gold)
+            }
+        }
+        .sheet(isPresented: $isAdding) {
+            NavigationStack { AddToWishlistView(onSave: { reload() }) }
+        }
+        .task { reload() }
+        .refreshable { reload() }
+        .alert("Something went wrong", isPresented: .constant(error != nil)) {
+            Button("OK") { error = nil }
+        } message: { Text(error ?? "") }
+    }
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: Space.s) {
+            Text(items.count == 1 ? "1 bottle" : "\(items.count) bottles")
+                .font(TypeScale.secondary())
+                .foregroundStyle(Palette.textSecondary)
+        }
+        .padding(.top, Space.s)
+    }
+
+    private var empty: some View {
+        VStack(spacing: Space.l) {
+            BottleMark(height: 84)
+            Text("Nothing on the list")
+                .font(TypeScale.title())
+                .foregroundStyle(Palette.text)
+            Text("Add a bottle you are looking for, with the most you would pay "
+                 + "for it. The price is the useful part.")
+                .font(TypeScale.secondary())
+                .foregroundStyle(Palette.textMuted)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.top, 64)
+    }
+
+    private func name(for item: WishlistItem) -> String {
+        if let id = item.catalogProductId, let identity = env.identity(id) {
+            return identity.displayName
+        }
+        return item.customName ?? "Untitled"
+    }
+
+    private func reload() {
+        do { items = try env.wishlist.items() } catch { self.error = error.localizedDescription }
+    }
+
+    private func remove(_ item: WishlistItem) {
+        do {
+            try env.wishlist.remove(id: item.id)
+            reload()
+        } catch { self.error = error.localizedDescription }
+    }
+}
+
+struct WishlistRow: View {
+    let item: WishlistItem
+    let name: String
+    let onRemove: () -> Void
+
+    var body: some View {
+        HStack(alignment: .top, spacing: Space.m) {
+            BottleMark(height: 52)
+
+            VStack(alignment: .leading, spacing: Space.xs) {
+                Text(name)
+                    .font(TypeScale.title())
+                    .foregroundStyle(Palette.text)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                if let target = item.targetPriceCents {
+                    Text("Up to \(Money.short(target))")
+                        .font(TypeScale.code(13))
+                        .foregroundStyle(Palette.gold)
+                } else {
+                    Text("No price set")
+                        .font(TypeScale.caption())
+                        .textCase(nil)
+                        .foregroundStyle(Palette.textMuted)
+                }
+
+                if let note = item.note, !note.isEmpty {
+                    Text(note)
+                        .font(TypeScale.caption())
+                        .textCase(nil)
+                        .foregroundStyle(Palette.textMuted)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+
+            Spacer(minLength: Space.s)
+
+            Button(action: onRemove) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(Palette.textMuted)
+                    .frame(width: Space.tapTarget, height: Space.tapTarget)
+            }
+            .accessibilityLabel("Remove \(name) from the wishlist")
+        }
+        .padding(Space.l)
+        .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.line, lineWidth: 1))
+    }
+}
+
+/// Put something on the list. Search the catalogue, or type a name.
+struct AddToWishlistView: View {
+    @Environment(AppEnvironment.self) private var env
+    @Environment(\.dismiss) private var dismiss
+
+    var onSave: (() -> Void)?
+
+    @State private var query = ""
+    @State private var chosen: CatalogProduct?
+    @State private var customName = ""
+    @State private var targetPrice = ""
+    @State private var note = ""
+    @State private var error: String?
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: Space.xl) {
+                if let chosen {
+                    chosenCard(chosen)
+                } else {
+                    search
+                }
+                details
+                saveButton
+            }
+            .padding(.horizontal, Space.xl)
+            .padding(.top, Space.l)
+            .padding(.bottom, 96)
+        }
+        .background(Palette.background)
+        .navigationTitle("Add to wishlist")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Cancel") { dismiss() }.foregroundStyle(Palette.textSecondary)
+            }
+        }
+        .alert("Could not save", isPresented: .constant(error != nil)) {
+            Button("OK") { error = nil }
+        } message: { Text(error ?? "") }
+    }
+
+    private func chosenCard(_ product: CatalogProduct) -> some View {
+        HStack(alignment: .top, spacing: Space.m) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(product.identity.displayName)
+                    .font(TypeScale.title())
+                    .foregroundStyle(Palette.text)
+                Text(product.classType.label)
+                    .font(TypeScale.code(13))
+                    .foregroundStyle(Palette.textMuted)
+            }
+            Spacer()
+            Button("Change") { chosen = nil }
+                .font(TypeScale.secondary())
+                .foregroundStyle(Palette.gold)
+                .frame(minHeight: Space.tapTarget)
+        }
+        .padding(Space.l)
+        .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.gold, lineWidth: 1))
+    }
+
+    private var search: some View {
+        VStack(alignment: .leading, spacing: Space.m) {
+            SectionLabel("What are you after?")
+
+            HStack(spacing: Space.m) {
+                Image(systemName: "magnifyingglass").foregroundStyle(Palette.textMuted)
+                TextField("Distillery, brand or expression", text: $query)
+                    .font(TypeScale.body())
+                    .foregroundStyle(Palette.text)
+                    .autocorrectionDisabled()
+                    .textInputAutocapitalization(.never)
+            }
+            .padding(.horizontal, Space.l)
+            .frame(minHeight: 52)
+            .background(RoundedRectangle(cornerRadius: 11).fill(Palette.surface))
+            .overlay(RoundedRectangle(cornerRadius: 11).stroke(Palette.line, lineWidth: 1))
+
+            ForEach(matches, id: \.id) { product in
+                Button { chosen = product } label: {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(product.identity.displayName)
+                            .font(TypeScale.body())
+                            .foregroundStyle(Palette.text)
+                            .multilineTextAlignment(.leading)
+                        Text(product.distillery)
+                            .font(TypeScale.caption())
+                            .textCase(nil)
+                            .foregroundStyle(Palette.textMuted)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: Space.tapTarget, alignment: .leading)
+                }
+                Divider().overlay(Palette.line)
+            }
+
+            // A wishlist is mostly things you cannot buy yet, so the ones least
+            // likely to be in a catalogue are exactly the ones people want on
+            // it. Typing a name has to work.
+            TextField("Or type a name", text: $customName)
+                .font(TypeScale.body())
+                .foregroundStyle(Palette.text)
+                .padding(.horizontal, Space.m)
+                .frame(minHeight: 46)
+                .background(RoundedRectangle(cornerRadius: 10).fill(Palette.surface))
+                .overlay(RoundedRectangle(cornerRadius: 10).stroke(Palette.line, lineWidth: 1))
+        }
+    }
+
+    private var details: some View {
+        VStack(alignment: .leading, spacing: Space.m) {
+            SectionLabel("What would you pay?")
+
+            TextField("Most you would pay", text: $targetPrice)
+                .font(TypeScale.body())
+                .foregroundStyle(Palette.text)
+                .keyboardType(.decimalPad)
+                .padding(.horizontal, Space.m)
+                .frame(minHeight: 46)
+                .background(RoundedRectangle(cornerRadius: 10).fill(Palette.surface))
+                .overlay(RoundedRectangle(cornerRadius: 10).stroke(Palette.line, lineWidth: 1))
+
+            TextField("Note (optional)", text: $note)
+                .font(TypeScale.body())
+                .foregroundStyle(Palette.text)
+                .padding(.horizontal, Space.m)
+                .frame(minHeight: 46)
+                .background(RoundedRectangle(cornerRadius: 10).fill(Palette.surface))
+                .overlay(RoundedRectangle(cornerRadius: 10).stroke(Palette.line, lineWidth: 1))
+
+            Text("Optional, but it is the useful part — it turns the list from "
+                 + "names you already remember into an answer at the shelf.")
+                .font(TypeScale.caption())
+                .textCase(nil)
+                .foregroundStyle(Palette.textMuted)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private var saveButton: some View {
+        Button(action: save) {
+            Text("Add to wishlist")
+                .font(TypeScale.headline())
+                .foregroundStyle(Palette.onGold)
+                .frame(maxWidth: .infinity, minHeight: 50)
+                .background(RoundedRectangle(cornerRadius: 11)
+                    .fill(canSave ? Palette.gold : Palette.surfaceRaised))
+        }
+        .disabled(!canSave)
+    }
+
+    private var canSave: Bool {
+        chosen != nil || !customName.trimmingCharacters(in: .whitespaces).isEmpty
+    }
+
+    private var matches: [CatalogProduct] {
+        let trimmed = query.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return [] }
+        let candidates = env.catalog.products.map {
+            SearchCandidate(product: $0.identity, recipeCode: $0.code, mashbillKey: $0.mashbillKey)
+        }
+        return BottleSearch.search(query: trimmed, in: candidates, limit: 8)
+            .compactMap { hit in env.catalog.products.first { $0.id == hit.product.productId } }
+    }
+
+    private func save() {
+        do {
+            try env.wishlist.add(
+                catalogProductId: chosen?.id,
+                customName: chosen == nil ? customName : nil,
+                targetPriceCents: Double(targetPrice).map { Int(($0 * 100).rounded()) },
+                note: note.isEmpty ? nil : note)
+            onSave?()
+            dismiss()
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+}
+
+#Preview {
+    NavigationStack { WishlistView() }
+        .environment(AppEnvironment.preview())
+        .preferredColorScheme(.dark)
+}

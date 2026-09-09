@@ -118,12 +118,20 @@ struct ShelfCheckView: View {
         // the only place the database and the verdict meet.
         let holdings = (try? env.bottles.holdings { env.identity($0) }) ?? []
         let tastings = (try? env.tastings.records { env.identity($0) }) ?? []
+        // Without this the engine's isOnWishlist was always false and the
+        // "On your wishlist" line could never appear -- the copy existed, the
+        // data never reached it.
+        let wanted = Set(
+            ((try? env.wishlist.items()) ?? []).compactMap(\.catalogProductId))
 
         results = hits.map { hit in
             Result(
                 hit: hit,
                 verdict: ShelfCheck.evaluate(
-                    product: hit.product, holdings: holdings, tastings: tastings))
+                    product: hit.product,
+                    holdings: holdings,
+                    tastings: tastings,
+                    wishlistProductIds: wanted))
         }
     }
 }

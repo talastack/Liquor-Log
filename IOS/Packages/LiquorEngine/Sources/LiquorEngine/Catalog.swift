@@ -27,6 +27,20 @@ public struct CatalogProduct: Codable, Sendable, Hashable, Identifiable {
     /// relatedness can find siblings a name never would.
     public let mashbillKey: String?
 
+    /// A published SHELF price, and where it was published.
+    ///
+    /// Never a market value. The documented source is a state control board's
+    /// posted price list -- public records, and the only free and stable price
+    /// data that exists for spirits. Nil is the honest value everywhere else,
+    /// and it is currently nil for EVERY row: no figure has been transcribed
+    /// from a control board yet, and inventing one is the exact failure mode
+    /// that discredits apps in this category.
+    ///
+    /// The field is plumbed so a cited figure drops in without a schema change.
+    public let msrpCents: Int?
+    public let msrpSource: String?
+    public let msrpAsOfYear: Int?
+
     /// Where the facts came from. A number nobody can check is not data.
     public let source: String
     public let sourceUrl: String?
@@ -43,6 +57,9 @@ public struct CatalogProduct: Codable, Sendable, Hashable, Identifiable {
         case statedAgeYears = "stated_age_years"
         case recipeCode = "recipe_code"
         case mashbillKey = "mashbill_key"
+        case msrpCents = "msrp_cents"
+        case msrpSource = "msrp_source"
+        case msrpAsOfYear = "msrp_as_of_year"
         case source
         case sourceUrl = "source_url"
         case verified
@@ -63,6 +80,9 @@ public struct CatalogProduct: Codable, Sendable, Hashable, Identifiable {
         statedAgeYears = try c.decodeIfPresent(Int.self, forKey: .statedAgeYears)
         recipeCode = try c.decodeIfPresent(String.self, forKey: .recipeCode)
         mashbillKey = try c.decodeIfPresent(String.self, forKey: .mashbillKey)
+        msrpCents = try c.decodeIfPresent(Int.self, forKey: .msrpCents)
+        msrpSource = try c.decodeIfPresent(String.self, forKey: .msrpSource)
+        msrpAsOfYear = try c.decodeIfPresent(Int.self, forKey: .msrpAsOfYear)
         source = try c.decodeIfPresent(String.self, forKey: .source) ?? ""
         sourceUrl = try c.decodeIfPresent(String.self, forKey: .sourceUrl)
         verified = try c.decodeIfPresent(Bool.self, forKey: .verified) ?? false
@@ -74,6 +94,7 @@ public struct CatalogProduct: Codable, Sendable, Hashable, Identifiable {
         isBarrelProof: Bool = false, isBottledInBond: Bool = false,
         abv: Double? = nil, statedAgeYears: Int? = nil,
         recipeCode: String? = nil, mashbillKey: String? = nil,
+        msrpCents: Int? = nil, msrpSource: String? = nil, msrpAsOfYear: Int? = nil,
         source: String = "", sourceUrl: String? = nil, verified: Bool = false
     ) {
         self.id = id; self.distillery = distillery; self.brand = brand
@@ -82,6 +103,8 @@ public struct CatalogProduct: Codable, Sendable, Hashable, Identifiable {
         self.isBarrelProof = isBarrelProof; self.isBottledInBond = isBottledInBond
         self.abv = abv; self.statedAgeYears = statedAgeYears
         self.recipeCode = recipeCode; self.mashbillKey = mashbillKey
+        self.msrpCents = msrpCents; self.msrpSource = msrpSource
+        self.msrpAsOfYear = msrpAsOfYear
         self.source = source; self.sourceUrl = sourceUrl; self.verified = verified
     }
 
@@ -92,6 +115,15 @@ public struct CatalogProduct: Codable, Sendable, Hashable, Identifiable {
     }
 
     public var code: RecipeCode? { recipeCode.flatMap(RecipeCode.init) }
+
+    /// The shelf-price reference, when there is a cited one.
+    ///
+    /// A price with no named source cannot be shown, so it is not returned
+    /// either -- the same rule `CustomCatalogEntry` enforces in the database.
+    public var priceReference: PriceReference? {
+        guard let cents = msrpCents, let source = msrpSource else { return nil }
+        return PriceReference(cents: cents, source: source, asOfYear: msrpAsOfYear)
+    }
 
     /// What the strength line should say. Barrel proof has no fixed answer, and
     /// saying so is better than showing a number that is wrong most of the time.

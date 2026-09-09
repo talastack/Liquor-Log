@@ -283,6 +283,41 @@ public struct BottleRepository: Sendable {
             at: when)
     }
 
+    /// What you have paid for a product before, for the price comparison.
+    ///
+    /// Includes finished bottles: a price you paid two years ago is still a
+    /// price you paid, and dropping it would make the history thinner exactly
+    /// for the bottles you buy most often.
+    ///
+    /// `excluding` leaves out the bottle being looked at, so its own price is
+    /// not compared against itself.
+    public func purchaseHistory(
+        catalogProductId: String,
+        excluding bottleId: String? = nil
+    ) throws -> [PriceHistory.Purchase] {
+        try db.queue.read { db in
+            var request = Bottle
+                .live()
+                .filter(Column("catalog_product_id") == catalogProductId)
+                .filter(Column("purchase_price_cents") != nil)
+            if let bottleId {
+                request = request.filter(Column("id") != bottleId)
+            }
+            return try request
+                .order(Column("purchase_date").desc)
+                .fetchAll(db)
+                .compactMap { bottle in
+                    guard let cents = bottle.purchasePriceCents else { return nil }
+                    return PriceHistory.Purchase(
+                        cents: cents,
+                        purchasedAt: bottle.purchaseDate.map {
+                            Date(timeIntervalSince1970: Double($0) / 1000)
+                        },
+                        store: bottle.purchaseStore)
+                }
+        }
+    }
+
     /// Every level ever recorded for a bottle, newest first.
     public func fillHistory(bottleId: String) throws -> [FillReading] {
         try db.queue.read { db in

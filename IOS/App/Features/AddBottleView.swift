@@ -61,6 +61,10 @@ struct AddBottleView: View {
 
     @State private var error: String?
 
+    /// What you have paid for the chosen product before, for the live verdict
+    /// as a price is typed.
+    @State private var priceHistory: PriceHistory.Summary?
+
     /// Three states, not two. Most labels say nothing at all, and recording
     /// "no" for every one of those would be inventing a fact.
     enum ChillFiltration: String, CaseIterable, Identifiable {
@@ -270,6 +274,14 @@ struct AddBottleView: View {
             HStack(spacing: Space.m) {
                 field("Paid", text: $price, keyboard: .decimalPad, placeholder: "79.99")
                 field("Bought at", text: $store, placeholder: "Total Wine")
+            }
+
+            // Quiet on purpose. It reports a comparison with YOUR OWN record
+            // and stops -- it never tells anybody not to buy a bottle they are
+            // holding, and there is no wording where the app calls a price
+            // "overpriced" in its own voice.
+            if let cents = typedPriceCents, priceHistory != nil {
+                PriceVerdictLine(askingCents: cents, history: priceHistory)
             }
             if chosen?.isBarrelProof == true {
                 Text("Barrel proof changes every batch — read the proof off the label.")
@@ -540,9 +552,16 @@ struct AddBottleView: View {
         return !customBrand.trimmingCharacters(in: .whitespaces).isEmpty
     }
 
+    private var typedPriceCents: Int? {
+        guard let value = Double(price), value > 0 else { return nil }
+        return Int((value * 100).rounded())
+    }
+
     private func choose(_ product: CatalogProduct) {
         chosen = product
         if let abv = product.abv { proof = String(format: "%.1f", ABV(percent: abv).proof) }
+        priceHistory = PriceHistory.summarise(
+            (try? env.bottles.purchaseHistory(catalogProductId: product.id)) ?? [])
     }
 
     // MARK: - Saving

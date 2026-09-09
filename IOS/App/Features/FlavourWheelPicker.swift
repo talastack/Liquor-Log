@@ -109,13 +109,28 @@ struct FlavourWheelPicker: View {
                         .foregroundStyle(Palette.textMuted)
                 }
 
-                LazyVGrid(
-                    columns: [GridItem(.adaptive(minimum: 120), spacing: Space.s)],
-                    spacing: Space.s
-                ) {
-                    ForEach(family.descriptors) { descriptor in
-                        chip(descriptor)
+                // Sub-grouped rather than one flat run. A family can hold
+                // forty descriptors now, and nobody opening "Fruit" wants to
+                // scroll past thirty entries to reach "Lemon". The groups are
+                // in data order, most common note first, so alphabetising
+                // would bury "Caramel" under "Chocolate".
+                ForEach(family.groups, id: \.name) { group in
+                    VStack(alignment: .leading, spacing: Space.s) {
+                        Text(group.name)
+                            .font(TypeScale.caption())
+                            .textCase(nil)
+                            .foregroundStyle(Palette.textMuted)
+
+                        LazyVGrid(
+                            columns: [GridItem(.adaptive(minimum: 118), spacing: Space.s)],
+                            spacing: Space.s
+                        ) {
+                            ForEach(group.descriptors) { descriptor in
+                                chip(descriptor)
+                            }
+                        }
                     }
+                    .padding(.bottom, Space.s)
                 }
             }
         }

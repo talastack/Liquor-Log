@@ -28,6 +28,7 @@ struct TastingSheetView: View {
     @State private var picks: [TastingStage: [String]] = [:]
     @State private var editingStage: TastingStage?
     @State private var finishLength: FinishLength = .notRecorded
+    @State private var heat: PerceivedProof.Heat?
     @State private var error: String?
 
     init(bottleId: String? = nil, catalogProductId: String? = nil, pourId: String? = nil) {
@@ -78,6 +79,7 @@ struct TastingSheetView: View {
                 ForEach(TastingStage.allCases, id: \.self) { stage in
                     stageRow(stage)
                 }
+                heatRow
                 finishLengthRow
                 ratingRow
                 rebuyRow
@@ -200,6 +202,80 @@ struct TastingSheetView: View {
         }
     }
 
+    /// Does it drink like its proof?
+    ///
+    /// Your own idea, and still the field nothing else has. A barrel-proof
+    /// bourbon that goes down easy is a different bottle from one that
+    /// scorches at the same strength, and the label cannot tell you which you
+    /// have. It is the reason people chase cask strength at all.
+    ///
+    /// Only shown when the strength is known, because the whole value is the
+    /// COMPARISON — heat on its own is just a number.
+    @ViewBuilder
+    private var heatRow: some View {
+        if let abv = bottleABV {
+            VStack(alignment: .leading, spacing: Space.s) {
+                SectionLabel("How hot did it drink?")
+
+                HStack(spacing: Space.s) {
+                    ForEach(PerceivedProof.Heat.allCases, id: \.self) { option in
+                        Button {
+                            heat = (heat == option) ? nil : option
+                        } label: {
+                            Text(option.label)
+                                .font(TypeScale.caption())
+                                .textCase(nil)
+                                .foregroundStyle(
+                                    heat == option ? Palette.onGold : Palette.textSecondary)
+                                .frame(maxWidth: .infinity, minHeight: Space.tapTarget)
+                                .background(RoundedRectangle(cornerRadius: 9)
+                                    .fill(heat == option ? Palette.gold : Palette.surfaceRaised))
+                        }
+                    }
+                }
+
+                if let heat {
+                    let result = PerceivedProof.compare(abv: abv, felt: heat)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(result.headline)
+                            .font(TypeScale.body())
+                            .foregroundStyle(tint(result.verdict))
+                        Text(result.summary)
+                            .font(TypeScale.caption())
+                            .textCase(nil)
+                            .foregroundStyle(Palette.textMuted)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                } else {
+                    Text(String(format: "%.1f proof usually drinks ", abv.proof)
+                         + PerceivedProof.expectedHeat(for: abv).label.lowercased() + ".")
+                        .font(TypeScale.caption())
+                        .textCase(nil)
+                        .foregroundStyle(Palette.textMuted)
+                }
+            }
+        }
+    }
+
+    private func tint(_ verdict: PerceivedProof.Verdict) -> Color {
+        switch verdict {
+        case .drinksBelowItsProof: return Palette.good
+        case .drinksAtItsProof: return Palette.textSecondary
+        case .drinksAboveItsProof: return Palette.gold
+        }
+    }
+
+    /// The bottle's MEASURED strength, falling back to the catalogue figure.
+    /// Nil for a barrel-proof release nobody has read off the label yet, which
+    /// is exactly when a comparison would be meaningless.
+    private var bottleABV: ABV? {
+        guard let bottleId,
+              let bottle = (try? env.bottles.summary(id: bottleId))?.bottle
+        else { return nil }
+        if let abv = bottle.abv { return ABV(percent: abv) }
+        return env.product(for: bottle)?.abv.map { ABV(percent: $0) }
+    }
+
     /// Sits with the finish stage it describes, not with the rating.
     private var finishLengthRow: some View {
         VStack(alignment: .leading, spacing: Space.s) {
@@ -243,6 +319,7 @@ struct TastingSheetView: View {
             pourId: pourId,
             rating: rating,
             wouldRebuy: rebuy,
+            perceivedHeat: heat?.rawValue,
             finishSeconds: finishLength.seconds,
             liked: liked.isEmpty ? nil : liked,
             disliked: disliked.isEmpty ? nil : disliked)

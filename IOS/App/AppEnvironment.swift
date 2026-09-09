@@ -23,6 +23,7 @@ final class AppEnvironment {
     var bottles: BottleRepository { BottleRepository(database) }
     var tastings: TastingRepository { TastingRepository(database) }
     var shelfWalk: ReInventoryRepository { ReInventoryRepository(database) }
+    var wishlist: WishlistRepository { WishlistRepository(database) }
     var export: CollectionExport { CollectionExport(database) }
 
     init(database: AppDatabase, catalog: Catalog, wheel: FlavorWheel, startupError: String? = nil) {

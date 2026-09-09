@@ -47,6 +47,15 @@ struct MoreView: View {
             SectionLabel("Tools")
 
             NavigationLink {
+                WishlistView()
+            } label: {
+                row(
+                    "Wishlist",
+                    detail: "Bottles you want, and what you would pay",
+                    symbol: "star")
+            }
+
+            NavigationLink {
                 PickMyPourView()
             } label: {
                 row(
