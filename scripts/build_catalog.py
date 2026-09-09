@@ -323,7 +323,38 @@ ROWS = [
 RECIPE_CODES = {"four-roses-single-barrel": "OBSV"}
 
 
+def load_prices():
+    """{product id: {cents, source, as_of_year}} from every imported board.
+
+    A product priced by two boards keeps the FIRST by filename order, and the
+    count of clashes is printed. Averaging them would invent a figure no board
+    published; showing both would ask the user to arbitrate between states.
+    """
+    directory = OUT.parent / "prices"
+    if not directory.exists():
+        return {}
+
+    merged = {}
+    clashes = 0
+    for path in sorted(directory.glob("*.json")):
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        for pid, entry in payload.get("prices", {}).items():
+            if pid in merged:
+                clashes += 1
+                continue
+            merged[pid] = {
+                "cents": entry["cents"],
+                "source": payload["source"],
+                "as_of_year": payload.get("as_of_year"),
+            }
+    if clashes:
+        print("note: %d products priced by more than one board; kept the first"
+              % clashes)
+    return merged
+
+
 def main():
+    prices = load_prices()
     seen = set()
     products = []
 
@@ -354,6 +385,16 @@ def main():
         if pid in RECIPE_CODES:
             product["recipe_code"] = RECIPE_CODES[pid]
 
+        # Cited shelf prices, imported from a control board's published price
+        # list by scripts/import_price_list.py. Merged here rather than typed
+        # into the table above so a price always arrives WITH its source and
+        # its year -- there is no way to write one by hand and forget them.
+        price = prices.get(pid)
+        if price:
+            product["msrp_cents"] = price["cents"]
+            product["msrp_source"] = price["source"]
+            product["msrp_as_of_year"] = price["as_of_year"]
+
         product["source"] = "Producer label"
         product["verified"] = False
         products.append(product)
@@ -382,7 +423,9 @@ def main():
     }
 
     OUT.write_text(json.dumps(catalog, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    print("wrote %s: %d products" % (OUT.name, len(products)))
+    priced = sum(1 for p in products if p.get("msrp_cents") is not None)
+    print("wrote %s: %d products, %d with a cited shelf price"
+          % (OUT.name, len(products), priced))
     return 0
 
 

@@ -119,6 +119,33 @@ and several boards publish them as open data — but "in practice" is not a
 licence. Check the terms of each board actually used before shipping its data,
 and prefer boards that publish under an explicit open-data policy.
 
+### How a price actually gets in
+
+`scripts/import_price_list.py`. There is no fetch step and that is deliberate:
+these boards publish FILES, not feeds, so you download one, and the script
+turns it into cited data.
+
+```
+python3 scripts/import_price_list.py inspect --file ~/Downloads/va-abc.csv
+python3 scripts/import_price_list.py match --board virginia-abc     --file ~/Downloads/va-abc.csv --name-column Product --price-column Price     --year 2026            # add --write once the report reads correctly
+```
+
+Publishing a snapshot rather than calling an API is what keeps the price
+answerable in a shop with no signal. A live lookup would fail in exactly the
+place the number is wanted.
+
+**It never guesses a match.** A price on the wrong bottle is worse than no
+price, because nobody can tell by looking. Output is four buckets: matched,
+*probable* (the catalogue name is contained in the listing's — reported for a
+human), *ambiguous* (two rows normalise the same, or one product is priced
+twice in one file), and unmatched. Only exact matches are ever written, and
+`--write` is opt-in so the report is the default behaviour.
+
+Every figure carries the board's name and the year, because a control-state
+price is **that state's posted shelf price** — not a national MSRP and not a
+resale value. Virginia's price is not what a Kentucky shop charges, and
+`PriceReference` prints the source beside the number for that reason.
+
 ### Deliberately excluded
 
 - **Any paid API**, including ones with a free tier. A free tier is a pricing
