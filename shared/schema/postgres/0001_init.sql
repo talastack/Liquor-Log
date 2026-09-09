@@ -50,6 +50,30 @@ begin
 end;
 $$;
 
+-- Drops an update whose updated_at is OLDER than the row already stored.
+--
+-- Last-write-wins has to be enforced somewhere, and it cannot be the client:
+-- two devices can push concurrently, so neither is in a position to arbitrate.
+--
+-- The push still returns 2xx. From the pusher's point of view the write was
+-- accepted and then superseded, which is exactly what happened, and its next
+-- pull brings back the winning version.
+--
+-- Equal timestamps fall through to the write. Two edits in the same millisecond
+-- are a coin toss whichever way it is resolved, and letting the arriving row
+-- win keeps the rule to one comparison.
+create or replace function reject_stale_writes()
+returns trigger
+language plpgsql
+as $$
+begin
+  if tg_op = 'UPDATE' and new.updated_at < old.updated_at then
+    return null;
+  end if;
+  return new;
+end;
+$$;
+
 -- ---------------------------------------------------------------------------
 -- Closed vocabularies
 -- ---------------------------------------------------------------------------
@@ -512,6 +536,33 @@ create table subscriptions (
 -- ---------------------------------------------------------------------------
 -- Triggers
 -- ---------------------------------------------------------------------------
+
+-- Named a_* so they fire BEFORE the server_clock triggers: Postgres runs
+-- BEFORE triggers in name order, and a rejected write must not be stamped.
+create trigger a_custom_catalog_entries_reject_stale
+  before update on custom_catalog_entries
+  for each row execute function reject_stale_writes();
+create trigger a_bottles_reject_stale
+  before update on bottles
+  for each row execute function reject_stale_writes();
+create trigger a_pours_reject_stale
+  before update on pours
+  for each row execute function reject_stale_writes();
+create trigger a_fill_readings_reject_stale
+  before update on fill_readings
+  for each row execute function reject_stale_writes();
+create trigger a_tastings_reject_stale
+  before update on tastings
+  for each row execute function reject_stale_writes();
+create trigger a_tasting_notes_reject_stale
+  before update on tasting_notes
+  for each row execute function reject_stale_writes();
+create trigger a_wishlist_items_reject_stale
+  before update on wishlist_items
+  for each row execute function reject_stale_writes();
+create trigger a_knowledge_notes_reject_stale
+  before update on knowledge_notes
+  for each row execute function reject_stale_writes();
 
 create trigger custom_catalog_entries_server_clock
   before insert or update on custom_catalog_entries
