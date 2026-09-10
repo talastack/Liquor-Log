@@ -142,6 +142,13 @@ public enum LabelReader: Sendable {
             "GOVERNMENT WARNING", "SURGEON GENERAL", "PREGNANCY", "MACHINERY",
             "DRINK RESPONSIBLY", "ALC", "VOL", "PROOF", "ML", "DISTILLED BY",
             "BOTTLED BY", "PRODUCT OF", "CONTAINS", "SULFITES",
+            // The attribution line, never the brand line. Eagle Rare,
+            // Blanton's and Weller all print "Buffalo Trace Distillery", and
+            // keeping it puts "buffalo trace" into the reading -- so Buffalo
+            // Trace's own bourbon counts as brand-present on a bottle that is
+            // not it. Buffalo Trace's OWN front label says "BUFFALO TRACE"
+            // without the word, so dropping it costs nothing there.
+            "DISTILLERY", "DISTILLERIES",
         ]
         return upper.filter { line in
             let trimmed = line.trimmingCharacters(in: .whitespaces)
@@ -163,8 +170,44 @@ public enum LabelReader: Sendable {
         for reading: Reading, in catalog: [SearchCandidate], limit: Int = 5
     ) -> [SearchHit] {
         guard !reading.nameCandidate.isEmpty else { return [] }
-        return BottleSearch.search(
-            query: reading.nameCandidate, in: catalog, limit: limit)
+        let hits = BottleSearch.search(
+            query: reading.nameCandidate, in: catalog, limit: limit * 2)
+        return rankBrandFirst(hits, against: reading.nameCandidate)
+            .prefix(limit)
+            .map { $0 }
+    }
+
+    /// Products whose BRAND is on the label outrank ones matched only on the
+    /// distillery.
+    ///
+    /// Eagle Rare, Blanton's and Weller all print "Buffalo Trace Distillery"
+    /// on the label, so a search over the raw text matches every Buffalo Trace
+    /// product and ranks them by noise — and Buffalo Trace's own bourbon can
+    /// beat the bottle actually being held. The brand is the thing printed
+    /// largest, and if its words are in the reading that is the answer.
+    ///
+    /// A stable partition, not a re-score: within each group the search's own
+    /// order is kept, so this cannot make a good match worse.
+    static func rankBrandFirst(_ hits: [SearchHit], against text: String) -> [SearchHit] {
+        let words = Set(tokens(text))
+        let brandMatched = hits.filter { brandIsPresent($0.product, in: words) }
+        let rest = hits.filter { !brandIsPresent($0.product, in: words) }
+        return brandMatched + rest
+    }
+
+    static func brandIsPresent(_ product: ProductIdentity, in words: Set<String>) -> Bool {
+        let brand = tokens(product.brand)
+        guard !brand.isEmpty else { return false }
+        return brand.allSatisfy { words.contains($0) }
+    }
+
+    /// Lowercase alphanumeric words, so "Blanton's" and "BLANTONS" agree.
+    static func tokens(_ text: String) -> [String] {
+        text.lowercased()
+            .replacingOccurrences(of: "'", with: "")
+            .split(whereSeparator: { !$0.isLetter && !$0.isNumber })
+            .map(String.init)
+            .filter { $0.count > 1 }
     }
 
     // MARK: - Regex plumbing

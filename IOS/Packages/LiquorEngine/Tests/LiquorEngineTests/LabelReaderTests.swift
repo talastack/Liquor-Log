@@ -171,3 +171,80 @@ final class LabelReaderTests: XCTestCase {
         XCTAssertEqual(reading.proof ?? 0, 124.2, accuracy: 0.01)
     }
 }
+
+/// The Buffalo Trace problem. Eagle Rare, Blanton's and Weller all print
+/// "Buffalo Trace Distillery" on the label, and a search over the raw text
+/// matches every Buffalo Trace product and ranks them by noise.
+final class LabelReaderRankingTests: XCTestCase {
+
+    private func product(_ id: String, _ brand: String, _ expression: String = "",
+                         distillery: String = "Buffalo Trace") -> SearchCandidate {
+        SearchCandidate(product: ProductIdentity(
+            productId: id, distillery: distillery, brand: brand,
+            expression: expression, classType: .kentuckyStraightBourbon))
+    }
+
+    private var buffaloTraceFamily: [SearchCandidate] {
+        [
+            product("buffalo-trace", "Buffalo Trace"),
+            product("eagle-rare-10", "Eagle Rare", "10 Year"),
+            product("blantons", "Blanton's", "Original Single Barrel"),
+            product("weller-sr", "W L Weller", "Special Reserve"),
+            product("stagg", "Stagg"),
+        ]
+    }
+
+    /// The bottle being held is Eagle Rare. The distillery line must not win.
+    func testTheBrandOnTheLabelOutranksTheDistilleryOnTheLabel() {
+        let reading = LabelReader.read([
+            "EAGLE RARE", "KENTUCKY STRAIGHT BOURBON WHISKEY", "10 YEARS OLD",
+            "BUFFALO TRACE DISTILLERY", "FRANKFORT, KENTUCKY",
+        ])
+        let hits = LabelReader.candidates(for: reading, in: buffaloTraceFamily)
+        XCTAssertEqual(hits.first?.product.productId, "eagle-rare-10")
+    }
+
+    /// And when the bottle IS Buffalo Trace, it still wins.
+    func testBuffaloTraceItselfStillComesFirst() {
+        let reading = LabelReader.read([
+            "BUFFALO TRACE", "KENTUCKY STRAIGHT BOURBON WHISKEY",
+        ])
+        let hits = LabelReader.candidates(for: reading, in: buffaloTraceFamily)
+        XCTAssertEqual(hits.first?.product.productId, "buffalo-trace")
+    }
+
+    /// Possessive brands must match their apostrophe-free OCR form.
+    func testAPossessiveBrandMatchesWithoutItsApostrophe() {
+        let reading = LabelReader.read([
+            "BLANTONS", "THE ORIGINAL SINGLE BARREL", "BUFFALO TRACE DISTILLERY",
+        ])
+        let hits = LabelReader.candidates(for: reading, in: buffaloTraceFamily)
+        XCTAssertEqual(hits.first?.product.productId, "blantons")
+    }
+
+    /// A stable partition: within each group the search's own order survives,
+    /// so this cannot make a good match worse.
+    func testRankingIsAPartitionNotAReshuffle() {
+        let hits = [
+            SearchHit(product: buffaloTraceFamily[0].product, score: 0.9, reason: .fuzzy),
+            SearchHit(product: buffaloTraceFamily[1].product, score: 0.8, reason: .fuzzy),
+            SearchHit(product: buffaloTraceFamily[4].product, score: 0.7, reason: .fuzzy),
+        ]
+        let ranked = LabelReader.rankBrandFirst(hits, against: "stagg buffalo trace distillery")
+        // Stagg and Buffalo Trace both have their brand present; their relative
+        // order is preserved. Eagle Rare drops behind both.
+        XCTAssertEqual(ranked.map(\.product.productId), ["buffalo-trace", "stagg", "eagle-rare-10"])
+    }
+}
+
+extension LabelReaderRankingTests {
+    /// The attribution line is stripped BEFORE ranking, or "buffalo trace"
+    /// leaks into the reading and Buffalo Trace counts as brand-present on a
+    /// bottle that is not it.
+    func testTheDistilleryAttributionLineIsNotPartOfTheName() {
+        let lines = LabelReader.nameLines([
+            "EAGLE RARE", "BUFFALO TRACE DISTILLERY", "FRANKFORT KENTUCKY",
+        ])
+        XCTAssertEqual(lines, ["EAGLE RARE", "FRANKFORT KENTUCKY"])
+    }
+}
