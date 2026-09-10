@@ -182,6 +182,15 @@ struct MoreView: View {
                 }
             }
 
+            NavigationLink {
+                ImportView()
+            } label: {
+                row(
+                    "Import a spreadsheet",
+                    detail: "Bring in a CSV. Free, and you see the plan first.",
+                    symbol: "square.and.arrow.down")
+            }
+
             Button { buildExport() } label: {
                 row(
                     exportURL == nil ? "Export everything as CSV" : "Rebuild the export",
