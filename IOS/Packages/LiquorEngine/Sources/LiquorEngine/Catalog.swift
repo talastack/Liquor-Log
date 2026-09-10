@@ -41,6 +41,14 @@ public struct CatalogProduct: Codable, Sendable, Hashable, Identifiable {
     public let msrpSource: String?
     public let msrpAsOfYear: Int?
 
+    /// What a state board published about allocating this release: bottles
+    /// received and, where it ran a lottery, entries. Null everywhere until
+    /// somebody imports it. See `Rarity` for why this and not a tier.
+    public let allocationBottles: Int?
+    public let allocationEntries: Int?
+    public let allocationSource: String?
+    public let allocationYear: Int?
+
     /// Where the facts came from. A number nobody can check is not data.
     public let source: String
     public let sourceUrl: String?
@@ -60,6 +68,10 @@ public struct CatalogProduct: Codable, Sendable, Hashable, Identifiable {
         case msrpCents = "msrp_cents"
         case msrpSource = "msrp_source"
         case msrpAsOfYear = "msrp_as_of_year"
+        case allocationBottles = "allocation_bottles"
+        case allocationEntries = "allocation_entries"
+        case allocationSource = "allocation_source"
+        case allocationYear = "allocation_year"
         case source
         case sourceUrl = "source_url"
         case verified
@@ -83,6 +95,10 @@ public struct CatalogProduct: Codable, Sendable, Hashable, Identifiable {
         msrpCents = try c.decodeIfPresent(Int.self, forKey: .msrpCents)
         msrpSource = try c.decodeIfPresent(String.self, forKey: .msrpSource)
         msrpAsOfYear = try c.decodeIfPresent(Int.self, forKey: .msrpAsOfYear)
+        allocationBottles = try c.decodeIfPresent(Int.self, forKey: .allocationBottles)
+        allocationEntries = try c.decodeIfPresent(Int.self, forKey: .allocationEntries)
+        allocationSource = try c.decodeIfPresent(String.self, forKey: .allocationSource)
+        allocationYear = try c.decodeIfPresent(Int.self, forKey: .allocationYear)
         source = try c.decodeIfPresent(String.self, forKey: .source) ?? ""
         sourceUrl = try c.decodeIfPresent(String.self, forKey: .sourceUrl)
         verified = try c.decodeIfPresent(Bool.self, forKey: .verified) ?? false
@@ -95,6 +111,8 @@ public struct CatalogProduct: Codable, Sendable, Hashable, Identifiable {
         abv: Double? = nil, statedAgeYears: Int? = nil,
         recipeCode: String? = nil, mashbillKey: String? = nil,
         msrpCents: Int? = nil, msrpSource: String? = nil, msrpAsOfYear: Int? = nil,
+        allocationBottles: Int? = nil, allocationEntries: Int? = nil,
+        allocationSource: String? = nil, allocationYear: Int? = nil,
         source: String = "", sourceUrl: String? = nil, verified: Bool = false
     ) {
         self.id = id; self.distillery = distillery; self.brand = brand
@@ -105,6 +123,8 @@ public struct CatalogProduct: Codable, Sendable, Hashable, Identifiable {
         self.recipeCode = recipeCode; self.mashbillKey = mashbillKey
         self.msrpCents = msrpCents; self.msrpSource = msrpSource
         self.msrpAsOfYear = msrpAsOfYear
+        self.allocationBottles = allocationBottles; self.allocationEntries = allocationEntries
+        self.allocationSource = allocationSource; self.allocationYear = allocationYear
         self.source = source; self.sourceUrl = sourceUrl; self.verified = verified
     }
 
@@ -115,6 +135,15 @@ public struct CatalogProduct: Codable, Sendable, Hashable, Identifiable {
     }
 
     public var code: RecipeCode? { recipeCode.flatMap(RecipeCode.init) }
+
+    /// What a board published about allocating this release, when anything
+    /// was imported. A count with no named source is refused, for the same
+    /// reason a price with no source is.
+    public var allocation: Rarity.Allocation? {
+        guard let bottles = allocationBottles, let source = allocationSource else { return nil }
+        return Rarity.Allocation(
+            bottles: bottles, entries: allocationEntries, source: source, year: allocationYear)
+    }
 
     /// The shelf-price reference, when there is a cited one.
     ///

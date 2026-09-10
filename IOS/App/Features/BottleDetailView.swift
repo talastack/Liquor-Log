@@ -185,6 +185,20 @@ struct BottleDetailView: View {
                 FactRow(label: "Recipe", value: "\(code.code) · \(code.yeast.character)")
                 FactRow(label: "Mashbill", value: code.mashbill.summary)
             }
+            // Measured allocation, when a board's figures have been imported.
+            // "Not allocated" is deliberately NOT shown: the absence of a
+            // record is not a fact about the bottle, and printing it would
+            // read as "common" to everybody who saw it.
+            if let allocation = env.product(for: summary.bottle)?.allocation {
+                let rarity = Rarity.assess(allocation)
+                FactRow(label: "Allocation", value: rarity.verdict.headline)
+                Text(rarity.summary + " " + rarity.caveat)
+                    .font(TypeScale.caption())
+                    .textCase(nil)
+                    .foregroundStyle(Palette.textMuted)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.vertical, Space.xs)
+            }
             if let filtered = summary.bottle.chillFiltered {
                 FactRow(
                     label: "Chill filtration",

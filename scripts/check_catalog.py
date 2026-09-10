@@ -207,6 +207,19 @@ def main():
             if msrp < 0:
                 problems.append("%s: msrp_cents is negative" % where)
 
+        # An allocation count with no named board is a number nobody can
+        # check. Same rule as msrp.
+        bottles = product.get("allocation_bottles")
+        if bottles is not None:
+            if not product.get("allocation_source"):
+                problems.append(
+                    "%s: allocation_bottles needs allocation_source" % where)
+            if bottles < 0:
+                problems.append("%s: allocation_bottles is negative" % where)
+            entries = product.get("allocation_entries")
+            if entries is not None and entries < 0:
+                problems.append("%s: allocation_entries is negative" % where)
+
         if class_type in straight_types and age is not None and age < straight_years:
             problems.append(
                 "%s: straight requires %d years; got %s" % (where, straight_years, age))
