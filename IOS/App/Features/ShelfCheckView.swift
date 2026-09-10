@@ -12,6 +12,21 @@ struct ShelfCheckView: View {
 
     @State private var query = ""
     @State private var results: [Result] = []
+    @State private var isScanning = false
+    @State private var shelfCount = 0
+    @State private var openCount = 0
+
+    /// The last few things looked up, newest first.
+    ///
+    /// Per device, in UserDefaults: it is a convenience and not part of the
+    /// collection, and what somebody searched for in a shop is not something
+    /// to sync to their other devices.
+    @AppStorage("shelfCheck.recent") private var recentData: Data = Data()
+
+    /// Three bottles to tap, so an empty screen demonstrates what the verdicts
+    /// look like instead of describing them. Chosen so the catalogue has all
+    /// three and they span a range people recognise.
+    private let examples = ["Blanton's", "Weller 12", "Elijah Craig Barrel Proof"]
 
     struct Result: Identifiable {
         let hit: SearchHit
@@ -45,6 +60,18 @@ struct ShelfCheckView: View {
         .background(Palette.background)
         .navigationBarTitleDisplayMode(.inline)
         .onChange(of: query) { _, _ in search() }
+        .task { countShelf() }
+        .sheet(isPresented: $isScanning) {
+            NavigationStack {
+                ScanLabelView { reading, product, _ in
+                    // Straight to the verdict. The chosen product's name is
+                    // the query, so the same search that answers a typed
+                    // lookup answers a scanned one.
+                    query = product?.identity.displayName ?? reading.nameCandidate.capitalized
+                    remember(query)
+                }
+            }
+        }
     }
 
     private var searchField: some View {
@@ -55,12 +82,22 @@ struct ShelfCheckView: View {
                 .foregroundStyle(Palette.text)
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
+                .onSubmit { remember(query) }
             if !query.isEmpty {
                 Button { query = "" } label: {
                     Image(systemName: "xmark.circle.fill").foregroundStyle(Palette.textMuted)
                 }
                 .frame(minWidth: Space.tapTarget, minHeight: Space.tapTarget)
             }
+            // The camera lives HERE, on the home tab, because the whole use
+            // case is a bottle in your hand in a shop. A scan lands on a
+            // verdict, never on a form.
+            Button { isScanning = true } label: {
+                Image(systemName: "camera")
+                    .foregroundStyle(Palette.gold)
+            }
+            .frame(minWidth: Space.tapTarget, minHeight: Space.tapTarget)
+            .accessibilityLabel("Scan a label")
         }
         .padding(.horizontal, Space.l)
         .frame(minHeight: 52)
@@ -69,24 +106,113 @@ struct ShelfCheckView: View {
     }
 
     private var intro: some View {
-        VStack(spacing: Space.l) {
-            HStack(spacing: Space.m) {
-                BottleMark(height: 64).opacity(0.5)
-                BottleMark(height: 84).opacity(0.5)
-                BottleMark(height: 70).opacity(0.5)
+        VStack(alignment: .leading, spacing: Space.xl) {
+            // What is on the shelf, so the screen is never blank for somebody
+            // who has bottles. Counts bottles, never drinks.
+            if shelfCount > 0 {
+                HStack(spacing: Space.xl) {
+                    figure("\(shelfCount)", shelfCount == 1 ? "bottle" : "bottles")
+                    figure("\(openCount)", "open")
+                    Spacer()
+                }
+                .padding(Space.l)
+                .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.line, lineWidth: 1))
             }
-            Text("Bottle in hand? Find out what you already know about it.")
-                .font(TypeScale.title())
-                .foregroundStyle(Palette.text)
-                .multilineTextAlignment(.center)
+
+            Button { isScanning = true } label: {
+                HStack(spacing: Space.s) {
+                    Image(systemName: "camera")
+                    Text("Scan the bottle in your hand")
+                }
+                .font(TypeScale.headline())
+                .foregroundStyle(Palette.onGold)
+                .frame(maxWidth: .infinity, minHeight: 52)
+                .background(RoundedRectangle(cornerRadius: 11).fill(Palette.gold))
+            }
+
+            if !recent.isEmpty {
+                VStack(alignment: .leading, spacing: Space.s) {
+                    SectionLabel("Recent")
+                    ForEach(recent, id: \.self) { item in
+                        Button { query = item } label: {
+                            HStack {
+                                Image(systemName: "clock")
+                                    .foregroundStyle(Palette.textMuted)
+                                Text(item)
+                                    .font(TypeScale.body())
+                                    .foregroundStyle(Palette.text)
+                                Spacer()
+                            }
+                            .frame(minHeight: Space.tapTarget)
+                        }
+                    }
+                }
+            }
+
+            VStack(alignment: .leading, spacing: Space.s) {
+                SectionLabel(recent.isEmpty ? "Try one" : "Or try")
+                // Tapping one is the fastest possible demonstration of what
+                // the three verdicts look like, which no paragraph can do.
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: Space.s) {
+                        ForEach(examples, id: \.self) { example in
+                            Button { query = example } label: {
+                                Text(example)
+                                    .font(TypeScale.secondary())
+                                    .foregroundStyle(Palette.textSecondary)
+                                    .padding(.horizontal, Space.l)
+                                    .frame(minHeight: Space.tapTarget)
+                                    .background(RoundedRectangle(cornerRadius: 9)
+                                        .fill(Palette.surfaceRaised))
+                            }
+                        }
+                    }
+                }
+            }
+
             Text("Whether you own it, whether you have tried it, and what you said "
                  + "about it last time. Works with no signal.")
-                .font(TypeScale.secondary())
+                .font(TypeScale.caption())
+                .textCase(nil)
                 .foregroundStyle(Palette.textMuted)
-                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.top, 48)
+        .padding(.top, Space.m)
+    }
+
+    private func figure(_ value: String, _ label: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(value)
+                .font(TypeScale.title())
+                .foregroundStyle(Palette.text)
+            Text(label)
+                .font(TypeScale.caption())
+                .textCase(nil)
+                .foregroundStyle(Palette.textMuted)
+        }
+    }
+
+    // MARK: - Recent lookups
+
+    private var recent: [String] {
+        (try? JSONDecoder().decode([String].self, from: recentData)) ?? []
+    }
+
+    /// Keeps the last five, newest first, no duplicates. Five because the
+    /// list is for "the thing I looked at a minute ago", not a history.
+    private func remember(_ text: String) {
+        let trimmed = text.trimmingCharacters(in: .whitespaces)
+        guard trimmed.count >= 2 else { return }
+        var items = recent.filter { $0.caseInsensitiveCompare(trimmed) != .orderedSame }
+        items.insert(trimmed, at: 0)
+        recentData = (try? JSONEncoder().encode(Array(items.prefix(5)))) ?? Data()
+    }
+
+    private func countShelf() {
+        let bottles = (try? env.bottles.summaries()) ?? []
+        shelfCount = bottles.count
+        openCount = bottles.filter(\.bottle.isOpen).count
     }
 
     private var noMatch: some View {
