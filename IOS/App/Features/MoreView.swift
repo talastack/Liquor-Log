@@ -50,8 +50,8 @@ struct MoreView: View {
                 CodeDecoderView()
             } label: {
                 row(
-                    "Decode a recipe code",
-                    detail: "OESQ, OBSK — what the four letters mean",
+                    "Decode a code",
+                    detail: "Four Roses recipes, Elijah Craig batches",
                     symbol: "textformat.abc")
             }
 

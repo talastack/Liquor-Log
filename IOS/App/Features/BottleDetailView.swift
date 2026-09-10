@@ -171,7 +171,12 @@ struct BottleDetailView: View {
                 FactRow(label: "How it is made", value: productionLabel(product))
             }
             if let batch = summary.bottle.batchNumber {
-                FactRow(label: "Batch", value: batch)
+                // Decoded where the scheme is known. "B523" on its own is a
+                // string; "second release of 2023, bottled in May" is a fact
+                // about the whiskey.
+                FactRow(
+                    label: "Batch",
+                    value: BatchCode(batch).map { "\(batch) · \($0.summary)" } ?? batch)
             }
             // Barrel, pick and recipe live in "This barrel" below when the
             // bottle carries them. Printing them twice reads as a bug.
