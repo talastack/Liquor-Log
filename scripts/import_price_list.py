@@ -72,33 +72,57 @@ PRICES = ROOT / "shared" / "data" / "prices"
 # Boards known to publish a price list as a public record. `source` is the
 # string the app shows the user verbatim, so it names the board, not the file.
 BOARDS = {
+    # Verified 2026-09-10 by fetching each board's own pages. See
+    # docs/05-data-sourcing.md for the terms found on each, and the section
+    # "where a lawyer is needed" -- silence and "All Rights Reserved" are not
+    # licences, and nothing below is cleared for shipping by this file.
     "virginia-abc": {
         "source": "Virginia ABC",
-        "home": "https://www.abc.virginia.gov/products",
+        "home": "https://www.abc.virginia.gov/products/products-faqs/product-downloads",
+        "file": "https://www.abc.virginia.gov/library/products/other-documents/"
+                "quarterly-price-list-july--september-2026.xlsx",
+        "format": "xlsx, quarterly; also a PDF. Convert to CSV first.",
+        "terms": "SILENT. No terms of use exists; only a privacy policy. robots.txt "
+                 "permits the price files and disallows the live catalogue API.",
     },
     "oregon-olcc": {
         "source": "Oregon OLCC",
-        "home": "https://www.oregon.gov/olcc/Pages/price_list.aspx",
+        "home": "https://data.oregon.gov/Business/OLCC-Monthly-Pricing/vmf2-f83h",
+        "file": "https://data.oregon.gov/api/v3/views/vmf2-f83h/export.csv?accessType=DOWNLOAD",
+        "format": "csv, monthly, ~263,000 rows. The cleanest bulk source of the three.",
+        "terms": "SILENT. Socrata dataset with NO licence field; the only assertion is "
+                 "'All Rights Reserved' on the search site.",
     },
     "pennsylvania-plcb": {
         "source": "Pennsylvania PLCB",
-        "home": "https://www.finewineandgoodspirits.com",
+        "home": "https://www.pa.gov/agencies/lcb/supplier-vendors/"
+                "wine-and-spirits-suppliers/item-catalogs",
+        "file": "https://www.apps.lcb.pa.gov/webapp/reports/Wholesale_Spirits_Catalog_Full.xlsx",
+        "format": "xlsx wholesale catalogue with a published field dictionary. "
+                  "Convert to CSV first.",
+        "terms": "SPLIT. The pa.gov catalogues carry no terms at all. "
+                 "finewineandgoodspirits.com EXPRESSLY PROHIBITS commercial use and "
+                 "scraping -- never import from that domain.",
     },
     "north-carolina-abc": {
         "source": "North Carolina ABC",
         "home": "https://abc.nc.gov/Pricing/PriceList",
+        "terms": "Not yet checked.",
     },
     "idaho-isldd": {
         "source": "Idaho State Liquor Division",
         "home": "https://liquor.idaho.gov",
+        "terms": "Not yet checked.",
     },
     "new-hampshire-nhlc": {
         "source": "New Hampshire Liquor Commission",
         "home": "https://www.liquorandwine.com",
+        "terms": "Not yet checked.",
     },
     "utah-dabs": {
         "source": "Utah DABS",
         "home": "https://abs.utah.gov",
+        "terms": "Not yet checked.",
     },
 }
 

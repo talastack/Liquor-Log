@@ -171,10 +171,45 @@ having.
 
 r/whiskey removes app promotion by rule and flags the account. r/bourbon is a
 review forum that bans link posts outright. The one thing that community has
-demonstrably welcomed is BlantonsDumpDate.com: non-commercial, no app, one
+demonstrably welcomed is a dump-date registry: non-commercial, no app, one
 narrow bourbon-native problem, an explicit ask for contributions, and the author
 giving up control of the data.
 
-The research's recommendation is to build that registry as a free web utility
-**first**, and let the app follow the data. That is a separate project from this
+**A correction from the 10 September brief:** the domain the original research
+named, BlantonsDumpDate.com, is dormant — one Wayback capture in six years, and
+the root refuses automated clients. The live registry is **bourbondumpdate.com**,
+founded 2019 by Chris White, with a Wayback 200 in February 2026. Its data
+model is dump date, state found, and which letter of B-L-A-N-T-O-N-'-S is on the
+cork topper. No app, no visible monetisation.
+
+**The opening the brief confirmed:** a national, crowdsourced, queryable
+registry of store picks and single barrels has no incumbent — only fragments
+that are brand-captive (Nashville Barrel Co. covers its own barrels) or
+state-captive (The Tater Tracker stops at the North Carolina line). And the
+graveyard explains why: *"Manual curation of bourbon minutiae has a half-life of
+about two to three years."* ModernThirst's Elijah Craig batch guide froze in
+2019, gobourbon in 2021, Meta-Critic in 2023. The viable entry is one that
+crowdsources with moderation cheap enough to survive its founder's attention
+span — which is exactly the `bottles` table this app already has, with the
+barrel fields already structured.
+
+The research's recommendation stands: build that registry as a free web utility
+**first**, and let the app follow the data. It is a separate project from this
 repository and it is not started.
+
+### Two things the brief found that nobody has
+
+*"Interactive barrel-code decoders don't exist. No tool takes a Buffalo Trace
+laser code or Four Roses recipe and returns an answer. Everything found is a
+static explainer."* Ours has existed since the first commit; it is now a tool in
+More rather than something only visible on a bottle that already had a code.
+
+And rarity. The incumbent's tiers are *"an editorial label of unknown and
+demonstrably inconsistent provenance"* — two records for one bottle showing
+different tiers, no methodology anywhere. *"This is an attack surface, not a
+moat."* Virginia ABC publishes bottles AND lottery entries per release, which is
+measured demand against measured supply: 640 bottles of Stagg, 44,696 entries.
+`Rarity` is built on that number and refuses to invent a tier below "allocated",
+because every free source skews to the scarce end and there is no basis for
+"common" versus "uncommon" — which is likely why the incumbent's are
+inconsistent in the first place.

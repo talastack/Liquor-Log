@@ -158,7 +158,28 @@ below and wants a board's figures as well. It refuses to write without
 `--licence-checked`, and **no board has been imported** — every one of the 201
 catalogue rows has `msrp_cents: null`.
 
+### What the boards' terms actually say (checked 10 September 2026)
+
+Each board's own pages were fetched. Quotes are verbatim; gaps are gaps.
+
+| Board | Bulk file | Terms |
+|---|---|---|
+| **Virginia ABC** | Quarterly XLSX and PDF | **Silent.** No terms of use exists, only a privacy policy that *"shall not be construed as a contractual promise."* One adjacent clause bars use *"for the purposes of advertising."* robots.txt permits the price files and disallows the live catalogue API. |
+| **Oregon OLCC** | Socrata dataset `vmf2-f83h`, CSV/JSON, ~263,000 rows, monthly | **Silent.** No terms page; dataset has **no licence field**. The only assertion anywhere is *"All Rights Reserved."* The cleanest bulk source of the three. |
+| **Pennsylvania PLCB** | pa.gov wholesale XLSX with a field dictionary | **Split.** The pa.gov catalogues carry no terms at all. **finewineandgoodspirits.com expressly prohibits** commercial use without written permission and *"to spam, phish, pharm, pretext, spider, crawl, or scrape."* Never import from that domain. |
+
+Three robots.txt files serving the actual files could not be read (TLS failure,
+read error, 403), so their directives are unknown.
+
 ### The state price list caveat — ASK A LAWYER BEFORE IMPORTING
+
+Silence is not a licence, and neither is a bare "All Rights Reserved". The
+questions only a lawyer can settle: whether either restricts reuse of **factual
+price data** at all, given copyrightability of price tables and state
+public-records statutes; whether FWGS's terms bind somebody who never assented
+and whether they reach the *same facts* obtained from the untermed pa.gov
+files; and whether Oregon's open-data statute (ORS 276A) supplies an implied
+licence for a dataset published with an empty licence field.
 
 17 U.S.C. §105 removes copyright from **federal** government works. It does not
 apply to the states, and a state may assert copyright in its own publications.

@@ -47,6 +47,15 @@ struct MoreView: View {
             SectionLabel("Tools")
 
             NavigationLink {
+                CodeDecoderView()
+            } label: {
+                row(
+                    "Decode a recipe code",
+                    detail: "OESQ, OBSK — what the four letters mean",
+                    symbol: "textformat.abc")
+            }
+
+            NavigationLink {
                 StatsView()
             } label: {
                 row(
