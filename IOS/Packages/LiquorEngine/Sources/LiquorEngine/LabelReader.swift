@@ -44,6 +44,12 @@ public enum LabelReader: Sendable {
         /// most of the time, and what gets matched against the catalogue.
         public var nameCandidate: String = ""
 
+        /// Explicit because the synthesised memberwise initialiser is INTERNAL
+        /// even when every field is public. The app needs an empty reading for
+        /// the barcode-only case, where a photo carried a code but no legible
+        /// text.
+        public init() {}
+
         public var isEmpty: Bool {
             proof == nil && abv == nil && volumeMilliliters == nil
                 && batchCode == nil && barrelNumber == nil && recipeCode == nil
