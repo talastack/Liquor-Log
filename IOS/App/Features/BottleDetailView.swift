@@ -278,7 +278,50 @@ struct BottleDetailView: View {
             if let numbered = bottle.bottleNumberDescription {
                 FactRow(label: "Bottle", value: numbered, isLast: true)
             }
+
+            // The registry seed. A pick shared as a fixed-shape record arrives
+            // somewhere as data rather than prose, which is the one thing the
+            // research found no incumbent doing for store picks.
+            let card = pickCard(summary)
+            if card.hasBarrelDetail {
+                ShareLink(item: PickCard.text(card)) {
+                    HStack(spacing: Space.s) {
+                        Image(systemName: "square.and.arrow.up")
+                        Text("Share this pick")
+                    }
+                    .font(TypeScale.secondary())
+                    .foregroundStyle(Palette.gold)
+                    .frame(maxWidth: .infinity, minHeight: Space.tapTarget)
+                }
+                .padding(.top, Space.s)
+            }
         }
+    }
+
+    /// Everything barrel-specific this bottle carries, as a shareable record.
+    private func pickCard(_ summary: BottleSummary) -> PickCard.Pick {
+        let bottle = summary.bottle
+        let product = env.product(for: bottle)
+        return PickCard.Pick(
+            product: env.name(for: bottle),
+            distillery: env.distillery(for: bottle),
+            pickedBy: bottle.pickGroup,
+            store: bottle.isStorePick ? bottle.pickStore : nil,
+            barrel: bottle.barrelNumber,
+            batch: bottle.batchNumber,
+            recipeCode: bottle.recipeCode ?? product?.recipeCode,
+            warehouse: bottle.warehouse,
+            rick: bottle.rick,
+            floor: bottle.floor,
+            proof: (bottle.abv ?? product?.abv).map { ABV(percent: $0).proof },
+            ageMonths: bottle.ageMonths,
+            entryProof: bottle.entryProof,
+            charLevel: bottle.charLevel,
+            finish: bottle.finish,
+            bottleNumber: bottle.bottleNumber,
+            bottlesInBatch: bottle.bottlesInBatch,
+            dumpedAt: bottle.dumpedAt.map { Date(timeIntervalSince1970: Double($0) / 1000) },
+            bottledYear: bottle.bottledYear)
     }
 
     /// Where the bottle physically is, and the walk that keeps that honest.
