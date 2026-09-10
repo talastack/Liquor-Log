@@ -33,6 +33,7 @@ struct MainTabView: View {
     @Environment(AppEnvironment.self) private var env
     @State private var tab: Tab = .shelfCheck
     @State private var isAddingBottle = false
+    @State private var isAddingShelf = false
     @State private var isAddingTasting = false
     @State private var isChoosingWhatToAdd = false
 
@@ -62,11 +63,18 @@ struct MainTabView: View {
         }
         .confirmationDialog("Add", isPresented: $isChoosingWhatToAdd) {
             Button("Add a bottle") { isAddingBottle = true }
+            // The research's number one item. Scan after scan without a form
+            // in between, for the person with two hundred bottles and no
+            // interest in typing each one.
+            Button("Add a shelf") { isAddingShelf = true }
             Button("Record a tasting") { isAddingTasting = true }
             Button("Cancel", role: .cancel) { }
         }
         .sheet(isPresented: $isAddingBottle) {
             NavigationStack { AddBottleView() }
+        }
+        .sheet(isPresented: $isAddingShelf) {
+            NavigationStack { BulkAddView() }
         }
         .sheet(isPresented: $isAddingTasting) {
             NavigationStack { TastingSheetView() }
