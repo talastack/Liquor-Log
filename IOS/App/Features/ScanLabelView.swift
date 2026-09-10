@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import PhotosUI
 import LiquorData
 import LiquorEngine
 
@@ -28,8 +29,12 @@ struct ScanLabelView: View {
     @State private var reading: LabelReader.Reading?
     @State private var lines: [String] = []
     @State private var chosen: CatalogProduct?
-    @State private var isPicking = false
-    @State private var source: UIImagePickerController.SourceType = .camera
+    @State private var isTakingPhoto = false
+    /// The library path. `PhotosPicker` rather than `UIImagePickerController`:
+    /// the old picker is deprecated for the library and on recent simulators
+    /// can present nothing at all, silently. The new one is SwiftUI-native,
+    /// needs no permission prompt, and works everywhere the app does.
+    @State private var libraryItem: PhotosPickerItem?
     @State private var isReading = false
     @State private var barcode: String?
     @State private var known: BarcodeIndex.Match?
@@ -74,12 +79,30 @@ struct ScanLabelView: View {
                 Button("Cancel") { dismiss() }.foregroundStyle(Palette.textSecondary)
             }
         }
-        .sheet(isPresented: $isPicking) {
-            ImagePicker(source: source) { picked in
+        .sheet(isPresented: $isTakingPhoto) {
+            // The camera still goes through UIImagePickerController: there is
+            // no SwiftUI camera, and the system one brings its own permission
+            // prompt, retake flow and accessibility.
+            ImagePicker(source: .camera) { picked in
                 image = picked
                 Task { await read(picked) }
             }
             .ignoresSafeArea()
+        }
+        .onChange(of: libraryItem) { _, item in
+            guard let item else { return }
+            Task {
+                // Data, then UIImage. Loading UIImage directly as a Transferable
+                // is not supported on every OS this targets.
+                if let data = try? await item.loadTransferable(type: Data.self),
+                   let picked = UIImage(data: data) {
+                    image = picked
+                    await read(picked)
+                } else {
+                    error = "That photo could not be loaded."
+                }
+                libraryItem = nil
+            }
         }
     }
 
@@ -102,8 +125,7 @@ struct ScanLabelView: View {
             // presents a black screen with no explanation.
             if ImagePicker.cameraAvailable {
                 Button {
-                    source = .camera
-                    isPicking = true
+                    isTakingPhoto = true
                 } label: {
                     Text("Take a photo")
                         .font(TypeScale.headline())
@@ -113,10 +135,7 @@ struct ScanLabelView: View {
                 }
             }
 
-            Button {
-                source = .photoLibrary
-                isPicking = true
-            } label: {
+            PhotosPicker(selection: $libraryItem, matching: .images) {
                 Text("Choose a photo")
                     .font(TypeScale.headline())
                     .foregroundStyle(Palette.text)
