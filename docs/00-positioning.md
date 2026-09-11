@@ -201,6 +201,12 @@ The research's recommendation stands: build that registry as a free web utility
 **first**, and let the app follow the data. It is a separate project from this
 repository and it is not started.
 
+What the app does do, from the person's side: `DumpDateRegistry` writes their
+Blanton's out in the registry's own shape -- dump date, topper letter, barrel,
+warehouse, rick, store, state found -- as a CSV they can contribute by hand.
+The app has no relationship with the registry and claims none; state found is
+left blank rather than guessed from a store name.
+
 ### Two things the brief found that nobody has
 
 *"Interactive barrel-code decoders don't exist. No tool takes a Buffalo Trace

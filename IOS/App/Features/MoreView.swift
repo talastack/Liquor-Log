@@ -14,6 +14,10 @@ struct MoreView: View {
     @AppStorage("showsCollectionValue") private var showsValue = CollectionValue.shownByDefault
 
     @State private var exportURL: URL?
+    /// Your Blanton's with a dump date, in the registry's shape. Nil until
+    /// there is at least one, so nobody without a Blanton's sees the word.
+    @State private var registryURL: URL?
+    @State private var registryCount = 0
     @State private var isWalkDue = false
     @State private var isShowingPaywall = false
     @State private var error: String?
@@ -201,6 +205,26 @@ struct MoreView: View {
                     symbol: "tablecells")
             }
 
+            if registryCount > 0 {
+                Button { buildRegistryExport() } label: {
+                    row(
+                        "Your Blanton's, for the dump-date registry",
+                        detail: registryCount == 1
+                            ? "1 bottle with a dump date, as a CSV to contribute"
+                            : "\(registryCount) bottles with dump dates, as a CSV to contribute",
+                        symbol: "calendar.badge.clock")
+                }
+                if let registryURL {
+                    ShareLink(item: registryURL) {
+                        row(
+                            "Share the registry CSV",
+                            detail: "Dump date, topper letter, barrel, warehouse, rick",
+                            symbol: "square.and.arrow.up",
+                            highlighted: true)
+                    }
+                }
+            }
+
             NavigationLink {
                 InsuranceReportView()
             } label: {
@@ -329,6 +353,41 @@ struct MoreView: View {
 
     private func refresh() {
         isWalkDue = (try? env.shelfWalk.isDue()) ?? false
+        registryCount = registryEntries().count
+    }
+
+    /// Every bottle with a dump date. Blanton's is what prints one, so no
+    /// name check is needed; a dump date on anything else is still a fact
+    /// the registry's shape can hold.
+    private func registryEntries() -> [DumpDateRegistry.Entry] {
+        ((try? env.bottles.summaries(includeFinished: true)) ?? [])
+            .map(\.bottle)
+            .filter { $0.dumpedAt != nil }
+            .map { bottle in
+                DumpDateRegistry.Entry(
+                    dumpedAt: bottle.dumpedAt.map { Date(timeIntervalSince1970: Double($0) / 1000) },
+                    topperLetter: bottle.topperLetter,
+                    barrel: bottle.barrelNumber,
+                    warehouse: bottle.warehouse,
+                    rick: bottle.rick,
+                    bottleNumber: bottle.bottleNumber,
+                    store: bottle.purchaseStore ?? bottle.pickStore,
+                    // Never guessed from a store name. Blank until the
+                    // person records it somewhere the app can read.
+                    stateFound: nil)
+            }
+    }
+
+    private func buildRegistryExport() {
+        let csv = DumpDateRegistry.csv(registryEntries())
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("blantons-dump-dates.csv")
+        do {
+            try csv.write(to: url, atomically: true, encoding: .utf8)
+            registryURL = url
+        } catch {
+            self.error = error.localizedDescription
+        }
     }
 
     private func buildExport() {
