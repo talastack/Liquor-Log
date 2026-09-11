@@ -28,8 +28,11 @@ private actor FakeTransport: SyncTransport {
     }
 
     func fetch(table: String, since: Int64, limit: Int) async throws -> Data {
+        // NSNumber, not Int64: a literal in a [String: Any] is a Swift Int,
+        // and `as? Int64` on it is nil, which filtered every staged row out
+        // and made the pull tests fail on their first real run.
         let rows = (toReturn[table] ?? []).filter {
-            (($0["server_updated_at"] as? Int64) ?? 0) > since
+            (($0["server_updated_at"] as? NSNumber)?.int64Value ?? 0) > since
         }
         toReturn[table] = []          // one page, then done
         return try JSONSerialization.data(withJSONObject: rows)

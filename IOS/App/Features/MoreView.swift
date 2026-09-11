@@ -58,6 +58,16 @@ struct MoreView: View {
             SectionLabel("Tools")
 
             NavigationLink {
+                AskView()
+            } label: {
+                row(
+                    "Ask",
+                    detail: "\"What's open\", \"log a pour of Weller 12\" — answered from your shelf",
+                    symbol: "text.bubble",
+                    highlighted: true)
+            }
+
+            NavigationLink {
                 CodeDecoderView()
             } label: {
                 row(
