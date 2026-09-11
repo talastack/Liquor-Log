@@ -46,6 +46,10 @@ struct BottleDetailView: View {
     /// line. Nil the rest of the time.
     @State private var replenish: Replenish.Offer?
 
+    /// Your note on the PRODUCT, not this bottle. Nil when there is none.
+    @State private var productNote: String?
+    @State private var isEditingNote = false
+
     var body: some View {
         ScrollView {
             if let summary {
@@ -63,6 +67,9 @@ struct BottleDetailView: View {
                     }
                     priceCard(summary)
                     facts(summary)
+                    if summary.bottle.catalogProductId != nil {
+                        ProductNoteCard(body_: productNote) { isEditingNote = true }
+                    }
                     if summary.bottle.hasPickDetail {
                         pickDetail(summary)
                         if let comparison = comparison(summary), !comparison.isEmpty {
@@ -97,6 +104,16 @@ struct BottleDetailView: View {
         .sheet(isPresented: $isSettingLevel) {
             NavigationStack {
                 SetLevelView(bottleId: bottleId, onSave: { reload() })
+            }
+        }
+        .sheet(isPresented: $isEditingNote) {
+            if let bottle = summary?.bottle, let productId = bottle.catalogProductId {
+                NavigationStack {
+                    ProductNoteView(
+                        productId: productId,
+                        productName: env.name(for: bottle),
+                        onSave: { reload() })
+                }
             }
         }
         .alert("Something went wrong", isPresented: .constant(error != nil)) {
@@ -602,6 +619,8 @@ struct BottleDetailView: View {
             summary = try env.bottles.summary(id: bottleId)
             tastings = try env.tastings.history(bottleId: bottleId)
             standardRating = try bestStandardRating(for: summary?.bottle)
+            productNote = try summary?.bottle.catalogProductId
+                .flatMap { try env.notes.note(productId: $0)?.body }
             // Excluding this bottle: comparing a price against itself would
             // always report "about what you usually pay".
             if let productId = summary?.bottle.catalogProductId {

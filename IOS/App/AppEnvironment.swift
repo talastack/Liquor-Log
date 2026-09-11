@@ -28,6 +28,7 @@ final class AppEnvironment {
     var shelfWalk: ReInventoryRepository { ReInventoryRepository(database) }
     var wishlist: WishlistRepository { WishlistRepository(database) }
     var export: CollectionExport { CollectionExport(database) }
+    var notes: KnowledgeNoteRepository { KnowledgeNoteRepository(database) }
 
     init(
         database: AppDatabase,

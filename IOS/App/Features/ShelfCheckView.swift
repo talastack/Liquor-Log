@@ -35,6 +35,9 @@ struct ShelfCheckView: View {
         /// every other verdict: when you own the thing, the answer is "yes"
         /// and nothing should crowd it.
         let related: [Related]
+        /// Your own note on the product, when you wrote one. In the aisle,
+        /// "not worth it over $60" is the most useful sentence on the card.
+        let note: String?
         var id: String { hit.product.productId }
     }
 
@@ -268,6 +271,7 @@ struct ShelfCheckView: View {
         // data never reached it.
         let wanted = Set(
             ((try? env.wishlist.items()) ?? []).compactMap(\.catalogProductId))
+        let noted = (try? env.notes.productIdsWithNotes()) ?? []
 
         results = hits.map { hit in
             let verdict = ShelfCheck.evaluate(
@@ -278,7 +282,10 @@ struct ShelfCheckView: View {
             return Result(
                 hit: hit,
                 verdict: verdict,
-                related: related(to: hit.product, verdict: verdict, in: candidates, history: history))
+                related: related(to: hit.product, verdict: verdict, in: candidates, history: history),
+                note: noted.contains(hit.product.productId)
+                    ? (try? env.notes.note(productId: hit.product.productId))?.body
+                    : nil)
         }
     }
 
@@ -358,6 +365,19 @@ struct ShelfCheckCard: View {
                     Text(liked)
                         .font(TypeScale.secondary())
                         .foregroundStyle(Palette.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+
+            if let note = result.note {
+                HStack(alignment: .top, spacing: Space.s) {
+                    Text("NOTED")
+                        .font(TypeScale.caption())
+                        .foregroundStyle(Palette.gold)
+                    Text(note)
+                        .font(TypeScale.secondary())
+                        .foregroundStyle(Palette.textSecondary)
+                        .lineLimit(4)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
