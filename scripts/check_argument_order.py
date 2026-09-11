@@ -63,11 +63,31 @@ def declared_inits(text):
         for following in lines[index + 1:]:
             if re.match(r"^\s*\)\s*\{", following):
                 break
-            hit = PARAM.match(following)
-            if hit:
-                params.append(hit.group(1))
+            # Several parameters may share a line: `a: Int, b: String? = nil,`.
+            # Split on top-level commas and read the label of each piece.
+            depth = 0
+            piece = ""
+            pieces = []
+            for char in following:
+                if char in "([{<":
+                    depth += 1
+                elif char in ")]}>":
+                    depth -= 1
+                if char == "," and depth == 0:
+                    pieces.append(piece)
+                    piece = ""
+                else:
+                    piece += char
+            pieces.append(piece)
+            for candidate in pieces:
+                hit = PARAM.match(candidate.strip())
+                if hit:
+                    params.append(hit.group(1))
         if params:
-            found.setdefault(name, params)
+            # Two types can share a short name -- PickCard.Pick and
+            # PickCompare.Pick -- so every declaration is kept and a call
+            # is judged against the ones that know all of its labels.
+            found.setdefault(name, []).append(params)
 
     return found
 
@@ -162,7 +182,8 @@ def main():
 
     declarations = {}
     for path in swift:
-        declarations.update(declared_inits(path.read_text(encoding="utf-8")))
+        for name, inits in declared_inits(path.read_text(encoding="utf-8")).items():
+            declarations.setdefault(name, []).extend(inits)
 
     if not declarations:
         print("found no initialisers to check", file=sys.stderr)
@@ -171,17 +192,23 @@ def main():
     problems = []
     for path in swift:
         text = path.read_text(encoding="utf-8")
-        for name, declared in declarations.items():
+        for name, candidates in declarations.items():
             if name + "(" not in text:
                 continue
             for line, labels in call_labels(text, name):
                 if len(labels) < 2:
                     continue
-                if not is_subsequence(labels, declared):
-                    late, early = first_disorder(labels, declared)
-                    problems.append(
-                        "%s:%d: %s(...) -- argument '%s' must precede argument '%s'"
-                        % (path.relative_to(ROOT), line, name, late, early))
+                # Only declarations that know every label are eligible; a
+                # call is fine if any eligible declaration accepts its order.
+                eligible = [d for d in candidates if all(label in d for label in labels)]
+                if not eligible:
+                    continue
+                if any(is_subsequence(labels, d) for d in eligible):
+                    continue
+                late, early = first_disorder(labels, eligible[0])
+                problems.append(
+                    "%s:%d: %s(...) -- argument '%s' must precede argument '%s'"
+                    % (path.relative_to(ROOT), line, name, late, early))
 
     for problem in sorted(set(problems)):
         print(problem, file=sys.stderr)
@@ -191,7 +218,7 @@ def main():
         return 1
 
     print("argument order ok: %d initialisers checked across %d files"
-          % (len(declarations), len(swift)))
+          % (sum(len(v) for v in declarations.values()), len(swift)))
     return 0
 
 

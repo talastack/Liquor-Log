@@ -74,7 +74,7 @@ final class PickCardTests: XCTestCase {
 
     /// Plain text, no markup, so it survives every paste target.
     func testItIsPlainText() {
-        let text = PickCard.text(PickCard.Pick(product: "x", barrel: "1", pickedBy: "y"))
+        let text = PickCard.text(PickCard.Pick(product: "x", pickedBy: "y", barrel: "1"))
         XCTAssertFalse(text.contains("<"))
         XCTAssertFalse(text.contains("*"))
         XCTAssertFalse(text.contains("|"))
