@@ -86,7 +86,11 @@ public enum Ask: Sendable {
         if matches(s, ["what's open", "whats open", "what is open", "which bottles are open", "open bottles"]) {
             return .whatIsOpen
         }
-        if matches(s, ["wishlist", "wish list"]) && matches(s, ["what", "show", "list"]) {
+        // A question about the list, not a request to put something on it:
+        // "what's on my wishlist", "show my wishlist". ("list" alone would
+        // match inside "wishlist" and turn every add into a question.)
+        if matches(s, ["wishlist", "wish list"]),
+           s.hasPrefix("what") || s.hasPrefix("show") || s.hasPrefix("list ") {
             return .whatIsOnMyWishlist
         }
         if matches(s, ["nearly gone", "almost empty", "running low", "almost gone", "nearly empty"]) {
