@@ -29,6 +29,7 @@ struct EditBottleView: View {
     // field that fights the keyboard is a field people abandon.
     @State private var proof = ""
     @State private var volumeMl = ""
+    @State private var pourOunces = ""
     @State private var price = ""
     @State private var shelfPrice = ""
     @State private var store = ""
@@ -96,6 +97,7 @@ struct EditBottleView: View {
             HStack(spacing: Space.m) {
                 field("Size (ml)", text: $volumeMl, keyboard: .numberPad)
                 field("Proof", text: $proof, keyboard: .decimalPad)
+                field("Pour (oz)", text: $pourOunces, keyboard: .decimalPad)
             }
         }
     }
@@ -240,6 +242,11 @@ struct EditBottleView: View {
         edited.customName = blankAsNil(customName) ?? edited.customName
         edited.abv = Double(proof).map { $0 / 2 }
         edited.volumeMl = Double(volumeMl) ?? edited.volumeMl
+        // Stored in millilitres; typed in ounces because that is the unit a
+        // pour is thought in. Blank keeps the bottle's current size.
+        if let oz = Double(pourOunces), oz > 0 {
+            edited.pourSizeMl = PourSize(usFluidOunces: oz).milliliters
+        }
         edited.purchasePriceCents = Double(price).map { Int(($0 * 100).rounded()) }
         edited.shelfPriceCents = Double(shelfPrice).map { Int(($0 * 100).rounded()) }
         edited.purchaseStore = blankAsNil(store)
@@ -273,6 +280,7 @@ struct EditBottleView: View {
         customName = found.customName ?? ""
         proof = found.abv.map { String(format: "%.1f", ABV(percent: $0).proof) } ?? ""
         volumeMl = String(Int(found.volumeMl.rounded()))
+        pourOunces = String(format: "%.1f", found.pourSize.usFluidOunces)
         price = found.purchasePriceCents.map { String(format: "%.2f", Double($0) / 100) } ?? ""
         shelfPrice = found.shelfPriceCents.map { String(format: "%.2f", Double($0) / 100) } ?? ""
         store = found.purchaseStore ?? ""

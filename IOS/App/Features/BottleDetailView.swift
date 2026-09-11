@@ -5,6 +5,7 @@ import LiquorEngine
 /// One bottle: what is left, what it cost, what it is, and how it is holding up.
 struct BottleDetailView: View {
     @Environment(AppEnvironment.self) private var env
+    @Environment(\.dismiss) private var dismiss
     let bottleId: String
 
     @State private var summary: BottleSummary?
@@ -54,6 +55,14 @@ struct BottleDetailView: View {
     /// and batch -- still on the shelf.
     @State private var siblings: [BottleSummary] = []
 
+    /// The two confirmations. Finishing and removing are both reversible in
+    /// the data (a tombstone, a date) and both surprising if they happen on a
+    /// mis-tap, so each asks once.
+    @State private var isConfirmingFinish = false
+    @State private var isConfirmingRemove = false
+    @State private var isEnteringPour = false
+    @State private var customPourText = ""
+
     var body: some View {
         ScrollView {
             if let summary {
@@ -102,6 +111,40 @@ struct BottleDetailView: View {
                 Button("Edit") { isEditing = true }
                     .foregroundStyle(Palette.gold)
             }
+            ToolbarItem(placement: .primaryAction) {
+                bottleMenu
+            }
+        }
+        .confirmationDialog(
+            "Mark this bottle as finished?",
+            isPresented: $isConfirmingFinish,
+            titleVisibility: .visible
+        ) {
+            Button("Finished") { finishBottle() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("It leaves the shelf and stays in your history, tastings and all.")
+        }
+        .confirmationDialog(
+            "Remove this bottle from your collection?",
+            isPresented: $isConfirmingRemove,
+            titleVisibility: .visible
+        ) {
+            Button("Remove", role: .destructive) { removeBottle() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("For a bottle that was entered by mistake. A bottle you drank "
+                 + "should be marked finished instead, so its history stays.")
+        }
+        .alert("Pour how much?", isPresented: $isEnteringPour) {
+            TextField("ml", text: $customPourText)
+                .keyboardType(.decimalPad)
+            Button("Log it") {
+                if let ml = Double(customPourText), ml > 0 { logPour(milliliters: ml) }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("In millilitres. 44 ml is a standard 1.5 oz pour.")
         }
         .sheet(isPresented: $isEditing) {
             NavigationStack {
@@ -134,6 +177,63 @@ struct BottleDetailView: View {
         } message: {
             Text((replenish?.text ?? "") + " Want it on your wishlist?")
         }
+    }
+
+    /// Everything that changes the bottle's state without a form: the pour
+    /// sizes, opening without pouring, finishing, removing.
+    private var bottleMenu: some View {
+        Menu {
+            if let summary, !summary.bottle.isFinished {
+                Section("Log a pour") {
+                    ForEach(PourChoice.all, id: \.ounces) { choice in
+                        Button {
+                            logPour(milliliters: choice.milliliters)
+                        } label: {
+                            Text(choice.label)
+                        }
+                    }
+                    Button {
+                        customPourText = ""
+                        isEnteringPour = true
+                    } label: {
+                        Label("Another amount…", systemImage: "drop")
+                    }
+                }
+                if !summary.bottle.isOpen {
+                    Button {
+                        openBottle()
+                    } label: {
+                        Label("Mark as opened today", systemImage: "seal")
+                    }
+                }
+                Button {
+                    isConfirmingFinish = true
+                } label: {
+                    Label("Mark as finished", systemImage: "checkmark.circle")
+                }
+            }
+            Button(role: .destructive) {
+                isConfirmingRemove = true
+            } label: {
+                Label("Remove from collection", systemImage: "trash")
+            }
+        } label: {
+            Image(systemName: "ellipsis.circle")
+                .foregroundStyle(Palette.gold)
+        }
+        .accessibilityLabel("More actions")
+    }
+
+    /// The sizes people actually pour, in the unit they think in. The
+    /// millilitres are what is stored.
+    struct PourChoice {
+        let ounces: Double
+        var milliliters: Double { PourSize(usFluidOunces: ounces).milliliters }
+        var label: String {
+            let oz = ounces == ounces.rounded() ? String(Int(ounces)) : String(format: "%.1f", ounces)
+            return "\(oz) oz · \(Int(milliliters.rounded())) ml"
+        }
+        static let all = [PourChoice(ounces: 0.5), PourChoice(ounces: 1), PourChoice(ounces: 1.5), PourChoice(ounces: 2)]
     }
 
     // MARK: - Sections
@@ -753,6 +853,33 @@ struct BottleDetailView: View {
         return shelf.filter { ids.contains($0.id) }
     }
 
+    private func openBottle() {
+        do {
+            try env.bottles.open(bottleId: bottleId)
+            reload()
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+
+    private func finishBottle() {
+        do {
+            try env.bottles.finish(bottleId: bottleId)
+            reload()
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+
+    private func removeBottle() {
+        do {
+            try env.bottles.remove(bottleId: bottleId)
+            dismiss()
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+
     private func removeTasting(_ id: String) {
         do {
             try env.tastings.remove(tastingId: id)
@@ -763,9 +890,15 @@ struct BottleDetailView: View {
     }
 
     private func logPour(_ summary: BottleSummary) {
+        logPour(milliliters: nil)
+    }
+
+    /// Nil pours the bottle's own pour size; a number pours that many ml.
+    private func logPour(milliliters: Double?) {
+        guard let summary else { return }
         do {
             let before = summary.status.remainingPours
-            justPouredId = try env.bottles.logPour(bottleId: summary.id).id
+            justPouredId = try env.bottles.logPour(bottleId: summary.id, volumeMl: milliliters).id
             reload()
             offerReplacement(before: before)
         } catch DataError.bottleIsEmpty {
