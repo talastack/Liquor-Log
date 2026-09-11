@@ -19,6 +19,12 @@ struct AddBottleView: View {
     @State private var chosen: CatalogProduct?
     @State private var isTypingItIn = false
 
+    /// Opened with the product already chosen -- from the catalogue browser,
+    /// or anywhere else that already knows what the bottle is.
+    init(product: CatalogProduct? = nil) {
+        _chosen = State(initialValue: product)
+    }
+
     // Custom product
     @State private var customBrand = ""
     @State private var customExpression = ""

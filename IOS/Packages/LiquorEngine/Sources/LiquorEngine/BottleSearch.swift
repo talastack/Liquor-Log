@@ -1,6 +1,6 @@
 import Foundation
 
-extension String {
+public extension String {
     /// Lowercased, de-accented, punctuation stripped, whitespace collapsed.
     ///
     /// "Elijah Craig Barrel-Proof (B523)" and "elijah craig barrel proof b523"

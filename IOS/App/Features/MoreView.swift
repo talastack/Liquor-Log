@@ -67,6 +67,15 @@ struct MoreView: View {
             }
 
             NavigationLink {
+                CatalogBrowseView()
+            } label: {
+                row(
+                    "Browse the catalogue",
+                    detail: "Every product it knows, distillery by distillery, against your shelf",
+                    symbol: "books.vertical")
+            }
+
+            NavigationLink {
                 StatsView()
             } label: {
                 row(
