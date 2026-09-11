@@ -46,6 +46,7 @@ use their eyes.
 | Three dates and a status | `purchase_date`, `opened_at`, `finished_at`, `Bottle.Status` |
 | Storage location | `storage_location`, `shelf_number` |
 | CSV export, free | `CSVWriter`, `CollectionExport` |
+| Full backup and restore, free | `CollectionBackup` — every table and the photos in one file; restore merges, newer wins |
 | Re-inventory mode | `ReInventory`, `ReInventoryRepository` |
 | Suppressible money | `CollectionValue`, off by default |
 | Pick my pour | `PickMyPour` |

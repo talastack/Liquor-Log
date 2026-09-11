@@ -255,6 +255,15 @@ struct MoreView: View {
             }
 
             NavigationLink {
+                BackupView()
+            } label: {
+                row(
+                    "Back up and restore",
+                    detail: "Everything as one file — pours, tastings and photos included",
+                    symbol: "externaldrive")
+            }
+
+            NavigationLink {
                 InsuranceReportView()
             } label: {
                 row(
