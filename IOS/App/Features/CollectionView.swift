@@ -20,6 +20,8 @@ struct CollectionView: View {
     /// "1 of 3" for bottles that are the same thing. Picks come by the
     /// case; the cards stay separate because each bottle has its own fill.
     @State private var places: [String: Multiples.Place] = [:]
+    /// The bottle whose relatives are being shown, while that sheet is up.
+    @State private var likeThis: BottleSummary?
     @State private var error: String?
 
     /// Shared with the switch in More. Off unless somebody turned it on: the
@@ -46,6 +48,14 @@ struct CollectionView: View {
                                 BottleCard(summary: summary, place: places[summary.id])
                             }
                             .buttonStyle(.plain)
+                            .contextMenu {
+                                Button {
+                                    likeThis = summary
+                                } label: {
+                                    Label("Others like this on your shelf",
+                                          systemImage: "rectangle.on.rectangle")
+                                }
+                            }
                         }
                     }
                 }
@@ -58,6 +68,11 @@ struct CollectionView: View {
         .navigationBarTitleDisplayMode(.inline)
         .task { reload() }
         .refreshable { reload() }
+        .sheet(item: $likeThis) { summary in
+            NavigationStack {
+                LikeThisView(summary: summary, shelf: summaries.filter { !$0.bottle.isFinished })
+            }
+        }
         .alert("Something went wrong", isPresented: .constant(error != nil)) {
             Button("OK") { error = nil }
         } message: {
@@ -443,6 +458,122 @@ struct BottleCard: View {
         case ..<60: return "Last poured about a month ago"
         case ..<365: return "Last poured \(days / 30) months ago"
         default: return "Last poured over a year ago"
+        }
+    }
+}
+
+
+/// The bottles on YOUR shelf that are structurally related to one: same
+/// line, same recipe, same distillery. The shelf-check "you might also
+/// mean" row, pointed at what you own instead of the catalogue.
+///
+/// "Do I have others like this?" is the question behind a shelf of eighty
+/// bourbons: which of these are wheated, which are the other Four Roses
+/// recipes, what else from this distillery is open.
+struct LikeThisView: View {
+    @Environment(AppEnvironment.self) private var env
+    @Environment(\.dismiss) private var dismiss
+
+    let summary: BottleSummary
+    let shelf: [BottleSummary]
+
+    struct Match: Identifiable {
+        let summary: BottleSummary
+        let reason: SearchHit.Reason
+        var id: String { summary.id }
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: Space.l) {
+                VStack(alignment: .leading, spacing: Space.xs) {
+                    SectionLabel("Like")
+                    Text(env.name(for: summary.bottle))
+                        .font(TypeScale.largeTitle())
+                        .foregroundStyle(Palette.text)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                if matches.isEmpty {
+                    Text("Nothing else on your shelf shares a line, a recipe or a "
+                         + "distillery with this one.")
+                        .font(TypeScale.secondary())
+                        .foregroundStyle(Palette.textMuted)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.top, Space.m)
+                } else {
+                    ForEach(matches) { match in
+                        NavigationLink {
+                            BottleDetailView(bottleId: match.summary.id)
+                        } label: {
+                            VStack(alignment: .leading, spacing: Space.xs) {
+                                Text(reasonLabel(match.reason))
+                                    .font(TypeScale.caption())
+                                    .foregroundStyle(Palette.gold)
+                                BottleCard(summary: match.summary)
+                            }
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            .padding(.horizontal, Space.xl)
+            .padding(.top, Space.l)
+            .padding(.bottom, 96)
+        }
+        .background(Palette.background)
+        .navigationTitle("Others like this")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Done") { dismiss() }.foregroundStyle(Palette.gold)
+            }
+        }
+    }
+
+    /// Structural relatedness over the shelf. The bottle itself and its
+    /// exact multiples are left out: "this is like itself" is not an answer.
+    private var matches: [Match] {
+        guard let productId = summary.bottle.catalogProductId,
+              let identity = env.identity(productId)
+        else { return [] }
+
+        var seen = Set<String>()
+        let candidates: [(SearchCandidate, BottleSummary)] = shelf.compactMap { other in
+            guard other.id != summary.id,
+                  let otherId = other.bottle.catalogProductId,
+                  otherId != productId,
+                  let otherIdentity = env.identity(otherId)
+            else { return nil }
+            // One candidate per product; the bottles of it come back below.
+            guard seen.insert(otherId).inserted else { return nil }
+            let product = env.catalog.product(otherId)
+            return (SearchCandidate(
+                product: otherIdentity,
+                recipeCode: product?.code,
+                mashbillKey: product?.mashbillKey,
+                isInYourHistory: true), other)
+        }
+
+        let hits = BottleSearch.related(
+            to: identity,
+            recipeCode: env.product(for: summary.bottle)?.code,
+            in: candidates.map(\.0),
+            limit: 30)
+
+        return hits.flatMap { hit -> [Match] in
+            shelf
+                .filter { $0.bottle.catalogProductId == hit.product.productId }
+                .map { Match(summary: $0, reason: hit.reason) }
+        }
+    }
+
+    private func reasonLabel(_ reason: SearchHit.Reason) -> String {
+        switch reason {
+        case .sameLine: return "SAME LINE"
+        case .sameRecipe: return "SAME RECIPE"
+        case .sameDistillery: return "SAME DISTILLERY"
+        case .exact, .prefix, .fuzzy: return "RELATED"
         }
     }
 }

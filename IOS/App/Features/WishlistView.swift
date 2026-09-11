@@ -16,12 +16,31 @@ struct WishlistView: View {
     @State private var buying: WishlistItem?
     @State private var error: String?
 
+    /// Bottles killed in the last three months that are not on the list.
+    /// The moment after a bottle goes is when "would I buy it again" has an
+    /// answer, and the tasting sheet may already hold it.
+    @State private var recentlyFinished: [Finished] = []
+
+    struct Finished: Identifiable {
+        let bottle: Bottle
+        let name: String
+        let saidRebuy: Rebuy?
+        var id: String { bottle.id }
+    }
+
+    /// How long a killed bottle stays in the "buy again?" list.
+    private static let recentDays = 90
+
     var body: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: Space.m) {
                 header
-                if items.isEmpty {
+                if items.isEmpty && recentlyFinished.isEmpty {
                     empty
+                } else if items.isEmpty {
+                    Text("Nothing on the list yet.")
+                        .font(TypeScale.secondary())
+                        .foregroundStyle(Palette.textMuted)
                 } else {
                     ForEach(items) { item in
                         WishlistRow(
@@ -30,6 +49,10 @@ struct WishlistView: View {
                             onBuy: { buying = item },
                             onRemove: { remove(item) })
                     }
+                }
+
+                if !recentlyFinished.isEmpty {
+                    buyAgain
                 }
             }
             .padding(.horizontal, Space.xl)
@@ -85,6 +108,85 @@ struct WishlistView: View {
         .padding(.top, 64)
     }
 
+    /// Killed lately, and not yet on the list. Stated as bookkeeping -- a
+    /// bottle went, do you want another -- never as a tally of bottles
+    /// finished.
+    private var buyAgain: some View {
+        VStack(alignment: .leading, spacing: Space.m) {
+            SectionLabel("Finished lately — buy again?")
+            ForEach(recentlyFinished) { finished in
+                HStack(alignment: .center, spacing: Space.m) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(finished.name)
+                            .font(TypeScale.body())
+                            .foregroundStyle(Palette.text)
+                            .fixedSize(horizontal: false, vertical: true)
+                        if let said = finished.saidRebuy {
+                            Text(rebuyLine(said))
+                                .font(TypeScale.caption())
+                                .textCase(nil)
+                                .foregroundStyle(said == .no ? Palette.bad : Palette.textMuted)
+                        }
+                    }
+                    Spacer()
+                    Button {
+                        wishFor(finished)
+                    } label: {
+                        Text("Add")
+                            .font(TypeScale.secondary().weight(.semibold))
+                            .foregroundStyle(Palette.gold)
+                            .frame(minWidth: Space.tapTarget, minHeight: Space.tapTarget)
+                    }
+                }
+                .padding(Space.l)
+                .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.line, lineWidth: 1))
+            }
+        }
+        .padding(.top, Space.l)
+    }
+
+    private func rebuyLine(_ rebuy: Rebuy) -> String {
+        switch rebuy {
+        case .yes: return "You said you would buy it again"
+        case .maybe: return "You said maybe"
+        case .no: return "You said you would not"
+        }
+    }
+
+    private func wishFor(_ finished: Finished) {
+        do {
+            try env.wishlist.add(
+                catalogProductId: finished.bottle.catalogProductId,
+                customName: finished.bottle.catalogProductId == nil ? finished.name : nil,
+                targetPriceCents: finished.bottle.purchasePriceCents)
+            reload()
+        } catch { self.error = error.localizedDescription }
+    }
+
+    private func loadRecentlyFinished() {
+        let cutoff = Int64(Date().addingTimeInterval(-Double(Self.recentDays) * 86_400)
+            .timeIntervalSince1970 * 1000)
+        let listed = Set(items.compactMap(\.catalogProductId))
+        let killed = ((try? env.bottles.summaries(includeFinished: true)) ?? [])
+            .filter { $0.bottle.isFinished }
+            .filter { ($0.bottle.finishedAt ?? 0) >= cutoff }
+            .filter { $0.bottle.catalogProductId.map { !listed.contains($0) } ?? true }
+            .sorted { ($0.bottle.finishedAt ?? 0) > ($1.bottle.finishedAt ?? 0) }
+
+        // One row per product: three empties of one thing is one question.
+        var seen = Set<String>()
+        recentlyFinished = killed.compactMap { summary in
+            let key = summary.bottle.catalogProductId ?? summary.id
+            guard seen.insert(key).inserted else { return nil }
+            let latest = (try? env.tastings.history(bottleId: summary.id))?.first
+            return Finished(
+                bottle: summary.bottle,
+                name: env.name(for: summary.bottle),
+                saidRebuy: latest?.tasting.wouldRebuy)
+        }
+    }
+
     private func name(for item: WishlistItem) -> String {
         if let id = item.catalogProductId, let identity = env.identity(id) {
             return identity.displayName
@@ -94,6 +196,7 @@ struct WishlistView: View {
 
     private func reload() {
         do { items = try env.wishlist.items() } catch { self.error = error.localizedDescription }
+        loadRecentlyFinished()
     }
 
     private func remove(_ item: WishlistItem) {
