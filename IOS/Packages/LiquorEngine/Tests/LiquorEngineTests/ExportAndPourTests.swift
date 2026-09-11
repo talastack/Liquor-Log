@@ -125,7 +125,7 @@ final class PickMyPourTests: XCTestCase {
     /// Without a cap one forgotten bottle wins every time and the feature stops
     /// being a surprise.
     func testNeglectIsCappedSoOneBottleCannotAlwaysWin() {
-        let ancient = candidate("ancient", daysAgo: 300)
+        let ancient = candidate("ancient", daysAgo: 700)
         XCTAssertEqual(
             PickMyPour.weight(for: ancient, now: now),
             PickMyPour.neglectCapDays,

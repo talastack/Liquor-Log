@@ -68,7 +68,12 @@ public enum LabelReader: Sendable {
     static let proofPattern = #"(?:(\d{2,3}(?:\.\d)?)\s*(?:°|)\s*PROOF|PROOF\s*[:\-]?\s*(\d{2,3}(?:\.\d)?))"#
 
     /// "62.1% ALC/VOL", "ALC 62.1% BY VOL", "62.1% ABV".
-    static let abvPattern = #"(\d{1,2}(?:\.\d{1,2})?)\s*%\s*(?:ALC|ABV|ALCOHOL)?"#
+    /// A percentage that names alcohol. This one is believed outright.
+    static let abvPattern = #"(\d{1,2}(?:\.\d{1,2})?)\s*%\s*(?:ALC|ABV|ALCOHOL)"#
+    /// Any percentage at all. Mashbill shares look exactly like this, so a
+    /// bare one is only believed when nothing named alcohol was found and
+    /// the number is in spirits range -- "1% MALTED BARLEY" is never 1% ABV.
+    static let barePercentPattern = #"(\d{1,2}(?:\.\d{1,2})?)\s*%"#
 
     static let volumePattern = #"(\d{3,4})\s*(?:ML|MILLILIT)"#
     static let litrePattern = #"(\d(?:\.\d{1,2})?)\s*(?:L|LITER|LITRE)\b"#
@@ -98,6 +103,8 @@ public enum LabelReader: Sendable {
         // 99, get rejected as implausible, and lose the real strength.
         reading.abv = allNumbers(in: joined, pattern: abvPattern)
             .first { $0 > 0.5 && $0 <= 95 }
+            ?? allNumbers(in: joined, pattern: barePercentPattern)
+            .first { $0 >= 15 && $0 <= 95 }
 
         // Proof and ABV must agree, and the PROOF is believed when they do not.
         // It is printed larger, it is the number people read off a label, and
@@ -169,10 +176,51 @@ public enum LabelReader: Sendable {
     public static func candidates(
         for reading: Reading, in catalog: [SearchCandidate], limit: Int = 5
     ) -> [SearchHit] {
-        guard !reading.nameCandidate.isEmpty else { return [] }
-        let hits = BottleSearch.search(
-            query: reading.nameCandidate, in: catalog, limit: limit * 2)
-        return rankBrandFirst(hits, against: reading.nameCandidate)
+        let words = Set(tokens(reading.nameCandidate))
+        guard !words.isEmpty else { return [] }
+
+        // A label is a pile of words -- brand, class statement, age, town --
+        // and the shop search's rule (every typed word must prefix a name
+        // word) fails on it by design. So the direction is reversed: a
+        // product is a candidate when ITS brand appears among the label's
+        // words, and ranks by how much of its expression does too.
+        var hits: [SearchHit] = []
+        for candidate in catalog {
+            let product = candidate.product
+            guard brandIsPresent(product, in: words) else { continue }
+            let expression = tokens(product.expression)
+            let expressionShare: Double
+            if expression.isEmpty {
+                expressionShare = 0.5
+            } else {
+                let matched = expression.filter { token in
+                    words.contains { $0.hasPrefix(token) || token.hasPrefix($0) }
+                }.count
+                expressionShare = Double(matched) / Double(expression.count)
+            }
+            let score = 0.6 + 0.4 * expressionShare + (candidate.isInYourHistory ? 0.05 : 0)
+            hits.append(SearchHit(
+                product: product,
+                score: score,
+                reason: expressionShare >= 0.999 ? .exact : .prefix))
+        }
+
+        if hits.isEmpty {
+            // OCR mangled the brand. Fall back to the fuzzy search over the
+            // words that survived, brand-first as before.
+            let fuzzy = BottleSearch.search(
+                query: reading.nameCandidate, in: catalog, limit: limit * 2)
+            return rankBrandFirst(fuzzy, against: reading.nameCandidate)
+                .prefix(limit)
+                .map { $0 }
+        }
+
+        return hits
+            .sorted {
+                $0.score == $1.score
+                    ? $0.product.displayName < $1.product.displayName
+                    : $0.score > $1.score
+            }
             .prefix(limit)
             .map { $0 }
     }
