@@ -24,11 +24,20 @@ struct StatsView: View {
     /// when it was asked for.
     @AppStorage("showsCollectionValue") private var showsValue = CollectionValue.shownByDefault
 
+    /// The rendered card, while its share sheet is up.
+    @State private var shareCard: RenderedCard?
+
+    struct RenderedCard: Identifiable {
+        let id = UUID()
+        let image: UIImage
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Space.xl) {
                 if let summary, !summary.isEmpty {
                     headline(summary)
+                    shareButton(summary)
                     breakdown("By kind", summary.byClass, total: summary.onShelf)
                     breakdown("By distillery", summary.byDistillery, total: summary.onShelf)
                     if summary.byBrand.count > 1 {
@@ -57,6 +66,38 @@ struct StatsView: View {
         .navigationTitle("Your collection")
         .navigationBarTitleDisplayMode(.inline)
         .task { reload() }
+        .sheet(item: $shareCard) { card in
+            ShareSheet(items: [card.image])
+        }
+    }
+
+    /// The research's one growth loop: *"OnlyDrams' growth loop is a
+    /// shareable stats screenshot. Build something screenshot-worthy."* This
+    /// is that, as a card rather than a screenshot: bottles, distilleries,
+    /// kinds, the top of each list -- and never money, never pours, never
+    /// anything drunk. Rendered on tap.
+    private func shareButton(_ summary: CollectionStats.Summary) -> some View {
+        Button {
+            renderCard(summary)
+        } label: {
+            HStack(spacing: Space.s) {
+                Image(systemName: "square.and.arrow.up")
+                Text("Share as a card")
+            }
+            .font(TypeScale.secondary().weight(.semibold))
+            .foregroundStyle(Palette.gold)
+            .frame(maxWidth: .infinity, minHeight: Space.tapTarget)
+        }
+    }
+
+    @MainActor
+    private func renderCard(_ summary: CollectionStats.Summary) {
+        let renderer = ImageRenderer(content: CollectionCard(summary: summary))
+        renderer.scale = 3
+        renderer.proposedSize = ProposedViewSize(width: 400, height: nil)
+        if let image = renderer.uiImage {
+            shareCard = RenderedCard(image: image)
+        }
     }
 
     // MARK: - Sections
@@ -277,6 +318,96 @@ struct StatsView: View {
                 costPerPourCents: row.costPerPourCents,
                 topperLetter: bottle.topperLetter)
         })
+    }
+}
+
+
+/// The collection as a card to post. Counts the shelf, never the drinking,
+/// and never the money: a card with a dollar figure on it is a card that
+/// gets somebody's house looked at.
+struct CollectionCard: View {
+    let summary: CollectionStats.Summary
+
+    private let ink = Color(red: 0.95, green: 0.91, blue: 0.86)
+    private let gold = Color(red: 0.79, green: 0.59, blue: 0.23)
+    private let muted = Color(red: 0.59, green: 0.53, blue: 0.44)
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            HStack(alignment: .firstTextBaseline) {
+                Text("\(summary.onShelf)")
+                    .font(.system(size: 56, weight: .semibold, design: .serif))
+                    .foregroundStyle(gold)
+                Text(summary.onShelf == 1 ? "bottle" : "bottles")
+                    .font(.system(size: 18, design: .serif))
+                    .foregroundStyle(ink)
+                Spacer()
+            }
+
+            HStack(spacing: 22) {
+                figure("\(summary.open)", "open")
+                figure("\(summary.distilleryCount)", summary.distilleryCount == 1 ? "distillery" : "distilleries")
+                figure("\(summary.classCount)", summary.classCount == 1 ? "kind" : "kinds")
+                if summary.picks > 0 {
+                    figure("\(summary.picks)", summary.picks == 1 ? "pick" : "picks")
+                }
+            }
+
+            Rectangle().fill(gold).frame(height: 2)
+
+            list("Most of", summary.byDistillery.prefix(4))
+            list("By kind", summary.byClass.prefix(4))
+            if !summary.byStrength.isEmpty {
+                list("Strength", summary.byStrength.prefix(4))
+            }
+
+            HStack(alignment: .firstTextBaseline) {
+                if let proof = summary.highestProof {
+                    Text(String(format: "Strongest %.1f proof", proof))
+                }
+                if let months = summary.oldestStatedAgeMonths {
+                    Text("· Oldest \(AgeMath.describe(months: months))")
+                }
+                Spacer()
+            }
+            .font(.system(size: 12))
+            .foregroundStyle(muted)
+        }
+        .padding(28)
+        .frame(width: 400, alignment: .leading)
+        .background(Color(red: 0.08, green: 0.06, blue: 0.04))
+    }
+
+    private func figure(_ value: String, _ label: String) -> some View {
+        VStack(alignment: .leading, spacing: 1) {
+            Text(value)
+                .font(.system(size: 22, weight: .semibold))
+                .foregroundStyle(ink)
+            Text(label)
+                .font(.system(size: 11))
+                .foregroundStyle(muted)
+        }
+    }
+
+    private func list(_ title: String, _ slices: ArraySlice<CollectionStats.Slice>) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title.uppercased())
+                .font(.system(size: 10, weight: .semibold))
+                .tracking(1.2)
+                .foregroundStyle(muted)
+            ForEach(Array(slices)) { slice in
+                HStack {
+                    Text(slice.label)
+                        .font(.system(size: 14))
+                        .foregroundStyle(ink)
+                        .lineLimit(1)
+                    Spacer()
+                    Text("\(slice.count)")
+                        .font(.system(size: 13, design: .monospaced))
+                        .foregroundStyle(gold)
+                }
+            }
+        }
     }
 }
 
