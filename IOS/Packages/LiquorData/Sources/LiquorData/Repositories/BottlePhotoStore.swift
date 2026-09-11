@@ -12,12 +12,14 @@ import Foundation
 /// the bottle mark instead, the same as a bottle that never had a photo.
 public struct BottlePhotoStore: Sendable {
     public let folder: URL
-    private let fileManager: FileManager
+    /// Not stored: FileManager is not Sendable, and the default instance is
+    /// the only one this ever needs.
+    private var fileManager: FileManager { .default }
 
     /// Under Application Support beside the database by default, so a
     /// device backup that carries the collection carries its photos.
-    public init(folder: URL? = nil, fileManager: FileManager = .default) throws {
-        self.fileManager = fileManager
+    public init(folder: URL? = nil) throws {
+        let fileManager = FileManager.default
         if let folder {
             self.folder = folder
         } else {
@@ -30,7 +32,7 @@ public struct BottlePhotoStore: Sendable {
                 .appendingPathComponent("LiquorLog", isDirectory: true)
                 .appendingPathComponent("photos", isDirectory: true)
         }
-        try fileManager.createDirectory(at: self.folder, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: self.folder, withIntermediateDirectories: true)
     }
 
     /// Writes JPEG bytes under a fresh name and returns the name to store on

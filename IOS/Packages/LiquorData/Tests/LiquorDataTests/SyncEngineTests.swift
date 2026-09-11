@@ -94,7 +94,7 @@ final class SyncEngineTests: XCTestCase {
         let sent = await transport.uploads("bottles")
         XCTAssertEqual(sent.first?["id"] as? String, bottle.id)
 
-        let stillDirty = try db.queue.read { db in
+        let stillDirty = try await db.queue.read { db in
             try Bottle.pending().fetchCount(db)
         }
         XCTAssertEqual(stillDirty, 0, "a pushed row is no longer pending")
@@ -115,7 +115,7 @@ final class SyncEngineTests: XCTestCase {
         XCTAssertNotNil(outcome.failures["bottles"])
         XCTAssertFalse(outcome.isCompletelyClean)
 
-        let stillDirty = try db.queue.read { db in try Bottle.pending().fetchCount(db) }
+        let stillDirty = try await db.queue.read { db in try Bottle.pending().fetchCount(db) }
         XCTAssertEqual(stillDirty, 1, "the edit must survive to go again")
     }
 
@@ -177,7 +177,7 @@ final class SyncEngineTests: XCTestCase {
         XCTAssertEqual(outcome.pulled, 1)
         XCTAssertEqual(cursors.cursor(for: "bottles"), 4242)
 
-        let stored = try db.queue.read { db in
+        let stored = try await db.queue.read { db in
             try Bottle.filter(key: "remote-1").fetchOne(db)
         }
         XCTAssertEqual(stored?.customName, "Elijah Craig")
@@ -206,7 +206,7 @@ final class SyncEngineTests: XCTestCase {
         await transport.stage("bottles", [row])
         _ = await SyncEngine(db: db, transport: transport, cursors: MemoryCursors()).sync()
 
-        let count = try db.queue.read { db in try Bottle.fetchCount(db) }
+        let count = try await db.queue.read { db in try Bottle.fetchCount(db) }
         XCTAssertEqual(count, 1, "same id, one row")
     }
 }
