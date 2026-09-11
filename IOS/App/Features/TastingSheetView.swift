@@ -21,6 +21,10 @@ struct TastingSheetView: View {
     /// date. Nil for a tasting at a bar, where there is no pour of your own.
     var pourId: String?
 
+    /// Called after a successful save, before the sheet dismisses. A flight
+    /// uses it to move to the next glass.
+    var onSaved: (() -> Void)?
+
     @State private var rating: Int?
     @State private var rebuy: Rebuy?
     @State private var liked = ""
@@ -38,10 +42,16 @@ struct TastingSheetView: View {
     @State private var source: TastingSource?
     @State private var sourceNote = ""
 
-    init(bottleId: String? = nil, catalogProductId: String? = nil, pourId: String? = nil) {
+    init(
+        bottleId: String? = nil,
+        catalogProductId: String? = nil,
+        pourId: String? = nil,
+        onSaved: (() -> Void)? = nil
+    ) {
         self.bottleId = bottleId
         self.catalogProductId = catalogProductId
         self.pourId = pourId
+        self.onSaved = onSaved
     }
 
     /// Bands, not a stopwatch. Nobody times a finish, but everybody can say
@@ -484,6 +494,7 @@ struct TastingSheetView: View {
             // Tasting and picks save in ONE transaction: a rating that survived
             // while its notes did not would be a silent loss.
             try env.tastings.save(tasting, descriptors: picks)
+            onSaved?()
             dismiss()
         } catch {
             self.error = error.localizedDescription

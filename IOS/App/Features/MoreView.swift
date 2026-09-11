@@ -103,6 +103,15 @@ struct MoreView: View {
             }
 
             NavigationLink {
+                FlightView()
+            } label: {
+                row(
+                    "Taste a flight",
+                    detail: "Two to four open bottles side by side, blind if you like",
+                    symbol: "square.grid.2x2")
+            }
+
+            NavigationLink {
                 PickMyPourView()
             } label: {
                 row(
