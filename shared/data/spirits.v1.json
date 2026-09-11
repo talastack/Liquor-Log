@@ -136,7 +136,6 @@
       "production_type": "unspecified",
       "abv": 50.0,
       "is_bottled_in_bond": true,
-      "stated_age_years": 8,
       "mashbill_key": "wheated",
       "source": "Producer label",
       "verified": false
@@ -724,7 +723,7 @@
       "distillery": "New Riff",
       "brand": "New Riff",
       "expression": "Bottled in Bond Bourbon",
-      "class_type": "straightBourbon",
+      "class_type": "kentuckyStraightBourbon",
       "production_type": "unspecified",
       "abv": 50.0,
       "is_bottled_in_bond": true,
@@ -1650,7 +1649,6 @@
       "production_type": "unspecified",
       "abv": 50.0,
       "is_bottled_in_bond": true,
-      "stated_age_years": 13,
       "source": "Producer label",
       "verified": false
     },
@@ -1720,7 +1718,6 @@
       "production_type": "unspecified",
       "abv": 50.0,
       "is_bottled_in_bond": true,
-      "stated_age_years": 6,
       "source": "Producer label",
       "verified": false
     },
@@ -2063,7 +2060,7 @@
       "distillery": "New Riff",
       "brand": "New Riff",
       "expression": "Single Barrel",
-      "class_type": "straightBourbon",
+      "class_type": "kentuckyStraightBourbon",
       "production_type": "singleBarrel",
       "abv": null,
       "is_barrel_proof": true,
@@ -2088,7 +2085,7 @@
       "distillery": "Wilderness Trail",
       "brand": "Wilderness Trail",
       "expression": "Small Batch Bottled in Bond",
-      "class_type": "straightBourbon",
+      "class_type": "kentuckyStraightBourbon",
       "production_type": "smallBatch",
       "abv": 50.0,
       "is_bottled_in_bond": true,
@@ -2114,7 +2111,7 @@
       "expression": "Small Batch Bourbon",
       "class_type": "kentuckyStraightBourbon",
       "production_type": "smallBatch",
-      "abv": 50.0,
+      "abv": 49.0,
       "source": "Producer label",
       "verified": false
     },
@@ -2158,7 +2155,7 @@
       "expression": "Architect",
       "class_type": "straightBourbon",
       "production_type": "blend",
-      "abv": 50.0,
+      "abv": 52.0,
       "source": "Producer label",
       "verified": false
     },
@@ -2193,7 +2190,7 @@
       "expression": "Small Batch",
       "class_type": "straightBourbon",
       "production_type": "smallBatch",
-      "abv": 45.0,
+      "abv": 50.0,
       "source": "Producer label",
       "verified": false
     },
@@ -2216,7 +2213,6 @@
       "class_type": "straightBourbon",
       "production_type": "unspecified",
       "abv": 47.5,
-      "stated_age_years": 4,
       "source": "Producer label",
       "verified": false
     },
@@ -2397,7 +2393,7 @@
       "expression": "Double Cask 12 Year",
       "class_type": "singleMaltScotch",
       "production_type": "unspecified",
-      "abv": 40.0,
+      "abv": 43.0,
       "stated_age_years": 12,
       "source": "Producer label",
       "verified": false
@@ -2409,7 +2405,7 @@
       "expression": "12 Year Viking Honour",
       "class_type": "singleMaltScotch",
       "production_type": "unspecified",
-      "abv": 40.0,
+      "abv": 43.0,
       "stated_age_years": 12,
       "source": "Producer label",
       "verified": false
@@ -2457,7 +2453,7 @@
       "expression": "Original 10 Year",
       "class_type": "singleMaltScotch",
       "production_type": "unspecified",
-      "abv": 40.0,
+      "abv": 43.0,
       "stated_age_years": 10,
       "source": "Producer label",
       "verified": false
@@ -2654,7 +2650,7 @@
       "expression": "12 Year Double Cask",
       "class_type": "singleMaltScotch",
       "production_type": "unspecified",
-      "abv": 40.0,
+      "abv": 43.0,
       "stated_age_years": 12,
       "source": "Producer label",
       "verified": false
