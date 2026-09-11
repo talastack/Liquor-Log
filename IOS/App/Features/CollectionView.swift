@@ -22,6 +22,14 @@ struct CollectionView: View {
     @State private var places: [String: Multiples.Place] = [:]
     /// The bottle whose relatives are being shown, while that sheet is up.
     @State private var likeThis: BottleSummary?
+
+    /// The three ways in, from the empty shelf. The research's first-ranked
+    /// finding is that getting an existing collection in is the adoption
+    /// barrier, so an empty screen offers the bulk paths, not just one
+    /// bottle at a time.
+    @State private var isAddingShelf = false
+    @State private var isImporting = false
+    @State private var isAddingOne = false
     @State private var error: String?
 
     /// Shared with the switch in More. Off unless somebody turned it on: the
@@ -72,6 +80,15 @@ struct CollectionView: View {
             NavigationStack {
                 LikeThisView(summary: summary, shelf: summaries.filter { !$0.bottle.isFinished })
             }
+        }
+        .sheet(isPresented: $isAddingShelf, onDismiss: reload) {
+            NavigationStack { BulkAddView() }
+        }
+        .sheet(isPresented: $isImporting, onDismiss: reload) {
+            NavigationStack { ImportView() }
+        }
+        .sheet(isPresented: $isAddingOne, onDismiss: reload) {
+            NavigationStack { AddBottleView() }
         }
         .alert("Something went wrong", isPresented: .constant(error != nil)) {
             Button("OK") { error = nil }
@@ -289,13 +306,57 @@ struct CollectionView: View {
             Text("Nothing here yet")
                 .font(TypeScale.title())
                 .foregroundStyle(Palette.text)
-            Text("Add a bottle and it will show up here with how much is left in it.")
+            Text("Three ways in. A shelf of two hundred should not take two hundred forms.")
                 .font(TypeScale.secondary())
                 .foregroundStyle(Palette.textMuted)
                 .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+
+            VStack(spacing: Space.s) {
+                wayIn("Scan a shelf", detail: "Point the camera at each label, confirm, next",
+                      symbol: "camera.viewfinder", highlighted: true) { isAddingShelf = true }
+                wayIn("Import a spreadsheet", detail: "A CSV from wherever you kept it before",
+                      symbol: "tablecells") { isImporting = true }
+                wayIn("Add one bottle", detail: "Search the catalogue or type it in",
+                      symbol: "plus") { isAddingOne = true }
+            }
+            .padding(.top, Space.m)
         }
         .frame(maxWidth: .infinity)
-        .padding(.top, 64)
+        .padding(.top, 48)
+    }
+
+    private func wayIn(
+        _ title: String, detail: String, symbol: String,
+        highlighted: Bool = false, action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            HStack(spacing: Space.m) {
+                Image(systemName: symbol)
+                    .font(.system(size: 18))
+                    .foregroundStyle(highlighted ? Palette.gold : Palette.textSecondary)
+                    .frame(width: 28)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(TypeScale.body())
+                        .foregroundStyle(Palette.text)
+                    Text(detail)
+                        .font(TypeScale.caption())
+                        .textCase(nil)
+                        .foregroundStyle(Palette.textMuted)
+                        .multilineTextAlignment(.leading)
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(Palette.textMuted)
+            }
+            .padding(Space.l)
+            .frame(maxWidth: .infinity, minHeight: Space.tapTarget, alignment: .leading)
+            .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
+            .overlay(RoundedRectangle(cornerRadius: 12)
+                .stroke(highlighted ? Palette.gold : Palette.line, lineWidth: 1))
+        }
     }
 
     private func reload() {

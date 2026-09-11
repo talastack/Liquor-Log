@@ -83,12 +83,32 @@ struct WishlistView: View {
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: Space.s) {
+        HStack(alignment: .firstTextBaseline) {
             Text(items.count == 1 ? "1 bottle" : "\(items.count) bottles")
                 .font(TypeScale.secondary())
                 .foregroundStyle(Palette.textSecondary)
+            Spacer()
+            // The list as a gift list: names only. A ceiling is a note to
+            // yourself and a price on a list you hand somebody is a demand.
+            if !items.isEmpty {
+                ShareLink(item: giftList) {
+                    HStack(spacing: Space.xs) {
+                        Image(systemName: "gift")
+                        Text("Share as a list")
+                    }
+                    .font(TypeScale.secondary())
+                    .foregroundStyle(Palette.gold)
+                    .frame(minHeight: Space.tapTarget)
+                }
+            }
         }
         .padding(.top, Space.s)
+    }
+
+    /// Names only, one per line, ready for a message.
+    private var giftList: String {
+        (["Bottles I am looking for:"] + items.map { "• " + name(for: $0) })
+            .joined(separator: "\n")
     }
 
     private var empty: some View {
