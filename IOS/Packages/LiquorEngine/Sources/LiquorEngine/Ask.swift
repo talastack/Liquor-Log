@@ -92,6 +92,9 @@ public enum Ask: Sendable {
         if matches(s, ["nearly gone", "almost empty", "running low", "almost gone", "nearly empty"]) {
             return .nearlyGone
         }
+        if let rest = after(s, ["what did i pay for", "how much did i pay for", "what did i spend on"]) {
+            return .whatDidIPay(subject(strip(rest, ["the", "my", "a"]), catalog: catalog))
+        }
         if let rest = after(s, ["how many", "how much"]) {
             let stripped = strip(rest, ["bottles", "bottle", "of", "do i have", "do i own", "have i got", "are there", "have i"])
             if stripped.isEmpty { return .howMany(nil) }
@@ -105,9 +108,6 @@ public enum Ask: Sendable {
         }
         if let rest = after(s, ["what did i think of", "what did i say about", "how did i rate", "my rating for", "what did i rate"]) {
             return .whatDidIThink(subject(strip(rest, ["the", "my"]), catalog: catalog))
-        }
-        if let rest = after(s, ["what did i pay for", "how much did i pay for", "what did i spend on"]) {
-            return .whatDidIPay(subject(strip(rest, ["the", "my", "a"]), catalog: catalog))
         }
         if let rest = after(s, ["where is", "where's", "where did i put", "where do i keep"]) {
             return .whereIs(subject(strip(rest, ["the", "my"]), catalog: catalog))
@@ -170,7 +170,7 @@ public enum Ask: Sendable {
 
         if let rest = after(s, ["add a bottle of", "add bottle of", "add a", "add", "bought a bottle of", "bought a", "bought", "got a", "picked up a", "picked up"]) {
             if matches(rest, ["wishlist", "wish list"]) {
-                let words = strip(removeQuantities(rest), ["to my wishlist", "to the wishlist", "to wishlist", "on my wishlist", "wishlist", "wish list", "to my", "the", "my", "a", "bottle of"])
+                let words = strip(removeQuantities(rest), ["to my wishlist", "to the wishlist", "to wishlist", "on my wishlist", "wishlist", "wish list", "to my", "the", "my", "a", "bottle of", "under", "up to", "for", "at"])
                 guard !words.isEmpty else { return nil }
                 return .wishlist(subject(words, catalog: catalog), ceilingCents: money(in: rest))
             }
@@ -195,7 +195,17 @@ public enum Ask: Sendable {
     static func subject(_ words: String, catalog: [SearchCandidate]) -> Subject {
         let cleaned = words.trimmingCharacters(in: .whitespacesAndNewlines)
             .trimmingCharacters(in: CharacterSet(charactersIn: ",.!?"))
-        let hits = BottleSearch.search(query: cleaned, in: catalog, limit: 5)
+        var hits = BottleSearch.search(query: cleaned, in: catalog, limit: 5)
+        // "how many wellers": a plural the search does not know. Once, on
+        // the words that end in s, before giving up.
+        if hits.isEmpty {
+            let singular = cleaned.split(separator: " ")
+                .map { $0.count > 3 && $0.hasSuffix("s") ? String($0.dropLast()) : String($0) }
+                .joined(separator: " ")
+            if singular != cleaned {
+                hits = BottleSearch.search(query: singular, in: catalog, limit: 5)
+            }
+        }
         return Subject(text: cleaned, matches: hits)
     }
 
