@@ -51,6 +51,7 @@ use their eyes.
 | Pick my pour | `PickMyPour` |
 | Open-date oxidation clock | `OxidationBand` — no other app markets this |
 | Fill level as a real quantity | `fill_readings`, `PourMath`, `SetLevelView` — optional, never required |
+| Tasting history per bottle, with the trend as a sentence | `TastingTrend`, `TastingHistoryRow` — the evidence under the oxidation clock |
 
 ### Fill level, and why it is a reading rather than a subtraction
 

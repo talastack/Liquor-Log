@@ -33,6 +33,11 @@ struct BottleDetailView: View {
     /// screen you typed it into.
     @State private var shelfReference: PriceReference?
 
+    /// Every tasting of THIS bottle, newest first. Kept as a list rather than
+    /// one score because a bottle changes as it sits open, and the research is
+    /// clear that seeing that change is why people keep the notes at all.
+    @State private var tastings: [TastingDetail] = []
+
     var body: some View {
         ScrollView {
             if let summary {
@@ -41,6 +46,12 @@ struct BottleDetailView: View {
                     fill(summary)
                     if let estimate = oxidation(summary) {
                         OxidationCard(estimate: estimate)
+                    }
+                    // Directly under the oxidation clock on purpose: the clock
+                    // is the estimate, the tastings are the evidence, and the
+                    // two are allowed to disagree.
+                    if !tastings.isEmpty {
+                        howItHasDrunk(summary)
                     }
                     priceCard(summary)
                     facts(summary)
@@ -399,6 +410,85 @@ struct BottleDetailView: View {
         }
     }
 
+    /// The record of how this bottle drank, tasting by tasting.
+    ///
+    /// Newest first, each pinned to how long the bottle had been open, so the
+    /// list reads as a timeline. The trend line above it is the same ratings
+    /// as one sentence; it appears only once there are two rated tastings to
+    /// compare, because one number is not a trend.
+    private func howItHasDrunk(_ summary: BottleSummary) -> some View {
+        VStack(alignment: .leading, spacing: Space.m) {
+            HStack(alignment: .firstTextBaseline) {
+                SectionLabel("How it has drunk")
+                Spacer()
+                Text(tastings.count == 1 ? "1 tasting" : "\(tastings.count) tastings")
+                    .font(TypeScale.caption())
+                    .textCase(nil)
+                    .foregroundStyle(Palette.textMuted)
+            }
+
+            if let trend = trend(summary) {
+                HStack(alignment: .firstTextBaseline, spacing: Space.s) {
+                    Image(systemName: trendSymbol(trend.direction))
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(trendColor(trend.direction))
+                    Text(trend.text)
+                        .font(TypeScale.secondary())
+                        .foregroundStyle(Palette.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+
+            ForEach(tastings) { detail in
+                TastingHistoryRow(
+                    detail: detail,
+                    daysOpen: daysOpen(at: detail.tasting, of: summary.bottle),
+                    wheel: env.wheel)
+                .contextMenu {
+                    Button(role: .destructive) {
+                        removeTasting(detail.id)
+                    } label: {
+                        Label("Remove this tasting", systemImage: "trash")
+                    }
+                }
+            }
+        }
+    }
+
+    private func trend(_ summary: BottleSummary) -> TastingTrend.Summary? {
+        TastingTrend.summarise(tastings.compactMap { detail in
+            guard let rating = detail.tasting.rating else { return nil }
+            return TastingTrend.Point(
+                tastedAt: Date(timeIntervalSince1970: Double(detail.tasting.tastedAt) / 1000),
+                rating: rating,
+                daysOpen: daysOpen(at: detail.tasting, of: summary.bottle))
+        })
+    }
+
+    /// How long the bottle had been open when this tasting happened. Nil for
+    /// an unopened bottle or a tasting logged before the open date -- both are
+    /// possible, and neither deserves a made-up number.
+    private func daysOpen(at tasting: Tasting, of bottle: Bottle) -> Int? {
+        guard let opened = bottle.openedAt, tasting.tastedAt >= opened else { return nil }
+        return Int((tasting.tastedAt - opened) / 86_400_000)
+    }
+
+    private func trendSymbol(_ direction: TastingTrend.Direction) -> String {
+        switch direction {
+        case .openedUp: return "arrow.up.right"
+        case .holding: return "arrow.right"
+        case .fading: return "arrow.down.right"
+        }
+    }
+
+    private func trendColor(_ direction: TastingTrend.Direction) -> Color {
+        switch direction {
+        case .openedUp: return Palette.good
+        case .holding: return Palette.textSecondary
+        case .fading: return Palette.bad
+        }
+    }
+
     // MARK: - Derivation
 
     private func oxidation(_ summary: BottleSummary) -> OxidationBand.Estimate? {
@@ -446,6 +536,7 @@ struct BottleDetailView: View {
     private func reload() {
         do {
             summary = try env.bottles.summary(id: bottleId)
+            tastings = try env.tastings.history(bottleId: bottleId)
             // Excluding this bottle: comparing a price against itself would
             // always report "about what you usually pay".
             if let productId = summary?.bottle.catalogProductId {
@@ -459,6 +550,15 @@ struct BottleDetailView: View {
                 shelfReference = PriceHistory.shelfReference(
                     try env.bottles.purchaseHistory(catalogProductId: productId))
             }
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+
+    private func removeTasting(_ id: String) {
+        do {
+            try env.tastings.remove(tastingId: id)
+            reload()
         } catch {
             self.error = error.localizedDescription
         }
@@ -524,6 +624,132 @@ struct OxidationCard: View {
         case .fresh, .peak: return Palette.good
         case .fading: return Palette.gold
         case .faded: return Palette.bad
+        }
+    }
+}
+
+
+/// One tasting, as a timeline entry: when, how long open, what was said.
+///
+/// Everything recorded is shown and nothing is invented for a field left
+/// blank. The stage descriptors are one line per stage so a tasting with
+/// twelve picks stays a card and not a wall.
+struct TastingHistoryRow: View {
+    let detail: TastingDetail
+    let daysOpen: Int?
+    let wheel: FlavorWheel
+
+    private var tasting: Tasting { detail.tasting }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Space.s) {
+            HStack(alignment: .firstTextBaseline) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(Date(timeIntervalSince1970: Double(tasting.tastedAt) / 1000)
+                        .formatted(date: .abbreviated, time: .omitted))
+                        .font(TypeScale.body())
+                        .foregroundStyle(Palette.text)
+                    Text(whenOpen)
+                        .font(TypeScale.caption())
+                        .textCase(nil)
+                        .foregroundStyle(Palette.textMuted)
+                }
+                Spacer()
+                if let rating = tasting.rating {
+                    RatingChip(rating: rating)
+                }
+            }
+
+            if let feel = feel {
+                Text(feel)
+                    .font(TypeScale.secondary())
+                    .foregroundStyle(Palette.textSecondary)
+            }
+
+            ForEach(TastingStage.allCases, id: \.self) { stage in
+                let picks = detail.descriptors(on: stage)
+                if !picks.isEmpty {
+                    HStack(alignment: .top, spacing: Space.s) {
+                        Text(stage.rawValue.uppercased())
+                            .font(TypeScale.caption())
+                            .foregroundStyle(Palette.textMuted)
+                            .frame(width: 52, alignment: .leading)
+                        Text(picks.map { wheel.descriptor($0)?.label ?? $0 }
+                            .joined(separator: " · "))
+                            .font(TypeScale.secondary())
+                            .foregroundStyle(Palette.gold)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+            }
+
+            if let liked = tasting.liked, !liked.isEmpty {
+                note("LIKED", liked, color: Palette.good)
+            }
+            if let disliked = tasting.disliked, !disliked.isEmpty {
+                note("NOT", disliked, color: Palette.bad)
+            }
+
+            if let rebuy = tasting.wouldRebuy {
+                Text(rebuyLabel(rebuy))
+                    .font(TypeScale.caption())
+                    .textCase(nil)
+                    .foregroundStyle(Palette.textMuted)
+            }
+        }
+        .padding(Space.l)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.line, lineWidth: 1))
+    }
+
+    private var whenOpen: String {
+        guard let daysOpen else {
+            return tasting.pourId == nil ? "Not from your own pour" : "Open date unknown"
+        }
+        if daysOpen == 0 { return "The day it was opened" }
+        return "Day \(daysOpen) open"
+    }
+
+    /// Heat and finish on one line. Either alone still reads as a sentence.
+    private var feel: String? {
+        var parts: [String] = []
+        if let heat = tasting.heat { parts.append("\(heat.label) on the palate") }
+        if let seconds = tasting.finishSeconds { parts.append(finishLabel(seconds)) }
+        return parts.isEmpty ? nil : parts.joined(separator: " · ")
+    }
+
+    /// The same bands the tasting sheet offers, read back from the seconds it
+    /// stored. Between-band values (an import, a future finer control) fall
+    /// to the nearest band below rather than printing raw seconds nobody
+    /// actually timed.
+    private func finishLabel(_ seconds: Int) -> String {
+        switch seconds {
+        case ..<30: return "Brief finish"
+        case ..<60: return "Medium finish"
+        case ..<120: return "Long finish"
+        default: return "Very long finish"
+        }
+    }
+
+    private func rebuyLabel(_ rebuy: Rebuy) -> String {
+        switch rebuy {
+        case .yes: return "Would buy again"
+        case .maybe: return "Might buy again"
+        case .no: return "Would not buy again"
+        }
+    }
+
+    private func note(_ label: String, _ text: String, color: Color) -> some View {
+        HStack(alignment: .top, spacing: Space.s) {
+            Text(label)
+                .font(TypeScale.caption())
+                .foregroundStyle(color)
+                .frame(width: 52, alignment: .leading)
+            Text(text)
+                .font(TypeScale.secondary())
+                .foregroundStyle(Palette.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 }
