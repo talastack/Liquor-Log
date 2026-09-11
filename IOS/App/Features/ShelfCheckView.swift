@@ -31,7 +31,22 @@ struct ShelfCheckView: View {
     struct Result: Identifiable {
         let hit: SearchHit
         let verdict: ShelfCheckResult
+        /// What else this might be, for a bottle you have never had. Empty on
+        /// every other verdict: when you own the thing, the answer is "yes"
+        /// and nothing should crowd it.
+        let related: [Related]
         var id: String { hit.product.productId }
+    }
+
+    /// A structurally related product -- same line, distillery or recipe --
+    /// and whether it is one of yours. Yours come first: standing in a shop,
+    /// "you have the wheated sibling of this at home" beats a list of
+    /// catalogue names.
+    struct Related: Identifiable {
+        let product: ProductIdentity
+        let reason: SearchHit.Reason
+        let isYours: Bool
+        var id: String { product.productId }
     }
 
     var body: some View {
@@ -50,7 +65,10 @@ struct ShelfCheckView: View {
                     noMatch
                 } else {
                     ForEach(results) { result in
-                        ShelfCheckCard(result: result)
+                        ShelfCheckCard(result: result) { picked in
+                            query = picked
+                            remember(picked)
+                        }
                     }
                 }
             }
@@ -237,7 +255,8 @@ struct ShelfCheckView: View {
             return
         }
 
-        let candidates = env.catalog.searchCandidates(history: env.historyProductIds())
+        let history = env.historyProductIds()
+        let candidates = env.catalog.searchCandidates(history: history)
         let hits = BottleSearch.search(query: trimmed, in: candidates, limit: 12)
 
         // The engine takes plain values and does no I/O, so these two reads are
@@ -251,14 +270,42 @@ struct ShelfCheckView: View {
             ((try? env.wishlist.items()) ?? []).compactMap(\.catalogProductId))
 
         results = hits.map { hit in
-            Result(
+            let verdict = ShelfCheck.evaluate(
+                product: hit.product,
+                holdings: holdings,
+                tastings: tastings,
+                wishlistProductIds: wanted)
+            return Result(
                 hit: hit,
-                verdict: ShelfCheck.evaluate(
-                    product: hit.product,
-                    holdings: holdings,
-                    tastings: tastings,
-                    wishlistProductIds: wanted))
+                verdict: verdict,
+                related: related(to: hit.product, verdict: verdict, in: candidates, history: history))
         }
+    }
+
+    /// The "you might also mean" row. Structural, never textual: a shared
+    /// line, distillery or recipe is what lets Weller surface its wheated
+    /// siblings and an OESQ pick surface the other Four Roses recipes, which
+    /// string similarity would never find.
+    private func related(
+        to product: ProductIdentity,
+        verdict: ShelfCheckResult,
+        in candidates: [SearchCandidate],
+        history: Set<String>
+    ) -> [Related] {
+        switch verdict.headline {
+        case .neverHadIt, .tastedNeverOwned: break
+        default: return []
+        }
+        let hits = BottleSearch.related(
+            to: product,
+            recipeCode: env.catalog.product(product.productId)?.code,
+            in: candidates,
+            limit: 8)
+        return hits
+            .map { Related(product: $0.product, reason: $0.reason, isYours: history.contains($0.product.productId)) }
+            .sorted { a, b in a.isYours != b.isYours ? a.isYours : false }
+            .prefix(4)
+            .map { $0 }
     }
 }
 
@@ -267,6 +314,9 @@ struct ShelfCheckView: View {
 /// exists to prevent.
 struct ShelfCheckCard: View {
     let result: ShelfCheckView.Result
+    /// Tapping a related product looks it up, so the row is a way to keep
+    /// asking rather than a dead end.
+    var onPick: (String) -> Void = { _ in }
 
     private var verdict: ShelfCheckResult { result.verdict }
 
@@ -311,10 +361,61 @@ struct ShelfCheckCard: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
+
+            if !result.related.isEmpty {
+                relatedRow
+            }
         }
         .padding(Space.l)
         .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.line, lineWidth: 1))
+    }
+
+    /// "You might also mean". Each chip says WHY it is here, because a related
+    /// result that does not say how it is related reads as a broken search.
+    private var relatedRow: some View {
+        VStack(alignment: .leading, spacing: Space.s) {
+            Text(result.related.contains(where: \.isYours)
+                 ? "Related, and some are yours"
+                 : "You might also mean")
+                .font(TypeScale.caption())
+                .foregroundStyle(Palette.textMuted)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: Space.s) {
+                    ForEach(result.related) { item in
+                        Button { onPick(item.product.displayName) } label: {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(item.product.expression.isEmpty
+                                     ? item.product.brand : item.product.expression)
+                                    .font(TypeScale.secondary())
+                                    .foregroundStyle(item.isYours ? Palette.gold : Palette.text)
+                                    .lineLimit(1)
+                                Text(reasonLabel(item))
+                                    .font(TypeScale.caption())
+                                    .textCase(nil)
+                                    .foregroundStyle(Palette.textMuted)
+                            }
+                            .padding(.horizontal, Space.m)
+                            .frame(minHeight: Space.tapTarget)
+                            .background(RoundedRectangle(cornerRadius: 9).fill(Palette.surfaceRaised))
+                            .overlay(RoundedRectangle(cornerRadius: 9)
+                                .stroke(item.isYours ? Palette.gold : Palette.line, lineWidth: 1))
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private func reasonLabel(_ item: ShelfCheckView.Related) -> String {
+        let why: String
+        switch item.reason {
+        case .sameLine: why = "Same line"
+        case .sameRecipe: why = "Same recipe"
+        case .sameDistillery: why = "Same distillery"
+        case .exact, .prefix, .fuzzy: why = "Related"
+        }
+        return item.isYours ? why + " · yours" : why
     }
 
     /// The sentence under the badge. It explains the verdict rather than
