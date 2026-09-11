@@ -7,6 +7,17 @@ public enum AgeMath: Sendable {
 
     /// Maturation: time in the barrel. **The only ageing that changes the
     /// whiskey.** Nil when either year is missing or the pair is impossible.
+    /// "7 years 4 months", "11 months", "12 years". Months are what a label
+    /// prints for a pick and what the bottle stores; years alone would round
+    /// a 7-year-11-month barrel to the same age as a 7-year-1-month one.
+    public static func describe(months: Int) -> String {
+        let years = months / 12
+        let rest = months % 12
+        if years == 0 { return "\(rest) \(rest == 1 ? "month" : "months")" }
+        if rest == 0 { return "\(years) \(years == 1 ? "year" : "years")" }
+        return "\(years) \(years == 1 ? "year" : "years") \(rest) \(rest == 1 ? "month" : "months")"
+    }
+
     public static func maturationYears(distilledYear: Int?, bottledYear: Int?) -> Int? {
         guard let distilled = distilledYear, let bottled = bottledYear else { return nil }
         let years = bottled - distilled

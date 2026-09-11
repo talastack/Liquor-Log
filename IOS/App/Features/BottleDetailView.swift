@@ -38,6 +38,10 @@ struct BottleDetailView: View {
     /// clear that seeing that change is why people keep the notes at all.
     @State private var tastings: [TastingDetail] = []
 
+    /// Your best rating of a NON-pick bottle of the same product, for the
+    /// comparison. Nil when you have only ever had the pick.
+    @State private var standardRating: Int?
+
     var body: some View {
         ScrollView {
             if let summary {
@@ -57,6 +61,9 @@ struct BottleDetailView: View {
                     facts(summary)
                     if summary.bottle.hasPickDetail {
                         pickDetail(summary)
+                        if let comparison = comparison(summary), !comparison.isEmpty {
+                            PickCompareCard(comparison: comparison)
+                        }
                     }
                     if hasLocation(summary) {
                         whereItIs(summary)
@@ -323,6 +330,35 @@ struct BottleDetailView: View {
         }
     }
 
+    /// The pick beside the standard release. Only for a bottle that is a
+    /// pick of a CATALOGUE product -- a typed-in bottle has no standard to
+    /// stand beside -- and only the rows where both sides are known.
+    private func comparison(_ summary: BottleSummary) -> PickCompare.Comparison? {
+        let bottle = summary.bottle
+        guard let product = env.product(for: bottle) else { return nil }
+
+        // The bundled shelf price first; failing that, what you usually pay
+        // for the standard bottle, which excludes this pick by construction.
+        let reference = product.priceReference
+        let standardPrice = reference?.cents ?? priceHistory?.typicalCents
+        let priceLabel = reference?.source ?? (priceHistory != nil ? "what you usually pay" : nil)
+
+        return PickCompare.compare(
+            pick: PickCompare.Pick(
+                abv: bottle.abv,
+                ageMonths: bottle.ageMonths,
+                recipeCode: bottle.recipeCode,
+                paidCents: bottle.purchasePriceCents,
+                rating: summary.latestRating),
+            standard: PickCompare.Standard(
+                abv: product.abv,
+                statedAgeYears: product.statedAgeYears,
+                recipeCode: product.recipeCode,
+                priceCents: standardPrice,
+                priceLabel: priceLabel,
+                rating: standardRating))
+    }
+
     /// Everything barrel-specific this bottle carries, as a shareable record.
     private func pickCard(_ summary: BottleSummary) -> PickCard.Pick {
         let bottle = summary.bottle
@@ -537,6 +573,7 @@ struct BottleDetailView: View {
         do {
             summary = try env.bottles.summary(id: bottleId)
             tastings = try env.tastings.history(bottleId: bottleId)
+            standardRating = try bestStandardRating(for: summary?.bottle)
             // Excluding this bottle: comparing a price against itself would
             // always report "about what you usually pay".
             if let productId = summary?.bottle.catalogProductId {
@@ -553,6 +590,20 @@ struct BottleDetailView: View {
         } catch {
             self.error = error.localizedDescription
         }
+    }
+
+    /// The best you have rated a bottle of this product that was NOT a pick.
+    /// One read over the shelf, finished bottles included: the standard
+    /// release you killed last year is exactly the comparison wanted.
+    private func bestStandardRating(for bottle: Bottle?) throws -> Int? {
+        guard let bottle, bottle.hasPickDetail, let productId = bottle.catalogProductId else {
+            return nil
+        }
+        return try env.bottles.summaries(includeFinished: true)
+            .filter { $0.id != bottle.id && $0.bottle.catalogProductId == productId }
+            .filter { !$0.bottle.hasPickDetail }
+            .compactMap(\.latestRating)
+            .max()
     }
 
     private func removeTasting(_ id: String) {
@@ -634,6 +685,75 @@ struct OxidationCard: View {
 /// Everything recorded is shown and nothing is invented for a field left
 /// blank. The stage descriptors are one line per stage so a tasting with
 /// twelve picks stays a card and not a wall.
+
+/// The pick and the shelf bottle, side by side, one fact per row.
+///
+/// Nothing is coloured better or worse. More proof is not better, older is
+/// not better, and a pick that costs more is not a mistake; the screen lays
+/// out the numbers and the person who bought the bottle draws the line.
+struct PickCompareCard: View {
+    let comparison: PickCompare.Comparison
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            SectionLabel("Against the standard release")
+                .padding(.bottom, Space.xs)
+
+            HStack {
+                Text("")
+                    .frame(width: 84, alignment: .leading)
+                Text("THIS PICK")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                Text("STANDARD")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .font(TypeScale.caption())
+            .foregroundStyle(Palette.textMuted)
+            .padding(.vertical, Space.xs)
+
+            ForEach(Array(comparison.rows.enumerated()), id: \.offset) { index, row in
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(alignment: .firstTextBaseline) {
+                        Text(row.field.label)
+                            .font(TypeScale.caption())
+                            .textCase(nil)
+                            .foregroundStyle(Palette.textMuted)
+                            .frame(width: 84, alignment: .leading)
+                        Text(row.pick)
+                            .font(TypeScale.body())
+                            .foregroundStyle(Palette.gold)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        Text(row.standard)
+                            .font(TypeScale.body())
+                            .foregroundStyle(Palette.text)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    if let difference = row.difference {
+                        Text(difference)
+                            .font(TypeScale.caption())
+                            .textCase(nil)
+                            .foregroundStyle(Palette.textSecondary)
+                            .padding(.leading, 84)
+                    }
+                }
+                .padding(.vertical, Space.s)
+                if index < comparison.rows.count - 1 {
+                    Divider().overlay(Palette.line)
+                }
+            }
+
+            Text("Only the facts both bottles have. A pick with no stated age "
+                 + "shows no age row rather than an unknown beside a number.")
+                .font(TypeScale.caption())
+                .textCase(nil)
+                .foregroundStyle(Palette.textMuted)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.top, Space.s)
+        }
+    }
+}
+
 struct TastingHistoryRow: View {
     let detail: TastingDetail
     let daysOpen: Int?
