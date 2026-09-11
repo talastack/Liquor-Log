@@ -17,6 +17,9 @@ struct CollectionView: View {
     /// The same bottles as the engine's filter sees them, built once per load.
     @State private var rows: [CollectionFilter.Row] = []
     @State private var criteria = CollectionFilter.Criteria.none
+    /// "1 of 3" for bottles that are the same thing. Picks come by the
+    /// case; the cards stay separate because each bottle has its own fill.
+    @State private var places: [String: Multiples.Place] = [:]
     @State private var error: String?
 
     /// Shared with the switch in More. Off unless somebody turned it on: the
@@ -40,7 +43,7 @@ struct CollectionView: View {
                             NavigationLink {
                                 BottleDetailView(bottleId: summary.id)
                             } label: {
-                                BottleCard(summary: summary)
+                                BottleCard(summary: summary, place: places[summary.id])
                             }
                             .buttonStyle(.plain)
                         }
@@ -288,6 +291,15 @@ struct CollectionView: View {
             let custom = Dictionary(
                 uniqueKeysWithValues: try env.bottles.customProducts().map { ($0.id, $0) })
             rows = summaries.map { row(for: $0, custom: custom) }
+            places = Multiples.places(in: summaries.map { summary in
+                Multiples.Bottle(
+                    id: summary.id,
+                    productKey: summary.bottle.catalogProductId
+                        ?? summary.bottle.customName ?? summary.id,
+                    barrel: summary.bottle.barrelNumber,
+                    batch: summary.bottle.batchNumber,
+                    isFinished: summary.bottle.isFinished)
+            })
         } catch {
             self.error = error.localizedDescription
         }
@@ -336,6 +348,7 @@ struct CollectionView: View {
 struct BottleCard: View {
     @Environment(AppEnvironment.self) private var env
     let summary: BottleSummary
+    var place: Multiples.Place? = nil
 
     var body: some View {
         HStack(alignment: .top, spacing: Space.m) {
@@ -352,6 +365,17 @@ struct BottleCard: View {
                         .foregroundStyle(Palette.text)
                         .fixedSize(horizontal: false, vertical: true)
                     Spacer(minLength: Space.s)
+                    if let label = place?.label {
+                        Text(label)
+                            .font(TypeScale.caption())
+                            .textCase(nil)
+                            .foregroundStyle(Palette.textMuted)
+                            .padding(.horizontal, Space.s)
+                            .padding(.vertical, 3)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 5)
+                                    .stroke(Palette.line, lineWidth: 1))
+                    }
                     if summary.bottle.isOpen {
                         Text("Open")
                             .font(TypeScale.caption())

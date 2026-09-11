@@ -50,6 +50,10 @@ struct BottleDetailView: View {
     @State private var productNote: String?
     @State private var isEditingNote = false
 
+    /// The other bottles that are this same thing -- same product, barrel
+    /// and batch -- still on the shelf.
+    @State private var siblings: [BottleSummary] = []
+
     var body: some View {
         ScrollView {
             if let summary {
@@ -78,6 +82,9 @@ struct BottleDetailView: View {
                     }
                     if hasLocation(summary) {
                         whereItIs(summary)
+                    }
+                    if !siblings.isEmpty {
+                        alsoOnTheShelf
                     }
                     actions(summary)
                 }
@@ -430,6 +437,47 @@ struct BottleDetailView: View {
             bottledYear: bottle.bottledYear)
     }
 
+    /// The same thing, more than once. Each bottle keeps its own record; this
+    /// is the link between them.
+    private var alsoOnTheShelf: some View {
+        VStack(alignment: .leading, spacing: Space.s) {
+            SectionLabel(siblings.count == 1
+                         ? "You have another of this"
+                         : "You have \(siblings.count) more of this")
+            ForEach(siblings) { sibling in
+                NavigationLink {
+                    BottleDetailView(bottleId: sibling.id)
+                } label: {
+                    HStack(spacing: Space.m) {
+                        BottleImage(fileName: sibling.bottle.photoFile, height: 40)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(sibling.bottle.isOpen
+                                 ? "Open · \(sibling.status.remainingPours) of \(sibling.status.totalPours) pours"
+                                 : "Sealed")
+                                .font(TypeScale.body())
+                                .foregroundStyle(Palette.text)
+                            if let location = sibling.bottle.storageLocation {
+                                Text(location)
+                                    .font(TypeScale.caption())
+                                    .textCase(nil)
+                                    .foregroundStyle(Palette.textMuted)
+                            }
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(Palette.textMuted)
+                    }
+                    .padding(Space.l)
+                    .frame(maxWidth: .infinity, minHeight: Space.tapTarget, alignment: .leading)
+                    .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
+                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.line, lineWidth: 1))
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
     /// Where the bottle physically is, and the walk that keeps that honest.
     ///
     /// People report this mattering more than remembering what they own:
@@ -621,6 +669,7 @@ struct BottleDetailView: View {
             standardRating = try bestStandardRating(for: summary?.bottle)
             productNote = try summary?.bottle.catalogProductId
                 .flatMap { try env.notes.note(productId: $0)?.body }
+            siblings = try loadSiblings()
             // Excluding this bottle: comparing a price against itself would
             // always report "about what you usually pay".
             if let productId = summary?.bottle.catalogProductId {
@@ -686,6 +735,22 @@ struct BottleDetailView: View {
         } catch {
             self.error = error.localizedDescription
         }
+    }
+
+    /// The other on-shelf bottles that are this same thing.
+    private func loadSiblings() throws -> [BottleSummary] {
+        guard let bottle = summary?.bottle, !bottle.isFinished else { return [] }
+        let shelf = try env.bottles.summaries()
+        let places = Multiples.places(in: shelf.map { s in
+            Multiples.Bottle(
+                id: s.id,
+                productKey: s.bottle.catalogProductId ?? s.bottle.customName ?? s.id,
+                barrel: s.bottle.barrelNumber,
+                batch: s.bottle.batchNumber,
+                isFinished: s.bottle.isFinished)
+        })
+        let ids = Set(places[bottle.id]?.siblings ?? [])
+        return shelf.filter { ids.contains($0.id) }
     }
 
     private func removeTasting(_ id: String) {
