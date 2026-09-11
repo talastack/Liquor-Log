@@ -18,22 +18,25 @@ public struct ReInventoryRepository: Sendable {
     /// Finished bottles are excluded: they are archived history, and walking
     /// past a shelf asking "is this bottle still here?" about something you
     /// killed last year is how a walk loses people.
+    ///
+    /// Names are resolved after the read, not inside it: naming a typed-in
+    /// bottle queries this database, and a read inside a read is fatal in GRDB.
     public func items(resolveName: (Bottle) -> String) throws -> [ReInventory.Item] {
-        try db.queue.read { db in
+        let bottles = try db.queue.read { db in
             try Bottle
                 .live()
                 .filter(Column("finished_at") == nil)
                 .fetchAll(db)
-                .map { bottle in
-                    ReInventory.Item(
-                        id: bottle.id,
-                        name: resolveName(bottle),
-                        storageLocation: bottle.storageLocation,
-                        lastVerifiedAt: bottle.lastVerifiedAt.map {
-                            Date(timeIntervalSince1970: Double($0) / 1000)
-                        },
-                        isOpen: bottle.isOpen)
-                }
+        }
+        return bottles.map { bottle in
+            ReInventory.Item(
+                id: bottle.id,
+                name: resolveName(bottle),
+                storageLocation: bottle.storageLocation,
+                lastVerifiedAt: bottle.lastVerifiedAt.map {
+                    Date(timeIntervalSince1970: Double($0) / 1000)
+                },
+                isOpen: bottle.isOpen)
         }
     }
 
