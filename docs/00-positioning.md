@@ -54,6 +54,7 @@ use their eyes.
 | Tasting history per bottle, with the trend as a sentence | `TastingTrend`, `TastingHistoryRow` — the evidence under the oxidation clock |
 | Finding one bottle in two hundred | `CollectionFilter` — search, status, kind and place chips, seven sorts |
 | A pick beside the standard release | `PickCompare` — proof, age, recipe, price, your rating; only rows both sides have |
+| The collection as a document | `InsuranceReport` — what was paid, when, where, with photos; "not an appraisal" on every page |
 
 ### Fill level, and why it is a reading rather than a subtraction
 

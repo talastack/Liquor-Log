@@ -198,6 +198,15 @@ struct MoreView: View {
                     symbol: "tablecells")
             }
 
+            NavigationLink {
+                InsuranceReportView()
+            } label: {
+                row(
+                    "Insurance report",
+                    detail: "A PDF for an insurer or an executor — what you paid, with photos",
+                    symbol: "doc.text")
+            }
+
             Text("Opens in any spreadsheet. It includes your barrel and pick "
                  + "detail and the bottles you have finished, because an export "
                  + "missing those would look like a backup without being one.")
