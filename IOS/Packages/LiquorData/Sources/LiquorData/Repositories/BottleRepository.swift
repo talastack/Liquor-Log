@@ -97,18 +97,23 @@ public struct BottleRepository: Sendable {
 
     /// Holdings in the shape `ShelfCheck` wants. The engine takes plain values
     /// and does no I/O, so this is the only place the two meet.
+    ///
+    /// The resolver runs AFTER the read, never inside it. Resolving a product
+    /// the bundled catalogue does not know means looking it up in this same
+    /// database, and a read opened inside a read is a re-entrancy fatal error
+    /// in GRDB -- the shelf check crashed the moment a typed-in bottle was on
+    /// the shelf.
     public func holdings(resolving product: (String) -> ProductIdentity?) throws -> [Holding] {
-        try db.queue.read { db in
-            try Bottle.live().fetchAll(db).compactMap { bottle in
-                guard let id = bottle.catalogProductId, let identity = product(id) else { return nil }
-                return Holding(
-                    bottleId: bottle.id,
-                    product: identity,
-                    releaseLabel: bottle.releaseLabel,
-                    isOpen: bottle.isOpen,
-                    isFinished: bottle.isFinished
-                )
-            }
+        let bottles = try db.queue.read { db in try Bottle.live().fetchAll(db) }
+        return bottles.compactMap { bottle in
+            guard let id = bottle.catalogProductId, let identity = product(id) else { return nil }
+            return Holding(
+                bottleId: bottle.id,
+                product: identity,
+                releaseLabel: bottle.releaseLabel,
+                isOpen: bottle.isOpen,
+                isFinished: bottle.isFinished
+            )
         }
     }
 

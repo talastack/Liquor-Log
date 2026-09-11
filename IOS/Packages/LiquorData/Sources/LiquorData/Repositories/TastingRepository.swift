@@ -50,22 +50,24 @@ public struct TastingRepository: Sendable {
     }
 
     /// Tastings in the shape `ShelfCheck` wants.
+    ///
+    /// Resolves outside the read: the resolver may query this database for a
+    /// custom product, and GRDB does not allow a read inside a read.
     public func records(resolving product: (String) -> ProductIdentity?) throws -> [TastingRecord] {
-        try db.queue.read { db in
-            try Tasting.live().fetchAll(db).compactMap { tasting -> TastingRecord? in
-                guard let id = tasting.catalogProductId, let identity = product(id) else {
-                    return nil
-                }
-                return TastingRecord(
-                    tastingId: tasting.id,
-                    product: identity,
-                    tastedAt: Date(timeIntervalSince1970: Double(tasting.tastedAt) / 1000),
-                    rating: tasting.rating,
-                    wouldRebuy: tasting.wouldRebuy.map { $0 == .yes },
-                    liked: tasting.liked,
-                    disliked: tasting.disliked
-                )
+        let tastings = try db.queue.read { db in try Tasting.live().fetchAll(db) }
+        return tastings.compactMap { tasting -> TastingRecord? in
+            guard let id = tasting.catalogProductId, let identity = product(id) else {
+                return nil
             }
+            return TastingRecord(
+                tastingId: tasting.id,
+                product: identity,
+                tastedAt: Date(timeIntervalSince1970: Double(tasting.tastedAt) / 1000),
+                rating: tasting.rating,
+                wouldRebuy: tasting.wouldRebuy.map { $0 == .yes },
+                liked: tasting.liked,
+                disliked: tasting.disliked
+            )
         }
     }
 

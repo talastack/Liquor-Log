@@ -23,6 +23,38 @@ final class BottleRepositoryTests: XCTestCase {
         ))
     }
 
+    // MARK: - Resolving custom products
+
+    /// A typed-in bottle resolves by querying THIS database, so the resolver
+    /// must run outside the read. Inside it, GRDB's re-entrancy check is a
+    /// fatal error, and the shelf check crashed the moment somebody had a
+    /// bottle the catalogue did not know. This test is the crash, made green.
+    func testHoldingsResolveATypedInProductWithoutReEnteringTheDatabase() throws {
+        let entry = CustomCatalogEntry(
+            distillery: "Kentucky Artisan Distillery",
+            brand: "Jefferson's",
+            expression: "Ocean",
+            classType: .bourbon)
+        let saved = try bottles.addCustom(product: entry, bottle: Bottle(volumeMl: 750))
+
+        let holdings = try bottles.holdings { id in
+            // The same resolver the app uses: catalogue first, then a second
+            // database read for a custom product.
+            guard let custom = try? self.bottles.customProduct(id: id) else { return nil }
+            return ProductIdentity(
+                productId: custom.id,
+                distillery: custom.distillery,
+                brand: custom.brand,
+                expression: custom.expression,
+                classType: custom.classType,
+                productionType: custom.productionType)
+        }
+
+        XCTAssertEqual(holdings.count, 1)
+        XCTAssertEqual(holdings.first?.product.productId, saved.product.id)
+        XCTAssertEqual(holdings.first?.product.brand, "Jefferson's")
+    }
+
     // MARK: - Derivation
 
     func testFullBottleReadsSeventeenOfSeventeen() throws {
