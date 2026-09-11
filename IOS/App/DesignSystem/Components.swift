@@ -72,8 +72,37 @@ struct VerdictBadge: View {
 /// because the pour count rounds to nearest: a bottle holding 16.6 pours reads
 /// "17". The millilitres are what stop that rounding from carrying weight on
 /// its own.
+/// Millilitres or US fluid ounces, by a per-device preference.
+///
+/// Bottles are labelled in millilitres and the database stores millilitres;
+/// American pours are thought about in ounces. The preference changes only
+/// what is SHOWN -- every stored number and every export stays metric, so
+/// two devices with different settings hold the same data.
+enum VolumeDisplay {
+    static let key = "units.ounces"
+
+    /// "573 ml" or "19.4 oz".
+    static func text(_ milliliters: Double, ounces: Bool) -> String {
+        if ounces {
+            let oz = milliliters / Volume.usFluidOunceInMilliliters
+            return String(format: oz < 10 ? "%.1f oz" : "%.0f oz", oz)
+        }
+        return "\(Int(milliliters.rounded())) ml"
+    }
+
+    /// Both, when ounces are on: "573 ml · 19.4 oz". Where the millilitres
+    /// are the thing being edited they stay visible, so the number typed and
+    /// the number shown never disagree.
+    static func both(_ milliliters: Double, ounces: Bool) -> String {
+        ounces
+            ? "\(Int(milliliters.rounded())) ml · " + text(milliliters, ounces: true)
+            : text(milliliters, ounces: false)
+    }
+}
+
 struct FillBar: View {
     let status: PourStatus
+    @AppStorage(VolumeDisplay.key) private var ounces = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: Space.s) {
@@ -114,7 +143,7 @@ struct FillBar: View {
     }
 
     private var millilitres: String {
-        "\(Int(status.remainingMilliliters.rounded())) ml left"
+        VolumeDisplay.text(status.remainingMilliliters, ounces: ounces) + " left"
     }
 }
 

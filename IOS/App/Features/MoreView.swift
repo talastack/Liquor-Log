@@ -13,6 +13,9 @@ struct MoreView: View {
     /// A per-device display preference, so it never syncs and never leaves.
     @AppStorage("showsCollectionValue") private var showsValue = CollectionValue.shownByDefault
 
+    /// Ounces beside the millilitres. Display only; nothing stored changes.
+    @AppStorage(VolumeDisplay.key) private var ounces = false
+
     @State private var exportURL: URL?
     /// Your Blanton's with a dump date, in the registry's shape. Nil until
     /// there is at least one, so nobody without a Blanton's sees the word.
@@ -32,6 +35,7 @@ struct MoreView: View {
 
                 tools
                 money
+                units
                 exportSection
                 pro
                 aboutTheData
@@ -168,6 +172,31 @@ struct MoreView: View {
         .padding(Space.l)
         .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.line, lineWidth: 1))
+    }
+
+    // MARK: - Units
+
+    private var units: some View {
+        VStack(alignment: .leading, spacing: Space.m) {
+            SectionLabel("Units")
+            Toggle(isOn: $ounces) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Show ounces")
+                        .font(TypeScale.body())
+                        .foregroundStyle(Palette.text)
+                    Text("Beside the millilitres. Bottles are labelled in ml; pours are "
+                         + "thought about in oz. Nothing stored changes.")
+                        .font(TypeScale.caption())
+                        .textCase(nil)
+                        .foregroundStyle(Palette.textMuted)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .tint(Palette.gold)
+            .padding(Space.l)
+            .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.line, lineWidth: 1))
+        }
     }
 
     // MARK: - Export

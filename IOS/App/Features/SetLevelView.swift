@@ -24,6 +24,7 @@ import LiquorEngine
 /// Plus's workaround is letting you upload a photo of the fill line.
 struct SetLevelView: View {
     @Environment(AppEnvironment.self) private var env
+    @AppStorage(VolumeDisplay.key) private var ounces = false
     @Environment(\.dismiss) private var dismiss
 
     let bottleId: String
@@ -86,7 +87,8 @@ struct SetLevelView: View {
             // Millilitres and pours travel with the percentage, because a
             // percentage on its own is the one number nobody can check against
             // the bottle in their hand.
-            Text("\(Int(chosenMilliliters(summary).rounded())) ml · about \(pourCount(summary)) "
+            Text(VolumeDisplay.both(chosenMilliliters(summary), ounces: ounces)
+                 + " · about \(pourCount(summary)) "
                  + "\(pourCount(summary) == 1 ? "pour" : "pours") left")
                 .font(TypeScale.code(13))
                 .foregroundStyle(Palette.textMuted)
@@ -148,7 +150,7 @@ struct SetLevelView: View {
                         .stroke(Palette.line, lineWidth: 1))
                     .onChange(of: millilitresText) { _, _ in syncPercentFromText(summary) }
 
-                Text("of \(Int(summary.bottle.volumeMl.rounded())) ml")
+                Text("of " + VolumeDisplay.both(summary.bottle.volumeMl, ounces: ounces))
                     .font(TypeScale.secondary())
                     .foregroundStyle(Palette.textMuted)
             }

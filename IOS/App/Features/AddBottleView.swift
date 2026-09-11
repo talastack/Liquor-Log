@@ -10,6 +10,7 @@ import LiquorEngine
 /// anybody who actually buys picks.
 struct AddBottleView: View {
     @Environment(AppEnvironment.self) private var env
+    @AppStorage(VolumeDisplay.key) private var ounces = false
     @Environment(\.dismiss) private var dismiss
 
     // What it is
@@ -409,7 +410,7 @@ struct AddBottleView: View {
                             .font(TypeScale.body())
                             .foregroundStyle(Palette.text)
                         Spacer()
-                        Text("\(Int(remainingMilliliters.rounded())) ml")
+                        Text(VolumeDisplay.both(remainingMilliliters, ounces: ounces))
                             .font(TypeScale.code(13))
                             .foregroundStyle(Palette.textMuted)
                     }

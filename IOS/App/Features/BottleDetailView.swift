@@ -5,6 +5,7 @@ import LiquorEngine
 /// One bottle: what is left, what it cost, what it is, and how it is holding up.
 struct BottleDetailView: View {
     @Environment(AppEnvironment.self) private var env
+    @AppStorage(VolumeDisplay.key) private var ounces = false
     @Environment(\.dismiss) private var dismiss
     let bottleId: String
 
@@ -382,7 +383,7 @@ struct BottleDetailView: View {
             }
             FactRow(
                 label: "Size",
-                value: "\(Int(summary.bottle.volumeMl.rounded())) ml",
+                value: VolumeDisplay.both(summary.bottle.volumeMl, ounces: ounces),
                 isLast: true)
         }
     }
