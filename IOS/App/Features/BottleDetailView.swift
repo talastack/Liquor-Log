@@ -64,6 +64,14 @@ struct BottleDetailView: View {
     @State private var isEnteringPour = false
     @State private var customPourText = ""
 
+    /// The rendered bottle card, while its share sheet is up.
+    @State private var shareCard: RenderedBottleCard?
+
+    struct RenderedBottleCard: Identifiable {
+        let id = UUID()
+        let image: UIImage
+    }
+
     var body: some View {
         ScrollView {
             if let summary {
@@ -136,6 +144,9 @@ struct BottleDetailView: View {
         } message: {
             Text("For a bottle that was entered by mistake. A bottle you drank "
                  + "should be marked finished instead, so its history stays.")
+        }
+        .sheet(item: $shareCard) { card in
+            ShareSheet(items: [card.image])
         }
         .alert("Pour how much?", isPresented: $isEnteringPour) {
             TextField("ml", text: $customPourText)
@@ -211,6 +222,13 @@ struct BottleDetailView: View {
                     isConfirmingFinish = true
                 } label: {
                     Label("Mark as finished", systemImage: "checkmark.circle")
+                }
+            }
+            if let summary {
+                Button {
+                    renderCard(summary)
+                } label: {
+                    Label("Share as an image", systemImage: "photo")
                 }
             }
             Button(role: .destructive) {
@@ -854,6 +872,36 @@ struct BottleDetailView: View {
         return shelf.filter { ids.contains($0.id) }
     }
 
+    /// The bottle as a card to post: photo, name, the barrel facts, your
+    /// rating. No price on it, ever -- a price on a shared card is either a
+    /// brag or a target, and the research is clear people want neither.
+    @MainActor
+    private func renderCard(_ summary: BottleSummary) {
+        let bottle = summary.bottle
+        let card = BottleShareCard(
+            image: BottlePhoto.load(bottle.photoFile, from: env.photos),
+            distillery: env.distillery(for: bottle),
+            name: env.name(for: bottle),
+            strength: strength(summary),
+            facts: [
+                bottle.barrelNumber.map { "Barrel \($0)" },
+                bottle.batchNumber.map { "Batch \($0)" },
+                bottle.isStorePick ? bottle.pickStore.map { "Picked at \($0)" } : nil,
+                bottle.pickGroup.map { "Selected by \($0)" },
+                bottle.ageDescription.map { "Aged \($0)" },
+                bottle.warehouse.map { "Warehouse \($0)" },
+                bottle.topperLetter.map { "Topper \($0)" },
+            ].compactMap { $0 },
+            rating: summary.latestRating,
+            liked: tastings.first?.tasting.liked)
+        let renderer = ImageRenderer(content: card)
+        renderer.scale = 3
+        renderer.proposedSize = ProposedViewSize(width: 400, height: nil)
+        if let image = renderer.uiImage {
+            shareCard = RenderedBottleCard(image: image)
+        }
+    }
+
     private func openBottle() {
         do {
             try env.bottles.open(bottleId: bottleId)
@@ -1034,6 +1082,78 @@ struct PickCompareCard: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, Space.s)
         }
+    }
+}
+
+
+/// One bottle as a card: the photo when there is one, the facts that make
+/// it this bottle and not the SKU, and what you thought. Fixed width so it
+/// posts the same from every phone.
+struct BottleShareCard: View {
+    let image: UIImage?
+    let distillery: String?
+    let name: String
+    let strength: String
+    let facts: [String]
+    let rating: Int?
+    let liked: String?
+
+    private let ink = Color(red: 0.95, green: 0.91, blue: 0.86)
+    private let gold = Color(red: 0.79, green: 0.59, blue: 0.23)
+    private let muted = Color(red: 0.59, green: 0.53, blue: 0.44)
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            if let image {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 344, height: 260)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+            if let distillery {
+                Text(distillery.uppercased())
+                    .font(.system(size: 11, weight: .semibold))
+                    .tracking(1.4)
+                    .foregroundStyle(muted)
+            }
+            Text(name)
+                .font(.system(size: 28, weight: .semibold, design: .serif))
+                .foregroundStyle(ink)
+                .fixedSize(horizontal: false, vertical: true)
+            Text(strength)
+                .font(.system(size: 13, design: .monospaced))
+                .foregroundStyle(gold)
+
+            if !facts.isEmpty {
+                Rectangle().fill(gold).frame(height: 1.5).padding(.vertical, 4)
+                ForEach(facts, id: \.self) { fact in
+                    Text(fact)
+                        .font(.system(size: 14))
+                        .foregroundStyle(ink)
+                }
+            }
+
+            if rating != nil || liked != nil {
+                Rectangle().fill(gold.opacity(0.4)).frame(height: 1).padding(.vertical, 4)
+                HStack(alignment: .top, spacing: 12) {
+                    if let rating {
+                        Text("\(rating)/10")
+                            .font(.system(size: 22, weight: .semibold))
+                            .foregroundStyle(gold)
+                    }
+                    if let liked, !liked.isEmpty {
+                        Text(liked)
+                            .font(.system(size: 14, design: .serif).italic())
+                            .foregroundStyle(ink)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+            }
+        }
+        .padding(28)
+        .frame(width: 400, alignment: .leading)
+        .background(Color(red: 0.08, green: 0.06, blue: 0.04))
     }
 }
 
