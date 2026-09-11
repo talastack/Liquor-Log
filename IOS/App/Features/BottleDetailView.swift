@@ -116,7 +116,22 @@ struct BottleDetailView: View {
 
     private func hero(_ summary: BottleSummary) -> some View {
         VStack(spacing: Space.m) {
-            BottleMark(height: 104)
+            if let image = BottlePhoto.load(summary.bottle.photoFile, from: env.photos) {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: .infinity, maxHeight: 260)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(Palette.line, lineWidth: 1))
+            } else {
+                BottleMark(height: 104)
+            }
+            if env.photos != nil {
+                BottlePhotoMenu(
+                    bottleId: summary.id,
+                    current: summary.bottle.photoFile,
+                    onChange: { reload() })
+            }
             if let distillery = env.distillery(for: summary.bottle) {
                 SectionLabel(distillery)
             }

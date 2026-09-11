@@ -14,6 +14,9 @@ final class AppEnvironment {
     let database: AppDatabase
     let catalog: Catalog
     let wheel: FlavorWheel
+    /// Bottle photos, as files beside the database. Nil when the folder
+    /// could not be made; every photo affordance then stays hidden.
+    let photos: BottlePhotoStore?
 
     /// Set when the database could not be opened at all. The app stays up and
     /// says so rather than crashing on launch — a collection you cannot reach
@@ -26,10 +29,17 @@ final class AppEnvironment {
     var wishlist: WishlistRepository { WishlistRepository(database) }
     var export: CollectionExport { CollectionExport(database) }
 
-    init(database: AppDatabase, catalog: Catalog, wheel: FlavorWheel, startupError: String? = nil) {
+    init(
+        database: AppDatabase,
+        catalog: Catalog,
+        wheel: FlavorWheel,
+        photos: BottlePhotoStore? = try? BottlePhotoStore(),
+        startupError: String? = nil
+    ) {
         self.database = database
         self.catalog = catalog
         self.wheel = wheel
+        self.photos = photos
         self.startupError = startupError
     }
 

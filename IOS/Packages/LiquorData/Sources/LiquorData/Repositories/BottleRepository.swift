@@ -164,6 +164,18 @@ public struct BottleRepository: Sendable {
     /// offline reaches other devices with the time of the EDIT on it rather
     /// than the time it happened to sync.
     @discardableResult
+    /// Points the bottle at a photo file, or at none. The file itself is the
+    /// photo store's business; this only records which one.
+    public func setPhoto(bottleId: String, fileName: String?) throws {
+        try db.queue.write { db in
+            guard var bottle = try Bottle.filter(key: bottleId).fetchOne(db) else {
+                throw DataError.bottleNotFound(bottleId)
+            }
+            bottle.photoFile = fileName
+            try bottle.saveLocal(db)
+        }
+    }
+
     public func update(_ bottle: Bottle) throws -> Bottle {
         try db.queue.write { db in
             guard let stored = try Bottle.filter(key: bottle.id).fetchOne(db) else {

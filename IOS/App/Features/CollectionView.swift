@@ -339,7 +339,7 @@ struct BottleCard: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: Space.m) {
-            BottleMark(height: 58)
+            BottleImage(fileName: summary.bottle.photoFile, height: 58)
 
             VStack(alignment: .leading, spacing: Space.s) {
                 if let distillery = env.distillery(for: summary.bottle) {
