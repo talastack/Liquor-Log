@@ -333,13 +333,26 @@ struct ShelfCheckCard: View {
 
     private var verdict: ShelfCheckResult { result.verdict }
 
+    /// The line sheet, while it is up.
+    @State private var isShowingLine = false
+
     var body: some View {
         VStack(alignment: .leading, spacing: Space.m) {
             HStack(alignment: .top, spacing: Space.m) {
                 BottleMark(height: 58)
 
                 VStack(alignment: .leading, spacing: Space.s) {
-                    SectionLabel(verdict.product.brand)
+                    // The brand opens the whole line: "which Wellers do I
+                    // have" is the question one level up from this card.
+                    Button { isShowingLine = true } label: {
+                        HStack(spacing: 4) {
+                            SectionLabel(verdict.product.brand)
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 9, weight: .bold))
+                                .foregroundStyle(Palette.textMuted)
+                        }
+                    }
+                    .accessibilityLabel("Every \(verdict.product.brand) expression")
                     Text(verdict.product.expression.isEmpty
                          ? verdict.product.brand : verdict.product.expression)
                         .font(TypeScale.title())
@@ -397,6 +410,11 @@ struct ShelfCheckCard: View {
         .padding(Space.l)
         .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.line, lineWidth: 1))
+        .sheet(isPresented: $isShowingLine) {
+            NavigationStack {
+                LineSheetView(product: verdict.product, onPick: onPick)
+            }
+        }
     }
 
     /// "You might also mean". Each chip says WHY it is here, because a related
