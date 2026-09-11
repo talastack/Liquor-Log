@@ -140,5 +140,9 @@ schemes:
         - LiquorLog
     run:
       config: Debug
+      # Local products for the simulator, so the paywall shows prices and a
+      # purchase completes without App Store Connect. Product ids here must
+      # match ProStore.ProductID and, later, App Store Connect.
+      storeKitConfiguration: Config/LiquorLog.storekit
     archive:
       config: Release

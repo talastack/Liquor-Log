@@ -10,6 +10,7 @@ import LiquorEngine
 /// account is for rather than implying the app is incomplete without one.
 struct SyncView: View {
     @Environment(SyncController.self) private var sync
+    @Environment(ProStore.self) private var store
 
     @State private var email = ""
     @State private var password = ""
@@ -20,7 +21,12 @@ struct SyncView: View {
             VStack(alignment: .leading, spacing: Space.xl) {
                 switch sync.state {
                 case .unavailable: unavailable
-                case .signedOut: signIn
+                case .signedOut:
+                    if store.allows(.cloudSync) {
+                        signIn
+                    } else {
+                        ProLockedCard(feature: .cloudSync)
+                    }
                 case .working: ProgressView().frame(maxWidth: .infinity).padding(.top, 64)
                 case .signedIn(let email): signedIn(email)
                 }

@@ -270,5 +270,6 @@ struct TastingHistoryView: View {
 #Preview {
     MainTabView()
         .environment(AppEnvironment.preview())
+        .environment(ProStore())
         .preferredColorScheme(.dark)
 }
