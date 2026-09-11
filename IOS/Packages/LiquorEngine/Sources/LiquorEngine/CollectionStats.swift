@@ -38,6 +38,8 @@ public enum CollectionStats: Sendable {
         public let purchasePriceCents: Int?
         public let purchasedAt: Date?
         public let costPerPourCents: Int?
+        /// The Blanton's stopper letter, when the bottle has one.
+        public let topperLetter: String?
 
         public init(
             name: String? = nil,
@@ -54,7 +56,8 @@ public enum CollectionStats: Sendable {
             storageLocation: String? = nil,
             purchasePriceCents: Int? = nil,
             purchasedAt: Date? = nil,
-            costPerPourCents: Int? = nil
+            costPerPourCents: Int? = nil,
+            topperLetter: String? = nil
         ) {
             self.name = name
             self.classType = classType
@@ -71,6 +74,7 @@ public enum CollectionStats: Sendable {
             self.purchasePriceCents = purchasePriceCents
             self.purchasedAt = purchasedAt
             self.costPerPourCents = costPerPourCents
+            self.topperLetter = topperLetter
         }
     }
 
@@ -133,6 +137,9 @@ public enum CollectionStats: Sendable {
         /// The open bottle that has been open longest, in days. A fact about
         /// oxidation, not a prompt to finish it.
         public let longestOpen: Standout?
+        /// Which Blanton's stopper letters are on the shelf. Nil until there
+        /// is at least one, so a shelf with no Blanton's never sees the word.
+        public let topperLetters: TopperLetters.Progress?
 
         // Money. The screen shows none of this unless the person turned the
         // shelf-value switch on; the research is clear that the number is
@@ -204,6 +211,9 @@ public enum CollectionStats: Sendable {
             .map { Amount(label: $0.key, cents: $0.value) }
             .sorted { $0.label < $1.label }
 
+        let letters = live.compactMap(\.topperLetter)
+        let toppers = letters.isEmpty ? nil : TopperLetters.progress(letters)
+
         let pours = live.compactMap { entry -> Standout? in
             guard let name = entry.name, let cents = entry.costPerPourCents else { return nil }
             return Standout(name: name, value: cents)
@@ -229,6 +239,7 @@ public enum CollectionStats: Sendable {
             highestProof: live.compactMap(\.abv).max().map { ABV(percent: $0).proof },
             oldestStatedAgeMonths: live.compactMap(\.ageMonths).max(),
             longestOpen: longestOpen,
+            topperLetters: toppers,
             spentByYear: spentByYear,
             averageCostPerPourCents: averagePour,
             dearestPour: pours.max { $0.value < $1.value },

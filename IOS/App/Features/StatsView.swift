@@ -220,6 +220,16 @@ struct StatsView: View {
                     label: "Open longest",
                     value: "\(longest.value) \(longest.value == 1 ? "day" : "days") · \(longest.name)")
             }
+            // The stopper set, as a fact about the shelf. Complete or not,
+            // it is never a goal bar: the research's one welcomed registry
+            // records these letters and nobody there is awarded anything.
+            if let toppers = summary.topperLetters {
+                FactRow(
+                    label: "Blanton's toppers",
+                    value: toppers.isComplete
+                        ? "All eight · \(toppers.wordLine)"
+                        : "\(toppers.ownedCount) of 8 · \(toppers.wordLine)")
+            }
             // Stated plainly. Finishing a bottle is bookkeeping, not a score,
             // so there is no celebration and no total attached to it.
             FactRow(label: "Finished and archived", value: "\(summary.finished)", isLast: true)
@@ -264,7 +274,8 @@ struct StatsView: View {
                 storageLocation: bottle.storageLocation,
                 purchasePriceCents: bottle.purchasePriceCents,
                 purchasedAt: bottle.purchaseDate.map { Date(timeIntervalSince1970: Double($0) / 1000) },
-                costPerPourCents: row.costPerPourCents)
+                costPerPourCents: row.costPerPourCents,
+                topperLetter: bottle.topperLetter)
         })
     }
 }

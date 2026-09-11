@@ -242,6 +242,17 @@ final class PourMenuTests: XCTestCase {
         XCTAssertEqual(summary.cheapestPour?.name, "Cheap")
     }
 
+    func testTopperLettersOnlyWhenThereAreAny() {
+        XCTAssertNil(CollectionStats.summarise([CollectionStats.Entry()]).topperLetters)
+        let summary = CollectionStats.summarise([
+            CollectionStats.Entry(topperLetter: "B"),
+            CollectionStats.Entry(topperLetter: "s"),
+            CollectionStats.Entry(isFinished: true, topperLetter: "L"),  // gone, not on the shelf
+        ])
+        XCTAssertEqual(summary.topperLetters?.ownedCount, 2)
+        XCTAssertEqual(summary.topperLetters?.wordLine, "B _ _ _ _ _ _ _ S")
+    }
+
     func testNoPricesMeansNoAverage() {
         XCTAssertNil(CollectionStats.summarise([CollectionStats.Entry()]).averageCostPerPourCents)
     }

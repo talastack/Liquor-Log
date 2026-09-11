@@ -318,7 +318,10 @@ struct BottleDetailView: View {
                 FactRow(label: "Finish", value: finish)
             }
             if let numbered = bottle.bottleNumberDescription {
-                FactRow(label: "Bottle", value: numbered, isLast: true)
+                FactRow(label: "Bottle", value: numbered, isLast: bottle.topperLetter == nil)
+            }
+            if let letter = bottle.topperLetter {
+                FactRow(label: "Topper", value: letter, isLast: true)
             }
 
             // The registry seed. A pick shared as a fixed-shape record arrives

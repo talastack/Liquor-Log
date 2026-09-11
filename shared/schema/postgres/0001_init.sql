@@ -275,6 +275,20 @@ create table bottles (
   -- after. It works offline and improves with use.
   barcode             text,
 
+  -- The letter on the cork topper of a Blanton's: the horse-and-jockey
+  -- stoppers each carry one of B-L-A-N-T-O-N-'-S, and collecting the set is
+  -- a thing people do. bourbondumpdate.com, the one registry the community
+  -- has welcomed, records exactly this alongside the dump date and the state
+  -- the bottle was found in. Nullable and free-text so a future set (other
+  -- brands do similar) needs no migration; the app validates the letters it
+  -- knows.
+  topper_letter       text,
+
+  -- A photo of THIS bottle, by file name, on the device that took it. The
+  -- name syncs so a second device knows a photo exists; the bytes do not.
+  -- Photo backup is a possible paid service later, never the free tier.
+  photo_file          text,
+
   -- Where the bottle physically IS. Collections scatter across closets,
   -- basements and boxes, and people report this mattering more than remembering
   -- what they own.
@@ -452,6 +466,12 @@ create table tastings (
   -- dimension free text is worst at holding still.
   finish_seconds      integer,
 
+  -- Where a tasting happened when it was not your own bottle: a bar, a
+  -- friend's, a sample swap, an in-store tasting. Null for a pour of your
+  -- own. The note is the venue or the friend, free text.
+  source              text,
+  source_note         text,
+
   liked               text,
   disliked            text,
   created_at          bigint not null,
@@ -468,6 +488,8 @@ create table tastings (
     check (finish_seconds is null or (finish_seconds > 0 and finish_seconds <= 3600)),
   constraint rebuy_is_known
     check (would_rebuy is null or would_rebuy in ('yes', 'maybe', 'no')),
+  constraint source_is_known
+    check (source is null or source in ('bar', 'friend', 'sample', 'store', 'event', 'other')),
   constraint tasting_has_a_subject
     check (bottle_id is not null or catalog_product_id is not null)
 );

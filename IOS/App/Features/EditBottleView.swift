@@ -40,6 +40,7 @@ struct EditBottleView: View {
     @State private var floor = ""
     @State private var recipeCode = ""
     @State private var finish = ""
+    @State private var topperLetter = ""
     @State private var storageLocation = ""
     @State private var shelfNumber = ""
     @State private var customName = ""
@@ -116,7 +117,24 @@ struct EditBottleView: View {
                 field("Recipe code", text: $recipeCode)
                 field("Finish", text: $finish)
             }
+            // The Blanton's stopper letter. Shown for a Blanton's and for any
+            // bottle that already has one, never as a field on a Weller.
+            if isBlantons || !topperLetter.isEmpty {
+                VStack(alignment: .leading, spacing: Space.xs) {
+                    field("Topper letter", text: $topperLetter)
+                    Text("The letter on the cork: one of B L A N T O N ' S.")
+                        .font(TypeScale.caption())
+                        .textCase(nil)
+                        .foregroundStyle(Palette.textMuted)
+                }
+            }
         }
+    }
+
+    private var isBlantons: Bool {
+        guard let bottle else { return false }
+        let name = env.name(for: bottle) + " " + (env.distillery(for: bottle) ?? "")
+        return name.localizedCaseInsensitiveContains("blanton")
     }
 
     private var where_: some View {
@@ -233,6 +251,11 @@ struct EditBottleView: View {
         edited.floor = blankAsNil(floor)
         edited.recipeCode = blankAsNil(recipeCode)?.uppercased()
         edited.finish = blankAsNil(finish)
+        // Normalised by the engine, so "b" and a curly apostrophe are stored
+        // as the letter they mean; anything else is dropped, not saved.
+        edited.topperLetter = blankAsNil(topperLetter)
+            .flatMap(TopperLetters.normalise)
+            .map(String.init)
         edited.storageLocation = blankAsNil(storageLocation)
         edited.shelfNumber = Int(shelfNumber)
     }
@@ -261,6 +284,7 @@ struct EditBottleView: View {
         floor = found.floor ?? ""
         recipeCode = found.recipeCode ?? ""
         finish = found.finish ?? ""
+        topperLetter = found.topperLetter ?? ""
         storageLocation = found.storageLocation ?? ""
         shelfNumber = found.shelfNumber.map(String.init) ?? ""
     }

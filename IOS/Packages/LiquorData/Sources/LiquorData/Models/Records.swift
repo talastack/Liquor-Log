@@ -15,6 +15,28 @@ public enum Rebuy: String, Codable, Sendable, CaseIterable, DatabaseValueConvert
     case no
 }
 
+/// Where a tasting happened when it was not your own bottle. Mirrors the
+/// `source_is_known` check in the Postgres schema.
+public enum TastingSource: String, Codable, Sendable, CaseIterable, DatabaseValueConvertible {
+    case bar
+    case friend
+    case sample
+    case store
+    case event
+    case other
+
+    public var label: String {
+        switch self {
+        case .bar: return "At a bar"
+        case .friend: return "A friend's bottle"
+        case .sample: return "A sample"
+        case .store: return "In-store tasting"
+        case .event: return "An event"
+        case .other: return "Somewhere else"
+        }
+    }
+}
+
 public enum TastingStage: String, Codable, Sendable, CaseIterable, DatabaseValueConvertible {
     case nose
     case entry
@@ -209,6 +231,15 @@ public struct Bottle: SyncableRecord {
     /// "you own this barrel".
     public var barcode: String?
 
+    /// The letter on a Blanton's cork topper -- one of B-L-A-N-T-O-N-'-S.
+    /// Free text so another brand's set needs no migration; the engine's
+    /// `TopperLetters` knows which letters make a set.
+    public var topperLetter: String?
+
+    /// The file name of this bottle's photo on the device that took it. The
+    /// name syncs, the bytes stay on the device.
+    public var photoFile: String?
+
     /// Where the bottle physically is. Collections scatter across closets and
     /// boxes, and people report this mattering more than remembering what they
     /// own at all.
@@ -250,6 +281,7 @@ public struct Bottle: SyncableRecord {
         case purchaseStore = "purchase_store"
         case shelfPriceCents = "shelf_price_cents"
         case barcode
+        case topperLetter = "topper_letter", photoFile = "photo_file"
         case storageLocation = "storage_location", shelfNumber = "shelf_number"
         case openedAt = "opened_at", finishedAt = "finished_at"
         case lastVerifiedAt = "last_verified_at"
@@ -292,6 +324,8 @@ public struct Bottle: SyncableRecord {
         purchaseStore: String? = nil,
         shelfPriceCents: Int? = nil,
         barcode: String? = nil,
+        topperLetter: String? = nil,
+        photoFile: String? = nil,
         storageLocation: String? = nil,
         shelfNumber: Int? = nil,
         openedAt: Int64? = nil,
@@ -321,6 +355,7 @@ public struct Bottle: SyncableRecord {
         self.purchaseDate = purchaseDate; self.purchasePriceCents = purchasePriceCents
         self.purchaseStore = purchaseStore; self.shelfPriceCents = shelfPriceCents
         self.barcode = barcode
+        self.topperLetter = topperLetter; self.photoFile = photoFile
         self.storageLocation = storageLocation; self.shelfNumber = shelfNumber
         self.openedAt = openedAt; self.finishedAt = finishedAt
         self.lastVerifiedAt = lastVerifiedAt
@@ -356,6 +391,7 @@ public struct Bottle: SyncableRecord {
             || recipeCode != nil || ageMonths != nil
             || bottleNumber != nil || entryProof != nil || charLevel != nil
             || finish != nil || pickGroup != nil || dumpedAt != nil
+            || topperLetter != nil
     }
 
     /// Sealed, Open or Killed -- the enum every collector's spreadsheet has.
@@ -558,6 +594,14 @@ public struct Tasting: SyncableRecord {
     /// worst at holding still.
     public var finishSeconds: Int?
 
+    /// Where this happened when it was not a pour of your own bottle. Nil for
+    /// your own pour. A tasting at a bar is a real opinion and a different
+    /// kind of evidence from one at home: a 30 ml pour after two others is
+    /// not the same as a quiet glass, and the record should say which.
+    public var source: TastingSource?
+    /// The bar, the friend, the swap partner. Free text.
+    public var sourceNote: String?
+
     public var liked: String?
     public var disliked: String?
     public var createdAt: Int64
@@ -572,7 +616,9 @@ public struct Tasting: SyncableRecord {
         case tastedAt = "tasted_at", rating, wouldRebuy = "would_rebuy"
         case worthThePrice = "worth_the_price"
         case perceivedHeat = "perceived_heat"
-        case finishSeconds = "finish_seconds", liked, disliked
+        case finishSeconds = "finish_seconds"
+        case source, sourceNote = "source_note"
+        case liked, disliked
         case createdAt = "created_at", updatedAt = "updated_at"
         case deletedAt = "deleted_at", dirty
     }
@@ -589,6 +635,8 @@ public struct Tasting: SyncableRecord {
         worthThePrice: Bool? = nil,
         perceivedHeat: Int? = nil,
         finishSeconds: Int? = nil,
+        source: TastingSource? = nil,
+        sourceNote: String? = nil,
         liked: String? = nil,
         disliked: String? = nil,
         createdAt: Int64 = Self.nowMilliseconds(),
@@ -599,6 +647,7 @@ public struct Tasting: SyncableRecord {
         self.id = id; self.userId = userId
         self.bottleId = bottleId; self.catalogProductId = catalogProductId
         self.pourId = pourId
+        self.source = source; self.sourceNote = sourceNote
         self.tastedAt = tastedAt; self.rating = rating; self.wouldRebuy = wouldRebuy
         self.worthThePrice = worthThePrice
         self.perceivedHeat = perceivedHeat; self.finishSeconds = finishSeconds
