@@ -55,14 +55,12 @@ public enum CSVReader: Sendable {
             case ",":
                 row.append(field)
                 field = ""
-            case "\r":
-                // CRLF: swallow the LF that follows.
-                if let following = next(), following != "\n" { pending = following }
-                row.append(field)
-                rows.append(row)
-                row = []
-                field = ""
-            case "\n":
+            // Swift treats "\r\n" as ONE Character (a grapheme cluster), so a
+            // CRLF file never yields a bare "\r" followed by "\n": it yields
+            // the pair. All three spellings end a record. Found by CI, not by
+            // reasoning -- our own export writes CRLF and would have
+            // re-imported as a single row.
+            case "\r\n", "\n", "\r":
                 row.append(field)
                 rows.append(row)
                 row = []
