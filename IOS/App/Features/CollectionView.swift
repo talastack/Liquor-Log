@@ -10,8 +10,13 @@ import LiquorEngine
 struct CollectionView: View {
     @Environment(AppEnvironment.self) private var env
 
+    /// Everything, finished included. The filter decides what is shown, so
+    /// switching between "on the shelf" and "finished" is a pass over memory
+    /// and never a database round trip.
     @State private var summaries: [BottleSummary] = []
-    @State private var showFinished = false
+    /// The same bottles as the engine's filter sees them, built once per load.
+    @State private var rows: [CollectionFilter.Row] = []
+    @State private var criteria = CollectionFilter.Criteria.none
     @State private var error: String?
 
     /// Shared with the switch in More. Off unless somebody turned it on: the
@@ -27,13 +32,18 @@ struct CollectionView: View {
                 if summaries.isEmpty {
                     empty
                 } else {
-                    ForEach(summaries) { summary in
-                        NavigationLink {
-                            BottleDetailView(bottleId: summary.id)
-                        } label: {
-                            BottleCard(summary: summary)
+                    finder
+                    if shown.isEmpty {
+                        nothingMatches
+                    } else {
+                        ForEach(shown) { summary in
+                            NavigationLink {
+                                BottleDetailView(bottleId: summary.id)
+                            } label: {
+                                BottleCard(summary: summary)
+                            }
+                            .buttonStyle(.plain)
                         }
-                        .buttonStyle(.plain)
                     }
                 }
             }
@@ -55,7 +65,7 @@ struct CollectionView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: Space.m) {
             HStack(alignment: .firstTextBaseline) {
-                Text(showFinished ? "Everything" : "On your shelf")
+                Text(criteria.status == .onShelf ? "On your shelf" : criteria.status.label)
                     .font(TypeScale.largeTitle())
                     .foregroundStyle(Palette.text)
                 Spacer()
@@ -79,20 +89,169 @@ struct CollectionView: View {
                 }
             }
 
-            Picker("", selection: $showFinished) {
-                Text("On the shelf").tag(false)
-                Text("All").tag(true)
-            }
-            .pickerStyle(.segmented)
-            .onChange(of: showFinished) { _, _ in reload() }
         }
         .padding(.top, Space.s)
+    }
+
+    // MARK: - Finding a bottle
+
+    /// Type, narrow, order. The research puts the point where somebody needs
+    /// this app at about fifty bottles, and the bulk-onboarding paths exist to
+    /// get two hundred in; a flat list stops working long before that.
+    private var finder: some View {
+        VStack(alignment: .leading, spacing: Space.s) {
+            HStack(spacing: Space.m) {
+                Image(systemName: "magnifyingglass").foregroundStyle(Palette.textMuted)
+                TextField("Name, distillery, barrel, store, shelf", text: $criteria.query)
+                    .font(TypeScale.body())
+                    .foregroundStyle(Palette.text)
+                    .autocorrectionDisabled()
+                    .textInputAutocapitalization(.never)
+                if !criteria.query.isEmpty {
+                    Button { criteria.query = "" } label: {
+                        Image(systemName: "xmark.circle.fill").foregroundStyle(Palette.textMuted)
+                    }
+                    .frame(minWidth: Space.tapTarget, minHeight: Space.tapTarget)
+                }
+                sortMenu
+            }
+            .padding(.horizontal, Space.l)
+            .frame(minHeight: 52)
+            .background(RoundedRectangle(cornerRadius: 11).fill(Palette.surface))
+            .overlay(RoundedRectangle(cornerRadius: 11).stroke(Palette.line, lineWidth: 1))
+
+            // Status first, because "what is open" is the question people ask
+            // most. Kinds and places follow only when the shelf has them: a
+            // chip that can never narrow anything is noise on a control that
+            // exists to narrow.
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: Space.s) {
+                    ForEach(CollectionFilter.Status.allCases, id: \.self) { status in
+                        chip(status.label, isOn: criteria.status == status) {
+                            criteria.status = status
+                        }
+                    }
+                }
+            }
+
+            let kinds = CollectionFilter.availableKinds(in: rows)
+            let places = CollectionFilter.locations(in: rows)
+            if !kinds.isEmpty || !places.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: Space.s) {
+                        ForEach(kinds, id: \.self) { kind in
+                            chip(kind.label, isOn: criteria.kinds.contains(kind)) {
+                                if criteria.kinds.contains(kind) {
+                                    criteria.kinds.remove(kind)
+                                } else {
+                                    criteria.kinds.insert(kind)
+                                }
+                            }
+                        }
+                        ForEach(places, id: \.self) { place in
+                            chip(place, isOn: criteria.location == place, symbol: "mappin") {
+                                criteria.location = criteria.location == place ? nil : place
+                            }
+                        }
+                    }
+                }
+            }
+
+            if criteria.isNarrowing {
+                HStack {
+                    Text(shown.count == 1 ? "1 bottle" : "\(shown.count) bottles")
+                        .font(TypeScale.caption())
+                        .textCase(nil)
+                        .foregroundStyle(Palette.textMuted)
+                    Spacer()
+                    Button {
+                        let sort = criteria.sort
+                        criteria = .none
+                        criteria.sort = sort
+                    } label: {
+                        Text("Clear")
+                            .font(TypeScale.caption())
+                            .textCase(nil)
+                            .foregroundStyle(Palette.gold)
+                            .frame(minHeight: Space.tapTarget)
+                    }
+                }
+            }
+        }
+    }
+
+    private var sortMenu: some View {
+        Menu {
+            ForEach(CollectionFilter.Sort.allCases, id: \.self) { sort in
+                Button {
+                    criteria.sort = sort
+                } label: {
+                    if criteria.sort == sort {
+                        Label(sort.label, systemImage: "checkmark")
+                    } else {
+                        Text(sort.label)
+                    }
+                }
+            }
+        } label: {
+            HStack(spacing: 4) {
+                Image(systemName: "arrow.up.arrow.down")
+                Text(criteria.sort.label)
+            }
+            .font(TypeScale.caption())
+            .textCase(nil)
+            .foregroundStyle(Palette.gold)
+            .frame(minHeight: Space.tapTarget)
+        }
+        .accessibilityLabel("Sort by \(criteria.sort.label)")
+    }
+
+    private func chip(
+        _ title: String,
+        isOn: Bool,
+        symbol: String? = nil,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            HStack(spacing: 4) {
+                if let symbol {
+                    Image(systemName: symbol).font(.system(size: 11))
+                }
+                Text(title)
+            }
+            .font(TypeScale.secondary())
+            .foregroundStyle(isOn ? Palette.onGold : Palette.textSecondary)
+            .padding(.horizontal, Space.l)
+            .frame(minHeight: Space.tapTarget - 8)
+            .background(RoundedRectangle(cornerRadius: 9)
+                .fill(isOn ? Palette.gold : Palette.surfaceRaised))
+        }
+    }
+
+    private var nothingMatches: some View {
+        VStack(spacing: Space.m) {
+            Text("Nothing matches")
+                .font(TypeScale.title())
+                .foregroundStyle(Palette.text)
+            Text("Try fewer words, or clear the filters.")
+                .font(TypeScale.secondary())
+                .foregroundStyle(Palette.textMuted)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.top, 48)
+    }
+
+    /// The bottles the criteria leave, in the chosen order.
+    private var shown: [BottleSummary] {
+        let byId = Dictionary(uniqueKeysWithValues: summaries.map { ($0.id, $0) })
+        return CollectionFilter.apply(criteria, to: rows).compactMap { byId[$0.id] }
     }
 
     /// What is on the shelf cost, never what it is worth. We have no market
     /// data and will not invent any.
     private var shelfValue: CollectionValue.Total {
-        CollectionValue.onTheShelf(summaries.map {
+        CollectionValue.onTheShelf(shown.map {
             CollectionValue.Holding(
                 purchasePriceCents: $0.bottle.purchasePriceCents,
                 isFinished: $0.bottle.isFinished)
@@ -100,8 +259,9 @@ struct CollectionView: View {
     }
 
     private var countLine: String {
-        let open = summaries.filter(\.bottle.isOpen).count
-        let bottles = summaries.count == 1 ? "1 bottle" : "\(summaries.count) bottles"
+        let onShelf = summaries.filter { !$0.bottle.isFinished }
+        let open = onShelf.filter(\.bottle.isOpen).count
+        let bottles = onShelf.count == 1 ? "1 bottle" : "\(onShelf.count) bottles"
         return open > 0 ? "\(bottles) · \(open) open" : bottles
     }
 
@@ -122,10 +282,51 @@ struct CollectionView: View {
 
     private func reload() {
         do {
-            summaries = try env.bottles.summaries(includeFinished: showFinished)
+            summaries = try env.bottles.summaries(includeFinished: true)
+            // One read for every custom product rather than one per bottle:
+            // a typed-in bottle's class and proof flags live on its entry.
+            let custom = Dictionary(
+                uniqueKeysWithValues: try env.bottles.customProducts().map { ($0.id, $0) })
+            rows = summaries.map { row(for: $0, custom: custom) }
         } catch {
             self.error = error.localizedDescription
         }
+    }
+
+    /// A bottle flattened for the filter. Class and production come from the
+    /// catalogue for a catalogue bottle and from the custom entry for a typed
+    /// one, so both filter the same way.
+    private func row(
+        for summary: BottleSummary,
+        custom: [String: CustomCatalogEntry]
+    ) -> CollectionFilter.Row {
+        let bottle = summary.bottle
+        let product = env.product(for: bottle)
+        let entry = bottle.catalogProductId.flatMap { custom[$0] }
+        let capacity = summary.status.capacityMilliliters
+        return CollectionFilter.Row(
+            id: bottle.id,
+            name: env.name(for: bottle),
+            distillery: env.distillery(for: bottle),
+            extraSearchText: [
+                bottle.releaseLabel, bottle.barrelNumber, bottle.batchNumber,
+                bottle.pickStore, bottle.purchaseStore, bottle.pickGroup,
+                bottle.customName,
+            ].compactMap { $0 },
+            classType: product?.classType ?? entry?.classType,
+            productionType: product?.productionType ?? entry?.productionType ?? .unspecified,
+            isBarrelProof: product?.isBarrelProof ?? entry?.isBarrelProof ?? false,
+            isBottledInBond: product?.isBottledInBond ?? entry?.isBottledInBond ?? false,
+            isStorePick: bottle.isStorePick,
+            isOpen: bottle.isOpen,
+            isFinished: bottle.isFinished,
+            storageLocation: bottle.storageLocation,
+            addedAt: Date(timeIntervalSince1970: Double(bottle.createdAt) / 1000),
+            lastPouredAt: summary.lastPouredAt,
+            rating: summary.latestRating,
+            fillFraction: capacity > 0
+                ? summary.status.remainingMilliliters / capacity
+                : 0)
     }
 }
 

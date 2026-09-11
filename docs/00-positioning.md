@@ -52,6 +52,7 @@ use their eyes.
 | Open-date oxidation clock | `OxidationBand` — no other app markets this |
 | Fill level as a real quantity | `fill_readings`, `PourMath`, `SetLevelView` — optional, never required |
 | Tasting history per bottle, with the trend as a sentence | `TastingTrend`, `TastingHistoryRow` — the evidence under the oxidation clock |
+| Finding one bottle in two hundred | `CollectionFilter` — search, status, kind and place chips, seven sorts |
 
 ### Fill level, and why it is a reading rather than a subtraction
 
