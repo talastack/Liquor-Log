@@ -451,6 +451,9 @@ struct ShelfCheckCard: View {
             let others = verdict.sameLine.map(\.displayName).joined(separator: ", ")
             return "You have \(others). This one you have never had."
         case .tastedNeverOwned:
+            if let where_ = verdict.latestTasting?.where_ {
+                return "You have tried it — \(where_) — but never owned a bottle."
+            }
             return "You have tried it but never owned a bottle."
         case .hadItBefore:
             return "You finished a bottle of this."

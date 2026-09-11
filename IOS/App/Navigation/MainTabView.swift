@@ -130,6 +130,8 @@ struct TastingHistoryView: View {
         let disliked: String?
         let descriptors: String
         let date: Date
+        /// "At a bar · Jack Rose", or nil for your own pour.
+        let where_: String?
     }
 
     var body: some View {
@@ -162,9 +164,17 @@ struct TastingHistoryView: View {
                                 Spacer()
                                 if let rating = row.rating { RatingChip(rating: rating) }
                             }
-                            Text(row.date.formatted(date: .abbreviated, time: .omitted))
-                                .font(TypeScale.code(13))
-                                .foregroundStyle(Palette.textMuted)
+                            HStack(spacing: Space.s) {
+                                Text(row.date.formatted(date: .abbreviated, time: .omitted))
+                                    .font(TypeScale.code(13))
+                                    .foregroundStyle(Palette.textMuted)
+                                if let where_ = row.where_ {
+                                    Text("· " + where_)
+                                        .font(TypeScale.caption())
+                                        .textCase(nil)
+                                        .foregroundStyle(Palette.textMuted)
+                                }
+                            }
                             if let rebuy = row.rebuy {
                                 Text(rebuyLabel(rebuy))
                                     .font(TypeScale.secondary())
@@ -208,23 +218,34 @@ struct TastingHistoryView: View {
     }
 
     private func reload() {
-        let summaries = (try? env.bottles.summaries(includeFinished: true)) ?? []
-        var rows: [TastingDetailRow] = []
-        for summary in summaries {
-            let history = (try? env.tastings.history(bottleId: summary.id)) ?? []
-            for detail in history {
-                rows.append(TastingDetailRow(
-                    id: detail.id,
-                    title: env.name(for: summary.bottle),
-                    rating: detail.tasting.rating,
-                    liked: detail.tasting.liked,
-                    rebuy: detail.tasting.wouldRebuy,
-                    disliked: detail.tasting.disliked,
-                    descriptors: describe(detail),
-                    date: Date(timeIntervalSince1970: Double(detail.tasting.tastedAt) / 1000)))
+        // Every tasting, not only the ones reached through a bottle: a
+        // tasting at a bar used to vanish the moment it was saved.
+        let all = (try? env.tastings.allDetails()) ?? []
+        let bottles = Dictionary(
+            uniqueKeysWithValues: ((try? env.bottles.summaries(includeFinished: true)) ?? [])
+                .map { ($0.id, $0.bottle) })
+        details = all.map { detail in
+            let tasting = detail.tasting
+            let title: String
+            if let bottleId = tasting.bottleId, let bottle = bottles[bottleId] {
+                title = env.name(for: bottle)
+            } else if let productId = tasting.catalogProductId,
+                      let identity = env.identity(productId) {
+                title = identity.displayName
+            } else {
+                title = "Untitled tasting"
             }
+            return TastingDetailRow(
+                id: detail.id,
+                title: title,
+                rating: tasting.rating,
+                liked: tasting.liked,
+                rebuy: tasting.wouldRebuy,
+                disliked: tasting.disliked,
+                descriptors: describe(detail),
+                date: Date(timeIntervalSince1970: Double(tasting.tastedAt) / 1000),
+                where_: tasting.whereLabel)
         }
-        details = rows.sorted { $0.date > $1.date }
     }
 
     private func rebuyLabel(_ rebuy: Rebuy) -> String {

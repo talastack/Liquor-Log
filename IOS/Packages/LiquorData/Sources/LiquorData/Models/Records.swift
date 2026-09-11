@@ -656,6 +656,15 @@ public struct Tasting: SyncableRecord {
         self.deletedAt = deletedAt; self.dirty = dirty
     }
 
+    /// "At a bar · Jack Rose", "A sample", or nil for your own pour.
+    public var whereLabel: String? {
+        guard let source else { return nil }
+        if let note = sourceNote?.trimmingCharacters(in: .whitespaces), !note.isEmpty {
+            return source.label + " · " + note
+        }
+        return source.label
+    }
+
     /// The recorded heat as the engine's own type. Nil when nobody said.
     public var heat: PerceivedProof.Heat? {
         perceivedHeat.flatMap(PerceivedProof.Heat.init(rawValue:))

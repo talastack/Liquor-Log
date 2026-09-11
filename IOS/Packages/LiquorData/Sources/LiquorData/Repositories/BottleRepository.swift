@@ -223,6 +223,16 @@ public struct BottleRepository: Sendable {
     }
 
     /// Products the user added themselves, newest first.
+    /// A private product with no bottle yet: what a tasting at a bar of
+    /// something the catalogue does not know hangs off, so the shelf check
+    /// can later say "you tried this".
+    @discardableResult
+    public func saveCustomProduct(_ product: CustomCatalogEntry) throws -> CustomCatalogEntry {
+        var saved = product
+        try db.queue.write { db in try saved.saveLocal(db) }
+        return saved
+    }
+
     public func customProducts() throws -> [CustomCatalogEntry] {
         try db.queue.read { db in
             try CustomCatalogEntry.live()

@@ -75,6 +75,9 @@ public struct TastingRecord: Hashable, Sendable {
     public let wouldRebuy: Bool?
     public let liked: String?
     public let disliked: String?
+    /// Where it happened when it was not your own bottle -- "At a bar",
+    /// "A sample" -- ready to print. Nil for a pour of your own.
+    public let where_: String?
 
     public init(
         tastingId: String,
@@ -83,7 +86,8 @@ public struct TastingRecord: Hashable, Sendable {
         rating: Int? = nil,
         wouldRebuy: Bool? = nil,
         liked: String? = nil,
-        disliked: String? = nil
+        disliked: String? = nil,
+        where_: String? = nil
     ) {
         self.tastingId = tastingId
         self.product = product
@@ -92,6 +96,7 @@ public struct TastingRecord: Hashable, Sendable {
         self.wouldRebuy = wouldRebuy
         self.liked = liked
         self.disliked = disliked
+        self.where_ = where_
     }
 }
 

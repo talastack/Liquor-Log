@@ -66,8 +66,22 @@ public struct TastingRepository: Sendable {
                 rating: tasting.rating,
                 wouldRebuy: tasting.wouldRebuy.map { $0 == .yes },
                 liked: tasting.liked,
-                disliked: tasting.disliked
+                disliked: tasting.disliked,
+                where_: tasting.whereLabel
             )
+        }
+    }
+
+    /// Every tasting, newest first, bottle or not. The tasting tab listed
+    /// only tastings reached through a bottle, which made a tasting at a bar
+    /// invisible the moment it was saved.
+    public func allDetails() throws -> [TastingDetail] {
+        try db.queue.read { db in
+            let tastings = try Tasting
+                .live()
+                .order(Column("tasted_at").desc)
+                .fetchAll(db)
+            return try tastings.map { try Self.detail(for: $0, in: db) }
         }
     }
 

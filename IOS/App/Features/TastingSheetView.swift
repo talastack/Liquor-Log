@@ -31,6 +31,13 @@ struct TastingSheetView: View {
     @State private var heat: PerceivedProof.Heat?
     @State private var error: String?
 
+    // A tasting with no bottle of your own: what it was, and where.
+    @State private var productQuery = ""
+    @State private var chosenProduct: CatalogProduct?
+    @State private var typedName = ""
+    @State private var source: TastingSource?
+    @State private var sourceNote = ""
+
     init(bottleId: String? = nil, catalogProductId: String? = nil, pourId: String? = nil) {
         self.bottleId = bottleId
         self.catalogProductId = catalogProductId
@@ -76,6 +83,12 @@ struct TastingSheetView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Space.xl) {
+                if bottleId == nil {
+                    if catalogProductId == nil {
+                        whatWasIt
+                    }
+                    whereWasIt
+                }
                 ForEach(TastingStage.allCases, id: \.self) { stage in
                     stageRow(stage)
                 }
@@ -109,6 +122,129 @@ struct TastingSheetView: View {
             Button("OK") { error = nil }
         } message: {
             Text(error ?? "")
+        }
+    }
+
+    // MARK: - Not your bottle
+
+    /// A tasting at a bar has to hang off a PRODUCT or the shelf check can
+    /// never say "you tried this". Search the catalogue, or type a name and
+    /// it becomes a private product, the same as a typed-in bottle.
+    private var whatWasIt: some View {
+        VStack(alignment: .leading, spacing: Space.m) {
+            SectionLabel("What was it?")
+
+            if let chosenProduct {
+                HStack(alignment: .top, spacing: Space.m) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(chosenProduct.identity.displayName)
+                            .font(TypeScale.title())
+                            .foregroundStyle(Palette.text)
+                        Text(chosenProduct.distillery)
+                            .font(TypeScale.caption())
+                            .textCase(nil)
+                            .foregroundStyle(Palette.textMuted)
+                    }
+                    Spacer()
+                    Button("Change") { self.chosenProduct = nil }
+                        .font(TypeScale.secondary())
+                        .foregroundStyle(Palette.gold)
+                        .frame(minHeight: Space.tapTarget)
+                }
+                .padding(Space.l)
+                .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.gold, lineWidth: 1))
+            } else {
+                HStack(spacing: Space.m) {
+                    Image(systemName: "magnifyingglass").foregroundStyle(Palette.textMuted)
+                    TextField("Distillery, brand or expression", text: $productQuery)
+                        .font(TypeScale.body())
+                        .foregroundStyle(Palette.text)
+                        .autocorrectionDisabled()
+                        .textInputAutocapitalization(.never)
+                }
+                .padding(.horizontal, Space.l)
+                .frame(minHeight: 52)
+                .background(RoundedRectangle(cornerRadius: 11).fill(Palette.surface))
+                .overlay(RoundedRectangle(cornerRadius: 11).stroke(Palette.line, lineWidth: 1))
+
+                ForEach(productMatches, id: \.id) { product in
+                    Button { chosenProduct = product } label: {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(product.identity.displayName)
+                                .font(TypeScale.body())
+                                .foregroundStyle(Palette.text)
+                                .multilineTextAlignment(.leading)
+                            Text(product.distillery)
+                                .font(TypeScale.caption())
+                                .textCase(nil)
+                                .foregroundStyle(Palette.textMuted)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: Space.tapTarget, alignment: .leading)
+                    }
+                    Divider().overlay(Palette.line)
+                }
+
+                TextField("Or type a name", text: $typedName)
+                    .font(TypeScale.body())
+                    .foregroundStyle(Palette.text)
+                    .padding(.horizontal, Space.m)
+                    .frame(minHeight: 46)
+                    .background(RoundedRectangle(cornerRadius: 10).fill(Palette.surface))
+                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(Palette.line, lineWidth: 1))
+            }
+        }
+    }
+
+    private var productMatches: [CatalogProduct] {
+        let trimmed = productQuery.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return [] }
+        let candidates = env.catalog.searchCandidates(history: env.historyProductIds())
+        return BottleSearch.search(query: trimmed, in: candidates, limit: 6)
+            .compactMap { env.catalog.product($0.product.productId) }
+    }
+
+    /// Where it happened. A 30 ml pour at a bar after two others is a
+    /// different kind of evidence from a quiet glass at home, and the record
+    /// should say which.
+    private var whereWasIt: some View {
+        VStack(alignment: .leading, spacing: Space.m) {
+            SectionLabel("Where?")
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: Space.s) {
+                    ForEach(TastingSource.allCases, id: \.self) { option in
+                        Button { source = source == option ? nil : option } label: {
+                            Text(option.label)
+                                .font(TypeScale.secondary())
+                                .foregroundStyle(source == option ? Palette.onGold : Palette.textSecondary)
+                                .padding(.horizontal, Space.l)
+                                .frame(minHeight: Space.tapTarget - 8)
+                                .background(RoundedRectangle(cornerRadius: 9)
+                                    .fill(source == option ? Palette.gold : Palette.surfaceRaised))
+                        }
+                    }
+                }
+            }
+            if source != nil {
+                TextField(sourcePlaceholder, text: $sourceNote)
+                    .font(TypeScale.body())
+                    .foregroundStyle(Palette.text)
+                    .padding(.horizontal, Space.m)
+                    .frame(minHeight: 46)
+                    .background(RoundedRectangle(cornerRadius: 10).fill(Palette.surface))
+                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(Palette.line, lineWidth: 1))
+            }
+        }
+    }
+
+    private var sourcePlaceholder: String {
+        switch source {
+        case .bar: return "Which bar (optional)"
+        case .friend: return "Whose bottle (optional)"
+        case .sample: return "Who sent it (optional)"
+        case .store: return "Which store (optional)"
+        case .event: return "Which event (optional)"
+        case .other, nil: return "Where (optional)"
         }
     }
 
@@ -331,17 +467,20 @@ struct TastingSheetView: View {
     // MARK: - Saving
 
     private func save() {
-        let tasting = Tasting(
-            bottleId: bottleId,
-            catalogProductId: catalogProductId ?? resolvedProductId(),
-            pourId: pourId,
-            rating: rating,
-            wouldRebuy: rebuy,
-            perceivedHeat: heat?.rawValue,
-            finishSeconds: finishLength.seconds,
-            liked: liked.isEmpty ? nil : liked,
-            disliked: disliked.isEmpty ? nil : disliked)
         do {
+            let productId = try catalogProductId ?? resolvedProductId() ?? productForTypedName()
+            let tasting = Tasting(
+                bottleId: bottleId,
+                catalogProductId: productId,
+                pourId: pourId,
+                rating: rating,
+                wouldRebuy: rebuy,
+                perceivedHeat: heat?.rawValue,
+                finishSeconds: finishLength.seconds,
+                source: bottleId == nil ? source : nil,
+                sourceNote: bottleId == nil && !sourceNote.isEmpty ? sourceNote : nil,
+                liked: liked.isEmpty ? nil : liked,
+                disliked: disliked.isEmpty ? nil : disliked)
             // Tasting and picks save in ONE transaction: a rating that survived
             // while its notes did not would be a silent loss.
             try env.tastings.save(tasting, descriptors: picks)
@@ -351,11 +490,22 @@ struct TastingSheetView: View {
         }
     }
 
+    /// The chosen catalogue product, or a private one made from the typed
+    /// name. Nil when neither was given: a rating with no subject is still
+    /// allowed, it just cannot answer a shelf check.
+    private func productForTypedName() throws -> String? {
+        if let chosenProduct { return chosenProduct.id }
+        let name = typedName.trimmingCharacters(in: .whitespaces)
+        guard !name.isEmpty else { return nil }
+        return try env.bottles.saveCustomProduct(
+            CustomCatalogEntry(distillery: name, brand: name, classType: .bourbon)).id
+    }
+
     /// A tasting hangs off a product as well as a bottle, so the shelf check can
     /// still answer for it after the bottle is gone.
-    private func resolvedProductId() -> String? {
+    private func resolvedProductId() throws -> String? {
         guard let bottleId else { return nil }
-        return (try? env.bottles.summary(id: bottleId))?.bottle.catalogProductId
+        return try env.bottles.summary(id: bottleId)?.bottle.catalogProductId
     }
 }
 
