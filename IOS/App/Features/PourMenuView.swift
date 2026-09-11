@@ -77,11 +77,25 @@ struct PourMenuView: View {
                         .stroke(Palette.line, lineWidth: 1))
 
                     ShareLink(item: text) {
-                        Text("Share the menu")
+                        Text("Share as text")
                             .font(TypeScale.headline())
                             .foregroundStyle(Palette.onGold)
                             .frame(maxWidth: .infinity, minHeight: 50)
                             .background(RoundedRectangle(cornerRadius: 11).fill(Palette.gold))
+                    }
+
+                    // The same menu as a picture, for a group chat, a story or
+                    // a card propped on the bar. Rendered on tap, not on every
+                    // keystroke of the title.
+                    Button { renderImage() } label: {
+                        HStack(spacing: Space.s) {
+                            Image(systemName: "photo")
+                            Text("Share as an image")
+                        }
+                        .font(TypeScale.headline())
+                        .foregroundStyle(Palette.text)
+                        .frame(maxWidth: .infinity, minHeight: 50)
+                        .overlay(RoundedRectangle(cornerRadius: 11).stroke(Palette.line, lineWidth: 1))
                     }
                 }
 
@@ -100,6 +114,29 @@ struct PourMenuView: View {
         .navigationTitle("What's open")
         .navigationBarTitleDisplayMode(.inline)
         .task { reload() }
+        .sheet(item: $rendered) { card in
+            ShareSheet(items: [card.image])
+        }
+    }
+
+    // MARK: - Image
+
+    /// A rendered menu, wrapped so a sheet can present it by identity.
+    struct RenderedMenu: Identifiable {
+        let id = UUID()
+        let image: UIImage
+    }
+
+    @State private var rendered: RenderedMenu?
+
+    @MainActor
+    private func renderImage() {
+        let renderer = ImageRenderer(content: PourMenuCard(title: title, items: items))
+        renderer.scale = 3
+        renderer.proposedSize = ProposedViewSize(width: 400, height: nil)
+        if let image = renderer.uiImage {
+            rendered = RenderedMenu(image: image)
+        }
     }
 
     private func reload() {
@@ -118,6 +155,67 @@ struct PourMenuView: View {
             }
             .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
     }
+}
+
+
+/// The menu as a card: dark, gold rule, the same words as the text version.
+/// Fixed width so it renders the same on every phone; the height follows the
+/// list.
+struct PourMenuCard: View {
+    let title: String
+    let items: [PourMenu.Item]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            Text(title.isEmpty ? "Open tonight" : title)
+                .font(.system(size: 30, weight: .semibold, design: .serif))
+                .foregroundStyle(Color(red: 0.95, green: 0.91, blue: 0.86))
+            Rectangle()
+                .fill(Color(red: 0.79, green: 0.59, blue: 0.23))
+                .frame(height: 2)
+            ForEach(items, id: \.name) { item in
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack(alignment: .firstTextBaseline) {
+                        Text(item.name)
+                            .font(.system(size: 17, weight: .medium))
+                            .foregroundStyle(Color(red: 0.95, green: 0.91, blue: 0.86))
+                            .fixedSize(horizontal: false, vertical: true)
+                        Spacer(minLength: 12)
+                        if let proof = item.proof {
+                            Text(String(format: "%.1f", proof))
+                                .font(.system(size: 14, weight: .regular, design: .monospaced))
+                                .foregroundStyle(Color(red: 0.79, green: 0.59, blue: 0.23))
+                        }
+                    }
+                    if let detail = item.detail, !detail.isEmpty {
+                        Text(detail)
+                            .font(.system(size: 13))
+                            .foregroundStyle(Color(red: 0.59, green: 0.53, blue: 0.44))
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+            }
+            Text("Help yourself.")
+                .font(.system(size: 13, design: .serif).italic())
+                .foregroundStyle(Color(red: 0.59, green: 0.53, blue: 0.44))
+                .padding(.top, 6)
+        }
+        .padding(28)
+        .frame(width: 400, alignment: .leading)
+        .background(Color(red: 0.08, green: 0.06, blue: 0.04))
+    }
+}
+
+/// UIKit's share sheet, for things ShareLink cannot take straight: a
+/// UIImage rendered a moment ago.
+struct ShareSheet: UIViewControllerRepresentable {
+    let items: [Any]
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: items, applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ controller: UIActivityViewController, context: Context) {}
 }
 
 #Preview {
