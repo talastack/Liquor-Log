@@ -233,6 +233,97 @@ public struct BottleRepository: Sendable {
         return saved
     }
 
+    /// Edits a typed-in product. The identity fields matter beyond the name:
+    /// brand is what groups a line, so a Weller typed in as "Weller 12" under
+    /// brand "Weller 12" never reads as the same line as "W L Weller" until
+    /// somebody can fix it here.
+    @discardableResult
+    public func updateCustomProduct(_ product: CustomCatalogEntry) throws -> CustomCatalogEntry {
+        try db.queue.write { db in
+            guard var stored = try CustomCatalogEntry.filter(key: product.id).fetchOne(db) else {
+                throw DataError.productNotFound(product.id)
+            }
+            stored.distillery = product.distillery
+            stored.brand = product.brand
+            stored.expression = product.expression
+            stored.classType = product.classType
+            stored.productionType = product.productionType
+            stored.isBarrelProof = product.isBarrelProof
+            stored.isBottledInBond = product.isBottledInBond
+            stored.abv = product.abv
+            stored.statedAgeYears = product.statedAgeYears
+            stored.recipeCode = product.recipeCode
+            try stored.saveLocal(db)
+            return stored
+        }
+    }
+
+    /// Points everything that referenced a typed-in product at a catalogue
+    /// product instead, and retires the typed-in one.
+    ///
+    /// The case: somebody typed "Weller 12" before noticing it was in the
+    /// catalogue. Their bottles, tastings and wishlist rows all say the
+    /// custom id, so the shelf check answers for two different things. ONE
+    /// transaction: half-relinked would be worse than either state.
+    ///
+    /// Returns how many rows moved.
+    @discardableResult
+    public func relinkCustomProduct(id customId: String, to productId: String) throws -> Int {
+        try db.queue.write { db in
+            guard var custom = try CustomCatalogEntry.filter(key: customId).fetchOne(db) else {
+                throw DataError.productNotFound(customId)
+            }
+            var moved = 0
+            for var bottle in try Bottle.filter(Column("catalog_product_id") == customId).fetchAll(db) {
+                bottle.catalogProductId = productId
+                try bottle.saveLocal(db)
+                moved += 1
+            }
+            for var tasting in try Tasting.filter(Column("catalog_product_id") == customId).fetchAll(db) {
+                tasting.catalogProductId = productId
+                try tasting.saveLocal(db)
+                moved += 1
+            }
+            for var wish in try WishlistItem.filter(Column("catalog_product_id") == customId).fetchAll(db) {
+                wish.catalogProductId = productId
+                try wish.saveLocal(db)
+                moved += 1
+            }
+            for var note in try KnowledgeNote.filter(Column("subject_id") == customId).fetchAll(db) {
+                note.subjectId = productId
+                try note.saveLocal(db)
+                moved += 1
+            }
+            custom.softDelete()
+            try custom.save(db)
+            return moved
+        }
+    }
+
+    // MARK: - Pours
+
+    /// Every live pour of a bottle, newest first.
+    public func pours(bottleId: String) throws -> [Pour] {
+        try db.queue.read { db in
+            try Pour
+                .live()
+                .filter(Column("bottle_id") == bottleId)
+                .order(Column("poured_at").desc)
+                .fetchAll(db)
+        }
+    }
+
+    /// Undoes a pour. A tombstone, so it syncs; the fill comes back because
+    /// tombstoned pours never count against the bottle. A tasting that was
+    /// pinned to the pour keeps its opinion and loses only the pin.
+    public func removePour(id: String) throws {
+        try db.queue.write { db in
+            guard var pour = try Pour.filter(key: id).fetchOne(db) else { return }
+            pour.softDelete()
+            try pour.save(db)
+        }
+    }
+
     public func customProducts() throws -> [CustomCatalogEntry] {
         try db.queue.read { db in
             try CustomCatalogEntry.live()
@@ -507,4 +598,5 @@ public struct BottleRepository: Sendable {
 public enum DataError: Error, Sendable, Equatable {
     case bottleNotFound(String)
     case bottleIsEmpty(String)
+    case productNotFound(String)
 }

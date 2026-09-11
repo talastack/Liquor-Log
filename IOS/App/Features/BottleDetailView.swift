@@ -67,6 +67,11 @@ struct BottleDetailView: View {
     /// The rendered bottle card, while its share sheet is up.
     @State private var shareCard: RenderedBottleCard?
 
+    /// The pour log, newest first. What the fill level is derived from,
+    /// shown so a mis-logged pour can be found and undone.
+    @State private var pours: [Pour] = []
+    @State private var showsAllPours = false
+
     struct RenderedBottleCard: Identifiable {
         let id = UUID()
         let image: UIImage
@@ -341,7 +346,54 @@ struct BottleDetailView: View {
                     .font(TypeScale.secondary())
                     .foregroundStyle(Palette.textSecondary)
             }
+
+            if !pours.isEmpty {
+                pourLog
+            }
         }
+    }
+
+    /// The pours behind the number. Long-press one to undo it: the fill
+    /// comes back, and a tasting pinned to it keeps its opinion. Shown as
+    /// dates and sizes, never as a count of anything.
+    private var pourLog: some View {
+        VStack(alignment: .leading, spacing: Space.xs) {
+            let shown = showsAllPours ? pours : Array(pours.prefix(3))
+            ForEach(shown) { pour in
+                HStack {
+                    Text(Date(timeIntervalSince1970: Double(pour.pouredAt) / 1000)
+                        .formatted(date: .abbreviated, time: .shortened))
+                        .font(TypeScale.caption())
+                        .textCase(nil)
+                        .foregroundStyle(Palette.textMuted)
+                    Spacer()
+                    Text(VolumeDisplay.text(pour.volumeMl, ounces: ounces))
+                        .font(TypeScale.code(12))
+                        .foregroundStyle(Palette.textMuted)
+                }
+                .frame(minHeight: 28)
+                .contentShape(Rectangle())
+                .contextMenu {
+                    Button(role: .destructive) {
+                        undoPour(pour.id)
+                    } label: {
+                        Label("Undo this pour", systemImage: "arrow.uturn.backward")
+                    }
+                }
+            }
+            if pours.count > 3 {
+                Button {
+                    showsAllPours.toggle()
+                } label: {
+                    Text(showsAllPours ? "Fewer" : "All \(pours.count) pours")
+                        .font(TypeScale.caption())
+                        .textCase(nil)
+                        .foregroundStyle(Palette.gold)
+                        .frame(minHeight: Space.tapTarget - 12)
+                }
+            }
+        }
+        .padding(.top, Space.xs)
     }
 
     private func facts(_ summary: BottleSummary) -> some View {
@@ -789,6 +841,7 @@ struct BottleDetailView: View {
             productNote = try summary?.bottle.catalogProductId
                 .flatMap { try env.notes.note(productId: $0)?.body }
             siblings = try loadSiblings()
+            pours = try env.bottles.pours(bottleId: bottleId)
             // Excluding this bottle: comparing a price against itself would
             // always report "about what you usually pay".
             if let productId = summary?.bottle.catalogProductId {
@@ -899,6 +952,16 @@ struct BottleDetailView: View {
         renderer.proposedSize = ProposedViewSize(width: 400, height: nil)
         if let image = renderer.uiImage {
             shareCard = RenderedBottleCard(image: image)
+        }
+    }
+
+    private func undoPour(_ id: String) {
+        do {
+            try env.bottles.removePour(id: id)
+            if justPouredId == id { justPouredId = nil }
+            reload()
+        } catch {
+            self.error = error.localizedDescription
         }
     }
 

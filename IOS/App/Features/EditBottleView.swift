@@ -46,11 +46,27 @@ struct EditBottleView: View {
     @State private var shelfNumber = ""
     @State private var customName = ""
 
+    // A typed-in product, editable here because its identity is what the
+    // shelf check matches on: brand groups a line, class is a filter.
+    @State private var custom: CustomCatalogEntry?
+    @State private var customDistillery = ""
+    @State private var customBrand = ""
+    @State private var customExpression = ""
+    @State private var customClass: ClassType = .bourbon
+    @State private var customProduction: ProductionType = .unspecified
+    @State private var customBarrelProof = false
+    @State private var customBottledInBond = false
+    @State private var relinkQuery = ""
+    @State private var relinkTarget: CatalogProduct?
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Space.xl) {
                 if bottle != nil {
                     identity
+                    if custom != nil {
+                        typedInProduct
+                    }
                     strength
                     barrel
                     where_
@@ -100,6 +116,85 @@ struct EditBottleView: View {
                 field("Pour (oz)", text: $pourOunces, keyboard: .decimalPad)
             }
         }
+    }
+
+    /// The product this bottle is, when the person typed it in. Fixing the
+    /// brand here is what makes a "Weller 12" typed under brand "Weller 12"
+    /// finally read as the same line as W L Weller. And when the catalogue
+    /// turns out to have it after all, everything can be pointed there.
+    private var typedInProduct: some View {
+        VStack(alignment: .leading, spacing: Space.m) {
+            SectionLabel("This product (typed in)")
+            field("Distillery", text: $customDistillery)
+            HStack(spacing: Space.m) {
+                field("Brand", text: $customBrand)
+                field("Expression", text: $customExpression)
+            }
+            Picker("Class", selection: $customClass) {
+                ForEach(ClassType.allCases, id: \.self) { type in
+                    Text(type.label).tag(type)
+                }
+            }
+            .pickerStyle(.menu)
+            .tint(Palette.gold)
+            Picker("Production", selection: $customProduction) {
+                ForEach(ProductionType.allCases, id: \.self) { type in
+                    Text(type.label).tag(type)
+                }
+            }
+            .pickerStyle(.menu)
+            .tint(Palette.gold)
+            Toggle("Barrel proof", isOn: $customBarrelProof).tint(Palette.gold)
+            Toggle("Bottled in bond", isOn: $customBottledInBond).tint(Palette.gold)
+
+            VStack(alignment: .leading, spacing: Space.s) {
+                Text("Is it in the catalogue after all?")
+                    .font(TypeScale.caption())
+                    .textCase(nil)
+                    .foregroundStyle(Palette.textMuted)
+                if let relinkTarget {
+                    HStack(alignment: .top, spacing: Space.m) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(relinkTarget.identity.displayName)
+                                .font(TypeScale.body())
+                                .foregroundStyle(Palette.text)
+                            Text("Every bottle, tasting, wish and note of the typed-in "
+                                 + "product moves to this one when you save.")
+                                .font(TypeScale.caption())
+                                .textCase(nil)
+                                .foregroundStyle(Palette.textMuted)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        Spacer()
+                        Button("Undo") { self.relinkTarget = nil }
+                            .font(TypeScale.secondary())
+                            .foregroundStyle(Palette.gold)
+                    }
+                    .padding(Space.m)
+                    .background(RoundedRectangle(cornerRadius: 10).fill(Palette.surface))
+                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(Palette.gold, lineWidth: 1))
+                } else {
+                    field("Search the catalogue", text: $relinkQuery)
+                    ForEach(relinkMatches, id: \.id) { product in
+                        Button { relinkTarget = product } label: {
+                            Text("\(product.identity.displayName) · \(product.distillery)")
+                                .font(TypeScale.secondary())
+                                .foregroundStyle(Palette.text)
+                                .multilineTextAlignment(.leading)
+                                .frame(maxWidth: .infinity, minHeight: Space.tapTarget - 8, alignment: .leading)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private var relinkMatches: [CatalogProduct] {
+        let trimmed = relinkQuery.trimmingCharacters(in: .whitespaces)
+        guard trimmed.count >= 2 else { return [] }
+        let candidates = env.catalog.searchCandidates(history: [])
+        return BottleSearch.search(query: trimmed, in: candidates, limit: 5)
+            .compactMap { env.catalog.product($0.product.productId) }
     }
 
     private var barrel: some View {
@@ -294,12 +389,47 @@ struct EditBottleView: View {
         finish = found.finish ?? ""
         topperLetter = found.topperLetter ?? ""
         storageLocation = found.storageLocation ?? ""
+
+        // A typed-in product resolves to a custom entry; a catalogue one to
+        // nothing here, and the section stays hidden.
+        if let productId = found.catalogProductId,
+           env.catalog.product(productId) == nil,
+           let entry = try? env.bottles.customProduct(id: productId), entry.deletedAt == nil {
+            custom = entry
+            customDistillery = entry.distillery
+            customBrand = entry.brand
+            customExpression = entry.expression
+            customClass = entry.classType
+            customProduction = entry.productionType
+            customBarrelProof = entry.isBarrelProof
+            customBottledInBond = entry.isBottledInBond
+        }
         shelfNumber = found.shelfNumber.map(String.init) ?? ""
     }
 
     private func save() {
-        guard let edited = pending else { return }
+        guard var edited = pending else { return }
         do {
+            if let custom {
+                if let relinkTarget {
+                    // Everything referencing the typed-in product moves,
+                    // this bottle included, so save the bottle AFTER with
+                    // the catalogue id on it.
+                    try env.bottles.relinkCustomProduct(id: custom.id, to: relinkTarget.id)
+                    edited.catalogProductId = relinkTarget.id
+                    edited.customName = nil
+                } else {
+                    var fixed = custom
+                    fixed.distillery = blankAsNil(customDistillery) ?? custom.distillery
+                    fixed.brand = blankAsNil(customBrand) ?? custom.brand
+                    fixed.expression = customExpression.trimmingCharacters(in: .whitespaces)
+                    fixed.classType = customClass
+                    fixed.productionType = customProduction
+                    fixed.isBarrelProof = customBarrelProof
+                    fixed.isBottledInBond = customBottledInBond
+                    try env.bottles.updateCustomProduct(fixed)
+                }
+            }
             try env.bottles.update(edited)
             onSave?()
             dismiss()

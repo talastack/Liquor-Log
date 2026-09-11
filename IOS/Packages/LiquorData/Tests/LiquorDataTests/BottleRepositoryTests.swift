@@ -55,6 +55,56 @@ final class BottleRepositoryTests: XCTestCase {
         XCTAssertEqual(holdings.first?.product.brand, "Jefferson's")
     }
 
+    // MARK: - Pours as a log
+
+    func testPoursListNewestFirstAndUndoRestoresTheFill() throws {
+        let bottle = try addBottle()
+        let first = try bottles.logPour(bottleId: bottle.id)
+        Thread.sleep(forTimeInterval: 0.005)
+        let second = try bottles.logPour(bottleId: bottle.id)
+        XCTAssertEqual(try bottles.pours(bottleId: bottle.id).map(\.id), [second.id, first.id])
+
+        try bottles.removePour(id: second.id)
+        XCTAssertEqual(try bottles.pours(bottleId: bottle.id).map(\.id), [first.id])
+        XCTAssertEqual(try bottles.summary(id: bottle.id)?.status.remainingPours, 16)
+    }
+
+    // MARK: - Typed-in products
+
+    func testEditingACustomProductChangesItsLine() throws {
+        let entry = CustomCatalogEntry(distillery: "Weller 12", brand: "Weller 12", classType: .bourbon)
+        let saved = try bottles.addCustom(product: entry, bottle: Bottle())
+        var fixed = saved.product
+        fixed.distillery = "Buffalo Trace"
+        fixed.brand = "W L Weller"
+        fixed.expression = "12 Year"
+        fixed.classType = .kentuckyStraightBourbon
+        try bottles.updateCustomProduct(fixed)
+
+        let read = try XCTUnwrap(bottles.customProduct(id: saved.product.id))
+        XCTAssertEqual(read.brand, "W L Weller")
+        XCTAssertEqual(read.expression, "12 Year")
+        XCTAssertEqual(read.classType, .kentuckyStraightBourbon)
+    }
+
+    func testRelinkingMovesEveryReferenceInOneGo() throws {
+        let entry = CustomCatalogEntry(distillery: "Weller 12", brand: "Weller 12", classType: .bourbon)
+        let saved = try bottles.addCustom(product: entry, bottle: Bottle())
+        let customId = saved.product.id
+        _ = try bottles.add(Bottle(catalogProductId: customId))
+        try TastingRepository(db).save(Tasting(bottleId: saved.bottle.id, catalogProductId: customId, rating: 7))
+        try WishlistRepository(db).add(catalogProductId: customId)
+        try KnowledgeNoteRepository(db).set(productId: customId, title: "W", body: "note")
+
+        let moved = try bottles.relinkCustomProduct(id: customId, to: "weller-12")
+        XCTAssertEqual(moved, 5)
+        XCTAssertNil(try bottles.customProduct(id: customId).flatMap { $0.deletedAt == nil ? $0 : nil })
+        XCTAssertTrue(try bottles.summaries().allSatisfy { $0.bottle.catalogProductId == "weller-12" })
+        XCTAssertEqual(try TastingRepository(db).history(productId: "weller-12").count, 1)
+        XCTAssertEqual(try WishlistRepository(db).items().first?.catalogProductId, "weller-12")
+        XCTAssertEqual(try KnowledgeNoteRepository(db).note(productId: "weller-12")?.body, "note")
+    }
+
     // MARK: - Derivation
 
     func testFullBottleReadsSeventeenOfSeventeen() throws {
