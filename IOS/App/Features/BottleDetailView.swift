@@ -42,6 +42,10 @@ struct BottleDetailView: View {
     /// comparison. Nil when you have only ever had the pick.
     @State private var standardRating: Int?
 
+    /// The nearly-gone question, asked once on the pour that crosses the
+    /// line. Nil the rest of the time.
+    @State private var replenish: Replenish.Offer?
+
     var body: some View {
         ScrollView {
             if let summary {
@@ -99,6 +103,12 @@ struct BottleDetailView: View {
             Button("OK") { error = nil }
         } message: {
             Text(error ?? "")
+        }
+        .alert("Nearly gone", isPresented: .constant(replenish != nil)) {
+            Button("Add to wishlist") { addToWishlist() }
+            Button("Not now", role: .cancel) { replenish = nil }
+        } message: {
+            Text((replenish?.text ?? "") + " Want it on your wishlist?")
         }
     }
 
@@ -606,6 +616,41 @@ struct BottleDetailView: View {
             .max()
     }
 
+    /// Asked once, on the pour that takes the bottle to its last couple of
+    /// pours. What the person said on the tasting sheet is respected: a
+    /// "would not buy again" is never asked about.
+    private func offerReplacement(before: Int) {
+        guard let summary else { return }
+        let bottle = summary.bottle
+        let onList: Bool
+        if let productId = bottle.catalogProductId {
+            onList = ((try? env.wishlist.item(catalogProductId: productId)) ?? nil) != nil
+        } else {
+            onList = false
+        }
+        let saidRebuy = tastings.first?.tasting.wouldRebuy.map { $0 == .yes }
+        replenish = Replenish.offer(
+            remainingBefore: before,
+            remainingAfter: summary.status.remainingPours,
+            isOnWishlist: onList,
+            wouldRebuy: saidRebuy)
+    }
+
+    private func addToWishlist() {
+        defer { replenish = nil }
+        guard let bottle = summary?.bottle else { return }
+        do {
+            // What you paid is the natural ceiling. It can be changed on the
+            // list, and it is better than a blank.
+            try env.wishlist.add(
+                catalogProductId: bottle.catalogProductId,
+                customName: bottle.catalogProductId == nil ? env.name(for: bottle) : nil,
+                targetPriceCents: bottle.purchasePriceCents)
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+
     private func removeTasting(_ id: String) {
         do {
             try env.tastings.remove(tastingId: id)
@@ -617,8 +662,10 @@ struct BottleDetailView: View {
 
     private func logPour(_ summary: BottleSummary) {
         do {
+            let before = summary.status.remainingPours
             justPouredId = try env.bottles.logPour(bottleId: summary.id).id
             reload()
+            offerReplacement(before: before)
         } catch DataError.bottleIsEmpty {
             error = "That bottle is empty."
         } catch {
