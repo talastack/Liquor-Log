@@ -98,10 +98,21 @@ public struct WishlistRepository: Sendable {
     /// Two steps would be worse than one. Getting a bottle and still seeing it
     /// on your wishlist is the exact drift that stops people trusting a list,
     /// and it is the failure mode the shelf walk exists to repair.
+    ///
+    /// - Parameter product: for a wishlist entry that was only a typed name,
+    ///   the private catalogue entry to create alongside the bottle, so the
+    ///   shelf check can answer for it exactly like a bottle typed in by hand.
+    ///   Saved in the same transaction: a product without its bottle or a
+    ///   bottle without its product is the orphan `addCustom` exists to avoid.
     @discardableResult
-    public func buy(_ item: WishlistItem, as bottle: Bottle) throws -> Bottle {
+    public func buy(
+        _ item: WishlistItem,
+        as bottle: Bottle,
+        creating product: CustomCatalogEntry? = nil
+    ) throws -> Bottle {
         var saved = bottle
         if saved.catalogProductId == nil { saved.catalogProductId = item.catalogProductId }
+        if let product { saved.catalogProductId = product.id }
         if saved.catalogProductId == nil && saved.customName == nil {
             saved.customName = item.customName
         }
@@ -110,6 +121,9 @@ public struct WishlistRepository: Sendable {
         wish.softDelete()
 
         try db.queue.write { db in
+            if var product {
+                try product.saveLocal(db)
+            }
             try saved.saveLocal(db)
             try wish.save(db)
         }
