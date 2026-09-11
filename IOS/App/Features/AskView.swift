@@ -161,21 +161,55 @@ struct AskView: View {
         typed = ""
         let catalog = env.catalog.searchCandidates(history: env.historyProductIds()) + customCandidates()
         var exchange = Exchange(asked: trimmed, answer: "")
-        switch Ask.understand(trimmed, catalog: catalog) {
-        case .question(let question):
-            exchange.answer = answer(question)
-            exchange.done = true
-        case .command(let command):
-            let (text, ok) = describe(command)
-            exchange.answer = text
-            exchange.pending = ok ? command : nil
-            exchange.done = !ok
-        case .unknown:
-            exchange.answer = "I did not follow that. Try \"log a pour of …\", \"what's open\", "
-                + "\"how many … do I have\", \"rate … an 8\" or \"add a bottle of …\"."
-            exchange.done = true
+        if let understood = interpret(trimmed, catalog: catalog) {
+            exchange = understood(exchange)
+            exchanges.append(exchange)
+            return
         }
+
+        // The grammar did not follow. On a phone with the on-device model,
+        // let it rephrase into the grammar's shape and try once more; the
+        // model never touches the database, it only rewords.
+        guard AskModel.isAvailable else {
+            exchange.answer = didNotFollow
+            exchange.done = true
+            exchanges.append(exchange)
+            return
+        }
+        exchange.answer = "…"
         exchanges.append(exchange)
+        let id = exchange.id
+        let names = catalog.map(\.product.displayName)
+        Task {
+            let rephrased = await AskModel.rephrase(trimmed, bottleNames: names)
+            guard let index = exchanges.firstIndex(where: { $0.id == id }) else { return }
+            if let rephrased, let understood = interpret(rephrased, catalog: catalog) {
+                exchanges[index] = understood(exchanges[index])
+            } else {
+                exchanges[index].answer = didNotFollow
+                exchanges[index].done = true
+            }
+        }
+    }
+
+    private var didNotFollow: String {
+        "I did not follow that. Try \"log a pour of …\", \"what's open\", "
+            + "\"how many … do I have\", \"rate … an 8\" or \"add a bottle of …\"."
+    }
+
+    /// The grammar's reading of a sentence as a change to apply to an
+    /// exchange, or nil when it did not follow.
+    private func interpret(_ text: String, catalog: [SearchCandidate]) -> ((Exchange) -> Exchange)? {
+        switch Ask.understand(text, catalog: catalog) {
+        case .question(let question):
+            let reply = answer(question)
+            return { var e = $0; e.answer = reply; e.done = true; return e }
+        case .command(let command):
+            let (reply, ok) = describe(command)
+            return { var e = $0; e.answer = reply; e.pending = ok ? command : nil; e.done = !ok; return e }
+        case .unknown:
+            return nil
+        }
     }
 
     /// Typed-in products join the catalogue so "log a pour of jefferson's"

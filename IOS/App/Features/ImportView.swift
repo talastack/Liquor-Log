@@ -158,11 +158,7 @@ struct ImportView: View {
                 }
 
                 if !plan.skippedLines.isEmpty {
-                    Text("Skipping \(plan.skippedLines.count) "
-                         + (plan.skippedLines.count == 1 ? "line" : "lines")
-                         + " with no name: "
-                         + plan.skippedLines.prefix(10).map(String.init).joined(separator: ", ")
-                         + (plan.skippedLines.count > 10 ? "…" : ""))
+                    Text(skippedLine(plan))
                         .font(TypeScale.caption())
                         .textCase(nil)
                         .foregroundStyle(Palette.gold)
@@ -247,6 +243,16 @@ struct ImportView: View {
         } catch {
             self.error = "Could not read that file. It needs to be a CSV."
         }
+    }
+
+    /// Built outside the view: five concatenated pieces inside a Text was
+    /// more than the type-checker would finish in reasonable time.
+    private func skippedLine(_ plan: CollectionImport.Plan) -> String {
+        let count = plan.skippedLines.count
+        let word = count == 1 ? "line" : "lines"
+        let shown = plan.skippedLines.prefix(10).map(String.init).joined(separator: ", ")
+        let more = count > 10 ? "…" : ""
+        return "Skipping \(count) \(word) with no name: \(shown)\(more)"
     }
 
     private func apply(_ plan: CollectionImport.Plan) {
