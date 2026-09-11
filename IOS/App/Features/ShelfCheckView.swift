@@ -38,6 +38,8 @@ struct ShelfCheckView: View {
         /// Your own note on the product, when you wrote one. In the aisle,
         /// "not worth it over $60" is the most useful sentence on the card.
         let note: String?
+        /// The most you said you would pay, when it is on your wishlist.
+        let wishlistCents: Int?
         var id: String { hit.product.productId }
     }
 
@@ -269,8 +271,11 @@ struct ShelfCheckView: View {
         // Without this the engine's isOnWishlist was always false and the
         // "On your wishlist" line could never appear -- the copy existed, the
         // data never reached it.
-        let wanted = Set(
-            ((try? env.wishlist.items()) ?? []).compactMap(\.catalogProductId))
+        let wishes = (try? env.wishlist.items()) ?? []
+        let wanted = Set(wishes.compactMap(\.catalogProductId))
+        let ceilings = Dictionary(
+            wishes.compactMap { item in item.catalogProductId.map { ($0, item.targetPriceCents) } },
+            uniquingKeysWith: { first, _ in first })
         let noted = (try? env.notes.productIdsWithNotes()) ?? []
 
         results = hits.map { hit in
@@ -285,7 +290,8 @@ struct ShelfCheckView: View {
                 related: related(to: hit.product, verdict: verdict, in: candidates, history: history),
                 note: noted.contains(hit.product.productId)
                     ? (try? env.notes.note(productId: hit.product.productId))?.body
-                    : nil)
+                    : nil,
+                wishlistCents: ceilings[hit.product.productId] ?? nil)
         }
     }
 
@@ -368,6 +374,8 @@ struct ShelfCheckCard: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
+
+            AislePriceCheck(result: result)
 
             if let note = result.note {
                 HStack(alignment: .top, spacing: Space.s) {
@@ -458,8 +466,118 @@ struct ShelfCheckCard: View {
         case .hadItBefore:
             return "You finished a bottle of this."
         case .neverHadIt:
-            return verdict.isOnWishlist ? "On your wishlist." : nil
+            guard verdict.isOnWishlist else { return nil }
+            if let cents = result.wishlistCents {
+                return "On your wishlist, up to \(Money.short(cents))."
+            }
+            return "On your wishlist."
         }
+    }
+}
+
+/// "Is this a good price?", answered standing in the aisle.
+///
+/// The bottle screen already compares what you paid against what you
+/// usually pay and against a shelf reference; this is the same comparison
+/// BEFORE buying, which is when it is worth something. Three answers, each
+/// only when there is data behind it: against what you usually pay, against
+/// a published or observed shelf price, and against the ceiling you set on
+/// the wishlist. No data, no line -- an invented verdict here costs somebody
+/// real money.
+struct AislePriceCheck: View {
+    @Environment(AppEnvironment.self) private var env
+    let result: ShelfCheckView.Result
+
+    @State private var typed = ""
+    @State private var lines: [(text: String, tone: Tone)] = []
+
+    enum Tone { case good, neutral, bad }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Space.s) {
+            HStack(spacing: Space.s) {
+                Text("$")
+                    .font(TypeScale.code(14))
+                    .foregroundStyle(Palette.textMuted)
+                TextField("Price on the shelf?", text: $typed)
+                    .font(TypeScale.body())
+                    .foregroundStyle(Palette.text)
+                    .keyboardType(.decimalPad)
+                    .onChange(of: typed) { _, _ in check() }
+            }
+            .padding(.horizontal, Space.m)
+            .frame(minHeight: 40)
+            .background(RoundedRectangle(cornerRadius: 9).fill(Palette.surfaceRaised))
+
+            ForEach(Array(lines.enumerated()), id: \.offset) { _, line in
+                Text(line.text)
+                    .font(TypeScale.secondary())
+                    .foregroundStyle(color(line.tone))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
+
+    private func color(_ tone: Tone) -> Color {
+        switch tone {
+        case .good: return Palette.good
+        case .neutral: return Palette.textSecondary
+        case .bad: return Palette.bad
+        }
+    }
+
+    private func check() {
+        guard let dollars = Double(typed.trimmingCharacters(in: .whitespaces)), dollars > 0 else {
+            lines = []
+            return
+        }
+        let asking = Int((dollars * 100).rounded())
+        let productId = result.hit.product.productId
+        var next: [(String, Tone)] = []
+
+        // Against what you usually pay, when you have bought it before.
+        let purchases = (try? env.bottles.purchaseHistory(catalogProductId: productId)) ?? []
+        if let history = PriceHistory.summarise(purchases) {
+            let verdict = PriceHistory.compare(askingCents: asking, with: history)
+            let tone: Tone
+            switch verdict {
+            case .cheaperThanUsual: tone = .good
+            case .aboutWhatYouPay: tone = .neutral
+            case .moreThanUsual, .muchMoreThanUsual: tone = .bad
+            case .noHistory: tone = .neutral
+            }
+            next.append(("\(verdict.headline) — usually \(Money.short(history.typicalCents)).", tone))
+        }
+
+        // Against a shelf reference: your own sightings first, then the
+        // bundled figure with its source.
+        let reference = PriceHistory.shelfReference(purchases)
+            ?? env.catalog.product(productId)?.priceReference
+        if let reference {
+            let check = PriceCheck.compare(paidCents: asking, reference: reference)
+            let tone: Tone
+            switch check.band {
+            case .atOrBelow: tone = .good
+            case .slightlyOver: tone = .neutral
+            case .wellOver, .farOver: tone = .bad
+            case .noReference: tone = .neutral
+            }
+            next.append(("\(check.headline) — \(Money.short(reference.cents)) \(reference.source).", tone))
+        }
+
+        // Against the ceiling you set yourself.
+        if let ceiling = result.wishlistCents {
+            if asking <= ceiling {
+                next.append(("Under the \(Money.short(ceiling)) you said you would pay.", .good))
+            } else {
+                next.append(("\(Money.short(asking - ceiling)) over the \(Money.short(ceiling)) you said you would pay.", .bad))
+            }
+        }
+
+        if next.isEmpty {
+            next.append(("Nothing to compare it with yet. Buy it, or wishlist it with a price, and there will be.", .neutral))
+        }
+        lines = next.map { (text: $0.0, tone: $0.1) }
     }
 }
 
