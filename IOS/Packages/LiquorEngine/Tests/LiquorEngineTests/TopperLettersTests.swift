@@ -4,7 +4,7 @@ import XCTest
 final class TopperLettersTests: XCTestCase {
 
     func testTheSetSpellsTheName() {
-        XCTAssertEqual(String(TopperLetters.set), "BLANTON'S")
+        XCTAssertEqual(String(TopperLetters.letters), "BLANTON'S")
         XCTAssertEqual(TopperLetters.distinct.count, 8)
     }
 

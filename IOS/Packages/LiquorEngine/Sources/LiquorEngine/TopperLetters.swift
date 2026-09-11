@@ -15,7 +15,7 @@ public enum TopperLetters: Sendable {
 
     /// The set, in order, apostrophe included. Two N's on purpose: the word
     /// has two, and the stoppers do too.
-    public static let set: [Character] = ["B", "L", "A", "N", "T", "O", "N", "'", "S"]
+    public static let letters: [Character] = ["B", "L", "A", "N", "T", "O", "N", "'", "S"]
 
     /// The distinct letters somebody can own: B L A N T O S and the
     /// apostrophe. N appears twice in the word and once here.
@@ -40,7 +40,7 @@ public enum TopperLetters: Sendable {
         /// The word with the missing letters blanked, for a single line:
         /// "B L A _ T O _ ' S".
         public var wordLine: String {
-            set.map { owned[$0] != nil ? String($0) : "_" }.joined(separator: " ")
+            letters.map { owned[$0] != nil ? String($0) : "_" }.joined(separator: " ")
         }
     }
 
