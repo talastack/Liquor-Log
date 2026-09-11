@@ -157,4 +157,92 @@ final class PourMenuTests: XCTestCase {
         XCTAssertFalse(text.contains("<"))
         XCTAssertFalse(text.contains("*"))
     }
+
+    // MARK: - The new slices
+
+    private func day(_ n: Int) -> Date { Date(timeIntervalSince1970: Double(n) * 86_400) }
+
+    /// Fixed to UTC so a year boundary lands where the dates say it does.
+    private var utc: Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "UTC")!
+        return calendar
+    }
+
+    func testBrandsAndPlacesAreTallied() {
+        let summary = CollectionStats.summarise([
+            CollectionStats.Entry(brand: "Weller", storageLocation: "Cabinet"),
+            CollectionStats.Entry(brand: "Weller", storageLocation: "Cabinet"),
+            CollectionStats.Entry(brand: "Stagg", storageLocation: " "),
+            CollectionStats.Entry(brand: "Weller", isFinished: true, storageLocation: "Cabinet"),
+        ])
+        XCTAssertEqual(summary.byBrand.first, CollectionStats.Slice(label: "Weller", count: 2))
+        XCTAssertEqual(summary.byPlace, [CollectionStats.Slice(label: "Cabinet", count: 2)])
+    }
+
+    /// Growth of the collection, oldest year first, finished bottles included
+    /// because they were added that year.
+    func testAddedByYearRunsOldestFirst() {
+        let summary = CollectionStats.summarise([
+            CollectionStats.Entry(addedAt: day(1_100)),            // 1973
+            CollectionStats.Entry(addedAt: day(10)),               // 1970
+            CollectionStats.Entry(isFinished: true, addedAt: day(20)),  // 1970
+        ], calendar: utc)
+        XCTAssertEqual(summary.addedByYear.map(\.label), ["1970", "1973"])
+        XCTAssertEqual(summary.addedByYear.map(\.count), [2, 1])
+    }
+
+    func testPicksAreCounted() {
+        let summary = CollectionStats.summarise([
+            CollectionStats.Entry(isPick: true),
+            CollectionStats.Entry(isFinished: true, isPick: true),
+            CollectionStats.Entry(),
+        ])
+        XCTAssertEqual(summary.picks, 1)
+    }
+
+    func testLongestOpenIsTheOpenBottleOpenLongest() {
+        let summary = CollectionStats.summarise([
+            CollectionStats.Entry(name: "Weller", isOpen: true, openedAt: day(0)),
+            CollectionStats.Entry(name: "Stagg", isOpen: true, openedAt: day(90)),
+            CollectionStats.Entry(name: "Sealed", isOpen: false, openedAt: nil),
+            CollectionStats.Entry(name: "Killed", isOpen: true, isFinished: true, openedAt: day(-400)),
+        ], now: day(100), calendar: utc)
+        XCTAssertEqual(summary.longestOpen, CollectionStats.Standout(name: "Weller", value: 100))
+    }
+
+    func testNothingOpenMeansNoLongestOpen() {
+        XCTAssertNil(CollectionStats.summarise([CollectionStats.Entry(name: "x")]).longestOpen)
+    }
+
+    // MARK: - Money
+
+    func testSpendGroupsByPurchaseYearAndSkipsUndated() {
+        let summary = CollectionStats.summarise([
+            CollectionStats.Entry(purchasePriceCents: 5_000, purchasedAt: day(10)),
+            CollectionStats.Entry(purchasePriceCents: 2_500, purchasedAt: day(20)),
+            CollectionStats.Entry(purchasePriceCents: 9_000, purchasedAt: day(1_100)),
+            CollectionStats.Entry(purchasePriceCents: 9_999),   // no date: left out
+            CollectionStats.Entry(isFinished: true, purchasePriceCents: 9_999, purchasedAt: day(10)),
+        ], calendar: utc)
+        XCTAssertEqual(summary.spentByYear, [
+            CollectionStats.Amount(label: "1970", cents: 7_500),
+            CollectionStats.Amount(label: "1973", cents: 9_000),
+        ])
+    }
+
+    func testPourCosts() {
+        let summary = CollectionStats.summarise([
+            CollectionStats.Entry(name: "Cheap", costPerPourCents: 200),
+            CollectionStats.Entry(name: "Dear", costPerPourCents: 1_000),
+            CollectionStats.Entry(name: "Unpriced"),
+        ])
+        XCTAssertEqual(summary.averageCostPerPourCents, 600)
+        XCTAssertEqual(summary.dearestPour?.name, "Dear")
+        XCTAssertEqual(summary.cheapestPour?.name, "Cheap")
+    }
+
+    func testNoPricesMeansNoAverage() {
+        XCTAssertNil(CollectionStats.summarise([CollectionStats.Entry()]).averageCostPerPourCents)
+    }
 }
