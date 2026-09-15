@@ -16,6 +16,7 @@ import LiquorEngine
 /// Nothing here says AI anywhere a person can see.
 struct AskView: View {
     @Environment(AppEnvironment.self) private var env
+    @Environment(\.dismiss) private var dismiss
 
     struct Exchange: Identifiable {
         let id = UUID()
@@ -61,6 +62,11 @@ struct AskView: View {
         .background(Palette.background)
         .navigationTitle("Ask")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Done") { dismiss() }.foregroundStyle(Palette.gold)
+            }
+        }
     }
 
     // MARK: - Pieces

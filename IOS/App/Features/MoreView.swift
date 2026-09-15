@@ -26,6 +26,9 @@ struct MoreView: View {
     @State private var registryCount = 0
     @State private var isWalkDue = false
     @State private var isShowingPaywall = false
+    /// Ask is a sheet, not a push: its typing bar is pinned to the bottom,
+    /// and a pushed screen keeps the tab bar and the floating + under it.
+    @State private var isAsking = false
     @State private var error: String?
 
     var body: some View {
@@ -51,6 +54,9 @@ struct MoreView: View {
         .navigationBarTitleDisplayMode(.inline)
         .task { refresh() }
         .onChange(of: env.changeCount) { _, _ in refresh() }
+        .sheet(isPresented: $isAsking, onDismiss: env.noteChange) {
+            NavigationStack { AskView() }
+        }
         .alert("Something went wrong", isPresented: .constant(error != nil)) {
             Button("OK") { error = nil }
         } message: { Text(error ?? "") }
@@ -62,9 +68,7 @@ struct MoreView: View {
         VStack(alignment: .leading, spacing: Space.m) {
             SectionLabel("Tools")
 
-            NavigationLink {
-                AskView()
-            } label: {
+            Button { isAsking = true } label: {
                 row(
                     "Ask",
                     detail: "\"What's open\", \"log a pour of Weller 12\" — answered from your shelf",

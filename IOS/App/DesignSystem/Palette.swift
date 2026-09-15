@@ -9,10 +9,10 @@ import UIKit
 /// a set of looks, chosen in More, each rooted in something a bourbon
 /// collector actually sees:
 ///
-/// - **Label** -- cream paper and oxblood ink, the look of an old label.
-///   Light-first, which is itself the opposite of the default everyone else
-///   has. The default.
 /// - **Cellar** -- green-black and copper, the inside of a rickhouse at dusk.
+///   The default, chosen by the owner from the four.
+/// - **Label** -- cream paper and oxblood ink, the look of an old label.
+///   Light-first.
 /// - **Bond** -- navy and brass, the tax strip and the bonded seal.
 /// - **Amber** -- the original, kept for anybody who liked it.
 ///
@@ -28,7 +28,7 @@ enum Palette {
     // MARK: - Looks
 
     enum Look: String, CaseIterable, Identifiable {
-        case label, cellar, bond, amber
+        case cellar, label, bond, amber
 
         var id: String { rawValue }
 
@@ -51,7 +51,7 @@ enum Palette {
         }
 
         static let key = "theme.look"
-        static let standard: Look = .label
+        static let standard: Look = .cellar
 
         static var current: Look {
             Look(rawValue: UserDefaults.standard.string(forKey: key) ?? "") ?? standard
