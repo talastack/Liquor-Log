@@ -460,6 +460,15 @@ struct BottleDetailView: View {
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.vertical, Space.xs)
             }
+            // Who really made it, from the permit on the back label. A brand
+            // with no distillery of its own carries somebody else's number.
+            if let number = summary.bottle.dsp {
+                if let plant = DistilleryPermit.lookup(number) {
+                    FactRow(label: "Made at", value: "\(plant.distillery) · \(number)")
+                } else {
+                    FactRow(label: "Permit", value: number)
+                }
+            }
             if let filtered = summary.bottle.chillFiltered {
                 FactRow(
                     label: "Chill filtration",

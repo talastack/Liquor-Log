@@ -94,6 +94,7 @@ public enum Migrations {
                 t.column("drip_fraction", .double)
                 t.column("drip_length_mm", .double)
                 t.column("stave_recipe", .text)
+                t.column("dsp", .text)
                 t.column("storage_location", .text)
                 t.column("shelf_number", .integer)
                 t.column("opened_at", .integer)

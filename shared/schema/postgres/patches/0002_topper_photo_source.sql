@@ -44,3 +44,6 @@ end $$;
 
 -- 0004, 15 September 2026: the Private Select stave recipe.
 alter table bottles add column if not exists stave_recipe text;
+
+-- 0005, 15 September 2026: the DSP permit number on the label.
+alter table bottles add column if not exists dsp text;

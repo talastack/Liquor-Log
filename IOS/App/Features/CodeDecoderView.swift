@@ -28,6 +28,9 @@ struct CodeDecoderView: View {
     /// after the letter, where a batch code has three, so it cannot be
     /// mistaken for one.
     private var laser: LaserCode? { code == nil && batch == nil ? LaserCode(typed) : nil }
+    /// The federal permit on the back label. Normalised even when unknown,
+    /// so the screen can say "not in the table" rather than nothing.
+    private var permit: String? { DistilleryPermit.normalise(typed) }
 
     var body: some View {
         ScrollView {
@@ -38,15 +41,16 @@ struct CodeDecoderView: View {
                         .foregroundStyle(Palette.text)
                     Text("A Four Roses recipe code like OESQ, an Elijah Craig or "
                          + "Larceny batch code like B523, or the laser-etched code on "
-                         + "the glass of any Buffalo Trace bottle like L19274 15:02 K. "
-                         + "Each says something specific about the bottle, and "
-                         + "nothing else decodes them.")
+                         + "the glass of any Buffalo Trace bottle like L19274 15:02 K, "
+                         + "or the DSP permit number on the back label that says who "
+                         + "really made it. Each says something specific about the "
+                         + "bottle, and nothing else decodes them.")
                         .font(TypeScale.secondary())
                         .foregroundStyle(Palette.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
-                TextField("OESQ, B523 or L19274", text: $typed)
+                TextField("OESQ, B523, L19274 or DSP-KY-113", text: $typed)
                     .font(TypeScale.code(28))
                     .foregroundStyle(Palette.text)
                     .textInputAutocapitalization(.characters)
@@ -56,7 +60,7 @@ struct CodeDecoderView: View {
                     .frame(maxWidth: .infinity, minHeight: 72)
                     .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
                     .overlay(RoundedRectangle(cornerRadius: 12)
-                        .stroke(code != nil || batch != nil || laser != nil ? Palette.gold : Palette.line,
+                        .stroke(code != nil || batch != nil || laser != nil || permit != nil ? Palette.gold : Palette.line,
                                 lineWidth: 1))
 
                 if let code {
@@ -65,6 +69,8 @@ struct CodeDecoderView: View {
                     decodedBatch(batch)
                 } else if let laser {
                     decodedLaser(laser)
+                } else if let permit {
+                    decodedPermit(permit)
                 } else if typed.trimmingCharacters(in: .whitespaces).count >= 4 {
                     Text("Not a code this knows. Four Roses is O, then B or E, then "
                          + "S, then one of V K O Q F. Heaven Hill batches are A, B or "
@@ -93,6 +99,47 @@ struct CodeDecoderView: View {
             FactRow(label: code.mashbill.rawValue, value: "Mashbill · " + code.mashbill.summary)
             FactRow(label: "S", value: "Straight whiskey")
             FactRow(label: code.yeast.rawValue, value: "Yeast · " + code.yeast.character, isLast: true)
+        }
+    }
+
+    private func decodedPermit(_ number: String) -> some View {
+        VStack(alignment: .leading, spacing: Space.s) {
+            if let plant = DistilleryPermit.lookup(number) {
+                VStack(alignment: .leading, spacing: 0) {
+                    SectionLabel("Whose plant")
+                        .padding(.bottom, Space.xs)
+                    FactRow(label: number, value: plant.distillery)
+                    FactRow(label: "Where", value: plant.location, isLast: plant.note == nil)
+                    if let note = plant.note {
+                        FactRow(label: "Note", value: note, isLast: true)
+                    }
+                }
+                Text(plant.onTwoLists
+                     ? "Checked against two independent public lists of DSP numbers."
+                     : "On one public list of DSP numbers, not yet two. Treat as likely, not certain.")
+                    .font(TypeScale.caption())
+                    .textCase(nil)
+                    .foregroundStyle(Palette.textMuted)
+                    .fixedSize(horizontal: false, vertical: true)
+            } else {
+                Text("\(number) is not in the table.")
+                    .font(TypeScale.body())
+                    .foregroundStyle(Palette.text)
+                Text("The table covers the plants behind most of the bourbon on a shelf, "
+                     + "not every permit in the country. Not knowing is the honest answer; "
+                     + "guessing would name the wrong distillery.")
+                    .font(TypeScale.caption())
+                    .textCase(nil)
+                    .foregroundStyle(Palette.textMuted)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Text("The label must name the plant that distilled or bottled the whiskey, "
+                 + "by its federal permit. A brand with no distillery of its own carries "
+                 + "somebody else's number — which is how sourced whiskey is unmasked.")
+                .font(TypeScale.caption())
+                .textCase(nil)
+                .foregroundStyle(Palette.textMuted)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 

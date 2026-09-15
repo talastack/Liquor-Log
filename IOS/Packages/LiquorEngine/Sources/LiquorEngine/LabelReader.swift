@@ -39,6 +39,8 @@ public enum LabelReader: Sendable {
         public var statedAgeYears: Int?
         /// A Buffalo Trace laser code, when the photo caught the etching.
         public var laserCode: LaserCode?
+        /// The DSP permit number, normalised, when the back label was read.
+        public var dsp: String?
         public var isBottledInBond: Bool = false
         public var isSingleBarrel: Bool = false
         public var isSmallBatch: Bool = false
@@ -127,6 +129,7 @@ public enum LabelReader: Sendable {
         // The etching reads as its own line, "L19274 15:02 K", or as one run
         // of characters. Either way the decoder validates it as a date, so a
         // random five-digit number on the label is not taken for one.
+        reading.dsp = DistilleryPermit.find(in: joined)
         reading.laserCode = upper.compactMap { LaserCode($0) }.first
             ?? upper.flatMap { $0.split(separator: " ").map(String.init) }
                 .compactMap { LaserCode($0) }

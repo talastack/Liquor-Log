@@ -43,6 +43,7 @@ struct EditBottleView: View {
     @State private var finish = ""
     @State private var topperLetter = ""
     @State private var staveRecipe = ""
+    @State private var dsp = ""
     @State private var storageLocation = ""
     @State private var shelfNumber = ""
     @State private var customName = ""
@@ -215,6 +216,14 @@ struct EditBottleView: View {
                 field("Recipe code", text: $recipeCode)
                 field("Finish", text: $finish)
             }
+            VStack(alignment: .leading, spacing: Space.xs) {
+                field("DSP on the back label", text: $dsp)
+                Text(dspLine)
+                    .font(TypeScale.caption())
+                    .textCase(nil)
+                    .foregroundStyle(Palette.textMuted)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
             // The Private Select staves. Shown for a Maker's and for any
             // bottle that already has a recipe.
             if isMakers || !staveRecipe.isEmpty {
@@ -241,6 +250,16 @@ struct EditBottleView: View {
                 }
             }
         }
+    }
+
+    /// Decoded as it is typed, so a wrong digit shows the wrong plant now
+    /// rather than on the bottle screen later.
+    private var dspLine: String {
+        guard let number = DistilleryPermit.normalise(dsp) else {
+            return "The federal permit number, like DSP-KY-113. It names the plant that made it."
+        }
+        guard let plant = DistilleryPermit.lookup(number) else { return "\(number): not in the table." }
+        return "\(number): \(plant.distillery), \(plant.location)."
     }
 
     private var isMakers: Bool {
@@ -386,6 +405,7 @@ struct EditBottleView: View {
         // Stored in the engine's own spelling once it validates; a recipe
         // that does not total ten is refused at save, below.
         edited.staveRecipe = blankAsNil(staveRecipe).flatMap { StaveRecipe($0)?.code }
+        edited.dsp = blankAsNil(dsp).flatMap(DistilleryPermit.normalise)
         edited.storageLocation = blankAsNil(storageLocation)
         edited.shelfNumber = Int(shelfNumber)
     }
@@ -417,6 +437,7 @@ struct EditBottleView: View {
         finish = found.finish ?? ""
         topperLetter = found.topperLetter ?? ""
         staveRecipe = found.staveRecipe ?? ""
+        dsp = found.dsp ?? ""
         storageLocation = found.storageLocation ?? ""
 
         // A typed-in product resolves to a custom entry; a catalogue one to

@@ -59,6 +59,8 @@ struct AddBottleView: View {
     @State private var hasDumpDate = false
     /// The year on the glass or the label. A laser code fills it in.
     @State private var bottledYear = ""
+    /// The permit on the back label. A scan fills it in.
+    @State private var dsp = ""
     @State private var chillFiltered: ChillFiltration = .notStated
 
     // Where you put it
@@ -539,6 +541,7 @@ struct AddBottleView: View {
                     field("and months", text: $ageMonths, keyboard: .numberPad, placeholder: "4")
                 }
                 field("Bottled (year)", text: $bottledYear, keyboard: .numberPad, placeholder: "2019")
+                field("DSP on the back label", text: $dsp, placeholder: "DSP-KY-113")
                 HStack(spacing: Space.m) {
                     field("Char level", text: $charLevel, keyboard: .numberPad, placeholder: "4")
                     field("Finish", text: $finish, placeholder: "Toasted oak")
@@ -654,6 +657,7 @@ struct AddBottleView: View {
         if let age = reading.statedAgeYears { ageYears = String(age) }
         // The laser code is the bottling date for most Buffalo Trace bottles.
         if let laser = reading.laserCode { bottledYear = String(laser.year) }
+        if let permit = reading.dsp { dsp = permit }
 
         // A label saying "single barrel" or naming a barrel is a store pick or
         // a single barrel, so the section holding those fields opens itself.
@@ -708,6 +712,7 @@ struct AddBottleView: View {
             purchaseStore: store.isEmpty ? nil : store,
             shelfPriceCents: Double(shelfPrice).map { Int(($0 * 100).rounded()) },
             barcode: scannedBarcode,
+            dsp: DistilleryPermit.normalise(dsp),
             storageLocation: storageLocation.isEmpty ? nil : storageLocation,
             shelfNumber: Int(shelfNumber),
             openedAt: isAlreadyOpen ? Int64(openedOn.timeIntervalSince1970 * 1000) : nil)

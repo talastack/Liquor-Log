@@ -254,6 +254,10 @@ public struct Bottle: SyncableRecord {
     /// migration; `staves` reads it back validated.
     public var staveRecipe: String?
 
+    /// The federal permit number on the back label, normalised
+    /// ("DSP-KY-113"). `DistilleryPermit.lookup` says whose it is.
+    public var dsp: String?
+
     /// Where the bottle physically is. Collections scatter across closets and
     /// boxes, and people report this mattering more than remembering what they
     /// own at all.
@@ -297,7 +301,7 @@ public struct Bottle: SyncableRecord {
         case barcode
         case topperLetter = "topper_letter", photoFile = "photo_file"
         case waxColor = "wax_color", dripFraction = "drip_fraction", dripLengthMm = "drip_length_mm"
-        case staveRecipe = "stave_recipe"
+        case staveRecipe = "stave_recipe", dsp
         case storageLocation = "storage_location", shelfNumber = "shelf_number"
         case openedAt = "opened_at", finishedAt = "finished_at"
         case lastVerifiedAt = "last_verified_at"
@@ -346,6 +350,7 @@ public struct Bottle: SyncableRecord {
         dripFraction: Double? = nil,
         dripLengthMm: Double? = nil,
         staveRecipe: String? = nil,
+        dsp: String? = nil,
         storageLocation: String? = nil,
         shelfNumber: Int? = nil,
         openedAt: Int64? = nil,
@@ -377,7 +382,7 @@ public struct Bottle: SyncableRecord {
         self.barcode = barcode
         self.topperLetter = topperLetter; self.photoFile = photoFile
         self.waxColor = waxColor; self.dripFraction = dripFraction; self.dripLengthMm = dripLengthMm
-        self.staveRecipe = staveRecipe
+        self.staveRecipe = staveRecipe; self.dsp = dsp
         self.storageLocation = storageLocation; self.shelfNumber = shelfNumber
         self.openedAt = openedAt; self.finishedAt = finishedAt
         self.lastVerifiedAt = lastVerifiedAt

@@ -306,6 +306,11 @@ create table bottles (
   -- recipe that does not total ten.
   stave_recipe        text,
 
+  -- The federal permit on the back label, DSP-KY-113. The plant that
+  -- distilled or bottled it, which is how sourced whiskey is unmasked.
+  -- Stored per bottle because a sourced brand changes its source.
+  dsp                 text,
+
   -- Where the bottle physically IS. Collections scatter across closets,
   -- basements and boxes, and people report this mattering more than remembering
   -- what they own.
