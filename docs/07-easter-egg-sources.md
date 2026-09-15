@@ -100,9 +100,17 @@ number not in the table is shown as unknown, never guessed. The check caught
 two errors in the author's own memory (MGP is DSP-IN-15016, Jack Daniel's is
 DSP-TN-4), which is the argument for never shipping such a table from memory.
 
-**Before release**, verify the table against the TTB's own permittee list:
-https://www.ttb.gov/foia/frl (Frequently Requested Lists → distilled spirits
-plants). That is the primary source; the two lists below are secondary.
+**On the TTB as a check (tried 15 September 2026):** the TTB's public List of
+Permittees (https://www.ttb.gov/public-information/foia/list-of-permittees,
+"Spirits Producers and Bottlers List", CSV) carries *basic permit* numbers of
+the form `KY-S-113`, which are a different numbering from DSP registry numbers
+and do not correspond to them: `KY-S-20022` is Casey Jones Distillery, not
+Angel's Envy; `KY-S-15014` is Wild Turkey, not Limestone Branch; most of the
+Kentucky majors' DSP numbers do not appear at all. A few coincide (Jim Beam
+230, MGP 15016, Michter's 20003), which is coincidence, not confirmation. So
+that file cannot verify the table. The DSP number is what the label prints,
+and the primary check is a COLA record or the label itself. The two lists
+below remain the working sources, marked as such on screen.
 
 - https://modernthirst.com/home/dsp-numbers/
 - https://www.whiskeyprof.com/distilled-spirits-plant-numbers-d-s-p-work-in-progress/

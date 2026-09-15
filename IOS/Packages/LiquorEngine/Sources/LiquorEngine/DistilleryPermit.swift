@@ -16,9 +16,10 @@ import Foundation
 /// - https://www.whiskeyprof.com/distilled-spirits-plant-numbers-d-s-p-work-in-progress/
 ///
 /// An entry on one list only is shown with that said. A number not in the
-/// table is shown as unknown, never guessed. Nothing here is the TTB's own
-/// registry -- https://www.ttb.gov/foia/frl, the distilled spirits plant
-/// permittee list -- which is the primary source to check before a release.
+/// table is shown as unknown, never guessed. The TTB's public permittee
+/// list was tried as a check and cannot serve: it carries basic-permit
+/// numbers (KY-S-113), a different numbering from the DSP registry. See
+/// docs/07-easter-egg-sources.md. The label itself is the primary source.
 public enum DistilleryPermit: Sendable {
 
     public struct Plant: Hashable, Sendable {
