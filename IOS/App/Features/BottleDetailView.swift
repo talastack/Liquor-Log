@@ -119,6 +119,13 @@ struct BottleDetailView: View {
                     if summary.bottle.catalogProductId != nil {
                         ProductNoteCard(body_: productNote) { isEditingNote = true }
                     }
+                    // Only when the proof is known and there is somewhere
+                    // lower to go: a bottle at 80 has nothing to add water for.
+                    if summary.bottle.isOpen,
+                       let abv = summary.bottle.abv ?? env.product(for: summary.bottle)?.abv,
+                       ABV(percent: abv).proof > 80, ABV(percent: abv).proof <= Proofing.highestProof {
+                        WaterCard(proof: ABV(percent: abv).proof, pourMilliliters: summary.bottle.pourSizeMl)
+                    }
                     if showsWax(summary) {
                         wax(summary)
                     }

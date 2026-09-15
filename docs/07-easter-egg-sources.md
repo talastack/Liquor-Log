@@ -146,3 +146,17 @@ without a source URL. The primary source is the TTB COLA registry
 (https://ttbonline.gov/colasonline/publicSearchColasBasic.do); each row should
 be checked there before release. The 12-row audit of 11 September corrected
 label facts from published sources but did not flip any row to verified.
+
+## Water (proofing)
+
+- **Method and anchors:** 27 CFR 30.66, the text of § 30.66 itself: divide
+  the alcohol in the given strength by the alcohol in the required strength,
+  multiply by the water in the required strength, subtract the water in the
+  given strength. Its printed example, 112 proof to 100 proof = 1.12 × 53.73
+  − 47.75. Fetched from ecfr.gov on 15 September 2026.
+- **Table 6 values (51–150 proof):** TTB, Gauging Manual Tables, Table_6.pdf
+  (ttb.gov/system/files/images/pdfs/foia_Gauging_Manual_Tables/Table_6.pdf),
+  a scan. Transcribed and checked against the regulation's anchors and the
+  step between neighbours (0.45–0.53, rising smoothly); every misread digit
+  in the OCR broke that pattern. Outside 51–150 the app answers nothing.
+- **Teaspoon:** a US teaspoon is 4.92892 ml (NIST Handbook 44, Appendix C).

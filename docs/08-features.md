@@ -69,6 +69,10 @@ The aisle question, offline: *do I already own this?*
   letter, producer warehouse lore (`WarehouseLore`); **Share this pick** as
   a record (`PickCard`).
 - **Against the standard release** (`PickCompare`).
+- **Water** — how much takes this pour to 110/100/90/80 or any proof, and
+  what proof a splash you already added landed at. TTB Gauging Manual
+  Table 6 (27 CFR 30.66), contraction included; a kitchen measure beside
+  the millilitres (`Proofing`).
 - **The wax** — measure a Maker's drip from a photo, ranked among your own
   (`WaxDrip`). **The staves** — a Private Select recipe as a flavour profile,
   compared with your other picks (`StaveRecipe`).

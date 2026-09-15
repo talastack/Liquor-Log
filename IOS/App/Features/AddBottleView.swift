@@ -299,7 +299,8 @@ struct AddBottleView: View {
                 .tint(Palette.gold)
             }
 
-            Text("It stays private to you, and behaves like any catalogue bottle.")
+            Text("It stays private to you, and behaves like any catalogue bottle. "
+                 + "For an independent bottling, the bottler is the brand and the distillery is who made it.")
                 .font(TypeScale.caption())
                 .textCase(nil)
                 .foregroundStyle(Palette.textMuted)
