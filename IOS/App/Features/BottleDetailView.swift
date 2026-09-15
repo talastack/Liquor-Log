@@ -548,9 +548,7 @@ struct BottleDetailView: View {
                                 .foregroundStyle(Palette.textSecondary)
                         }
                     }
-                    Text(WaxDrip.describe(fraction: fraction)
-                         + (bottle.dripLengthMm.map { String(format: " · about %.0f mm", $0) } ?? "")
-                         + ". "
+                    Text((bottle.dripLengthMm.map { String(format: "About %.0f mm. ", $0) } ?? "")
                          + WaxDrip.standing(of: fraction, among: otherDrips).text)
                         .font(TypeScale.body())
                         .foregroundStyle(Palette.text)
@@ -638,8 +636,9 @@ struct BottleDetailView: View {
             }
 
             Text("Maker's Private Select: fully matured Maker's finished on ten oak "
-                 + "staves of five kinds for nine weeks. The staves and what each "
-                 + "brings are Maker's own; the counts are from the label.")
+                 + "staves of five kinds for nine weeks, per Maker's. What each stave "
+                 + "brings is from the programme's stave cards; the counts are from "
+                 + "the label.")
                 .font(TypeScale.caption())
                 .textCase(nil)
                 .foregroundStyle(Palette.textMuted)

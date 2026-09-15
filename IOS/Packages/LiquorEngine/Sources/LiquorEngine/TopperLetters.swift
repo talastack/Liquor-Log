@@ -2,54 +2,59 @@ import Foundation
 
 /// The letters on Blanton's cork toppers, and which of them a shelf has.
 ///
-/// Each stopper carries a horse and jockey and one letter of B-L-A-N-T-O-N-'-S,
-/// eight letters and an apostrophe, and collecting the set is a thing people
-/// do. It is also what bourbondumpdate.com -- the one registry the 10
-/// September brief found the community had welcomed -- records alongside the
-/// dump date and the state the bottle was found in.
+/// From Blanton's own FAQ (https://www.blantonsbourbon.com/pages/faq, read
+/// 15 September 2026): since 1999 the stoppers have come as a collector's
+/// set of eight, a horse and jockey in the eight stages of a race, each
+/// marked with a single letter that spells BLANTONS when the set is
+/// complete. There are two different N's -- the second is followed by a
+/// subtle colon, "N:" -- and no apostrophe stopper. All eight are made in
+/// equal numbers and placed on bottles at random, so no letter is rarer
+/// than another; a shelf's set is a fact about the shelf, not a score.
 ///
-/// The set is a fact about Blanton's, so it lives here rather than in a
-/// column constraint: another brand's set would be another table entry, not
-/// a migration.
+/// It is also what bourbondumpdate.com records beside the dump date, which
+/// is why the letter is stored per bottle.
 public enum TopperLetters: Sendable {
 
-    /// The set, in order, apostrophe included. Two N's on purpose: the word
-    /// has two, and the stoppers do too.
-    public static let letters: [Character] = ["B", "L", "A", "N", "T", "O", "N", "'", "S"]
+    /// The eight stoppers, in the order they spell the name. The second N
+    /// is its own stopper, written "N:" as Blanton's marks it.
+    public static let stoppers: [String] = ["B", "L", "A", "N", "T", "O", "N:", "S"]
 
-    /// The distinct letters somebody can own: B L A N T O S and the
-    /// apostrophe. N appears twice in the word and once here.
-    public static let distinct: [Character] = ["B", "L", "A", "N", "T", "O", "'", "S"]
+    /// The word the set spells, for display.
+    public static let word = "BLANTONS"
 
-    /// A stored letter, normalised: uppercased, the typographic apostrophe
-    /// folded to the plain one, anything not in the set rejected.
-    public static func normalise(_ raw: String) -> Character? {
+    /// A stored letter, normalised: uppercased, "n2" or "n:" for the second
+    /// N, anything that is not one of the eight rejected. The apostrophe
+    /// people sometimes type is not a stopper and comes back nil.
+    public static func normalise(_ raw: String) -> String? {
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
-        guard trimmed.count == 1, let letter = trimmed.first else { return nil }
-        let folded: Character = (letter == "\u{2019}" || letter == "`") ? "'" : letter
-        return distinct.contains(folded) ? folded : nil
+        switch trimmed {
+        case "B", "L", "A", "T", "O", "S": return trimmed
+        case "N", "N1": return "N"
+        case "N:", "N2", "N;", "N.": return "N:"
+        default: return nil
+        }
     }
 
     public struct Progress: Hashable, Sendable {
-        /// Letters owned, in set order, with how many of each.
-        public let owned: [Character: Int]
-        public let missing: [Character]
+        /// Stoppers owned, with how many of each.
+        public let owned: [String: Int]
+        public let missing: [String]
         public var isComplete: Bool { missing.isEmpty }
-        public var ownedCount: Int { distinct.count - missing.count }
+        public var ownedCount: Int { stoppers.count - missing.count }
 
-        /// The word with the missing letters blanked, for a single line:
-        /// "B L A _ T O _ ' S".
+        /// The word with the missing stoppers blanked, for a single line:
+        /// "B L A _ T O N: _".
         public var wordLine: String {
-            letters.map { owned[$0] != nil ? String($0) : "_" }.joined(separator: " ")
+            stoppers.map { owned[$0] != nil ? $0 : "_" }.joined(separator: " ")
         }
     }
 
     public static func progress(_ letters: [String]) -> Progress {
-        var owned: [Character: Int] = [:]
+        var owned: [String: Int] = [:]
         for raw in letters {
-            if let letter = normalise(raw) { owned[letter, default: 0] += 1 }
+            if let stopper = normalise(raw) { owned[stopper, default: 0] += 1 }
         }
-        let missing = distinct.filter { owned[$0] == nil }
+        let missing = stoppers.filter { owned[$0] == nil }
         return Progress(owned: owned, missing: missing)
     }
 }

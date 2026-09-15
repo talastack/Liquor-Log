@@ -262,8 +262,8 @@ struct StatsView: View {
                     value: "\(longest.value) \(longest.value == 1 ? "day" : "days") · \(longest.name)")
             }
             // The stopper set, as a fact about the shelf. Complete or not,
-            // it is never a goal bar: the research's one welcomed registry
-            // records these letters and nobody there is awarded anything.
+            // it is never a goal bar: Blanton's makes all eight in equal
+            // numbers and places them at random, so no letter is rare.
             if let toppers = summary.topperLetters {
                 FactRow(
                     label: "Blanton's toppers",

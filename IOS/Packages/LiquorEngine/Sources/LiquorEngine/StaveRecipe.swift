@@ -32,14 +32,20 @@ public struct StaveRecipe: Hashable, Sendable, Codable {
             }
         }
 
-        /// What Maker's says the stave brings.
+        /// What each stave is designed to bring, as the Private Selection
+        /// programme describes it. Maker's own site states only that there
+        /// are five staves and ten per barrel; the per-stave descriptions
+        /// below are the programme's stave cards as reported by two
+        /// independent write-ups (both read 15 September 2026), which agree:
+        /// https://www.bourbonguy.com/blog/2017/12/12/makers-mark-private-select-part-1
+        /// https://www.bourbonbanter.com/makers-mark-private-select-review-randalls-wine-spirits/
         public var character: String {
             switch self {
-            case .bakedAmericanPure2: return "vanilla, caramel and a rounder sweetness"
-            case .searedFrenchCuvee: return "rich dark fruit and a longer finish"
-            case .makers46: return "caramel, vanilla and oak spice"
-            case .roastedFrenchMocha: return "chocolate, coffee and roasted notes"
-            case .toastedFrenchSpice: return "baking spice, cinnamon and clove"
+            case .bakedAmericanPure2: return "oak, vanilla, caramel and sweetness"
+            case .searedFrenchCuvee: return "butterscotch, caramel, toasted oak and nuttiness"
+            case .makers46: return "spicy vanilla -- the same stave as Maker's 46"
+            case .roastedFrenchMocha: return "dark chocolate, coffee and char"
+            case .toastedFrenchSpice: return "fruit and baking spice"
             }
         }
     }

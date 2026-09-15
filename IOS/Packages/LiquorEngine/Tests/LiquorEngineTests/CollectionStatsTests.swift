@@ -250,7 +250,7 @@ final class PourMenuTests: XCTestCase {
             CollectionStats.Entry(isFinished: true, topperLetter: "L"),  // gone, not on the shelf
         ])
         XCTAssertEqual(summary.topperLetters?.ownedCount, 2)
-        XCTAssertEqual(summary.topperLetters?.wordLine, "B _ _ _ _ _ _ _ S")
+        XCTAssertEqual(summary.topperLetters?.wordLine, "B _ _ _ _ _ _ S")
     }
 
     func testNoPricesMeansNoAverage() {

@@ -17,7 +17,8 @@ import Foundation
 ///
 /// An entry on one list only is shown with that said. A number not in the
 /// table is shown as unknown, never guessed. Nothing here is the TTB's own
-/// registry, which is the source to check before a release.
+/// registry -- https://www.ttb.gov/foia/frl, the distilled spirits plant
+/// permittee list -- which is the primary source to check before a release.
 public enum DistilleryPermit: Sendable {
 
     public struct Plant: Hashable, Sendable {

@@ -226,10 +226,11 @@ struct DripMeasureView: View {
                     .font(TypeScale.secondary())
                     .foregroundStyle(Palette.textMuted)
             }
-            Text(WaxDrip.describe(fraction: measurement.fraction)
-                 + (measurement.millimeters.map { String(format: " · about %.0f mm", $0) } ?? ""))
-                .font(TypeScale.body())
-                .foregroundStyle(Palette.text)
+            if let mm = measurement.millimeters {
+                Text(String(format: "About %.0f mm, from the height you typed", mm))
+                    .font(TypeScale.body())
+                    .foregroundStyle(Palette.text)
+            }
         }
         .padding(Space.l)
         .frame(maxWidth: .infinity, alignment: .leading)

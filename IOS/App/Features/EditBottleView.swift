@@ -243,7 +243,8 @@ struct EditBottleView: View {
             if isBlantons || !topperLetter.isEmpty {
                 VStack(alignment: .leading, spacing: Space.xs) {
                     field("Topper letter", text: $topperLetter)
-                    Text("The letter on the cork: one of B L A N T O N ' S.")
+                    Text("The letter on the cork: one of the eight, B L A N T O N S. "
+                         + "There are two N's; the second is marked N: on the stopper.")
                         .font(TypeScale.caption())
                         .textCase(nil)
                         .foregroundStyle(Palette.textMuted)
@@ -397,11 +398,9 @@ struct EditBottleView: View {
         edited.floor = blankAsNil(floor)
         edited.recipeCode = blankAsNil(recipeCode)?.uppercased()
         edited.finish = blankAsNil(finish)
-        // Normalised by the engine, so "b" and a curly apostrophe are stored
-        // as the letter they mean; anything else is dropped, not saved.
-        edited.topperLetter = blankAsNil(topperLetter)
-            .flatMap(TopperLetters.normalise)
-            .map(String.init)
+        // Normalised by the engine: "n2" is the second N, "N:"; anything
+        // that is not one of the eight stoppers is dropped, not saved.
+        edited.topperLetter = blankAsNil(topperLetter).flatMap(TopperLetters.normalise)
         // Stored in the engine's own spelling once it validates; a recipe
         // that does not total ten is refused at save, below.
         edited.staveRecipe = blankAsNil(staveRecipe).flatMap { StaveRecipe($0)?.code }

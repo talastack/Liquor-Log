@@ -233,7 +233,8 @@ public struct Bottle: SyncableRecord {
     /// "you own this barrel".
     public var barcode: String?
 
-    /// The letter on a Blanton's cork topper -- one of B-L-A-N-T-O-N-'-S.
+    /// The letter on a Blanton's cork topper -- one of the eight that spell
+    /// BLANTONS, the second N stored as "N:" as Blanton's marks it.
     /// Free text so another brand's set needs no migration; the engine's
     /// `TopperLetters` knows which letters make a set.
     public var topperLetter: String?

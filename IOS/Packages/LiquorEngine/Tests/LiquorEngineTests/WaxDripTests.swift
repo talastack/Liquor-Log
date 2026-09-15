@@ -59,9 +59,4 @@ final class WaxDripTests: XCTestCase {
         XCTAssertEqual(mid.text, "Longer than 50% of 5.")
     }
 
-    func testTheWords() {
-        XCTAssertEqual(WaxDrip.describe(fraction: 0.02), "Barely a drip")
-        XCTAssertEqual(WaxDrip.describe(fraction: 0.25), "A proper drip")
-        XCTAssertEqual(WaxDrip.describe(fraction: 0.6), "A cascade")
-    }
 }

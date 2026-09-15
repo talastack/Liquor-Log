@@ -66,7 +66,7 @@ public enum DumpDateRegistry: Sendable {
             .map { entry -> [String] in
                 [
                     entry.dumpedAt.map { isoDay($0, calendar: calendar) } ?? "",
-                    entry.topperLetter.flatMap(TopperLetters.normalise).map(String.init) ?? "",
+                    entry.topperLetter.flatMap(TopperLetters.normalise) ?? "",
                     entry.barrel ?? "",
                     entry.warehouse ?? "",
                     entry.rick ?? "",

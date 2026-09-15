@@ -24,6 +24,34 @@ final class LaserCodeTests: XCTestCase {
         XCTAssertEqual(code.description, "L19274 15:02 K")
     }
 
+    /// The modern code as the public write-ups give it, plant number and all.
+    func testTheModernFormatWithAPlantNumber() throws {
+        let code = try XCTUnwrap(LaserCode("L 18 096 01 1050 K"))
+        XCTAssertEqual(code.year, 2018)
+        XCTAssertEqual(code.dayOfYear, 96)
+        XCTAssertEqual(code.plant, 1)
+        XCTAssertEqual(code.hour, 10)
+        XCTAssertEqual(code.minute, 50)
+        XCTAssertEqual(code.line, "K")
+        XCTAssertEqual(code.summary(calendar: utc), "Bottled 6 April 2018 at 10:50, line K.")
+        XCTAssertEqual(code.description, "L18096 01 10:50 K")
+        let plantOnly = try XCTUnwrap(LaserCode("L1809601"))
+        XCTAssertEqual(plantOnly.plant, 1)
+        XCTAssertNil(plantOnly.hour)
+    }
+
+    /// 2007-2011: line, day, year, time.
+    func testTheOlderFormat() throws {
+        let code = try XCTUnwrap(LaserCode("K 259 10 15:47"))
+        XCTAssertEqual(code.year, 2010)
+        XCTAssertEqual(code.dayOfYear, 259)
+        XCTAssertEqual(code.hour, 15)
+        XCTAssertEqual(code.minute, 47)
+        XCTAssertEqual(code.line, "K")
+        XCTAssertNil(code.prefix)
+        XCTAssertEqual(code.summary(calendar: utc), "Bottled 16 September 2010 at 15:47, line K.")
+    }
+
     func testSpacesAndColonAreOptional() throws {
         XCTAssertEqual(LaserCode("l192741502k"), LaserCode("L19274 15:02 K"))
         let bare = try XCTUnwrap(LaserCode("L19274"))

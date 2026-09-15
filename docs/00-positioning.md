@@ -188,7 +188,7 @@ giving up control of the data.
 named, BlantonsDumpDate.com, is dormant — one Wayback capture in six years, and
 the root refuses automated clients. The live registry is **bourbondumpdate.com**,
 founded 2019 by Chris White, with a Wayback 200 in February 2026. Its data
-model is dump date, state found, and which letter of B-L-A-N-T-O-N-'-S is on the
+model is dump date, state found, and which of the eight stopper letters (B L A N T O N S, two different N's, per Blanton's own FAQ) is on the
 cork topper. No app, no visible monetisation.
 
 **The opening the brief confirmed:** a national, crowdsourced, queryable

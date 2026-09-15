@@ -21,12 +21,12 @@ final class DumpDateRegistryTests: XCTestCase {
         let csv = DumpDateRegistry.csv([
             DumpDateRegistry.Entry(dumpedAt: day(400), topperLetter: "b", barrel: "12", warehouse: "H", rick: "34"),
             DumpDateRegistry.Entry(topperLetter: "S"),
-            DumpDateRegistry.Entry(dumpedAt: day(10), topperLetter: "'", store: "Total Wine", stateFound: "VA"),
+            DumpDateRegistry.Entry(dumpedAt: day(10), topperLetter: "n2", store: "Total Wine", stateFound: "VA"),
         ], calendar: utc)
         let rows = lines(of: csv)
         XCTAssertEqual(rows.count, 3)
         XCTAssertEqual(rows[0], DumpDateRegistry.header.joined(separator: ","))
-        XCTAssertEqual(rows[1], "1970-01-11,',,,,,Total Wine,VA")
+        XCTAssertEqual(rows[1], "1970-01-11,N:,,,,,Total Wine,VA")
         XCTAssertEqual(rows[2], "1971-02-05,B,12,H,34,,,")
     }
 

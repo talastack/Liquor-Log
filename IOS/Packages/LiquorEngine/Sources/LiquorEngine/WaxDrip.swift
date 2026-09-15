@@ -105,16 +105,10 @@ public enum WaxDrip: Sendable {
             longerThan: Double(shorter) / Double(others.count))
     }
 
-    /// Words for a length, so the screen has something other than a number.
-    /// Bands, and deliberately coarse: the lore is "that one's a drippy one",
-    /// not a decimal.
-    public static func describe(fraction: Double) -> String {
-        switch fraction {
-        case ..<0.05: return "Barely a drip"
-        case ..<0.15: return "A short drip"
-        case ..<0.30: return "A proper drip"
-        case ..<0.50: return "A long drip"
-        default: return "A cascade"
-        }
-    }
+    /// Deliberately absent: words for a length. An earlier version called a
+    /// drip "short", "proper", "long" or "a cascade" at bands the app made
+    /// up. No data exists for where those lines fall -- Maker's says only
+    /// that every bottle is hand-dipped -- so the app shows the number and
+    /// the standing among the person's own bottles, and says nothing it
+    /// cannot back.
 }
