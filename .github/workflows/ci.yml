@@ -182,4 +182,11 @@ jobs:
             -scheme LiquorLog \
             -destination "id=$SIMULATOR_UDID" \
             CODE_SIGNING_ALLOWED=NO \
-          | xcbeautify
+          | tee xcodebuild.log | xcbeautify
+
+      # xcbeautify has swallowed a compile error before, leaving a failed
+      # job with no diagnostic in it. The raw log is kept and grepped.
+      - name: Errors, verbatim
+        if: failure()
+        working-directory: IOS
+        run: grep -E "error:|error [A-Z]|failed:" xcodebuild.log | sort -u | head -80 || true
