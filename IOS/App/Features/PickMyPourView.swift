@@ -16,6 +16,8 @@ struct PickMyPourView: View {
 
     @State private var choice: PickMyPour.Choice?
     @State private var candidates: [PickMyPour.Candidate] = []
+    /// The last thing you said about each candidate's product, by bottle id.
+    @State private var recall: [String: String] = [:]
     @State private var hasLooked = false
     @State private var error: String?
 
@@ -67,6 +69,15 @@ struct PickMyPourView: View {
                 Text(remaining(choice.candidate))
                     .font(TypeScale.code(13))
                     .foregroundStyle(Palette.textMuted)
+
+                if let line = recall[choice.candidate.id] {
+                    Text(line)
+                        .font(TypeScale.secondary())
+                        .foregroundStyle(Palette.textSecondary)
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.top, Space.xs)
+                }
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, Space.xl)
@@ -134,11 +145,32 @@ struct PickMyPourView: View {
         do {
             candidates = try env.export
                 .pourCandidates(resolveName: { env.name(for: $0) })
+            recall = try latestWords()
             pick()
         } catch {
             self.error = error.localizedDescription
         }
         hasLooked = true
+    }
+
+    /// The latest tasting of each bottle's PRODUCT -- a tasting at a bar
+    /// counts as much as one from this bottle -- as a line per bottle id.
+    private func latestWords() throws -> [String: String] {
+        let records = try env.tastings.records { env.identity($0) }
+        var latest: [String: TastingRecord] = [:]
+        for record in records {
+            let id = record.product.productId
+            if let seen = latest[id], seen.tastedAt >= record.tastedAt { continue }
+            latest[id] = record
+        }
+        var lines: [String: String] = [:]
+        for summary in try env.bottles.summaries() {
+            guard let productId = summary.bottle.catalogProductId,
+                  let record = latest[productId],
+                  let line = TastingRecall.line(record) else { continue }
+            lines[summary.id] = line
+        }
+        return lines
     }
 
     private func pick() {

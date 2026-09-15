@@ -26,6 +26,10 @@ The aisle question, offline: *do I already own this?*
 - **You might also mean** — related products (same line, recipe, distillery),
   yours first (`BottleSearch.related`).
 - Your note on the product shows on the card (`KnowledgeNoteRepository`).
+- **You said** — the last tasting of it as one line: "Last time, in March:
+  8/10, would buy again. Liked toffee. Not the heat." Built only from what
+  was recorded; also on Pick my pour, the line sheet and Browse
+  (`TastingRecall`).
 - Recent lookups, per device.
 - **Scan** — camera or photo; Apple Vision reads proof, batch, barrel, recipe
   code, age, laser code, DSP; barcode scan against your own barcode table

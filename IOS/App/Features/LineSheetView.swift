@@ -16,6 +16,8 @@ struct LineSheetView: View {
     var onPick: ((String) -> Void)?
 
     @State private var line: LineView.Line?
+    /// What you said last time about each expression, by product id.
+    @State private var recall: [String: String] = [:]
 
     var body: some View {
         ScrollView {
@@ -46,11 +48,21 @@ struct LineSheetView: View {
                                         .font(.system(size: 15, weight: .semibold))
                                         .foregroundStyle(color(row.standing))
                                         .frame(width: 22)
-                                    Text(row.product.expression.isEmpty
-                                         ? row.product.brand : row.product.expression)
-                                        .font(TypeScale.body())
-                                        .foregroundStyle(Palette.text)
-                                        .multilineTextAlignment(.leading)
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(row.product.expression.isEmpty
+                                             ? row.product.brand : row.product.expression)
+                                            .font(TypeScale.body())
+                                            .foregroundStyle(Palette.text)
+                                            .multilineTextAlignment(.leading)
+                                        if let recall = recall[row.product.productId] {
+                                            Text(recall)
+                                                .font(TypeScale.caption())
+                                                .textCase(nil)
+                                                .foregroundStyle(Palette.textSecondary)
+                                                .multilineTextAlignment(.leading)
+                                                .fixedSize(horizontal: false, vertical: true)
+                                        }
+                                    }
                                     Spacer(minLength: Space.s)
                                     Text(row.standing.label)
                                         .font(TypeScale.caption())
@@ -96,6 +108,13 @@ struct LineSheetView: View {
             catalogue: env.catalog.products.map(\.identity),
             holdings: holdings,
             tastings: tastings)
+        var latest: [String: TastingRecord] = [:]
+        for record in tastings {
+            let id = record.product.productId
+            if let seen = latest[id], seen.tastedAt >= record.tastedAt { continue }
+            latest[id] = record
+        }
+        recall = latest.compactMapValues { TastingRecall.line($0) }
     }
 
     private func symbol(_ standing: LineView.Standing) -> String {

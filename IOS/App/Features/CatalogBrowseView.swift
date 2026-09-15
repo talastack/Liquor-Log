@@ -18,6 +18,8 @@ struct CatalogBrowseView: View {
     struct Row: Identifiable {
         let product: CatalogProduct
         let standing: LineView.Standing
+        /// What you said last time, when you said anything.
+        let recall: String?
         var id: String { product.id }
     }
 
@@ -109,6 +111,13 @@ struct CatalogBrowseView: View {
                     .font(TypeScale.caption())
                     .textCase(nil)
                     .foregroundStyle(Palette.textMuted)
+                if let recall = row.recall {
+                    Text(recall)
+                        .font(TypeScale.caption())
+                        .textCase(nil)
+                        .foregroundStyle(Palette.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
             Spacer(minLength: Space.s)
             Menu {
@@ -146,9 +155,17 @@ struct CatalogBrowseView: View {
     private func load() {
         let holdings = (try? env.bottles.holdings { env.identity($0) }) ?? []
         let tastings = (try? env.tastings.records { env.identity($0) }) ?? []
-        let onShelf = Set(holdings.filter { !$0.isFinished }.map(\.product.productId))
+        let live = holdings.filter { !$0.isFinished }
+        let onShelf = Set(live.filter { !$0.isSample }.map(\.product.productId))
+        let sampled = Set(live.filter(\.isSample).map(\.product.productId))
         let finished = Set(holdings.filter(\.isFinished).map(\.product.productId))
         let tasted = Set(tastings.map(\.product.productId))
+        var latest: [String: TastingRecord] = [:]
+        for record in tastings {
+            let id = record.product.productId
+            if let seen = latest[id], seen.tastedAt >= record.tastedAt { continue }
+            latest[id] = record
+        }
 
         let byDistillery = Dictionary(grouping: env.catalog.products, by: \.distillery)
         groups = byDistillery.keys.sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
@@ -159,6 +176,8 @@ struct CatalogBrowseView: View {
                         let standing: LineView.Standing
                         if onShelf.contains(product.id) {
                             standing = .onShelf
+                        } else if sampled.contains(product.id) {
+                            standing = .sample
                         } else if finished.contains(product.id) {
                             standing = .hadItBefore
                         } else if tasted.contains(product.id) {
@@ -166,7 +185,9 @@ struct CatalogBrowseView: View {
                         } else {
                             standing = .never
                         }
-                        return Row(product: product, standing: standing)
+                        return Row(
+                            product: product, standing: standing,
+                            recall: latest[product.id].flatMap { TastingRecall.line($0) })
                     }
                 return (distillery: distillery, rows: rows)
             }

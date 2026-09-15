@@ -370,12 +370,15 @@ struct ShelfCheckCard: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            if let liked = verdict.latestTasting?.liked, !liked.isEmpty {
+            // What you said last time, where the decision is being made.
+            // Built only from what was recorded; nothing rated or written
+            // means no line.
+            if let recall = verdict.latestTasting.flatMap({ TastingRecall.line($0) }) {
                 HStack(alignment: .top, spacing: Space.s) {
-                    Text("LIKED")
+                    Text("YOU SAID")
                         .font(TypeScale.caption())
                         .foregroundStyle(Palette.good)
-                    Text(liked)
+                    Text(recall)
                         .font(TypeScale.secondary())
                         .foregroundStyle(Palette.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
