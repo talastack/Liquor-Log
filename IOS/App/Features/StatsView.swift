@@ -21,6 +21,8 @@ struct StatsView: View {
     @State private var summary: CollectionStats.Summary?
     /// Pours that went to other people, newest first, with the bottle's name.
     @State private var given: [Given] = []
+    /// Lines you have something of, against what the catalogue lists.
+    @State private var lines: [LineView.Completion] = []
     @AppStorage(VolumeDisplay.key) private var ounces = false
 
     struct Given: Identifiable {
@@ -62,6 +64,9 @@ struct StatsView: View {
                         growth(summary)
                     }
                     notes(summary)
+                    if !lines.isEmpty {
+                        linesSection
+                    }
                     if !given.isEmpty {
                         givenAway
                     }
@@ -308,6 +313,24 @@ struct StatsView: View {
         .padding(.top, 64)
     }
 
+    /// "Weller · 4 of 7". Counts against the catalogue, most complete
+    /// first. Not a progress bar and not a badge: the catalogue is what the
+    /// app happens to list, and a line nobody is chasing is not a gap.
+    private var linesSection: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            SectionLabel("Lines")
+                .padding(.bottom, Space.xs)
+            ForEach(Array(lines.prefix(10).enumerated()), id: \.element.id) { index, line in
+                FactRow(
+                    label: line.brand,
+                    value: line.had == line.total
+                        ? "All \(line.total)"
+                        : "\(line.had) of \(line.total)",
+                    isLast: index == min(lines.count, 10) - 1)
+            }
+        }
+    }
+
     /// What has gone to other people, from the pour log. A samples-given
     /// list is on every serious collector's spreadsheet; here it is the
     /// pours that were marked as somebody else's.
@@ -327,6 +350,10 @@ struct StatsView: View {
 
     private func reload() {
         let bottles = (try? env.bottles.summaries(includeFinished: true)) ?? []
+        lines = LineView.completions(
+            catalogue: env.catalog.products.map(\.identity),
+            holdings: (try? env.bottles.holdings { env.identity($0) }) ?? [],
+            tastings: (try? env.tastings.records { env.identity($0) }) ?? [])
         let names = Dictionary(uniqueKeysWithValues: bottles.map { ($0.id, env.name(for: $0.bottle)) })
         given = ((try? env.bottles.poursGivenAway()) ?? []).compactMap { pour in
             guard let who = pour.givenTo, let name = names[pour.bottleId] else { return nil }

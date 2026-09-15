@@ -63,4 +63,64 @@ final class LineViewTests: XCTestCase {
             tastings: [])
         XCTAssertEqual(line.rows.map(\.standing), [.sample])
     }
+
+    // MARK: - Completion
+
+    private func expression(_ id: String, _ name: String, brand: String = "W. L. Weller") -> ProductIdentity {
+        ProductIdentity(
+            productId: id, distillery: "Buffalo Trace", brand: brand, expression: name,
+            classType: .kentuckyStraightBourbon, productionType: .unspecified)
+    }
+
+    /// A count of what the catalogue lists, never a goal. Owned, sampled,
+    /// finished and tasted all count as "had".
+    func testTheLineCountsWhatYouHaveHadAgainstTheCatalogue() {
+        let sr = expression("sr", "Special Reserve")
+        let antique = expression("antique", "Antique 107")
+        let twelve = expression("12", "12 Year")
+        let full = expression("full", "Full Proof")
+        let line = LineView.line(
+            of: sr, catalogue: [sr, antique, twelve, full],
+            holdings: [
+                Holding(bottleId: "b", product: sr),
+                Holding(bottleId: "s", product: antique, isSample: true),
+                Holding(bottleId: "f", product: twelve, isFinished: true),
+            ],
+            tastings: [])
+        XCTAssertEqual(line.hadCount, 3)
+        XCTAssertEqual(line.completionLine, "3 of the 4 releases the catalogue lists.")
+        XCTAssertEqual(line.notYet.map(\.productId), ["full"])
+    }
+
+    func testAllAndNoneReadAsSuch() {
+        let a = expression("a", "A"), b = expression("b", "B")
+        let all = LineView.line(of: a, catalogue: [a, b],
+                                holdings: [Holding(bottleId: "1", product: a), Holding(bottleId: "2", product: b)],
+                                tastings: [])
+        XCTAssertEqual(all.completionLine, "All 2 releases the catalogue lists.")
+        let none = LineView.line(of: a, catalogue: [a, b], holdings: [], tastings: [])
+        XCTAssertEqual(none.completionLine, "None of the 2 releases the catalogue lists yet.")
+    }
+
+    func testALineOfOneSaysNothingAboutCompletion() {
+        let a = expression("a", "A")
+        let line = LineView.line(of: a, catalogue: [a], holdings: [Holding(bottleId: "1", product: a)], tastings: [])
+        XCTAssertNil(line.completionLine)
+    }
+
+    func testCompletionsListEveryLineYouHaveSomethingOfMostCompleteFirst() {
+        let w1 = expression("w1", "Special Reserve"), w2 = expression("w2", "Antique"), w3 = expression("w3", "12")
+        let s1 = expression("s1", "Jr", brand: "Stagg"), s2 = expression("s2", "Sr", brand: "Stagg")
+        let lone = expression("l", "", brand: "Lonely")
+        let e1 = expression("e1", "Small Batch", brand: "Elijah Craig"), e2 = expression("e2", "18", brand: "Elijah Craig")
+        let completions = LineView.completions(
+            catalogue: [w1, w2, w3, s1, s2, lone, e1, e2],
+            holdings: [Holding(bottleId: "a", product: w1), Holding(bottleId: "b", product: w2),
+                       Holding(bottleId: "c", product: s1), Holding(bottleId: "d", product: s2),
+                       Holding(bottleId: "e", product: lone)],
+            tastings: [])
+        XCTAssertEqual(completions.map(\.brand), ["Stagg", "W. L. Weller"])
+        XCTAssertEqual(completions.map(\.had), [2, 2])
+        XCTAssertEqual(completions.map(\.total), [2, 3])
+    }
 }

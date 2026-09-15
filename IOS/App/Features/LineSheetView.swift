@@ -36,6 +36,14 @@ struct LineSheetView: View {
                             .foregroundStyle(Palette.textMuted)
                             .fixedSize(horizontal: false, vertical: true)
                     }
+                    // A count of what the catalogue knows, not a checklist
+                    // anybody set. Stated once and left alone.
+                    if let completion = line.completionLine {
+                        Text(completion)
+                            .font(TypeScale.secondary())
+                            .foregroundStyle(Palette.textSecondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
 
                     VStack(spacing: 0) {
                         ForEach(Array(line.rows.enumerated()), id: \.element.id) { index, row in

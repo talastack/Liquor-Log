@@ -41,6 +41,62 @@ public enum LineView: Sendable {
         public let brand: String
         public let rows: [Row]
         public var isEmpty: Bool { rows.isEmpty }
+
+        /// Expressions you have any standing on: owned, sampled, finished
+        /// or tasted. "Had" in the sense collectors use it.
+        public var hadCount: Int { rows.filter { $0.standing != .never }.count }
+
+        /// "You have had 4 of the 7 releases the catalogue lists." A count,
+        /// not a goal: the catalogue is what the app knows, not a checklist
+        /// anybody set. Nil for a line of one, where it says nothing.
+        public var completionLine: String? {
+            guard rows.count > 1 else { return nil }
+            let had = hadCount
+            if had == 0 { return "None of the \(rows.count) releases the catalogue lists yet." }
+            if had == rows.count { return "All \(rows.count) releases the catalogue lists." }
+            return "\(had) of the \(rows.count) releases the catalogue lists."
+        }
+
+        /// What is left, in catalogue order.
+        public var notYet: [ProductIdentity] {
+            rows.filter { $0.standing == .never }.map(\.product)
+        }
+    }
+
+    /// One line's count for a summary screen: "Weller · 4 of 7".
+    public struct Completion: Hashable, Sendable, Identifiable {
+        public let distillery: String
+        public let brand: String
+        public let had: Int
+        public let total: Int
+        public var id: String { distillery + "|" + brand }
+        public var fraction: Double { total > 0 ? Double(had) / Double(total) : 0 }
+    }
+
+    /// Every line you have a standing on, against what the catalogue lists
+    /// of it. Lines of one expression are left out -- "1 of 1" is not a
+    /// fact about a collection -- and so are lines you have nothing of.
+    /// Most complete first, then biggest, then by name, so the list holds
+    /// still between launches.
+    public static func completions(
+        catalogue: [ProductIdentity],
+        holdings: [Holding],
+        tastings: [TastingRecord]
+    ) -> [Completion] {
+        let had = Set(holdings.map(\.product.productId) + tastings.map(\.product.productId))
+        let byLine = Dictionary(grouping: catalogue, by: \.lineKey)
+        return byLine.values.compactMap { members -> Completion? in
+            guard members.count > 1, let first = members.first else { return nil }
+            let count = members.filter { had.contains($0.productId) }.count
+            guard count > 0 else { return nil }
+            return Completion(
+                distillery: first.distillery, brand: first.brand, had: count, total: members.count)
+        }
+        .sorted {
+            if $0.fraction != $1.fraction { return $0.fraction > $1.fraction }
+            if $0.total != $1.total { return $0.total > $1.total }
+            return $0.brand.localizedCaseInsensitiveCompare($1.brand) == .orderedAscending
+        }
     }
 
     /// Every catalogue product sharing the line of `product`, in catalogue

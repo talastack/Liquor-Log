@@ -19,7 +19,9 @@ The aisle question, offline: *do I already own this?*
   no bottle · have the line, not this release · tasted, never owned · had it
   before · never had it.
 - **Tap the brand** on a card → every expression of that line with your
-  standing on each (`LineView`).
+  standing on each, and "4 of the 7 releases the catalogue lists" — a
+  count, not a checklist (`LineView`). Your collection lists every line
+  the same way.
 - **Price on the shelf?** — type it, get it against what you usually pay,
   the shelf reference, and your wishlist ceiling (`PriceHistory`,
   `PriceCheck`).
