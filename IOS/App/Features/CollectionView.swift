@@ -76,6 +76,7 @@ struct CollectionView: View {
         .navigationBarTitleDisplayMode(.inline)
         .task { reload() }
         .refreshable { reload() }
+        .onChange(of: env.changeCount) { _, _ in reload() }
         .sheet(item: $likeThis) { summary in
             NavigationStack {
                 LikeThisView(summary: summary, shelf: summaries.filter { !$0.bottle.isFinished })

@@ -77,6 +77,7 @@ struct WishlistView: View {
         }
         .task { reload() }
         .refreshable { reload() }
+        .onChange(of: env.changeCount) { _, _ in reload() }
         .alert("Something went wrong", isPresented: .constant(error != nil)) {
             Button("OK") { error = nil }
         } message: { Text(error ?? "") }

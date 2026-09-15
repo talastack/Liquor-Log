@@ -23,6 +23,15 @@ final class AppEnvironment {
     /// is bad, and a crash you cannot report is worse.
     private(set) var startupError: String?
 
+    /// Bumped after a write made from somewhere the visible screen cannot
+    /// see -- the + sheets over the tab bar, mostly. A screen that shows
+    /// the shelf reloads when this changes, so a bottle added from the +
+    /// appears on the Collection tab behind the sheet instead of waiting
+    /// for a tab switch or a pull.
+    private(set) var changeCount = 0
+
+    func noteChange() { changeCount += 1 }
+
     var bottles: BottleRepository { BottleRepository(database) }
     var tastings: TastingRepository { TastingRepository(database) }
     var shelfWalk: ReInventoryRepository { ReInventoryRepository(database) }

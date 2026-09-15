@@ -46,6 +46,7 @@ struct MoreView: View {
         .background(Palette.background)
         .navigationBarTitleDisplayMode(.inline)
         .task { refresh() }
+        .onChange(of: env.changeCount) { _, _ in refresh() }
         .alert("Something went wrong", isPresented: .constant(error != nil)) {
             Button("OK") { error = nil }
         } message: { Text(error ?? "") }

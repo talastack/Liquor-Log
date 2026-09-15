@@ -696,7 +696,9 @@ struct AddBottleView: View {
             chillFiltered: chillFiltered.value,
             volumeMl: Double(volumeMl) ?? 750,
             purchaseDate: Int64(purchasedOn.timeIntervalSince1970 * 1000),
-            purchasePriceCents: price.isEmpty ? nil : Int((Double(price) ?? 0) * 100),
+            // Rounded, not truncated: 79.99 * 100 is 7998.999... in binary and
+            // Int() of that is 7998 -- a cent lost on most prices typed.
+            purchasePriceCents: Double(price).map { Int(($0 * 100).rounded()) },
             purchaseStore: store.isEmpty ? nil : store,
             shelfPriceCents: Double(shelfPrice).map { Int(($0 * 100).rounded()) },
             barcode: scannedBarcode,

@@ -84,6 +84,7 @@ struct ShelfCheckView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onChange(of: query) { _, _ in search() }
         .task { countShelf() }
+        .onChange(of: env.changeCount) { _, _ in countShelf(); search() }
         .sheet(isPresented: $isScanning) {
             NavigationStack {
                 ScanLabelView { reading, product, _ in

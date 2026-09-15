@@ -70,13 +70,16 @@ struct MainTabView: View {
             Button("Record a tasting") { isAddingTasting = true }
             Button("Cancel", role: .cancel) { }
         }
-        .sheet(isPresented: $isAddingBottle) {
+        // onDismiss on all three: a sheet closing does not re-run the
+        // tab underneath it, so without this a bottle added from the +
+        // did not appear on the Collection tab until a tab switch.
+        .sheet(isPresented: $isAddingBottle, onDismiss: env.noteChange) {
             NavigationStack { AddBottleView() }
         }
-        .sheet(isPresented: $isAddingShelf) {
+        .sheet(isPresented: $isAddingShelf, onDismiss: env.noteChange) {
             NavigationStack { BulkAddView() }
         }
-        .sheet(isPresented: $isAddingTasting) {
+        .sheet(isPresented: $isAddingTasting, onDismiss: env.noteChange) {
             NavigationStack { TastingSheetView() }
         }
         .overlay(alignment: .top) {
@@ -215,6 +218,7 @@ struct TastingHistoryView: View {
         .background(Palette.background)
         .navigationBarTitleDisplayMode(.inline)
         .task { reload() }
+        .onChange(of: env.changeCount) { _, _ in reload() }
     }
 
     private func reload() {

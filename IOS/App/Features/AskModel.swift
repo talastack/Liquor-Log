@@ -30,7 +30,8 @@ enum AskModel {
     static var isAvailable: Bool {
         #if canImport(FoundationModels)
         if #available(iOS 26, *) {
-            return SystemLanguageModel.default.availability == .available
+            if case .available = SystemLanguageModel.default.availability { return true }
+            return false
         }
         #endif
         return false
@@ -41,7 +42,7 @@ enum AskModel {
     static func rephrase(_ sentence: String, bottleNames: [String]) async -> String? {
         #if canImport(FoundationModels)
         if #available(iOS 26, *) {
-            guard SystemLanguageModel.default.availability == .available else { return nil }
+            guard case .available = SystemLanguageModel.default.availability else { return nil }
             let names = bottleNames.prefix(60).joined(separator: "; ")
             let instructions = """
                 You rewrite one sentence about a whiskey collection into ONE of these exact forms, \
