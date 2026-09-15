@@ -15,8 +15,7 @@ final class AppEnvironment {
     let catalog: Catalog
     let wheel: FlavorWheel
     /// The CRT's registry of tequila producers, for the NOM on a label.
-    /// Loaded once, lazily: it is only read on the Decode screen.
-    private(set) lazy var tequila: TequilaRegistry = Self.loadTequila()
+    let tequila: TequilaRegistry
     /// Bottle photos, as files beside the database. Nil when the folder
     /// could not be made; every photo affordance then stays hidden.
     let photos: BottlePhotoStore?
@@ -46,12 +45,14 @@ final class AppEnvironment {
         database: AppDatabase,
         catalog: Catalog,
         wheel: FlavorWheel,
+        tequila: TequilaRegistry = loadTequila(),
         photos: BottlePhotoStore? = try? BottlePhotoStore(),
         startupError: String? = nil
     ) {
         self.database = database
         self.catalog = catalog
         self.wheel = wheel
+        self.tequila = tequila
         self.photos = photos
         self.startupError = startupError
     }
