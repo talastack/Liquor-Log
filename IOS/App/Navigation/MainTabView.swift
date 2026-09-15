@@ -1,4 +1,5 @@
 import SwiftUI
+import CoreSpotlight
 import LiquorData
 import LiquorEngine
 
@@ -102,6 +103,21 @@ struct MainTabView: View {
             if let message = env.startupError {
                 StartupBanner(message: message)
             }
+        }
+        // liquorlog://collection from the widget; liquorlog://bottle/<id>
+        // for a bottle. Anything else just brings the app up.
+        .onOpenURL { url in
+            guard url.scheme == "liquorlog" else { return }
+            tab = .collection
+            if url.host == "bottle", let id = url.pathComponents.dropFirst().first {
+                env.requestedBottleId = id
+            }
+        }
+        // A bottle picked from the phone's search.
+        .onContinueUserActivity(CSSearchableItemActionType) { activity in
+            guard let id = Spotlight.bottleId(from: activity) else { return }
+            tab = .collection
+            env.requestedBottleId = id
         }
     }
 

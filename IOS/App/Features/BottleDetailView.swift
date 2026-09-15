@@ -1,4 +1,5 @@
 import SwiftUI
+import WidgetKit
 import LiquorData
 import LiquorEngine
 
@@ -1143,6 +1144,9 @@ struct BottleDetailView: View {
             }
             pours = try env.bottles.pours(bottleId: bottleId)
             readings = try env.bottles.fillHistory(bottleId: bottleId)
+            // This screen writes pours and levels itself; the widget and
+            // the search index learn of them here.
+            WidgetCenter.shared.reloadAllTimelines()
             if summary?.bottle.isInfinity == true {
                 additions = try env.bottles.additions(blendId: bottleId)
                 blend = Blend.profile(try env.bottles.blendParts(blendId: bottleId) { id in

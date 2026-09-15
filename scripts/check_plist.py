@@ -60,8 +60,12 @@ def main():
                     "hyphen used as a dash")
             continue
 
-        # Only the app's own Info.plist carries the bundle keys.
-        if path.name != "Info.plist":
+        # Only the app's own Info.plist carries the bundle keys. An
+        # extension's plist (Widgets/) declares its extension point and
+        # never opens a camera.
+        if path.name != "Info.plist" or "Widgets" in path.parts:
+            if path.name == "Info.plist" and not contents.get("NSExtension"):
+                problems.append("%s: an extension plist needs NSExtension" % where)
             continue
 
         for key, consequence in REQUIRED.items():

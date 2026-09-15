@@ -91,6 +91,10 @@ struct CollectionView: View {
         .sheet(isPresented: $isAddingOne, onDismiss: reload) {
             NavigationStack { AddBottleView() }
         }
+        // Opened from outside: a widget, a search result.
+        .sheet(item: requestedBottle, onDismiss: reload) { request in
+            NavigationStack { BottleDetailView(bottleId: request.id) }
+        }
         .alert("Something went wrong", isPresented: .constant(error != nil)) {
             Button("OK") { error = nil }
         } message: {
@@ -380,6 +384,15 @@ struct CollectionView: View {
         } catch {
             self.error = error.localizedDescription
         }
+    }
+
+    struct Requested: Identifiable { let id: String }
+
+    /// The environment's request as a sheet item; dismissing clears it.
+    private var requestedBottle: Binding<Requested?> {
+        Binding(
+            get: { env.requestedBottleId.map { Requested(id: $0) } },
+            set: { if $0 == nil { env.requestedBottleId = nil } })
     }
 
     /// A bottle flattened for the filter. Class and production come from the

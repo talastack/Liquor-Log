@@ -79,5 +79,19 @@
 
   <key>ITSAppUsesNonExemptEncryption</key>
   <false/>
+
+  <!-- liquorlog://collection and liquorlog://bottle/<id>: the widget and
+       the search index open the app here. -->
+  <key>CFBundleURLTypes</key>
+  <array>
+    <dict>
+      <key>CFBundleURLName</key>
+      <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+      <key>CFBundleURLSchemes</key>
+      <array>
+        <string>liquorlog</string>
+      </array>
+    </dict>
+  </array>
 </dict>
 </plist>

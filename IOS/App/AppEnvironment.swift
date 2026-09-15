@@ -1,4 +1,5 @@
 import Foundation
+import WidgetKit
 import Observation
 import LiquorData
 import LiquorEngine
@@ -32,7 +33,17 @@ final class AppEnvironment {
     /// for a tab switch or a pull.
     private(set) var changeCount = 0
 
-    func noteChange() { changeCount += 1 }
+    /// Also the signal to everything outside the app's own screens: the
+    /// widget's timeline and the phone's search index.
+    func noteChange() {
+        changeCount += 1
+        WidgetCenter.shared.reloadAllTimelines()
+        Spotlight.reindex(self)
+    }
+
+    /// A bottle asked for from outside -- a widget tap, a search result.
+    /// The Collection tab opens it and clears this.
+    var requestedBottleId: String?
 
     var bottles: BottleRepository { BottleRepository(database) }
     var tastings: TastingRepository { TastingRepository(database) }

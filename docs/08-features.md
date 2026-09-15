@@ -141,6 +141,20 @@ The aisle question, offline: *do I already own this?*
   registry CSV (`DumpDateRegistry`), **insurance report** PDF (Pro).
 - **Pro** — StoreKit 2, yearly/monthly; paywall leads with what stays free.
 
+## Outside the app
+
+- **What's open widget** — small, medium, large: your open bottles with a
+  fill bar each and, from medium up, a pour button per bottle that logs one
+  pour of its usual size without opening the app (an App Intent running
+  against the shared database in the app group). Tapping the widget opens
+  the Collection. Refreshed after every write and hourly.
+- **Search** — every bottle on the shelf is in the phone's own search
+  (Spotlight): name, distillery, "Open · 13 of 17 pours" or "Sample from
+  Mike", where it is kept. A result opens the bottle.
+- The database now lives in the app group container
+  (`group.com.talastack.liquorlog`); an existing one is moved there on
+  first launch, WAL and all.
+
 ## Not built, on purpose
 
 Social feed, gamification, drink pacing or BAC, marketed AI, our own resale
@@ -148,6 +162,6 @@ price feed, beer. See `docs/00-positioning.md`.
 
 ## Waiting on something outside the code
 
-Hosted menu and community price/drip standing (Supabase live); widgets (a new
-Xcode target); COLA verification of the catalogue; the app's name, Pro price,
-terms and privacy pages.
+Hosted menu and community price/drip standing (Supabase live); COLA
+verification of the catalogue; the app's name, Pro price, terms and privacy
+pages.

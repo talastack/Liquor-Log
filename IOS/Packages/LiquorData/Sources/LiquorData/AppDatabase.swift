@@ -16,8 +16,19 @@ public struct AppDatabase: Sendable {
     }
 
     /// The real one.
+    /// The app group the app and its widgets share. The database lives in
+    /// the group container so a widget can read what is open without the
+    /// app running; the value is also in both targets' entitlements.
+    public static let appGroup = "group.com.talastack.liquorlog"
+
+    /// The on-disk database. In the app group container when the group is
+    /// available (a widget can then read it), otherwise in Application
+    /// Support as before. A database left in Application Support by an
+    /// earlier build is moved across the first time the container exists,
+    /// WAL and shm files with it, so nobody's shelf disappears on update.
     public static func onDisk(
         at url: URL? = nil,
+        appGroup: String? = appGroup,
         fileManager: FileManager = .default
     ) throws -> AppDatabase {
         let location: URL
@@ -30,9 +41,28 @@ public struct AppDatabase: Sendable {
                 appropriateFor: nil,
                 create: true
             )
-            let folder = support.appendingPathComponent("LiquorLog", isDirectory: true)
-            try fileManager.createDirectory(at: folder, withIntermediateDirectories: true)
-            location = folder.appendingPathComponent("liquorlog.sqlite")
+            let legacyFolder = support.appendingPathComponent("LiquorLog", isDirectory: true)
+            let legacy = legacyFolder.appendingPathComponent("liquorlog.sqlite")
+
+            if let appGroup,
+               let container = fileManager.containerURL(forSecurityApplicationGroupIdentifier: appGroup) {
+                let folder = container.appendingPathComponent("LiquorLog", isDirectory: true)
+                try fileManager.createDirectory(at: folder, withIntermediateDirectories: true)
+                location = folder.appendingPathComponent("liquorlog.sqlite")
+                if !fileManager.fileExists(atPath: location.path),
+                   fileManager.fileExists(atPath: legacy.path) {
+                    for suffix in ["", "-wal", "-shm"] {
+                        let source = URL(fileURLWithPath: legacy.path + suffix)
+                        let target = URL(fileURLWithPath: location.path + suffix)
+                        if fileManager.fileExists(atPath: source.path) {
+                            try? fileManager.moveItem(at: source, to: target)
+                        }
+                    }
+                }
+            } else {
+                try fileManager.createDirectory(at: legacyFolder, withIntermediateDirectories: true)
+                location = legacy
+            }
         }
 
         var config = Configuration()

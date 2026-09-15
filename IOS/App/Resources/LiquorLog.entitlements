@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!-- The database lives in this group's container so the widget can read
+       what is open. The same group is in the widget's entitlements, and
+       AppDatabase.appGroup names it in code; the three must agree. -->
+  <key>com.apple.security.application-groups</key>
+  <array>
+    <string>group.com.talastack.liquorlog</string>
+  </array>
+</dict>
+</plist>

@@ -81,9 +81,13 @@ targets:
     dependencies:
       - package: LiquorEngine
       - package: LiquorData
+      # Embedded. The widget reads the database from the shared app group
+      # container, so both targets carry the group in their entitlements.
+      - target: LiquorLogWidgets
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.talastack.liquorlog
+        CODE_SIGN_ENTITLEMENTS: App/Resources/LiquorLog.entitlements
         # Written here so `xcodegen generate` stops wiping it. Left out, every
         # regeneration clears Signing & Capabilities and the team has to be
         # re-picked by hand -- a step that is invisible until an archive fails
@@ -102,6 +106,34 @@ targets:
         # and honours the system setting. Pinning either one here would
         # silently override that.
         SUPPORTS_MACCATALYST: NO
+
+  # What's open, on the Home Screen, with a pour button per bottle. The
+  # palette file is compiled in so the widget is the same Cellar as the app
+  # without a colour literal of its own, and the catalogue JSON is bundled
+  # so a bottle's name resolves without the app running.
+  LiquorLogWidgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Widgets
+      - path: App/DesignSystem/Palette.swift
+      - path: App/Resources/Data/spirits.v1.json
+        buildPhase: resources
+    dependencies:
+      - package: LiquorEngine
+      - package: LiquorData
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.talastack.liquorlog.widgets
+        PRODUCT_NAME: LiquorLogWidgets
+        INFOPLIST_FILE: Widgets/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Widgets/LiquorLogWidgets.entitlements
+        DEVELOPMENT_TEAM: UARGCN2739
+        CODE_SIGN_STYLE: Automatic
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SKIP_INSTALL: YES
 
   LiquorLogTests:
     type: bundle.unit-test
