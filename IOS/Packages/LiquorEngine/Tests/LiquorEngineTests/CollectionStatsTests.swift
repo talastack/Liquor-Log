@@ -118,6 +118,32 @@ final class CollectionStatsTests: XCTestCase {
     func testAnEmptyCollectionIsEmpty() {
         XCTAssertTrue(CollectionStats.summarise([]).isEmpty)
     }
+
+    // MARK: - Samples
+
+    /// Fifty millilitres from a friend is not a bottle. Samples get their
+    /// own number and stay out of the shelf count and the breakdowns.
+    func testSamplesAreCountedApartFromBottles() {
+        let sample = CollectionStats.Entry(
+            classType: .straightRye, distillery: "MGP", isOpen: true, isSample: true)
+        let summary = CollectionStats.summarise([entry(), entry(), sample])
+        XCTAssertEqual(summary.onShelf, 2)
+        XCTAssertEqual(summary.samples, 1)
+        XCTAssertEqual(summary.open, 0)
+        XCTAssertEqual(summary.byDistillery.map(\.label), ["Heaven Hill"])
+    }
+
+    func testAFinishedSampleIsFinishedNotASample() {
+        let gone = CollectionStats.Entry(isFinished: true, isSample: true)
+        let summary = CollectionStats.summarise([gone])
+        XCTAssertEqual(summary.samples, 0)
+        XCTAssertEqual(summary.finished, 1)
+    }
+
+    func testOnlySamplesIsNotAnEmptyCollection() {
+        let summary = CollectionStats.summarise([CollectionStats.Entry(isSample: true)])
+        XCTAssertFalse(summary.isEmpty)
+    }
 }
 
 /// The guest menu. Asked for unprompted in the research and never built until
@@ -255,31 +281,5 @@ final class PourMenuTests: XCTestCase {
 
     func testNoPricesMeansNoAverage() {
         XCTAssertNil(CollectionStats.summarise([CollectionStats.Entry()]).averageCostPerPourCents)
-    }
-
-    // MARK: - Samples
-
-    /// Fifty millilitres from a friend is not a bottle. Samples get their
-    /// own number and stay out of the shelf count and the breakdowns.
-    func testSamplesAreCountedApartFromBottles() {
-        let sample = CollectionStats.Entry(
-            classType: .straightRye, distillery: "MGP", isOpen: true, isSample: true)
-        let summary = CollectionStats.summarise([entry(), entry(), sample])
-        XCTAssertEqual(summary.onShelf, 2)
-        XCTAssertEqual(summary.samples, 1)
-        XCTAssertEqual(summary.open, 0)
-        XCTAssertEqual(summary.byDistillery.map(\.label), ["Heaven Hill"])
-    }
-
-    func testAFinishedSampleIsFinishedNotASample() {
-        let gone = CollectionStats.Entry(isFinished: true, isSample: true)
-        let summary = CollectionStats.summarise([gone])
-        XCTAssertEqual(summary.samples, 0)
-        XCTAssertEqual(summary.finished, 1)
-    }
-
-    func testOnlySamplesIsNotAnEmptyCollection() {
-        let summary = CollectionStats.summarise([CollectionStats.Entry(isSample: true)])
-        XCTAssertFalse(summary.isEmpty)
     }
 }
