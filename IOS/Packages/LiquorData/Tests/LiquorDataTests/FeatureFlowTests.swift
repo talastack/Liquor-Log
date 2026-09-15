@@ -62,8 +62,13 @@ final class FeatureFlowTests: XCTestCase {
         }
         XCTAssertEqual(offers.count, 1, "asked once, on the crossing pour")
         XCTAssertEqual(offers.first?.remainingPours, 2)
-        // The third pour is clamped to what was left, so the bottle ends
-        // exactly empty rather than owing whiskey.
+        // Three full pours leave 16.9 ml: less than a pour, not empty, and
+        // the screen says so rather than showing "0 pours" and reading as
+        // empty. Only a pour into that remainder is clamped.
+        let status = try bottles.summary(id: bottle.id)!.status
+        XCTAssertEqual(status.remainingMilliliters, 150 - 3 * PourSize.standard.milliliters, accuracy: 0.01)
+        XCTAssertTrue(status.hasPartialPourOnly)
+        _ = try bottles.logPour(bottleId: bottle.id)
         XCTAssertTrue(try bottles.summary(id: bottle.id)!.status.isEmpty)
     }
 
