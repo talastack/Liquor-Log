@@ -722,6 +722,17 @@ struct BottleDetailView: View {
             if let floor = bottle.floor {
                 FactRow(label: "Floor", value: floor)
             }
+            // What the distillery says about the building. Producer-sourced
+            // or nothing; see WarehouseLore.
+            if let lore = WarehouseLore.note(
+                distillery: env.distillery(for: bottle) ?? "", warehouse: bottle.warehouse) {
+                Text(lore.text)
+                    .font(TypeScale.caption())
+                    .textCase(nil)
+                    .foregroundStyle(Palette.textMuted)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.vertical, Space.xs)
+            }
             if let dumped = bottle.dumpedAt {
                 FactRow(
                     label: "Dumped",

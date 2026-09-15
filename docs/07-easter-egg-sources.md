@@ -107,6 +107,19 @@ plants). That is the primary source; the two lists below are secondary.
 - https://modernthirst.com/home/dsp-numbers/
 - https://www.whiskeyprof.com/distilled-spirits-plant-numbers-d-s-p-work-in-progress/
 
+## Warehouse lore — `WarehouseLore`
+
+**Source: the producers, one line each.** Buffalo Trace on Warehouse H
+(metal-clad, 1935, Blanton's); Four Roses on its single-story rack warehouses
+at Cox's Creek (about 8 °F top to bottom); Wild Turkey / Russell's Reserve on
+the Camp Nelson rickhouses and the Single Rickhouse series; Maker's on the
+limestone cellar. A warehouse with nothing sourced about it gets no line.
+
+- https://www.buffalotracedistillery.com/our-brands/blantons-single-barrel/
+- https://www.fourrosesbourbon.com/our-process
+- https://www.russellsreserve.com/our-products/single-rickhouse/
+- https://www.makersmark.com/en-us/bourbons/makers-mark-private-selection
+
 ## Allocation and rarity — `Rarity`
 
 **Source: Virginia ABC's own lottery pages.** The example the app is built
