@@ -66,10 +66,12 @@ struct BottlePhotoMenu: View {
 
     var body: some View {
         Menu {
-            Button {
-                isTakingPhoto = true
-            } label: {
-                Label("Take a photo", systemImage: "camera")
+            if ImagePicker.cameraAvailable {
+                Button {
+                    isTakingPhoto = true
+                } label: {
+                    Label("Take a photo", systemImage: "camera")
+                }
             }
             PhotosPicker(selection: $libraryItem, matching: .images) {
                 Label("Choose from library", systemImage: "photo.on.rectangle")

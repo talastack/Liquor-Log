@@ -130,10 +130,14 @@ public enum LabelReader: Sendable {
         // of characters. Either way the decoder validates it as a date, so a
         // random five-digit number on the label is not taken for one.
         reading.dsp = DistilleryPermit.find(in: joined)
-        reading.laserCode = upper.compactMap { LaserCode($0) }.first
+        // A code has a letter on it -- the lot letter in front, or the line
+        // letter behind. A bare run of digits on a label is a bottle number
+        // and is never read as a date.
+        let hasALetter: (LaserCode) -> Bool = { $0.prefix != nil || $0.line != nil }
+        reading.laserCode = upper.compactMap { LaserCode($0) }.first(where: hasALetter)
             ?? upper.flatMap { $0.split(separator: " ").map(String.init) }
                 .compactMap { LaserCode($0) }
-                .first { $0.prefix != nil }
+                .first(where: hasALetter)
 
         // A Four Roses code is four letters with a fixed shape, so it is
         // recognised by validating against the ten real codes rather than by a

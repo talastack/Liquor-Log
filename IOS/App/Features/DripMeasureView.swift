@@ -126,15 +126,19 @@ struct DripMeasureView: View {
                 .font(TypeScale.secondary())
                 .foregroundStyle(Palette.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
-            Button { isTakingPhoto = true } label: {
-                HStack(spacing: Space.s) {
-                    Image(systemName: "camera")
-                    Text("Take a photo")
+            // No camera on a simulator, and none when access was refused:
+            // offering one presents a black screen with no explanation.
+            if ImagePicker.cameraAvailable {
+                Button { isTakingPhoto = true } label: {
+                    HStack(spacing: Space.s) {
+                        Image(systemName: "camera")
+                        Text("Take a photo")
+                    }
+                    .font(TypeScale.headline())
+                    .foregroundStyle(Palette.onGold)
+                    .frame(maxWidth: .infinity, minHeight: 50)
+                    .background(RoundedRectangle(cornerRadius: 11).fill(Palette.gold))
                 }
-                .font(TypeScale.headline())
-                .foregroundStyle(Palette.onGold)
-                .frame(maxWidth: .infinity, minHeight: 50)
-                .background(RoundedRectangle(cornerRadius: 11).fill(Palette.gold))
             }
             PhotosPicker(selection: $libraryItem, matching: .images) {
                 HStack(spacing: Space.s) {

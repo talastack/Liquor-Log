@@ -91,6 +91,7 @@ final class LabelReaderTests: XCTestCase {
         let inline = LabelReader.read(["KENTUCKY STRAIGHT BOURBON L21045 750 ML"])
         XCTAssertEqual(inline.laserCode?.dayOfYear, 45)
         XCTAssertNil(LabelReader.read(["BATCH B523", "94 PROOF"]).laserCode)
+        XCTAssertNil(LabelReader.read(["BOTTLE", "12345"]).laserCode, "a bare bottle number is not a date")
     }
 
     func testItReadsAnAgeStatement() {
