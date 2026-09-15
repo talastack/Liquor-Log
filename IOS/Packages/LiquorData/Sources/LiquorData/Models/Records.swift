@@ -249,6 +249,11 @@ public struct Bottle: SyncableRecord {
     public var dripFraction: Double?
     public var dripLengthMm: Double?
 
+    /// A Maker's Private Select stave recipe, in `StaveRecipe`'s compact
+    /// form. Text so a future programme with other staves needs no
+    /// migration; `staves` reads it back validated.
+    public var staveRecipe: String?
+
     /// Where the bottle physically is. Collections scatter across closets and
     /// boxes, and people report this mattering more than remembering what they
     /// own at all.
@@ -292,6 +297,7 @@ public struct Bottle: SyncableRecord {
         case barcode
         case topperLetter = "topper_letter", photoFile = "photo_file"
         case waxColor = "wax_color", dripFraction = "drip_fraction", dripLengthMm = "drip_length_mm"
+        case staveRecipe = "stave_recipe"
         case storageLocation = "storage_location", shelfNumber = "shelf_number"
         case openedAt = "opened_at", finishedAt = "finished_at"
         case lastVerifiedAt = "last_verified_at"
@@ -339,6 +345,7 @@ public struct Bottle: SyncableRecord {
         waxColor: WaxDrip.Color? = nil,
         dripFraction: Double? = nil,
         dripLengthMm: Double? = nil,
+        staveRecipe: String? = nil,
         storageLocation: String? = nil,
         shelfNumber: Int? = nil,
         openedAt: Int64? = nil,
@@ -370,6 +377,7 @@ public struct Bottle: SyncableRecord {
         self.barcode = barcode
         self.topperLetter = topperLetter; self.photoFile = photoFile
         self.waxColor = waxColor; self.dripFraction = dripFraction; self.dripLengthMm = dripLengthMm
+        self.staveRecipe = staveRecipe
         self.storageLocation = storageLocation; self.shelfNumber = shelfNumber
         self.openedAt = openedAt; self.finishedAt = finishedAt
         self.lastVerifiedAt = lastVerifiedAt
@@ -405,8 +413,12 @@ public struct Bottle: SyncableRecord {
             || recipeCode != nil || ageMonths != nil
             || bottleNumber != nil || entryProof != nil || charLevel != nil
             || finish != nil || pickGroup != nil || dumpedAt != nil
-            || topperLetter != nil
+            || topperLetter != nil || staveRecipe != nil
     }
+
+    /// The stave recipe, validated. Nil when none is recorded or the text
+    /// does not total ten.
+    public var staves: StaveRecipe? { staveRecipe.flatMap { StaveRecipe($0) } }
 
     /// Sealed, Open or Killed -- the enum every collector's spreadsheet has.
     ///

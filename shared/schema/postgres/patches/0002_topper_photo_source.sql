@@ -41,3 +41,6 @@ begin
       check (wax_color is null or wax_color in ('red', 'black', 'gold', 'green', 'purple', 'blue', 'white', 'other'));
   end if;
 end $$;
+
+-- 0004, 15 September 2026: the Private Select stave recipe.
+alter table bottles add column if not exists stave_recipe text;

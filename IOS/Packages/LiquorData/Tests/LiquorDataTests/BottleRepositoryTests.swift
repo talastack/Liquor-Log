@@ -119,6 +119,16 @@ final class BottleRepositoryTests: XCTestCase {
         XCTAssertNil(try bottles.summary(id: bottle.id)?.bottle.dripFraction)
     }
 
+    func testAStaveRecipeReadsBackValidated() throws {
+        var bottle = try addBottle()
+        bottle.staveRecipe = "P2×3 Cu×2 46×2 Mo×1 Sp×2"
+        _ = try bottles.update(bottle)
+        XCTAssertEqual(try bottles.summary(id: bottle.id)?.bottle.staves?.count(of: .bakedAmericanPure2), 3)
+        bottle.staveRecipe = "P2×3"
+        _ = try bottles.update(bottle)
+        XCTAssertNil(try bottles.summary(id: bottle.id)?.bottle.staves, "a recipe that does not total ten reads as none")
+    }
+
     // MARK: - Derivation
 
     func testFullBottleReadsSeventeenOfSeventeen() throws {

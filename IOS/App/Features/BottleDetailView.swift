@@ -58,6 +58,8 @@ struct BottleDetailView: View {
 
     /// Every other measured drip on the shelf, for the standing.
     @State private var otherDrips: [Double] = []
+    /// Your other Private Select picks with a recipe, for the comparison.
+    @State private var otherRecipes: [(name: String, recipe: StaveRecipe)] = []
     @State private var isMeasuringDrip = false
 
     /// The two confirmations. Finishing and removing are both reversible in
@@ -103,6 +105,9 @@ struct BottleDetailView: View {
                     }
                     if showsWax(summary) {
                         wax(summary)
+                    }
+                    if let recipe = summary.bottle.staves {
+                        staves(recipe)
                     }
                     if summary.bottle.hasPickDetail {
                         pickDetail(summary)
@@ -565,6 +570,74 @@ struct BottleDetailView: View {
         }
     }
 
+    /// The ten finishing staves of a Private Select, as a flavour profile
+    /// rather than a code, and against your other picks. Two picks with
+    /// different staves are different whiskeys with one name.
+    private func staves(_ recipe: StaveRecipe) -> some View {
+        VStack(alignment: .leading, spacing: Space.m) {
+            SectionLabel("The staves")
+            VStack(alignment: .leading, spacing: 0) {
+                let present = StaveRecipe.Stave.allCases.filter { recipe.count(of: $0) > 0 }
+                ForEach(Array(present.enumerated()), id: \.element) { index, stave in
+                    HStack(alignment: .top, spacing: Space.m) {
+                        Text("\(recipe.count(of: stave))")
+                            .font(TypeScale.title())
+                            .foregroundStyle(Palette.gold)
+                            .frame(width: 28, alignment: .trailing)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(stave.name)
+                                .font(TypeScale.body())
+                                .foregroundStyle(Palette.text)
+                            Text(stave.character)
+                                .font(TypeScale.caption())
+                                .textCase(nil)
+                                .foregroundStyle(Palette.textMuted)
+                        }
+                        Spacer()
+                    }
+                    .padding(.vertical, Space.s)
+                    if index < present.count - 1 {
+                        Divider().overlay(Palette.line)
+                    }
+                }
+            }
+            .padding(.horizontal, Space.l)
+            .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.line, lineWidth: 1))
+
+            Text(recipe.leaning)
+                .font(TypeScale.secondary())
+                .foregroundStyle(Palette.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            if !otherRecipes.isEmpty {
+                VStack(alignment: .leading, spacing: Space.xs) {
+                    Text("AGAINST YOUR OTHER PICKS")
+                        .font(TypeScale.caption())
+                        .foregroundStyle(Palette.textMuted)
+                    ForEach(Array(otherRecipes.enumerated()), id: \.offset) { _, other in
+                        let comparison = StaveRecipe.compare(recipe, other.recipe)
+                        Text("\(other.name): " + (comparison.isIdentical
+                            ? "the same recipe."
+                            : comparison.text.replacingOccurrences(of: "The first", with: "This one")
+                                .replacingOccurrences(of: "the second", with: "that one")))
+                            .font(TypeScale.secondary())
+                            .foregroundStyle(Palette.textSecondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+            }
+
+            Text("Maker's Private Select: fully matured Maker's finished on ten oak "
+                 + "staves of five kinds for nine weeks. The staves and what each "
+                 + "brings are Maker's own; the counts are from the label.")
+                .font(TypeScale.caption())
+                .textCase(nil)
+                .foregroundStyle(Palette.textMuted)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
     /// The barrel's own facts. This is the section most apps do not have, and
     /// the reason somebody who buys picks would keep using this one.
     private func pickDetail(_ summary: BottleSummary) -> some View {
@@ -933,9 +1006,12 @@ struct BottleDetailView: View {
             productNote = try summary?.bottle.catalogProductId
                 .flatMap { try env.notes.note(productId: $0)?.body }
             siblings = try loadSiblings()
-            otherDrips = try env.bottles.summaries(includeFinished: true)
+            let everything = try env.bottles.summaries(includeFinished: true)
                 .filter { $0.id != bottleId }
-                .compactMap(\.bottle.dripFraction)
+            otherDrips = everything.compactMap(\.bottle.dripFraction)
+            otherRecipes = everything.compactMap { other in
+                other.bottle.staves.map { (name: env.name(for: other.bottle), recipe: $0) }
+            }
             pours = try env.bottles.pours(bottleId: bottleId)
             // Excluding this bottle: comparing a price against itself would
             // always report "about what you usually pay".
@@ -1039,6 +1115,7 @@ struct BottleDetailView: View {
                 bottle.ageDescription.map { "Aged \($0)" },
                 bottle.warehouse.map { "Warehouse \($0)" },
                 bottle.topperLetter.map { "Topper \($0)" },
+                bottle.staves.map { "Staves \($0.code)" },
             ].compactMap { $0 },
             rating: summary.latestRating,
             liked: tastings.first?.tasting.liked)

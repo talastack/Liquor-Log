@@ -299,6 +299,13 @@ create table bottles (
   drip_fraction       double precision,
   drip_length_mm      double precision,
 
+  -- A Maker's Mark Private Select recipe: the ten finishing staves the
+  -- label prints, in the compact form the community writes, "P2x3 Cu x2
+  -- 46x2 Mo x1 Sp x2". Two picks with different staves are different
+  -- whiskeys with one name. Validated by the engine, which refuses a
+  -- recipe that does not total ten.
+  stave_recipe        text,
+
   -- Where the bottle physically IS. Collections scatter across closets,
   -- basements and boxes, and people report this mattering more than remembering
   -- what they own.

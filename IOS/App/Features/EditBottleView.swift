@@ -42,6 +42,7 @@ struct EditBottleView: View {
     @State private var recipeCode = ""
     @State private var finish = ""
     @State private var topperLetter = ""
+    @State private var staveRecipe = ""
     @State private var storageLocation = ""
     @State private var shelfNumber = ""
     @State private var customName = ""
@@ -214,6 +215,20 @@ struct EditBottleView: View {
                 field("Recipe code", text: $recipeCode)
                 field("Finish", text: $finish)
             }
+            // The Private Select staves. Shown for a Maker's and for any
+            // bottle that already has a recipe.
+            if isMakers || !staveRecipe.isEmpty {
+                VStack(alignment: .leading, spacing: Space.xs) {
+                    field("Staves (Private Select)", text: $staveRecipe)
+                    Text("The ten from the label, like P2×3 Cu×2 46×2 Mo×1 Sp×2. "
+                         + "P2 Baked American Pure 2 · Cu Seared French Cuvée · 46 Maker's 46 "
+                         + "· Mo Roasted French Mocha · Sp Toasted French Spice.")
+                        .font(TypeScale.caption())
+                        .textCase(nil)
+                        .foregroundStyle(staveRecipeIsValid ? Palette.textMuted : Palette.bad)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
             // The Blanton's stopper letter. Shown for a Blanton's and for any
             // bottle that already has one, never as a field on a Weller.
             if isBlantons || !topperLetter.isEmpty {
@@ -226,6 +241,16 @@ struct EditBottleView: View {
                 }
             }
         }
+    }
+
+    private var isMakers: Bool {
+        guard let bottle else { return false }
+        return env.name(for: bottle).localizedCaseInsensitiveContains("maker")
+    }
+
+    /// Blank is fine; anything typed has to total ten.
+    private var staveRecipeIsValid: Bool {
+        staveRecipe.trimmingCharacters(in: .whitespaces).isEmpty || StaveRecipe(staveRecipe) != nil
     }
 
     private var isBlantons: Bool {
@@ -358,6 +383,9 @@ struct EditBottleView: View {
         edited.topperLetter = blankAsNil(topperLetter)
             .flatMap(TopperLetters.normalise)
             .map(String.init)
+        // Stored in the engine's own spelling once it validates; a recipe
+        // that does not total ten is refused at save, below.
+        edited.staveRecipe = blankAsNil(staveRecipe).flatMap { StaveRecipe($0)?.code }
         edited.storageLocation = blankAsNil(storageLocation)
         edited.shelfNumber = Int(shelfNumber)
     }
@@ -388,6 +416,7 @@ struct EditBottleView: View {
         recipeCode = found.recipeCode ?? ""
         finish = found.finish ?? ""
         topperLetter = found.topperLetter ?? ""
+        staveRecipe = found.staveRecipe ?? ""
         storageLocation = found.storageLocation ?? ""
 
         // A typed-in product resolves to a custom entry; a catalogue one to
@@ -409,6 +438,10 @@ struct EditBottleView: View {
 
     private func save() {
         guard var edited = pending else { return }
+        guard staveRecipeIsValid else {
+            error = "The staves must total ten: P2, Cu, 46, Mo and Sp, each with a count."
+            return
+        }
         do {
             if let custom {
                 if let relinkTarget {

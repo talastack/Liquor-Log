@@ -27,7 +27,7 @@ public struct CollectionExport: Sendable {
         "batch", "barrel", "store_pick", "pick_group", "pick_store",
         "warehouse", "rick", "floor", "recipe_code",
         "age_months", "entry_proof", "char_level", "finish",
-        "bottle_number", "bottles_in_batch", "topper_letter", "wax_color", "drip_percent",
+        "bottle_number", "bottles_in_batch", "topper_letter", "wax_color", "drip_percent", "stave_recipe",
         "distilled_year", "bottled_year", "vintage_year",
         "purchased", "opened", "killed", "last_poured", "last_verified",
         "price", "bought_at", "storage_location", "shelf_number",
@@ -83,6 +83,7 @@ public struct CollectionExport: Sendable {
                 CSVWriter.text(bottle.topperLetter),
                 CSVWriter.text(bottle.waxColor?.rawValue),
                 CSVWriter.number(bottle.dripFraction.map { Int(($0 * 100).rounded()) }),
+                CSVWriter.text(bottle.staveRecipe),
 
                 CSVWriter.number(bottle.distilledYear),
                 CSVWriter.number(bottle.bottledYear),
