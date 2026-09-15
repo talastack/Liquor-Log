@@ -58,9 +58,9 @@ public enum Rarity: Sendable {
 
         public var headline: String {
             switch self {
-            case .contested(let ratio) where ratio >= 50:
+            case .contested(let ratio) where ratio >= extremelyContestedThreshold:
                 return "Extremely contested"
-            case .contested(let ratio) where ratio >= 10:
+            case .contested(let ratio) where ratio >= contestedThreshold:
                 return "Contested"
             case .contested:
                 return "Allocated, by lottery"

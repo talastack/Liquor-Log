@@ -77,7 +77,7 @@ final class ShelfCheckTests: XCTestCase {
             product: barrelProof, holdings: holdings, tastings: tastings
         )
         XCTAssertEqual(onBarrelProof.headline, .haveTheLineNotThisRelease)
-        XCTAssertFalse(onBarrelProof.hasTasted)
+        XCTAssertTrue(onBarrelProof.tastings.isEmpty)
         XCTAssertNil(onBarrelProof.bestRating)
 
         let onSmallBatch = ShelfCheck.evaluate(
@@ -143,7 +143,7 @@ final class ShelfCheckTests: XCTestCase {
             ]
         )
         XCTAssertEqual(result.headline, .tastedNeverOwned)
-        XCTAssertTrue(result.hasTasted)
+        XCTAssertFalse(result.tastings.isEmpty)
         XCTAssertEqual(result.bestRating, 9)
         XCTAssertEqual(result.latestTasting?.disliked, "too hot neat")
     }
@@ -159,7 +159,7 @@ final class ShelfCheckTests: XCTestCase {
             tastings: []
         )
         XCTAssertEqual(result.headline, .onYourShelf)
-        XCTAssertFalse(result.hasTasted)
+        XCTAssertTrue(result.tastings.isEmpty)
         XCTAssertNil(result.bestRating)
     }
 

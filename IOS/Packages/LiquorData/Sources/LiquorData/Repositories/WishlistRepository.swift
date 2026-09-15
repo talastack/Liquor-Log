@@ -131,14 +131,3 @@ public struct WishlistRepository: Sendable {
     }
 }
 
-extension WishlistItem {
-    /// Whether an asking price meets what you said you would pay.
-    ///
-    /// Nil when no target was set, which is honest: without one there is no
-    /// question to answer, and inventing a verdict would be the app having an
-    /// opinion nobody asked it for.
-    public func meetsTarget(askingCents: Int) -> Bool? {
-        guard let target = targetPriceCents else { return nil }
-        return askingCents <= target
-    }
-}

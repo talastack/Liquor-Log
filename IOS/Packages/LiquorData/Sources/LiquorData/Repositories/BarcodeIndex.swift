@@ -78,19 +78,6 @@ public struct BarcodeIndex: Sendable {
         }
     }
 
-    /// Every code you have taught it, for a settings screen or an export.
-    public func knownCodes() throws -> [String] {
-        try db.queue.read { db in
-            try String.fetchAll(
-                db,
-                sql: """
-                    select distinct barcode from bottles
-                     where barcode is not null and deleted_at is null
-                     order by barcode
-                    """)
-        }
-    }
-
     /// Digits only, and never re-encoded.
     ///
     /// Scanners return UPC-A and EAN-13 for the same physical barcode, and the

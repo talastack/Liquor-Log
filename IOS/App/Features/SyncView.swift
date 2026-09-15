@@ -125,7 +125,13 @@ struct SyncView: View {
                 FactRow(label: "Signed in as", value: email ?? "—")
                 if let outcome = sync.lastOutcome {
                     FactRow(label: "Sent", value: "\(outcome.pushed)")
-                    FactRow(label: "Received", value: "\(outcome.pulled)", isLast: true)
+                    FactRow(label: "Received", value: "\(outcome.pulled)")
+                    FactRow(
+                        label: "Last sync",
+                        value: outcome.isCompletelyClean
+                            ? "Everything went"
+                            : "\(outcome.failures.count) table(s) will retry",
+                        isLast: true)
                 }
             }
 

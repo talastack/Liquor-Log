@@ -167,11 +167,6 @@ public enum ClassType: String, Sendable, CaseIterable, Codable {
         }
     }
 
-    /// Kept for call sites that only ask the yes/no question.
-    public var hasMinimumStrength: Bool { minimumBottlingStrength != nil }
-
-    public var isBeer: Bool { self == .maltBeverage }
-
     /// What the UI prints. The raw value is a storage key, not English.
     public var label: String {
         switch self {
@@ -269,15 +264,8 @@ public enum Classification: Sendable {
     /// Bottled-in-bond is exactly 100 proof, by definition.
     public static let bottledInBondABV = ABV(percent: 50.0)
 
-    /// The floor most distilled spirits share. Per-class values live on
-    /// `ClassType.minimumBottlingStrength`.
-    public static let americanMinimumABV = ABV(percent: 40.0)
-
     /// Minimum barrel time for a "straight" designation.
     public static let straightMinimumYears = 2
-
-    /// Below this, a straight whiskey must carry an age statement.
-    public static let ageStatementRequiredBelowYears = 4
 
     /// Bonded whiskey must be at least four years old.
     public static let bottledInBondMinimumYears = 4

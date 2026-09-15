@@ -449,16 +449,6 @@ public struct Bottle: SyncableRecord {
 
     public var isOpen: Bool { status == .open }
     public var isFinished: Bool { status == .killed }
-
-    /// Where the barrel came from, as one line: "Warehouse H · Rick 41 · Floor 5".
-    public var warehouseDescription: String? {
-        let parts = [
-            warehouse.map { "Warehouse \($0)" },
-            rick.map { "Rick \($0)" },
-            floor.map { "Floor \($0)" },
-        ].compactMap { $0 }
-        return parts.isEmpty ? nil : parts.joined(separator: " · ")
-    }
     public var pourSize: PourSize { PourSize(milliliters: pourSizeMl) }
 
     /// The release label that distinguishes this bottle from another of the
@@ -580,10 +570,6 @@ public struct FillReading: SyncableRecord {
         self.readAt = readAt; self.remainingMl = remainingMl; self.note = note
         self.createdAt = createdAt; self.updatedAt = updatedAt
         self.deletedAt = deletedAt; self.dirty = dirty
-    }
-
-    public var readDate: Date {
-        Date(timeIntervalSince1970: Double(readAt) / 1000)
     }
 }
 

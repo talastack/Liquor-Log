@@ -104,14 +104,4 @@ public enum OxidationBand: Sendable {
     public static func estimate(fillLevel: FillLevel, daysOpen: Int) -> Estimate {
         estimate(headroomFraction: fillLevel.headroomFraction, daysOpen: daysOpen)
     }
-
-    /// Which descriptors to expect as a bottle ages. `oxidation` notes arrive;
-    /// `maturation` notes are the ones that flatten. This is the payoff of
-    /// tagging every descriptor with an origin.
-    public static func expectedChanges(
-        band: Band, wheel: FlavorWheel
-    ) -> (arriving: [FlavorDescriptor], fading: [FlavorDescriptor]) {
-        guard band == .fading || band == .faded else { return ([], []) }
-        return (wheel.descriptors(from: .oxidation), wheel.descriptors(from: .maturation))
-    }
 }

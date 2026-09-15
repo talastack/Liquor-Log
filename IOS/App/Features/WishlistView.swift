@@ -14,6 +14,9 @@ struct WishlistView: View {
     @State private var isAdding = false
     /// The wish being turned into a bottle, while its sheet is up.
     @State private var buying: WishlistItem?
+    /// The wish whose ceiling is being changed, while the alert is up.
+    @State private var repricing: WishlistItem?
+    @State private var newCeiling = ""
     @State private var error: String?
 
     /// Bottles killed in the last three months that are not on the list.
@@ -48,6 +51,14 @@ struct WishlistView: View {
                             name: name(for: item),
                             onBuy: { buying = item },
                             onRemove: { remove(item) })
+                        .contextMenu {
+                            Button {
+                                newCeiling = item.targetPriceCents.map { String(format: "%.2f", Double($0) / 100) } ?? ""
+                                repricing = item
+                            } label: {
+                                Label("Change the price", systemImage: "dollarsign.circle")
+                            }
+                        }
                     }
                 }
 
@@ -69,6 +80,16 @@ struct WishlistView: View {
         }
         .sheet(isPresented: $isAdding) {
             NavigationStack { AddToWishlistView(onSave: { reload() }) }
+        }
+        .alert("Most you would pay", isPresented: .constant(repricing != nil), presenting: repricing) { item in
+            TextField("Price", text: $newCeiling).keyboardType(.decimalPad)
+            Button("Save") {
+                reprice(item, to: Double(newCeiling).map { Int(($0 * 100).rounded()) })
+                repricing = nil
+            }
+            Button("Cancel", role: .cancel) { repricing = nil }
+        } message: { item in
+            Text("For \(name(for: item)). Leave it blank to clear the ceiling.")
         }
         .sheet(item: $buying) { item in
             NavigationStack {
@@ -218,6 +239,13 @@ struct WishlistView: View {
     private func reload() {
         do { items = try env.wishlist.items() } catch { self.error = error.localizedDescription }
         loadRecentlyFinished()
+    }
+
+    private func reprice(_ item: WishlistItem, to cents: Int?) {
+        do {
+            try env.wishlist.setTargetPrice(id: item.id, cents: cents)
+            reload()
+        } catch { self.error = error.localizedDescription }
     }
 
     private func remove(_ item: WishlistItem) {

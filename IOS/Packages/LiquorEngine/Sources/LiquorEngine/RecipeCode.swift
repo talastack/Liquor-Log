@@ -88,5 +88,4 @@ public struct RecipeCode: Hashable, Sendable, Codable, CustomStringConvertible {
         Yeast.allCases.map { RecipeCode(mashbill: mashbill, yeast: $0) }
     }
 
-    public static let validCodes: Set<String> = Set(all.map(\.code))
 }

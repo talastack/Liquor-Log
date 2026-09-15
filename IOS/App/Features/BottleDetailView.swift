@@ -77,6 +77,9 @@ struct BottleDetailView: View {
     /// shown so a mis-logged pour can be found and undone.
     @State private var pours: [Pour] = []
     @State private var showsAllPours = false
+    /// Every level somebody set by eye, newest first. The fill runs down
+    /// from the latest of these.
+    @State private var readings: [FillReading] = []
 
     struct RenderedBottleCard: Identifiable {
         let id = UUID()
@@ -373,7 +376,35 @@ struct BottleDetailView: View {
             if !pours.isEmpty {
                 pourLog
             }
+            if !readings.isEmpty {
+                readingsLog
+            }
         }
+    }
+
+    /// The readings, so "why does it say 375 ml" has an answer on screen:
+    /// because somebody set it to that on that date.
+    private var readingsLog: some View {
+        VStack(alignment: .leading, spacing: Space.xs) {
+            Text("LEVELS SET BY EYE")
+                .font(TypeScale.caption())
+                .foregroundStyle(Palette.textMuted)
+            ForEach(readings.prefix(3)) { reading in
+                HStack {
+                    Text(Date(timeIntervalSince1970: Double(reading.readAt) / 1000)
+                        .formatted(date: .abbreviated, time: .omitted))
+                        .font(TypeScale.caption())
+                        .textCase(nil)
+                        .foregroundStyle(Palette.textMuted)
+                    Spacer()
+                    Text(VolumeDisplay.text(reading.remainingMl, ounces: ounces))
+                        .font(TypeScale.code(12))
+                        .foregroundStyle(Palette.textMuted)
+                }
+                .frame(minHeight: 24)
+            }
+        }
+        .padding(.top, Space.xs)
     }
 
     /// The pours behind the number. Long-press one to undo it: the fill
@@ -475,10 +506,23 @@ struct BottleDetailView: View {
                     value: filtered ? "Chill filtered" : "Non-chill filtered")
             }
             if let bought = summary.bottle.purchaseDate {
+                let purchased = Date(timeIntervalSince1970: Double(bought) / 1000)
+                let owned = AgeMath.daysOwned(purchasedAt: purchased) ?? 0
                 FactRow(
                     label: "Bought",
-                    value: Date(timeIntervalSince1970: Double(bought) / 1000)
-                        .formatted(date: .abbreviated, time: .omitted))
+                    value: purchased.formatted(date: .abbreviated, time: .omitted)
+                        + (owned > 0 ? " · \(owned) \(owned == 1 ? "day" : "days") ago" : ""))
+            }
+            // The four numbers people call "age", kept apart. Time in the
+            // barrel is the only one that changed the whiskey; time in the
+            // glass since bottling is the one that gets confused with it.
+            if let years = AgeMath.maturationYears(
+                distilledYear: summary.bottle.distilledYear, bottledYear: summary.bottle.bottledYear) {
+                FactRow(label: "In the barrel", value: "\(years) \(years == 1 ? "year" : "years") (\(summary.bottle.distilledYear ?? 0)–\(summary.bottle.bottledYear ?? 0))")
+            }
+            if let bottled = summary.bottle.bottledYear,
+               let inGlass = AgeMath.yearsInGlass(bottledYear: bottled) {
+                FactRow(label: "Bottled", value: inGlass == 0 ? "\(bottled), this year" : "\(bottled) · \(inGlass) \(inGlass == 1 ? "year" : "years") in the glass")
             }
             if let store = summary.bottle.purchaseStore {
                 FactRow(label: "Bought at", value: store)
@@ -1021,6 +1065,7 @@ struct BottleDetailView: View {
                 other.bottle.staves.map { (name: env.name(for: other.bottle), recipe: $0) }
             }
             pours = try env.bottles.pours(bottleId: bottleId)
+            readings = try env.bottles.fillHistory(bottleId: bottleId)
             // Excluding this bottle: comparing a price against itself would
             // always report "about what you usually pay".
             if let productId = summary?.bottle.catalogProductId {

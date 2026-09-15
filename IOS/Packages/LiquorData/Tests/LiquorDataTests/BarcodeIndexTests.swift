@@ -113,7 +113,11 @@ final class BarcodeIndexTests: XCTestCase {
         try index.remember("0088076123456", forBottleId: bottle.id)
         try index.remember("0088076123456", forBottleId: bottle.id)
 
-        XCTAssertEqual(try index.knownCodes(), ["0088076123456"])
+        let rows = try db.queue.read { db in
+            try Int.fetchOne(db, sql: "select count(*) from bottles where barcode = ?", arguments: ["0088076123456"]) ?? 0
+        }
+        XCTAssertEqual(rows, 1, "remembered once, on one bottle")
+        XCTAssertNotNil(try index.match("0088076123456"))
     }
 
     func testAnEmptyCodeIsIgnoredRatherThanStored() throws {
@@ -123,8 +127,8 @@ final class BarcodeIndexTests: XCTestCase {
 
         try index.remember("   ", forBottleId: bottle.id)
 
-        XCTAssertTrue(try index.knownCodes().isEmpty)
         XCTAssertNil(try index.match(""))
+        XCTAssertNil(try index.match("   "))
     }
 
     /// Learning a barcode is an edit like any other and has to reach the server.

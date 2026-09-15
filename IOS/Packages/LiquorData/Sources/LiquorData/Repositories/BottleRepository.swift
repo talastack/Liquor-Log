@@ -79,22 +79,6 @@ public struct BottleRepository: Sendable {
         }
     }
 
-    /// Live updates for SwiftUI. The whole list is one observation rather than
-    /// one per bottle: a shelf with twenty bottles would otherwise open twenty
-    /// observations that all re-fire on every single pour.
-    public func observeSummaries(includeFinished: Bool = false)
-        -> ValueObservation<ValueReducers.Fetch<[BottleSummary]>>
-    {
-        ValueObservation.tracking { db in
-            var request = Bottle.live()
-            if !includeFinished {
-                request = request.filter(Column("finished_at") == nil)
-            }
-            let bottles = try request.order(Column("created_at").desc).fetchAll(db)
-            return try bottles.map { try Self.summary(for: $0, in: db) }
-        }
-    }
-
     /// Holdings in the shape `ShelfCheck` wants. The engine takes plain values
     /// and does no I/O, so this is the only place the two meet.
     ///
@@ -240,7 +224,6 @@ public struct BottleRepository: Sendable {
         return try customProduct(id: id)?.classType
     }
 
-    /// Products the user added themselves, newest first.
     /// A private product with no bottle yet: what a tasting at a bar of
     /// something the catalogue does not know hangs off, so the shelf check
     /// can later say "you tried this".
@@ -342,6 +325,7 @@ public struct BottleRepository: Sendable {
         }
     }
 
+    /// Products the user added themselves, newest first.
     public func customProducts() throws -> [CustomCatalogEntry] {
         try db.queue.read { db in
             try CustomCatalogEntry.live()

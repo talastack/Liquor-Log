@@ -275,7 +275,11 @@ struct TastingSheetView: View {
                 ForEach(picks[stage] ?? [], id: \.self) { key in
                     Text(env.wheel.descriptor(key)?.label ?? key)
                         .font(TypeScale.secondary())
-                        .foregroundStyle(Palette.gold)
+                        // A fault -- sulphur, wet cardboard -- is a different
+                        // kind of note from a flavour and is coloured as one.
+                        .foregroundStyle(
+                            env.wheel.descriptor(key)?.origin.isUndesirable == true
+                                ? Palette.bad : Palette.gold)
                         .padding(.horizontal, Space.m)
                         .frame(minHeight: Space.tapTarget)
                         .background(RoundedRectangle(cornerRadius: 9).fill(Palette.surfaceRaised))

@@ -38,7 +38,10 @@ final class AccountLinkerTests: XCTestCase {
         XCTAssertEqual(
             try linker.unownedCount(), 0,
             "a single unowned row is one that can never be pushed or read back")
-        XCTAssertEqual(try linker.rowsOwned(by: "user-1"), stamped)
+        let unownedBottles = try db.queue.read { db in
+            try Bottle.filter(Column("user_id") == nil).fetchCount(db)
+        }
+        XCTAssertEqual(unownedBottles, 0, "every bottle now carries the user")
     }
 
     /// These rows have never been pushed, so adoption has to queue them.
@@ -86,7 +89,10 @@ final class AccountLinkerTests: XCTestCase {
         let stamped = try AccountLinker(db).adopt(userId: "user-2")
 
         XCTAssertEqual(stamped, 1, "only the new unowned row")
-        XCTAssertGreaterThan(try AccountLinker(db).rowsOwned(by: "user-1"), 0)
+        let stillOwned = try db.queue.read { db in
+            try Bottle.filter(Column("user_id") == "user-1").fetchCount(db)
+        }
+        XCTAssertGreaterThan(stillOwned, 0)
     }
 
     func testAdoptingTwiceIsHarmless() throws {

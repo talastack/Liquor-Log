@@ -29,7 +29,7 @@ final class RecipeCodeTests: XCTestCase {
 
     func testExactlyTenCodesExist() {
         XCTAssertEqual(RecipeCode.all.count, 10)
-        XCTAssertEqual(RecipeCode.validCodes.count, 10)
+        XCTAssertEqual(Set(RecipeCode.all.map(\.code)).count, 10)
     }
 
     func testEveryValidCodeRoundTrips() {

@@ -127,8 +127,6 @@ public struct ShelfCheckResult: Sendable {
         case tastedNeverOwned
     }
 
-    public var hasTasted: Bool { !tastings.isEmpty }
-
     /// Most recent tasting, which is what the card leads with -- your current
     /// opinion beats your first one.
     public var latestTasting: TastingRecord? {

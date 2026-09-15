@@ -44,8 +44,6 @@ public actor SupabaseAuth {
         self.store = store
         self.session = session
     }
-
-    public var isSignedIn: Bool { current != nil || store.refreshToken != nil }
     public var userId: String? { current?.userId }
 
     // MARK: - The token everything else asks for
@@ -242,23 +240,5 @@ public struct KeychainCredentialStore: CredentialStore {
             kSecAttrService as String: service,
             kSecAttrAccount as String: account,
         ]
-    }
-}
-
-/// For tests and for previews.
-public final class InMemoryCredentialStore: CredentialStore, @unchecked Sendable {
-    private let lock = NSLock()
-    private var value: String?
-
-    public init(refreshToken: String? = nil) { self.value = refreshToken }
-
-    // No `nonmutating` here: a class setter is already non-mutating, and the
-    // keyword is rejected outright. The protocol still requires it so that a
-    // STRUCT can conform -- KeychainCredentialStore writes to the keychain
-    // rather than to itself, and without `nonmutating` in the protocol it
-    // could not.
-    public var refreshToken: String? {
-        get { lock.lock(); defer { lock.unlock() }; return value }
-        set { lock.lock(); value = newValue; lock.unlock() }
     }
 }

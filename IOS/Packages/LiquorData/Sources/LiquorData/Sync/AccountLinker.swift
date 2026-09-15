@@ -69,25 +69,6 @@ public struct AccountLinker: Sendable {
         }
     }
 
-    /// Signing out must not orphan anything.
-    ///
-    /// The rows keep their `user_id` and stay exactly where they are. Somebody
-    /// signing out on a shared iPad is not asking to lose their collection, and
-    /// wiping local data on sign-out is how people lose years of notes to a
-    /// mistap.
-    public func rowsOwned(by userId: String) throws -> Int {
-        try db.queue.read { db in
-            var total = 0
-            for table in tables {
-                total += try Int.fetchOne(
-                    db,
-                    sql: "select count(*) from \(quoted(table)) where user_id = ?",
-                    arguments: [userId]) ?? 0
-            }
-            return total
-        }
-    }
-
     /// Table names are from the constant list above and never from input, but
     /// quoting them keeps the string interpolation from ever being the reason
     /// this file needs reviewing.
