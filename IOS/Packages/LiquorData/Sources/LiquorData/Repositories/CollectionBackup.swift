@@ -206,6 +206,7 @@ public struct CollectionBackup: Sendable {
         Table(Bottle.self),
         Table(Pour.self),
         Table(FillReading.self),
+        Table(BlendAddition.self),
         Table(Tasting.self),
         Table(TastingNote.self),
         Table(WishlistItem.self),

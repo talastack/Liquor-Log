@@ -35,7 +35,7 @@ The aisle question, offline: *do I already own this?*
 
 - Search, status chips (on the shelf · open · unopened · finished ·
   everything), kind chips (store pick, single barrel, barrel proof, bourbon,
-  rye, samples…), place chips, seven sorts (`CollectionFilter`).
+  rye, samples, infinity bottles…), place chips, seven sorts (`CollectionFilter`).
 - **Samples** — a sample is a bottle in every way but size and provenance:
   30/50/60/100 ml, who it came from, how (gift, swap, bought, decanted).
   Shown as "Sample · 50 ml · from Mike", searchable by the name, counted
@@ -78,6 +78,13 @@ The aisle question, offline: *do I already own this?*
 - **Add a bottle** — catalogue search or type it in; scan fills the form;
   already-opened slider; shelf price; bought-on date; DSP; bottled year.
 - **Add a shelf** — scan after scan, nothing in between.
+- **Start an infinity bottle** — an empty vessel you fill from your other
+  bottles. Each addition is a pour off the source (both fills move, both
+  undo together) or something typed in by name and proof. The bottle shows
+  its strength — alcohol over volume, as blending records are kept, or
+  "unknown, N ml went in without a proof" — and its make-up as shares of
+  what went in, which pours out never change (`Blend`, `blend_additions`).
+  Other bottles get "Pour into <name>…" in their menu.
 - **Import a spreadsheet** — CSV, columns matched by name, all-or-nothing
   (`CollectionImport`, `CSVReader`). A "sample" column imports a samples
   tab: "yes" or a name.

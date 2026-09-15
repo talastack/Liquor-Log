@@ -61,3 +61,41 @@ begin
       check (sample_source is null or sample_source in ('gift', 'swap', 'bought', 'decant'));
   end if;
 end $$;
+
+-- 0007, 15 September 2026: infinity bottles.
+alter table bottles add column if not exists is_infinity    boolean not null default false;
+alter table pours   add column if not exists into_bottle_id text;
+
+create table if not exists blend_additions (
+  id                 text primary key,
+  user_id            uuid not null references auth.users (id) on delete cascade,
+  blend_bottle_id    text not null references bottles (id) on delete cascade,
+  source_bottle_id   text,
+  source_name        text,
+  abv                double precision,
+  volume_ml          double precision not null,
+  pour_id            text,
+  added_at           bigint not null,
+  note               text,
+  created_at         bigint not null,
+  updated_at         bigint not null,
+  deleted_at         bigint,
+  server_updated_at  bigint not null default 0,
+  constraint addition_is_positive check (volume_ml > 0),
+  constraint addition_abv_is_plausible check (abv is null or (abv > 0.5 and abv <= 95.0)),
+  constraint addition_has_a_source check (source_bottle_id is not null or source_name is not null)
+);
+
+drop trigger if exists a_blend_additions_reject_stale on blend_additions;
+create trigger a_blend_additions_reject_stale
+  before update on blend_additions
+  for each row execute function reject_stale_writes();
+drop trigger if exists blend_additions_server_clock on blend_additions;
+create trigger blend_additions_server_clock
+  before insert or update on blend_additions
+  for each row execute function set_server_updated_at();
+
+create index if not exists blend_additions_pull on blend_additions (user_id, server_updated_at);
+create index if not exists blend_additions_by_blend on blend_additions (blend_bottle_id, added_at);
+
+-- Then re-run shared/schema/rls/policies.sql, which now covers the table.

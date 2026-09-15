@@ -15,6 +15,7 @@ alter table custom_catalog_entries enable row level security;
 alter table bottles               enable row level security;
 alter table pours                 enable row level security;
 alter table fill_readings         enable row level security;
+alter table blend_additions       enable row level security;
 alter table tastings              enable row level security;
 alter table tasting_notes         enable row level security;
 alter table wishlist_items        enable row level security;
@@ -32,7 +33,7 @@ declare t text;
 begin
   foreach t in array array[
     'custom_catalog_entries', 'bottles', 'pours', 'fill_readings', 'tastings',
-    'tasting_notes', 'wishlist_items', 'knowledge_notes'
+    'tasting_notes', 'wishlist_items', 'knowledge_notes', 'blend_additions'
   ]
   loop
     -- Dropped first because CREATE POLICY has no IF NOT EXISTS, and this file

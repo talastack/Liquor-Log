@@ -176,4 +176,14 @@ final class CollectionFilterTests: XCTestCase {
         XCTAssertTrue(CollectionFilter.availableKinds(in: rows).contains(.sample))
         XCTAssertFalse(CollectionFilter.availableKinds(in: shelf).contains(.sample))
     }
+
+    func testTheInfinityKindFindsInfinityBottles() {
+        let rows = shelf + [
+            CollectionFilter.Row(
+                id: "inf", name: "The Ever Bottle", isOpen: true, isInfinity: true,
+                addedAt: day(50), fillFraction: 0.3),
+        ]
+        XCTAssertEqual(CollectionFilter.apply(.init(kinds: [.infinity]), to: rows).map(\.id), ["inf"])
+        XCTAssertFalse(CollectionFilter.availableKinds(in: shelf).contains(.infinity))
+    }
 }

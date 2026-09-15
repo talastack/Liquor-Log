@@ -335,7 +335,171 @@ public struct BottleRepository: Sendable {
             guard var pour = try Pour.filter(key: id).fetchOne(db) else { return }
             pour.softDelete()
             try pour.save(db)
+            // A pour into an infinity bottle undoes there as well: the
+            // whiskey did not go in if it never left.
+            if let blendId = pour.intoBottleId,
+               var addition = try BlendAddition.live().filter(Column("pour_id") == id).fetchOne(db) {
+                addition.softDelete()
+                try addition.save(db)
+                try Self.refreshBlendStrength(blendId: blendId, in: db)
+            }
         }
+    }
+
+    // MARK: - Infinity bottles
+
+    /// Starts an infinity bottle: a vessel of `volumeMl`, empty, open from
+    /// today. It has no product; its name is its own.
+    @discardableResult
+    public func startInfinityBottle(name: String, volumeMl: Double = 750) throws -> Bottle {
+        let trimmed = name.trimmingCharacters(in: .whitespaces)
+        var bottle = Bottle(
+            customName: trimmed.isEmpty ? "Infinity bottle" : trimmed,
+            volumeMl: volumeMl,
+            isInfinity: true,
+            openedAt: Bottle.nowMilliseconds())
+        try db.queue.write { db in try bottle.saveLocal(db) }
+        return bottle
+    }
+
+    public func infinityBottles() throws -> [Bottle] {
+        try db.queue.read { db in
+            try Bottle.live()
+                .filter(Column("is_infinity") == true)
+                .filter(Column("finished_at") == nil)
+                .order(Column("created_at").desc)
+                .fetchAll(db)
+        }
+    }
+
+    /// Everything that went into an infinity bottle, newest first.
+    public func additions(blendId: String) throws -> [BlendAddition] {
+        try db.queue.read { db in
+            try BlendAddition.live()
+                .filter(Column("blend_bottle_id") == blendId)
+                .order(Column("added_at").desc)
+                .fetchAll(db)
+        }
+    }
+
+    /// Pours from one of your bottles into an infinity bottle. The source
+    /// drops by the amount like any pour (clamped at empty), the blend rises
+    /// by the same amount, and the blend's strength is recomputed from
+    /// everything in it. The strength of what went in is the source's own
+    /// measured proof first, the catalogue's second, and unknown when
+    /// neither says.
+    @discardableResult
+    public func addToBlend(
+        blendId: String, fromBottleId sourceId: String, volumeMl: Double,
+        catalogABV: Double? = nil
+    ) throws -> BlendAddition {
+        guard blendId != sourceId else { throw DataError.bottleNotFound(sourceId) }
+        return try db.queue.write { db in
+            guard let blend = try Bottle.filter(key: blendId).fetchOne(db), blend.isInfinity else {
+                throw DataError.bottleNotFound(blendId)
+            }
+            let source = try Bottle.filter(key: sourceId).fetchOne(db)
+            // A vessel holds what it holds. What does not fit is not poured
+            // out of the source either.
+            let room = blend.volumeMl - (try Self.summary(for: blend, in: db).status.remainingMilliliters)
+            guard room > 0.5 else { throw DataError.bottleIsFull(blendId) }
+            var pour = try Self.insertPour(
+                bottleId: sourceId, volumeMl: min(volumeMl, room), note: nil, givenTo: nil, in: db)
+            pour.intoBottleId = blendId
+            try pour.saveLocal(db)
+
+            var addition = BlendAddition(
+                blendBottleId: blendId,
+                sourceBottleId: sourceId,
+                abv: source?.abv ?? catalogABV,
+                volumeMl: pour.volumeMl,
+                pourId: pour.id,
+                addedAt: pour.pouredAt)
+            try addition.saveLocal(db)
+            try Self.refreshBlendStrength(blendId: blendId, in: db)
+            return addition
+        }
+    }
+
+    /// Adds something that is not on your shelf -- a friend's bottle, a
+    /// sample already drunk down -- by name and strength.
+    @discardableResult
+    public func addToBlend(
+        blendId: String, sourceName: String, abv: Double?, volumeMl: Double
+    ) throws -> BlendAddition {
+        let name = sourceName.trimmingCharacters(in: .whitespaces)
+        guard !name.isEmpty, volumeMl > 0 else { throw DataError.bottleNotFound(blendId) }
+        return try db.queue.write { db in
+            guard let blend = try Bottle.filter(key: blendId).fetchOne(db), blend.isInfinity else {
+                throw DataError.bottleNotFound(blendId)
+            }
+            let room = blend.volumeMl - (try Self.summary(for: blend, in: db).status.remainingMilliliters)
+            guard room > 0.5 else { throw DataError.bottleIsFull(blendId) }
+            var addition = BlendAddition(
+                blendBottleId: blendId, sourceName: name, abv: abv, volumeMl: min(volumeMl, room))
+            try addition.saveLocal(db)
+            try Self.refreshBlendStrength(blendId: blendId, in: db)
+            return addition
+        }
+    }
+
+    /// Takes an addition back out. Its pour on the source, if any, is
+    /// undone with it.
+    public func removeAddition(id: String) throws {
+        try db.queue.write { db in
+            guard var addition = try BlendAddition.filter(key: id).fetchOne(db) else { return }
+            addition.softDelete()
+            try addition.save(db)
+            if let pourId = addition.pourId, var pour = try Pour.filter(key: pourId).fetchOne(db) {
+                pour.softDelete()
+                try pour.save(db)
+            }
+            try Self.refreshBlendStrength(blendId: addition.blendBottleId, in: db)
+        }
+    }
+
+    /// The blend as `Blend.Part`s, one per live addition. Names for shelf
+    /// sources are resolved by the caller, which knows the catalogue; the
+    /// key is the source bottle's id or, failing that, the typed name.
+    public func blendParts(
+        blendId: String, resolveName: (String) -> String?
+    ) throws -> [Blend.Part] {
+        try additions(blendId: blendId).map { addition in
+            let key = addition.sourceBottleId ?? "name:" + (addition.sourceName ?? "")
+            let name = addition.sourceBottleId.flatMap(resolveName)
+                ?? addition.sourceName
+                ?? "Unknown"
+            return Blend.Part(
+                key: key, name: name, milliliters: addition.volumeMl, abv: addition.abv)
+        }
+    }
+
+    /// Keeps `abv` on the infinity bottle equal to the blend's strength, so
+    /// the guest menu, the stats and the export read the right number
+    /// without knowing what an infinity bottle is.
+    static func refreshBlendStrength(blendId: String, in db: Database) throws {
+        guard var blend = try Bottle.filter(key: blendId).fetchOne(db) else { return }
+        let parts = try BlendAddition.live()
+            .filter(Column("blend_bottle_id") == blendId)
+            .fetchAll(db)
+            .map { Blend.Part(key: $0.id, name: "", milliliters: $0.volumeMl, abv: $0.abv) }
+        let strength = Blend.profile(parts).abv
+        if blend.abv != strength {
+            blend.abv = strength
+            try blend.saveLocal(db)
+        }
+    }
+
+    /// Millilitres added to an infinity bottle, optionally only AFTER a
+    /// level reading -- the mirror of `pouredMilliliters`.
+    static func addedMilliliters(
+        blendId: String, since readAt: Int64? = nil, in db: Database
+    ) throws -> Double {
+        var request = BlendAddition.live().filter(Column("blend_bottle_id") == blendId)
+        if let readAt {
+            request = request.filter(Column("added_at") > readAt)
+        }
+        return try Double.fetchOne(db, request.select(sum(Column("volume_ml")))) ?? 0
     }
 
     /// Products the user added themselves, newest first.
@@ -365,16 +529,32 @@ public struct BottleRepository: Sendable {
         bottleId: String, volumeMl: Double? = nil, note: String? = nil, givenTo: String? = nil
     ) throws -> Pour {
         try db.queue.write { db in
+            try Self.insertPour(bottleId: bottleId, volumeMl: volumeMl, note: note, givenTo: givenTo, in: db)
+        }
+    }
+
+    /// The pour itself, inside a write somebody else opened -- so an
+    /// addition to an infinity bottle and the pour it came from are one
+    /// transaction.
+    static func insertPour(
+        bottleId: String, volumeMl: Double?, note: String?, givenTo: String?, in db: Database
+    ) throws -> Pour {
+        do {
             guard let bottle = try Bottle.filter(key: bottleId).fetchOne(db) else {
                 throw DataError.bottleNotFound(bottleId)
             }
             let reading = try Self.latestReading(bottleId: bottleId, in: db)
             let poured = try Self.pouredMilliliters(
                 bottleId: bottleId, since: reading?.readAt, in: db)
+            var starting = reading?.remainingMl
+            if bottle.isInfinity {
+                starting = (reading?.remainingMl ?? 0)
+                    + (try Self.addedMilliliters(blendId: bottleId, since: reading?.readAt, in: db))
+            }
             let remaining = PourMath.remainingMilliliters(
                 capacity: bottle.volumeMl,
                 poured: poured,
-                startingFrom: reading?.remainingMl)
+                startingFrom: starting)
             let requested = volumeMl ?? bottle.pourSizeMl
             guard remaining > 0 else { throw DataError.bottleIsEmpty(bottleId) }
 
@@ -587,6 +767,14 @@ public struct BottleRepository: Sendable {
         let reading = try latestReading(bottleId: bottle.id, in: db)
         let poured = try pouredMilliliters(
             bottleId: bottle.id, since: reading?.readAt, in: db)
+        // An infinity bottle starts empty and fills by what is added, so
+        // its starting point is the last reading (or nothing) plus the
+        // additions since. Never the capacity: a new vessel holds nothing.
+        var starting = reading?.remainingMl
+        if bottle.isInfinity {
+            starting = (reading?.remainingMl ?? 0)
+                + (try addedMilliliters(blendId: bottle.id, since: reading?.readAt, in: db))
+        }
         let tastings = try Tasting
             .live()
             .filter(Column("bottle_id") == bottle.id)
@@ -604,7 +792,7 @@ public struct BottleRepository: Sendable {
             status: PourMath.status(
                 capacityMilliliters: bottle.volumeMl,
                 pouredMilliliters: poured,
-                startingMilliliters: reading?.remainingMl,
+                startingMilliliters: starting,
                 pourSize: bottle.pourSize
             ),
             latestRating: tastings.first?.rating,
@@ -619,5 +807,6 @@ public struct BottleRepository: Sendable {
 public enum DataError: Error, Sendable, Equatable {
     case bottleNotFound(String)
     case bottleIsEmpty(String)
+    case bottleIsFull(String)
     case productNotFound(String)
 }

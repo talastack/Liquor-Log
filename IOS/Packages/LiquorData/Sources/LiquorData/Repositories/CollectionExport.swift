@@ -23,7 +23,7 @@ public struct CollectionExport: Sendable {
     public static let header = [
         "name", "distillery", "brand", "expression",
         "class", "production", "status",
-        "sample", "sample_from", "sample_source",
+        "sample", "sample_from", "sample_source", "infinity",
         "size_ml", "abv", "proof", "chill_filtered",
         "batch", "barrel", "store_pick", "pick_group", "pick_store",
         "warehouse", "rick", "floor", "recipe_code",
@@ -64,6 +64,7 @@ public struct CollectionExport: Sendable {
                 CSVWriter.flag(bottle.isSample),
                 CSVWriter.text(bottle.sampleFrom),
                 CSVWriter.text(bottle.sampleSource?.rawValue),
+                CSVWriter.flag(bottle.isInfinity),
 
                 CSVWriter.decimal(bottle.volumeMl, places: 0),
                 CSVWriter.decimal(bottle.abv),

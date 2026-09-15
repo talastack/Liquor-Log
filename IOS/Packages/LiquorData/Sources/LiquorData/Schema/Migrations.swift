@@ -100,6 +100,7 @@ public enum Migrations {
                 t.column("is_sample", .boolean).notNull().defaults(to: false)
                 t.column("sample_from", .text)
                 t.column("sample_source", .text)
+                t.column("is_infinity", .boolean).notNull().defaults(to: false)
                 t.column("opened_at", .integer)
                 t.column("finished_at", .integer)
                 t.column("last_verified_at", .integer)
@@ -118,6 +119,7 @@ public enum Migrations {
                 t.column("volume_ml", .double).notNull()
                 t.column("note", .text)
                 t.column("given_to", .text)
+                t.column("into_bottle_id", .text)
                 t.column("created_at", .integer).notNull()
                 t.column("updated_at", .integer).notNull()
                 t.column("deleted_at", .integer)
@@ -130,6 +132,27 @@ public enum Migrations {
             // since was logged. Both are routinely false. A reading lets a
             // human overrule that without rewriting the pours: the fill is the
             // latest reading minus the pours logged after it.
+            // What went into an infinity bottle. Paired with a pour on the
+            // source bottle when it came off the shelf, so both fills move
+            // together and undo together.
+            try db.create(table: "blend_additions") { t in
+                t.primaryKey("id", .text).notNull()
+                t.column("user_id", .text)
+                t.column("blend_bottle_id", .text).notNull()
+                    .references("bottles", onDelete: .cascade)
+                t.column("source_bottle_id", .text)
+                t.column("source_name", .text)
+                t.column("abv", .double)
+                t.column("volume_ml", .double).notNull()
+                t.column("pour_id", .text)
+                t.column("added_at", .integer).notNull()
+                t.column("note", .text)
+                t.column("created_at", .integer).notNull()
+                t.column("updated_at", .integer).notNull()
+                t.column("deleted_at", .integer)
+                t.column("dirty", .boolean).notNull().defaults(to: true)
+            }
+
             try db.create(table: "fill_readings") { t in
                 t.primaryKey("id", .text).notNull()
                 t.column("user_id", .text)
@@ -233,6 +256,8 @@ public enum Migrations {
                           columns: ["catalog_product_id"])
             try db.create(index: "bottles_dirty", on: "bottles", columns: ["dirty"])
             try db.create(index: "pours_dirty", on: "pours", columns: ["dirty"])
+            try db.create(index: "blend_additions_by_blend", on: "blend_additions",
+                          columns: ["blend_bottle_id", "added_at"])
             try db.create(index: "tastings_dirty", on: "tastings", columns: ["dirty"])
         }
 

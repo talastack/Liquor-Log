@@ -296,6 +296,12 @@ public struct Bottle: SyncableRecord {
     public var sampleFrom: String?
     public var sampleSource: SampleSource?
 
+    /// An infinity bottle: filled from other bottles, never from a shop.
+    /// It has no catalogue product; what is in it is the `blend_additions`
+    /// against it, and `abv` is kept equal to the blend's strength so every
+    /// screen that reads a bottle's proof reads the right one.
+    public var isInfinity: Bool
+
     public var openedAt: Int64?
     public var finishedAt: Int64?
 
@@ -332,6 +338,7 @@ public struct Bottle: SyncableRecord {
         case staveRecipe = "stave_recipe", dsp
         case storageLocation = "storage_location", shelfNumber = "shelf_number"
         case isSample = "is_sample", sampleFrom = "sample_from", sampleSource = "sample_source"
+        case isInfinity = "is_infinity"
         case openedAt = "opened_at", finishedAt = "finished_at"
         case lastVerifiedAt = "last_verified_at"
         case createdAt = "created_at", updatedAt = "updated_at"
@@ -385,6 +392,7 @@ public struct Bottle: SyncableRecord {
         isSample: Bool = false,
         sampleFrom: String? = nil,
         sampleSource: SampleSource? = nil,
+        isInfinity: Bool = false,
         openedAt: Int64? = nil,
         finishedAt: Int64? = nil,
         lastVerifiedAt: Int64? = nil,
@@ -417,6 +425,7 @@ public struct Bottle: SyncableRecord {
         self.staveRecipe = staveRecipe; self.dsp = dsp
         self.storageLocation = storageLocation; self.shelfNumber = shelfNumber
         self.isSample = isSample; self.sampleFrom = sampleFrom; self.sampleSource = sampleSource
+        self.isInfinity = isInfinity
         self.openedAt = openedAt; self.finishedAt = finishedAt
         self.lastVerifiedAt = lastVerifiedAt
         self.createdAt = createdAt; self.updatedAt = updatedAt
@@ -512,6 +521,10 @@ public struct Pour: SyncableRecord {
     /// friend, a swap sent off. Nil is your own glass. It is how "samples
     /// given" is answered without a second ledger.
     public var givenTo: String?
+    /// The infinity bottle this pour went INTO, when it did. The pour comes
+    /// off this bottle like any other; the matching `BlendAddition` puts it
+    /// in the other one.
+    public var intoBottleId: String?
     public var createdAt: Int64
     public var updatedAt: Int64
     public var deletedAt: Int64?
@@ -520,7 +533,7 @@ public struct Pour: SyncableRecord {
     enum CodingKeys: String, CodingKey {
         case id, userId = "user_id", bottleId = "bottle_id"
         case pouredAt = "poured_at", volumeMl = "volume_ml", note
-        case givenTo = "given_to"
+        case givenTo = "given_to", intoBottleId = "into_bottle_id"
         case createdAt = "created_at", updatedAt = "updated_at"
         case deletedAt = "deleted_at", dirty
     }
@@ -533,6 +546,7 @@ public struct Pour: SyncableRecord {
         volumeMl: Double,
         note: String? = nil,
         givenTo: String? = nil,
+        intoBottleId: String? = nil,
         createdAt: Int64 = Self.nowMilliseconds(),
         updatedAt: Int64 = Self.nowMilliseconds(),
         deletedAt: Int64? = nil,
@@ -540,7 +554,7 @@ public struct Pour: SyncableRecord {
     ) {
         self.id = id; self.userId = userId; self.bottleId = bottleId
         self.pouredAt = pouredAt; self.volumeMl = volumeMl; self.note = note
-        self.givenTo = givenTo
+        self.givenTo = givenTo; self.intoBottleId = intoBottleId
         self.createdAt = createdAt; self.updatedAt = updatedAt
         self.deletedAt = deletedAt; self.dirty = dirty
     }
@@ -560,6 +574,72 @@ public struct Pour: SyncableRecord {
 /// reading. Correcting a bottle therefore never rewrites history -- the pours
 /// you logged stay logged -- and two readings a year apart are a real record of
 /// how fast that bottle went down.
+// MARK: - blend_additions
+
+/// One thing that went into an infinity bottle.
+///
+/// From a bottle on the shelf, it is paired with a `Pour` on that bottle
+/// (`pourId`), so the source's fill drops by the same amount and the two
+/// undo together. From anywhere else -- a friend's bottle, a sample -- it
+/// carries its own name and strength. `abv` is copied at the time of the
+/// addition because that is the strength of what went in, whatever the
+/// source bottle's record says later.
+public struct BlendAddition: SyncableRecord {
+    public static let databaseTableName = "blend_additions"
+
+    public var id: String
+    public var userId: String?
+    /// The infinity bottle.
+    public var blendBottleId: String
+    /// The bottle it was poured from, when it was one of yours.
+    public var sourceBottleId: String?
+    /// What to call it when there is no source bottle to resolve.
+    public var sourceName: String?
+    public var abv: Double?
+    public var volumeMl: Double
+    public var pourId: String?
+    public var addedAt: Int64
+    public var note: String?
+
+    public var createdAt: Int64
+    public var updatedAt: Int64
+    public var deletedAt: Int64?
+    public var dirty: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case id, userId = "user_id", blendBottleId = "blend_bottle_id"
+        case sourceBottleId = "source_bottle_id", sourceName = "source_name"
+        case abv, volumeMl = "volume_ml", pourId = "pour_id"
+        case addedAt = "added_at", note
+        case createdAt = "created_at", updatedAt = "updated_at"
+        case deletedAt = "deleted_at", dirty
+    }
+
+    public init(
+        id: String = UUID().uuidString,
+        userId: String? = nil,
+        blendBottleId: String,
+        sourceBottleId: String? = nil,
+        sourceName: String? = nil,
+        abv: Double? = nil,
+        volumeMl: Double,
+        pourId: String? = nil,
+        addedAt: Int64 = Self.nowMilliseconds(),
+        note: String? = nil,
+        createdAt: Int64 = Self.nowMilliseconds(),
+        updatedAt: Int64 = Self.nowMilliseconds(),
+        deletedAt: Int64? = nil,
+        dirty: Bool = true
+    ) {
+        self.id = id; self.userId = userId; self.blendBottleId = blendBottleId
+        self.sourceBottleId = sourceBottleId; self.sourceName = sourceName
+        self.abv = abv; self.volumeMl = volumeMl; self.pourId = pourId
+        self.addedAt = addedAt; self.note = note
+        self.createdAt = createdAt; self.updatedAt = updatedAt
+        self.deletedAt = deletedAt; self.dirty = dirty
+    }
+}
+
 public struct FillReading: SyncableRecord {
     public static let databaseTableName = "fill_readings"
 

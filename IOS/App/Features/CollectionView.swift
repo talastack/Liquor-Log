@@ -410,6 +410,7 @@ struct CollectionView: View {
             isOpen: bottle.isOpen,
             isFinished: bottle.isFinished,
             isSample: bottle.isSample,
+            isInfinity: bottle.isInfinity,
             storageLocation: bottle.storageLocation,
             addedAt: Date(timeIntervalSince1970: Double(bottle.createdAt) / 1000),
             lastPouredAt: summary.lastPouredAt,
@@ -476,6 +477,12 @@ struct BottleCard: View {
                     Text(sampleLine(summary.bottle))
                         .font(TypeScale.code(13))
                         .foregroundStyle(Palette.Verdict.haveASample)
+                }
+                if summary.bottle.isInfinity {
+                    Text(summary.bottle.abv.map { String(format: "Infinity bottle · %.1f proof", ABV(percent: $0).proof) }
+                         ?? "Infinity bottle")
+                        .font(TypeScale.code(13))
+                        .foregroundStyle(Palette.textMuted)
                 }
 
                 FillBar(status: summary.status)

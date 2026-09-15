@@ -36,6 +36,9 @@ struct MainTabView: View {
     @State private var isAddingShelf = false
     @State private var isAddingTasting = false
     @State private var isChoosingWhatToAdd = false
+    @State private var isStartingInfinity = false
+    @State private var infinityName = ""
+    @State private var infinitySize = "750"
 
     var body: some View {
         TabView(selection: $tab) {
@@ -68,7 +71,20 @@ struct MainTabView: View {
             // interest in typing each one.
             Button("Add a shelf") { isAddingShelf = true }
             Button("Record a tasting") { isAddingTasting = true }
+            Button("Start an infinity bottle") {
+                infinityName = ""
+                infinitySize = "750"
+                isStartingInfinity = true
+            }
             Button("Cancel", role: .cancel) { }
+        }
+        .alert("Start an infinity bottle", isPresented: $isStartingInfinity) {
+            TextField("Name", text: $infinityName)
+            TextField("Size in ml", text: $infinitySize).keyboardType(.numberPad)
+            Button("Start it") { startInfinity() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("An empty vessel you fill from your other bottles. It keeps track of what went in and how strong it is.")
         }
         // onDismiss on all three: a sheet closing does not re-run the
         // tab underneath it, so without this a bottle added from the +
@@ -87,6 +103,12 @@ struct MainTabView: View {
                 StartupBanner(message: message)
             }
         }
+    }
+
+    private func startInfinity() {
+        let size = Double(infinitySize).flatMap { $0 > 0 ? $0 : nil } ?? 750
+        _ = try? env.bottles.startInfinityBottle(name: infinityName, volumeMl: size)
+        env.noteChange()
     }
 
     @ViewBuilder

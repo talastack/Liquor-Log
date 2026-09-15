@@ -82,6 +82,12 @@ struct BottleDetailView: View {
     /// Every level somebody set by eye, newest first. The fill runs down
     /// from the latest of these.
     @State private var readings: [FillReading] = []
+    /// For an infinity bottle: what went in. Empty for any other bottle.
+    @State private var additions: [BlendAddition] = []
+    @State private var blend: Blend.Profile = Blend.profile([])
+    /// The infinity bottles this one could be poured into.
+    @State private var infinityTargets: [Bottle] = []
+    @State private var pourIntoTarget: Bottle?
 
     struct RenderedBottleCard: Identifiable {
         let id = UUID()
@@ -93,6 +99,11 @@ struct BottleDetailView: View {
             if let summary {
                 VStack(alignment: .leading, spacing: Space.xl) {
                     hero(summary)
+                    if summary.bottle.isInfinity {
+                        InfinityCard(
+                            bottle: summary.bottle, additions: additions, profile: blend,
+                            onChange: { reload() })
+                    }
                     fill(summary)
                     if let estimate = oxidation(summary) {
                         OxidationCard(estimate: estimate)
@@ -169,6 +180,22 @@ struct BottleDetailView: View {
         }
         .sheet(item: $shareCard) { card in
             ShareSheet(items: [card.image])
+        }
+        .alert(
+            "Into \(pourIntoTarget.map { env.name(for: $0) } ?? "the infinity bottle")",
+            isPresented: .constant(pourIntoTarget != nil)
+        ) {
+            TextField("ml", text: $customPourText)
+                .keyboardType(.decimalPad)
+            Button("Pour it in") {
+                if let target = pourIntoTarget, let ml = Double(customPourText), ml > 0 {
+                    pourInto(target, milliliters: ml)
+                }
+                pourIntoTarget = nil
+            }
+            Button("Cancel", role: .cancel) { pourIntoTarget = nil }
+        } message: {
+            Text("It comes off this bottle and goes into that one.")
         }
         .alert("Pour for someone", isPresented: $isGivingPour) {
             TextField("Who", text: $giveToText)
@@ -262,6 +289,14 @@ struct BottleDetailView: View {
                         isGivingPour = true
                     } label: {
                         Label("Pour for someone…", systemImage: "gift")
+                    }
+                    ForEach(infinityTargets, id: \.id) { target in
+                        Button {
+                            customPourText = "60"
+                            pourIntoTarget = target
+                        } label: {
+                            Label("Pour into \(env.name(for: target))…", systemImage: "arrow.down.to.line")
+                        }
                     }
                 }
                 if !summary.bottle.isOpen {
@@ -445,6 +480,11 @@ struct BottleDetailView: View {
                     Spacer()
                     if let who = pour.givenTo {
                         Text("to \(who)")
+                            .font(TypeScale.caption())
+                            .textCase(nil)
+                            .foregroundStyle(Palette.textSecondary)
+                    } else if let into = pour.intoBottleId {
+                        Text("into \((try? env.bottles.summary(id: into)?.bottle).map { env.name(for: $0) } ?? "an infinity bottle")")
                             .font(TypeScale.caption())
                             .textCase(nil)
                             .foregroundStyle(Palette.textSecondary)
@@ -1096,6 +1136,15 @@ struct BottleDetailView: View {
             }
             pours = try env.bottles.pours(bottleId: bottleId)
             readings = try env.bottles.fillHistory(bottleId: bottleId)
+            if summary?.bottle.isInfinity == true {
+                additions = try env.bottles.additions(blendId: bottleId)
+                blend = Blend.profile(try env.bottles.blendParts(blendId: bottleId) { id in
+                    (try? env.bottles.summary(id: id)?.bottle).map { env.name(for: $0) }
+                })
+                infinityTargets = []
+            } else {
+                infinityTargets = try env.bottles.infinityBottles()
+            }
             // Excluding this bottle: comparing a price against itself would
             // always report "about what you usually pay".
             if let productId = summary?.bottle.catalogProductId {
@@ -1258,6 +1307,22 @@ struct BottleDetailView: View {
 
     private func logPour(_ summary: BottleSummary) {
         logPour(milliliters: nil)
+    }
+
+    private func pourInto(_ target: Bottle, milliliters: Double) {
+        guard let summary else { return }
+        do {
+            try env.bottles.addToBlend(
+                blendId: target.id, fromBottleId: summary.id, volumeMl: milliliters,
+                catalogABV: env.product(for: summary.bottle)?.abv)
+            reload()
+        } catch DataError.bottleIsFull {
+            error = "\(env.name(for: target)) is full."
+        } catch DataError.bottleIsEmpty {
+            error = "That bottle is empty."
+        } catch {
+            self.error = error.localizedDescription
+        }
     }
 
     /// "From Mike · a swap". Whatever was recorded, nothing invented.

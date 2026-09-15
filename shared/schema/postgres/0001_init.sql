@@ -328,6 +328,10 @@ create table bottles (
   sample_from         text,
   sample_source       text,
 
+  -- An infinity bottle: filled from other bottles, never bought. What is in
+  -- it lives in blend_additions; abv is kept equal to the blend's strength.
+  is_infinity         boolean not null default false,
+
   opened_at           bigint,
   finished_at         bigint,
 
@@ -395,12 +399,45 @@ create table pours (
   -- Who the pour was for when it was not you: a sample decanted for a
   -- friend. Null is your own glass.
   given_to           text,
+  -- The infinity bottle this pour went into, when it did.
+  into_bottle_id     text,
   created_at         bigint not null,
   updated_at         bigint not null,
   deleted_at         bigint,
   server_updated_at  bigint not null default 0,
 
   constraint pour_is_positive check (volume_ml > 0)
+);
+
+-- ---------------------------------------------------------------------------
+-- blend_additions
+-- ---------------------------------------------------------------------------
+--
+-- What went into an infinity bottle. From a bottle on the shelf it is paired
+-- with a pour on that bottle (pour_id), so both fills move together and undo
+-- together; from anywhere else it carries its own name and strength. abv is
+-- copied at the time of the addition: that is the strength of what went in.
+
+create table blend_additions (
+  id                 text primary key,
+  user_id            uuid not null references auth.users (id) on delete cascade,
+  blend_bottle_id    text not null references bottles (id) on delete cascade,
+  source_bottle_id   text,
+  source_name        text,
+  abv                double precision,
+  volume_ml          double precision not null,
+  pour_id            text,
+  added_at           bigint not null,
+  note               text,
+
+  created_at         bigint not null,
+  updated_at         bigint not null,
+  deleted_at         bigint,
+  server_updated_at  bigint not null default 0,
+
+  constraint addition_is_positive check (volume_ml > 0),
+  constraint addition_abv_is_plausible check (abv is null or (abv > 0.5 and abv <= 95.0)),
+  constraint addition_has_a_source check (source_bottle_id is not null or source_name is not null)
 );
 
 -- ---------------------------------------------------------------------------
@@ -640,6 +677,9 @@ create trigger a_pours_reject_stale
 create trigger a_fill_readings_reject_stale
   before update on fill_readings
   for each row execute function reject_stale_writes();
+create trigger a_blend_additions_reject_stale
+  before update on blend_additions
+  for each row execute function reject_stale_writes();
 create trigger a_tastings_reject_stale
   before update on tastings
   for each row execute function reject_stale_writes();
@@ -664,6 +704,9 @@ create trigger pours_server_clock
   for each row execute function set_server_updated_at();
 create trigger fill_readings_server_clock
   before insert or update on fill_readings
+  for each row execute function set_server_updated_at();
+create trigger blend_additions_server_clock
+  before insert or update on blend_additions
   for each row execute function set_server_updated_at();
 create trigger tastings_server_clock
   before insert or update on tastings
@@ -692,6 +735,7 @@ create index custom_catalog_entries_pull on custom_catalog_entries (user_id, ser
 create index bottles_pull on bottles (user_id, server_updated_at);
 create index pours_pull on pours (user_id, server_updated_at);
 create index fill_readings_pull on fill_readings (user_id, server_updated_at);
+create index blend_additions_pull on blend_additions (user_id, server_updated_at);
 create index tastings_pull on tastings (user_id, server_updated_at);
 create index tasting_notes_pull on tasting_notes (user_id, server_updated_at);
 create index wishlist_items_pull on wishlist_items (user_id, server_updated_at);
@@ -703,6 +747,7 @@ create index pours_by_bottle on pours (bottle_id, poured_at);
 -- Deriving a fill means finding the newest reading for a bottle and then the
 -- pours after it, so both halves of that read are indexed.
 create index fill_readings_by_bottle on fill_readings (bottle_id, read_at);
+create index blend_additions_by_blend on blend_additions (blend_bottle_id, added_at);
 create index tastings_by_bottle on tastings (bottle_id, tasted_at);
 create index tastings_by_product on tastings (catalog_product_id, tasted_at);
 create index tasting_notes_by_tasting on tasting_notes (tasting_id);

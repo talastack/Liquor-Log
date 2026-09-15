@@ -46,6 +46,7 @@ public actor SyncEngine {
             AnySyncTable(Bottle.self),
             AnySyncTable(Pour.self),
             AnySyncTable(FillReading.self),
+            AnySyncTable(BlendAddition.self),
             AnySyncTable(Tasting.self),
             AnySyncTable(TastingNote.self),
             AnySyncTable(WishlistItem.self),
@@ -232,6 +233,7 @@ public actor SyncEngine {
     /// widen the value type the day a non-boolean column joins.
     static let addedColumnDefaults: [String: Bool] = [
         "is_sample": false,   // patch 0006
+        "is_infinity": false, // patch 0007
     ]
 }
 
