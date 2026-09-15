@@ -16,6 +16,9 @@ struct MoreView: View {
     /// Ounces beside the millilitres. Display only; nothing stored changes.
     @AppStorage(VolumeDisplay.key) private var ounces = false
 
+    @AppStorage(Palette.Look.key) private var look = Palette.Look.standard.rawValue
+    @Environment(\.colorScheme) private var colorScheme
+
     @State private var exportURL: URL?
     /// Your Blanton's with a dump date, in the registry's shape. Nil until
     /// there is at least one, so nobody without a Blanton's sees the word.
@@ -34,6 +37,7 @@ struct MoreView: View {
                     .padding(.top, Space.s)
 
                 tools
+                appearance
                 money
                 units
                 exportSection
@@ -203,6 +207,47 @@ struct MoreView: View {
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.line, lineWidth: 1))
     }
 
+    // MARK: - Appearance
+
+    private var appearance: some View {
+        VStack(alignment: .leading, spacing: Space.m) {
+            SectionLabel("Look")
+            ForEach(Palette.Look.allCases) { option in
+                let swatch = Palette.swatch(for: option, dark: colorScheme == .dark)
+                Button { look = option.rawValue } label: {
+                    HStack(spacing: Space.m) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 8).fill(swatch.ground)
+                            Circle().fill(swatch.accent).frame(width: 16, height: 16)
+                        }
+                        .frame(width: 44, height: 32)
+                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Palette.line, lineWidth: 1))
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(option.name)
+                                .font(TypeScale.body())
+                                .foregroundStyle(Palette.text)
+                            Text(option.line)
+                                .font(TypeScale.caption())
+                                .textCase(nil)
+                                .foregroundStyle(Palette.textMuted)
+                        }
+                        Spacer()
+                        if look == option.rawValue {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundStyle(Palette.gold)
+                        }
+                    }
+                    .padding(Space.l)
+                    .frame(maxWidth: .infinity, minHeight: Space.tapTarget, alignment: .leading)
+                    .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
+                    .overlay(RoundedRectangle(cornerRadius: 12)
+                        .stroke(look == option.rawValue ? Palette.gold : Palette.line, lineWidth: 1))
+                }
+            }
+        }
+    }
+
     // MARK: - Units
 
     private var units: some View {
@@ -213,8 +258,7 @@ struct MoreView: View {
                     Text("Show ounces")
                         .font(TypeScale.body())
                         .foregroundStyle(Palette.text)
-                    Text("Beside the millilitres. Bottles are labelled in ml; pours are "
-                         + "thought about in oz. Nothing stored changes.")
+                    Text("Shown beside the millilitres. Nothing stored changes.")
                         .font(TypeScale.caption())
                         .textCase(nil)
                         .foregroundStyle(Palette.textMuted)
@@ -301,9 +345,7 @@ struct MoreView: View {
                     symbol: "doc.text")
             }
 
-            Text("Opens in any spreadsheet. It includes your barrel and pick "
-                 + "detail and the bottles you have finished, because an export "
-                 + "missing those would look like a backup without being one.")
+            Text("Every bottle and every field, finished bottles included.")
                 .font(TypeScale.caption())
                 .textCase(nil)
                 .foregroundStyle(Palette.textMuted)
@@ -359,11 +401,6 @@ struct MoreView: View {
                 FactRow(label: "Works offline", value: "Always", isLast: true)
             }
 
-            Text("Every bottle, note and pour is stored on this phone. Nothing "
-                 + "here needs a network.")
-                .font(TypeScale.secondary())
-                .foregroundStyle(Palette.textMuted)
-                .fixedSize(horizontal: false, vertical: true)
         }
     }
 

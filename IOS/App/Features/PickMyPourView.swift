@@ -113,12 +113,6 @@ struct PickMyPourView: View {
                 .foregroundStyle(Palette.text)
             // Opening a sealed bottle starts an oxidation clock and is often
             // the whole point of that bottle. Not the app's call.
-            Text("This only suggests bottles that are already open. Opening a "
-                 + "sealed one is your call, not the app's.")
-                .font(TypeScale.secondary())
-                .foregroundStyle(Palette.textMuted)
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: .infinity)
         .padding(.top, 64)

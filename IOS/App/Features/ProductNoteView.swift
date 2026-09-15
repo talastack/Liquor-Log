@@ -40,9 +40,7 @@ struct ProductNoteView: View {
                         .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
                         .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.line, lineWidth: 1))
 
-                    Text("Things you have learned about this whiskey, not about one "
-                         + "glass of it. Batches to avoid, where it is at list price, "
-                         + "whether the pick is worth it. Leave it empty to remove the note.")
+                    Text("About the whiskey, not one glass of it. Empty removes the note.")
                         .font(TypeScale.caption())
                         .textCase(nil)
                         .foregroundStyle(Palette.textMuted)
@@ -113,8 +111,7 @@ struct ProductNoteCard: View {
                     .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
                     .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.line, lineWidth: 1))
             } else {
-                Text("Batches to avoid, where it sells at list, whether the pick "
-                     + "beats the standard. It shows here and on the shelf check.")
+                Text("Shows here and on the shelf check.")
                     .font(TypeScale.caption())
                     .textCase(nil)
                     .foregroundStyle(Palette.textMuted)

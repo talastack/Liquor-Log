@@ -1,76 +1,210 @@
 import SwiftUI
 import UIKit
 
-/// Every colour in the app, in both modes.
+/// Every colour in the app, in both modes, in four looks.
 ///
-/// **This file and `design/build.py` are a paired edit.** The hex values here
-/// mirror the `DARK` and `LIGHT` dictionaries in that file, which generate the
-/// design canvas. Nothing at runtime notices when they drift; the canvas simply
-/// stops describing the app.
+/// The first version of this file was one look: warm near-black with an
+/// amber accent. It is also the look most AI-assisted apps ship with, and
+/// the owner asked for something that was not that. So the palette became
+/// a set of looks, chosen in More, each rooted in something a bourbon
+/// collector actually sees:
 ///
-/// Colours live in code rather than an asset catalog for one reason: the canvas
-/// is generated from a Python dictionary, and a Swift dictionary can be diffed
-/// against it by eye in a single screen. An asset catalog spreads the same
-/// values across a directory of JSON files where nobody would ever check.
+/// - **Label** -- cream paper and oxblood ink, the look of an old label.
+///   Light-first, which is itself the opposite of the default everyone else
+///   has. The default.
+/// - **Cellar** -- green-black and copper, the inside of a rickhouse at dusk.
+/// - **Bond** -- navy and brass, the tax strip and the bonded seal.
+/// - **Amber** -- the original, kept for anybody who liked it.
 ///
-/// The rule that matters is unchanged either way: **no colour literal appears
-/// anywhere else in the app.**
+/// Every screen reads `Palette.gold`, `Palette.text` and so on; the names
+/// stayed so that two hundred call sites did not move. Under each name is
+/// the current look's value, resolved per light/dark trait, so a mode switch
+/// needs no invalidation and a look switch is a rebuild of the root view.
+///
+/// The rule that matters is unchanged: **no colour literal appears anywhere
+/// else in the app.**
 enum Palette {
+
+    // MARK: - Looks
+
+    enum Look: String, CaseIterable, Identifiable {
+        case label, cellar, bond, amber
+
+        var id: String { rawValue }
+
+        var name: String {
+            switch self {
+            case .label: return "Label"
+            case .cellar: return "Cellar"
+            case .bond: return "Bond"
+            case .amber: return "Amber"
+            }
+        }
+
+        var line: String {
+            switch self {
+            case .label: return "Cream paper and oxblood ink. Light by default."
+            case .cellar: return "Green-black and copper. The rickhouse at dusk."
+            case .bond: return "Navy and brass. The tax strip and the seal."
+            case .amber: return "Warm black and gold. The first look."
+            }
+        }
+
+        static let key = "theme.look"
+        static let standard: Look = .label
+
+        static var current: Look {
+            Look(rawValue: UserDefaults.standard.string(forKey: key) ?? "") ?? standard
+        }
+    }
+
+    /// One look: every token as a dark and a light hex.
+    struct Scheme {
+        let background, surface, surfaceRaised, line: (dark: UInt32, light: UInt32)
+        let text, textSecondary, textMuted: (dark: UInt32, light: UInt32)
+        let accent, accentSoft, onAccent: (dark: UInt32, light: UInt32)
+        let haveTheLine: (dark: UInt32, light: UInt32)
+        let good, bad, glass: (dark: UInt32, light: UInt32)
+    }
+
+    static func scheme(for look: Look) -> Scheme {
+        switch look {
+        case .label:
+            return Scheme(
+                background: (0x17120E, 0xF4EBD8),
+                surface: (0x211A15, 0xFBF5E8),
+                surfaceRaised: (0x2C231C, 0xEADFC6),
+                line: (0x3E3228, 0xD5C7A8),
+                text: (0xF0E7D8, 0x1E1A14),
+                textSecondary: (0xBBAD97, 0x5A4F3F),
+                textMuted: (0x8E806B, 0x7E7160),
+                accent: (0xD0533C, 0x8B2E1F),
+                accentSoft: (0xE06A52, 0xA63D2C),
+                onAccent: (0xFFF6EA, 0xFBF5E8),
+                haveTheLine: (0xB07A63, 0x9A5A45),
+                good: (0x7FAA72, 0x3E6B3A),
+                bad: (0xC07862, 0x9A3A22),
+                glass: (0x5A4A38, 0xB8A57E))
+        case .cellar:
+            return Scheme(
+                background: (0x0E1613, 0xEEF2EA),
+                surface: (0x152019, 0xF7F9F4),
+                surfaceRaised: (0x1F2C24, 0xDFE7DD),
+                line: (0x2F4034, 0xC3D0C2),
+                text: (0xEAF0E9, 0x14201A),
+                textSecondary: (0xA9B8AC, 0x4A5A4F),
+                textMuted: (0x7C8C80, 0x6E7D72),
+                accent: (0xC97B4A, 0x9A5A33),
+                accentSoft: (0xE09466, 0xB56E42),
+                onAccent: (0x10140F, 0xFFFBF6),
+                haveTheLine: (0xA5764F, 0x7E5A3C),
+                good: (0x86B37A, 0x37693B),
+                bad: (0xC97C68, 0x9B3E2A),
+                glass: (0x3E4F44, 0xB6C4B2))
+        case .bond:
+            return Scheme(
+                background: (0x0D1626, 0xEFF2F7),
+                surface: (0x14203A, 0xFFFFFF),
+                surfaceRaised: (0x1D2B49, 0xDFE5EF),
+                line: (0x2E3E60, 0xC6CFDD),
+                text: (0xEEF1F7, 0x101828),
+                textSecondary: (0xB4BDD0, 0x475467),
+                textMuted: (0x8290AB, 0x667085),
+                accent: (0xC8A44A, 0x7A5D14),
+                accentSoft: (0xDDBB62, 0x94722A),
+                onAccent: (0x0D1626, 0xFFFFFF),
+                haveTheLine: (0xA48A4E, 0x6E5A22),
+                good: (0x7FAA72, 0x356038),
+                bad: (0xC07862, 0x94402A),
+                glass: (0x3A4A6A, 0xB9C4D6))
+        case .amber:
+            return Scheme(
+                background: (0x15100A, 0xF6F1E7),
+                surface: (0x1E1710, 0xFFFDF7),
+                surfaceRaised: (0x2A2016, 0xECE4D4),
+                line: (0x3A2D1E, 0xDCD0BA),
+                text: (0xF2E9DB, 0x1B1510),
+                textSecondary: (0xC0B19A, 0x4A4036),
+                textMuted: (0x968771, 0x6B5F50),
+                accent: (0xC9973A, 0x8A5F18),
+                accentSoft: (0xE2B661, 0xA87C2C),
+                onAccent: (0x1A1309, 0xFFFDF7),
+                haveTheLine: (0xA5763C, 0x8A5F18),
+                good: (0x7FAA72, 0x356038),
+                bad: (0xC07862, 0x94402A),
+                glass: (0x5A4326, 0xC9B48C))
+        }
+    }
+
+    private static var current: Scheme { scheme(for: Look.current) }
 
     // MARK: - Ground
 
-    /// Warm near-black, never pure black -- gold vibrates against #000.
-    static let background = dynamic(dark: 0x15100A, light: 0xF6F1E7)
-    static let surface = dynamic(dark: 0x1E1710, light: 0xFFFDF7)
-    static let surfaceRaised = dynamic(dark: 0x2A2016, light: 0xECE4D4)
-    static let line = dynamic(dark: 0x3A2D1E, light: 0xDCD0BA)
+    static var background: Color { dynamic(current.background) }
+    static var surface: Color { dynamic(current.surface) }
+    static var surfaceRaised: Color { dynamic(current.surfaceRaised) }
+    static var line: Color { dynamic(current.line) }
 
     // MARK: - Type
 
-    static let text = dynamic(dark: 0xF2E9DB, light: 0x1B1510)
-    static let textSecondary = dynamic(dark: 0xC0B19A, light: 0x4A4036)
-    static let textMuted = dynamic(dark: 0x968771, light: 0x6B5F50)
+    static var text: Color { dynamic(current.text) }
+    static var textSecondary: Color { dynamic(current.textSecondary) }
+    static var textMuted: Color { dynamic(current.textMuted) }
 
     // MARK: - Accent
 
     /// Carries meaning only: fill level, rating, the primary action. Never
-    /// decoration.
-    static let gold = dynamic(dark: 0xC9973A, light: 0x8A5F18)
-    static let goldSoft = dynamic(dark: 0xE2B661, light: 0xA87C2C)
-    /// Text and icons that sit *on* gold.
-    static let onGold = dynamic(dark: 0x1A1309, light: 0xFFFDF7)
+    /// decoration. Named `gold` from the first look; it is whatever the
+    /// current look's accent is.
+    static var gold: Color { dynamic(current.accent) }
+    static var goldSoft: Color { dynamic(current.accentSoft) }
+    /// Text and icons that sit *on* the accent.
+    static var onGold: Color { dynamic(current.onAccent) }
 
     // MARK: - Verdicts
 
     /// The one place colour is categorical. Every one of these is paired with a
     /// text label in the UI -- colour alone fails a dim shop aisle and fails
-    /// anyone colour-blind.
+    /// anyone colour-blind. Three of the five are fixed across looks so they
+    /// stay distinguishable from each other and from the accent.
     enum Verdict {
-        static let onShelf = dynamic(dark: 0xC9973A, light: 0x8A5F18)
-        static let haveTheLine = dynamic(dark: 0xA5763C, light: 0x8A5F18)
-        static let tastedNotOwned = dynamic(dark: 0x9D84B8, light: 0x4E4176)
-        static let hadItBefore = dynamic(dark: 0x7F96AB, light: 0x3A5670)
-        static let neverHadIt = dynamic(dark: 0xB5705A, light: 0x94402A)
+        static var onShelf: Color { Palette.gold }
+        static var haveTheLine: Color { dynamic(Palette.current.haveTheLine) }
+        static var tastedNotOwned: Color { dynamic((0x9D84B8, 0x4E4176)) }
+        static var hadItBefore: Color { dynamic((0x7F96AB, 0x3A5670)) }
+        static var neverHadIt: Color { dynamic((0xB5705A, 0x94402A)) }
     }
 
     // MARK: - Status
 
-    static let good = dynamic(dark: 0x7FAA72, light: 0x356038)
-    static let bad = dynamic(dark: 0xC07862, light: 0x94402A)
+    static var good: Color { dynamic(current.good) }
+    static var bad: Color { dynamic(current.bad) }
 
     // MARK: - Bottle artwork
 
-    static let glass = dynamic(dark: 0x5A4326, light: 0xC9B48C)
+    static var glass: Color { dynamic(current.glass) }
+
+    // MARK: - Swatches, for the picker
+
+    /// The accent and the ground of a look, for a swatch that shows what
+    /// choosing it would do, without switching.
+    static func swatch(for look: Look, dark: Bool) -> (accent: Color, ground: Color, ink: Color) {
+        let s = scheme(for: look)
+        func pick(_ pair: (dark: UInt32, light: UInt32)) -> Color {
+            Color(uiColor: UIColor(rgb: dark ? pair.dark : pair.light))
+        }
+        return (pick(s.accent), pick(s.background), pick(s.text))
+    }
 
     // MARK: - Construction
 
     /// One colour that resolves per trait collection, so a mode switch needs no
     /// view invalidation of our own.
-    private static func dynamic(dark: UInt32, light: UInt32) -> Color {
+    private static func dynamic(_ pair: (dark: UInt32, light: UInt32)) -> Color {
         Color(uiColor: UIColor { traits in
             traits.userInterfaceStyle == .dark
-                ? UIColor(rgb: dark)
-                : UIColor(rgb: light)
+                ? UIColor(rgb: pair.dark)
+                : UIColor(rgb: pair.light)
         })
     }
 }

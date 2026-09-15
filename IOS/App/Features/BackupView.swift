@@ -60,9 +60,7 @@ struct BackupView: View {
     private var backUp: some View {
         VStack(alignment: .leading, spacing: Space.m) {
             SectionLabel("Back up")
-            Text("One file with every bottle, pour, fill reading, tasting, wheel pick, "
-                 + "wishlist row, note and photo. Save it to Files or iCloud Drive, or "
-                 + "send it anywhere.")
+            Text("Every bottle, pour, tasting, note and photo in one file.")
                 .font(TypeScale.secondary())
                 .foregroundStyle(Palette.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -99,10 +97,7 @@ struct BackupView: View {
     private var restore: some View {
         VStack(alignment: .leading, spacing: Space.m) {
             SectionLabel("Restore")
-            Text("Pick a backup file. Nothing is written until you confirm. Rows you "
-                 + "already have are kept unless the backup's copy is newer, so "
-                 + "restoring onto a phone with bottles on it is safe, and so is "
-                 + "restoring twice.")
+            Text("Nothing is written until you confirm. Newer rows win; restoring twice is safe.")
                 .font(TypeScale.secondary())
                 .foregroundStyle(Palette.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)

@@ -414,8 +414,7 @@ struct TastingSheetView: View {
                     // Actionable rather than absent. This is the barrel-proof
                     // case, which is precisely where the comparison is worth
                     // the most.
-                    Text("Add the proof on this bottle and the app will tell you "
-                         + "whether it drinks above or below it.")
+                    Text("Add the bottle's proof to compare.")
                         .font(TypeScale.caption())
                         .textCase(nil)
                         .foregroundStyle(Palette.textMuted)

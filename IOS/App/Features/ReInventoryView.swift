@@ -56,13 +56,6 @@ struct ReInventoryView: View {
                 .font(TypeScale.largeTitle())
                 .foregroundStyle(Palette.text)
 
-            Text("Every collection list drifts. Bottles get finished and never "
-                 + "marked, and bottles get bought and never added. This walks "
-                 + "you past what you own, one shelf at a time, so you can "
-                 + "trust the list again.")
-                .font(TypeScale.body())
-                .foregroundStyle(Palette.textSecondary)
-                .fixedSize(horizontal: false, vertical: true)
 
             VStack(alignment: .leading, spacing: 0) {
                 SectionLabel("This walk")
@@ -88,8 +81,7 @@ struct ReInventoryView: View {
                         .background(RoundedRectangle(cornerRadius: 11).fill(Palette.gold))
                 }
 
-                Text("Every answer saves as you go. Stop whenever you like and "
-                     + "pick up where you left off.")
+                Text("Saves as you go.")
                     .font(TypeScale.caption())
                     .textCase(nil)
                     .foregroundStyle(Palette.textMuted)
@@ -162,8 +154,7 @@ struct ReInventoryView: View {
 
             // "Finished" archives, it never deletes. Saying so here is what
             // makes the button safe to tap quickly, which is the whole point.
-            Text("Finished bottles are archived, not deleted. They stay in your "
-                 + "history and in your export.")
+            Text("Finished bottles stay in your history and export.")
                 .font(TypeScale.caption())
                 .textCase(nil)
                 .foregroundStyle(Palette.textMuted)

@@ -184,8 +184,7 @@ struct SetLevelView: View {
     }
 
     private var explanation: some View {
-        Text("This does not delete anything. The pours you logged stay logged — "
-             + "the app just counts down from here instead.")
+        Text("Your pours stay logged. The count runs down from here.")
             .font(TypeScale.caption())
             .textCase(nil)
             .foregroundStyle(Palette.textMuted)

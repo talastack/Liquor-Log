@@ -56,11 +56,6 @@ struct SyncView: View {
             Text("Sync is not set up in this build")
                 .font(TypeScale.title())
                 .foregroundStyle(Palette.text)
-            Text("Your collection lives on this phone and works exactly as it "
-                 + "does now. Nothing is missing.")
-                .font(TypeScale.secondary())
-                .foregroundStyle(Palette.textSecondary)
-                .fixedSize(horizontal: false, vertical: true)
         }
     }
 
@@ -70,8 +65,7 @@ struct SyncView: View {
                 .font(TypeScale.largeTitle())
                 .foregroundStyle(Palette.text)
 
-            Text("Only needed to put your collection on a second device. "
-                 + "Everything works without one.")
+            Text("Only for a second device.")
                 .font(TypeScale.secondary())
                 .foregroundStyle(Palette.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -170,8 +164,7 @@ struct SyncView: View {
     }
 
     private var reassurance: some View {
-        Text("Signing out never deletes anything on this phone. Your bottles, "
-             + "pours and tastings stay exactly where they are.")
+        Text("Signing out deletes nothing on this phone.")
             .font(TypeScale.caption())
             .textCase(nil)
             .foregroundStyle(Palette.textMuted)

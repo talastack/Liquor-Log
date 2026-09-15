@@ -195,12 +195,6 @@ struct ShelfCheckView: View {
                 }
             }
 
-            Text("Whether you own it, whether you have tried it, and what you said "
-                 + "about it last time. Works with no signal.")
-                .font(TypeScale.caption())
-                .textCase(nil)
-                .foregroundStyle(Palette.textMuted)
-                .fixedSize(horizontal: false, vertical: true)
         }
         .padding(.top, Space.m)
     }
@@ -244,8 +238,7 @@ struct ShelfCheckView: View {
             Text("Nothing matching that")
                 .font(TypeScale.title())
                 .foregroundStyle(Palette.text)
-            Text("The catalogue is small so far. You can add the bottle yourself and "
-                 + "it becomes yours alone.")
+            Text("Not in the catalogue. Add it yourself.")
                 .font(TypeScale.secondary())
                 .foregroundStyle(Palette.textMuted)
                 .multilineTextAlignment(.center)

@@ -114,9 +114,7 @@ struct ScanLabelView: View {
                 .font(TypeScale.title())
                 .foregroundStyle(Palette.text)
 
-            Text("It reads the proof, batch and barrel numbers, recipe codes and "
-                 + "age off the label, then looks for a match. Everything it "
-                 + "finds is a suggestion you can change.")
+            Text("Reads proof, batch, barrel, recipe code and age off the label. Everything is a suggestion.")
                 .font(TypeScale.secondary())
                 .foregroundStyle(Palette.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -144,12 +142,6 @@ struct ScanLabelView: View {
                         .stroke(Palette.line, lineWidth: 1))
             }
 
-            Text("Runs entirely on this phone. Nothing is uploaded and it works "
-                 + "with no signal.")
-                .font(TypeScale.caption())
-                .textCase(nil)
-                .foregroundStyle(Palette.textMuted)
-                .fixedSize(horizontal: false, vertical: true)
         }
     }
 
@@ -177,17 +169,14 @@ struct ScanLabelView: View {
                 // whiskeys -- which is the clearest possible demonstration
                 // that a barcode cannot identify a barrel.
                 if known.isAmbiguous {
-                    Text("\(known.bottleCount) of your bottles share this code. "
-                         + "A barcode identifies the release, not the barrel — "
-                         + "check the batch and barrel below.")
+                    Text("of your bottles share this barcode. A barcode names the release, not the barrel.")
                         .font(TypeScale.caption())
                         .textCase(nil)
                         .foregroundStyle(Palette.gold)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             } else {
-                Text("New to you. Confirm what it is and it will be recognised "
-                     + "next time.")
+                Text("New to you. Confirm it once and it is recognised next time.")
                     .font(TypeScale.caption())
                     .textCase(nil)
                     .foregroundStyle(Palette.textMuted)
@@ -262,8 +251,7 @@ struct ScanLabelView: View {
             SectionLabel("Might be")
 
             if hits.isEmpty {
-                Text("No match in the catalogue. You can still use what it read "
-                     + "and type the name yourself.")
+                Text("No catalogue match. Type the name yourself.")
                     .font(TypeScale.secondary())
                     .foregroundStyle(Palette.textMuted)
                     .fixedSize(horizontal: false, vertical: true)
@@ -331,8 +319,7 @@ struct ScanLabelView: View {
                     .frame(maxWidth: .infinity, minHeight: Space.tapTarget)
             }
 
-            Text("Nothing is saved yet. Every field stays editable on the next "
-                 + "screen.")
+            Text("Nothing saved yet. Every field is editable next.")
                 .font(TypeScale.caption())
                 .textCase(nil)
                 .foregroundStyle(Palette.textMuted)

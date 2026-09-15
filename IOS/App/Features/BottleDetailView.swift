@@ -597,9 +597,7 @@ struct BottleDetailView: View {
                         .font(TypeScale.body())
                         .foregroundStyle(Palette.text)
                         .fixedSize(horizontal: false, vertical: true)
-                    Text("Measured from your photo, as a share of the bottle's height. "
-                         + "Ranked among your own bottles; nobody has published what "
-                         + "counts as rare, so the app does not say.")
+                    Text("Share of the bottle's height, from your photo. Ranked among your own bottles only.")
                         .font(TypeScale.caption())
                         .textCase(nil)
                         .foregroundStyle(Palette.textMuted)
@@ -610,13 +608,6 @@ struct BottleDetailView: View {
                 .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
                 .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.line, lineWidth: 1))
             } else {
-                Text("Every Maker's is hand-dipped and some of them ran. Four taps on a "
-                     + "photo and the drip is measured against the bottle, so yours can be "
-                     + "compared with your others -- and, one day, with everyone's.")
-                    .font(TypeScale.caption())
-                    .textCase(nil)
-                    .foregroundStyle(Palette.textMuted)
-                    .fixedSize(horizontal: false, vertical: true)
             }
         }
     }
@@ -679,10 +670,7 @@ struct BottleDetailView: View {
                 }
             }
 
-            Text("Maker's Private Select: fully matured Maker's finished on ten oak "
-                 + "staves of five kinds for nine weeks, per Maker's. What each stave "
-                 + "brings is from the programme's stave cards; the counts are from "
-                 + "the label.")
+            Text("Counts from the label; stave notes from the programme's cards.")
                 .font(TypeScale.caption())
                 .textCase(nil)
                 .foregroundStyle(Palette.textMuted)
@@ -1373,13 +1361,6 @@ struct PickCompareCard: View {
                 }
             }
 
-            Text("Only the facts both bottles have. A pick with no stated age "
-                 + "shows no age row rather than an unknown beside a number.")
-                .font(TypeScale.caption())
-                .textCase(nil)
-                .foregroundStyle(Palette.textMuted)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.top, Space.s)
         }
     }
 }
@@ -1397,9 +1378,9 @@ struct BottleShareCard: View {
     let rating: Int?
     let liked: String?
 
-    private let ink = Color(red: 0.95, green: 0.91, blue: 0.86)
-    private let gold = Color(red: 0.79, green: 0.59, blue: 0.23)
-    private let muted = Color(red: 0.59, green: 0.53, blue: 0.44)
+    private let ink = Palette.text
+    private let gold = Palette.gold
+    private let muted = Palette.textMuted
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -1452,7 +1433,7 @@ struct BottleShareCard: View {
         }
         .padding(28)
         .frame(width: 400, alignment: .leading)
-        .background(Color(red: 0.08, green: 0.06, blue: 0.04))
+        .background(Palette.background)
     }
 }
 

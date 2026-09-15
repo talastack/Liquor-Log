@@ -73,10 +73,7 @@ struct ImportView: View {
                 .font(TypeScale.largeTitle())
                 .foregroundStyle(Palette.text)
 
-            Text("Export it as CSV and choose it here. Columns are recognised by "
-                 + "name — Bottle, Whiskey or Name; Proof or ABV; Price, Paid or "
-                 + "Cost — so nothing needs renaming first. The app's own export "
-                 + "comes back in whole.")
+            Text("A CSV. Columns are matched by name — Bottle, Proof, Price and the like.")
                 .font(TypeScale.secondary())
                 .foregroundStyle(Palette.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -173,13 +170,6 @@ struct ImportView: View {
                         .background(RoundedRectangle(cornerRadius: 11).fill(Palette.gold))
                 }
 
-                Text("All or nothing: either every row lands or none does, so a "
-                     + "problem halfway through cannot leave you with half a "
-                     + "collection and no way to tell which half.")
-                    .font(TypeScale.caption())
-                    .textCase(nil)
-                    .foregroundStyle(Palette.textMuted)
-                    .fixedSize(horizontal: false, vertical: true)
             }
 
             Button { self.plan = nil } label: {
@@ -201,8 +191,7 @@ struct ImportView: View {
                 FactRow(label: "Matched to the catalogue", value: "\(outcome.matchedToCatalog)")
                 FactRow(label: "Lines skipped", value: "\(outcome.skippedLines.count)", isLast: true)
             }
-            Text("Every one arrived as sealed unless the spreadsheet said "
-                 + "otherwise. Open any bottle to fill in the rest.")
+            Text("Sealed unless the spreadsheet said otherwise.")
                 .font(TypeScale.secondary())
                 .foregroundStyle(Palette.textMuted)
                 .fixedSize(horizontal: false, vertical: true)

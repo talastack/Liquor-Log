@@ -120,9 +120,7 @@ struct DripMeasureView: View {
 
     private var pickers: some View {
         VStack(alignment: .leading, spacing: Space.m) {
-            Text("A photo of the whole bottle, straight on, with the drip in view. "
-                 + "The wax and the bottle are measured on the same picture, so "
-                 + "distance and phone do not matter.")
+            Text("The whole bottle, straight on, drip in view.")
                 .font(TypeScale.secondary())
                 .foregroundStyle(Palette.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -170,11 +168,11 @@ struct DripMeasureView: View {
                         if points.count >= 4 {
                             var drip = Path()
                             drip.move(to: points[2]); drip.addLine(to: points[3])
-                            context.stroke(drip, with: .color(Color(red: 0.85, green: 0.15, blue: 0.15)), lineWidth: 3)
+                            context.stroke(drip, with: .color(Palette.bad), lineWidth: 3)
                         }
                         for (index, point) in points.enumerated() {
                             let dot = Path(ellipseIn: CGRect(x: point.x - 6, y: point.y - 6, width: 12, height: 12))
-                            context.fill(dot, with: .color(index < 2 ? .white : Color(red: 0.85, green: 0.15, blue: 0.15)))
+                            context.fill(dot, with: .color(index < 2 ? .white : Palette.bad))
                         }
                     }
                     .contentShape(Rectangle())
@@ -274,8 +272,7 @@ struct DripMeasureView: View {
                 .frame(minHeight: 46)
                 .background(RoundedRectangle(cornerRadius: 10).fill(Palette.surface))
                 .overlay(RoundedRectangle(cornerRadius: 10).stroke(Palette.line, lineWidth: 1))
-            Text("Optional. With it the drip is in millimetres as well; without it, "
-                 + "the fraction is the number that compares between bottles.")
+            Text("Optional. Gives the drip in millimetres too.")
                 .font(TypeScale.caption())
                 .textCase(nil)
                 .foregroundStyle(Palette.textMuted)

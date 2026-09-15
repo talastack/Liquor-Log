@@ -71,8 +71,7 @@ struct AskView: View {
                 .font(TypeScale.largeTitle())
                 .foregroundStyle(Palette.text)
                 .fixedSize(horizontal: false, vertical: true)
-            Text("Everything is answered from what you have entered, on this phone. "
-                 + "Nothing you type leaves it.")
+            Text("Answered from your own shelf, on this phone.")
                 .font(TypeScale.secondary())
                 .foregroundStyle(Palette.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)

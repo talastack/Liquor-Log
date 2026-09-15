@@ -52,8 +52,7 @@ struct CatalogBrowseView: View {
                     }
                 }
 
-                Text("\(env.catalog.products.count) products in the bundled catalogue. A bottle "
-                     + "that is not here can still be typed in and is yours alone.")
+                Text("A bottle that is not here can still be typed in.")
                     .font(TypeScale.caption())
                     .textCase(nil)
                     .foregroundStyle(Palette.textMuted)

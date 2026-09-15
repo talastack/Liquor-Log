@@ -128,10 +128,7 @@ struct BulkAddView: View {
     }
 
     private var guidance: some View {
-        Text("Each bottle is saved as sealed and full, with whatever the label "
-             + "said. Open the bottle later to set the level, the price and where "
-             + "you keep it — asking for all that on bottle eleven of forty is how "
-             + "a bulk add turns back into a form.")
+        Text("Saved sealed and full. Set level, price and place on the bottle later.")
             .font(TypeScale.caption())
             .textCase(nil)
             .foregroundStyle(Palette.textMuted)

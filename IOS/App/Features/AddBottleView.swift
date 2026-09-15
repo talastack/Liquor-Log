@@ -428,13 +428,6 @@ struct AddBottleView: View {
                         .tint(Palette.gold)
                 }
 
-                Text("A rough answer is worth far more than none: it is what makes "
-                     + "the fill bar and the days-open estimate mean anything. You "
-                     + "can correct it any time.")
-                    .font(TypeScale.caption())
-                    .textCase(nil)
-                    .foregroundStyle(Palette.textMuted)
-                    .fixedSize(horizontal: false, vertical: true)
             }
         }
     }
@@ -467,8 +460,7 @@ struct AddBottleView: View {
                 field("Location", text: $storageLocation, placeholder: "Hall closet")
                 field("Your number", text: $shelfNumber, keyboard: .numberPad, placeholder: "12")
             }
-            Text("Your number is the sticker on the glass, not the “47 of 240” "
-                 + "printed on a pick. It is what connects a shelf to this list.")
+            Text("The sticker on the glass, if you number your bottles.")
                 .font(TypeScale.caption())
                 .textCase(nil)
                 .foregroundStyle(Palette.textMuted)
@@ -550,12 +542,6 @@ struct AddBottleView: View {
                     field("Bottle no.", text: $bottleNumber, keyboard: .numberPad, placeholder: "47")
                     field("of", text: $bottlesInBatch, keyboard: .numberPad, placeholder: "240")
                 }
-                Text("A single barrel is nine years and four months, not nine. The "
-                     + "months are the reason the pick was chosen.")
-                    .font(TypeScale.caption())
-                    .textCase(nil)
-                    .foregroundStyle(Palette.textMuted)
-                    .fixedSize(horizontal: false, vertical: true)
             }
         }
     }

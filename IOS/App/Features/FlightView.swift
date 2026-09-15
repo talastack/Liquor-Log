@@ -82,8 +82,7 @@ struct FlightView: View {
                 Text("Pick two to four open bottles")
                     .font(TypeScale.largeTitle())
                     .foregroundStyle(Palette.text)
-                Text("Each gets the same pour and its own tasting. Blind hides the "
-                     + "names until every glass is rated.")
+                Text("Same pour each, one tasting each. Blind hides names until every glass is rated.")
                     .font(TypeScale.secondary())
                     .foregroundStyle(Palette.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)

@@ -39,12 +39,7 @@ struct CodeDecoderView: View {
                     Text("Decode a code")
                         .font(TypeScale.largeTitle())
                         .foregroundStyle(Palette.text)
-                    Text("A Four Roses recipe code like OESQ, an Elijah Craig or "
-                         + "Larceny batch code like B523, or the laser-etched code on "
-                         + "the glass of any Buffalo Trace bottle like L19274 15:02 K, "
-                         + "or the DSP permit number on the back label that says who "
-                         + "really made it. Each says something specific about the "
-                         + "bottle, and nothing else decodes them.")
+                    Text("Four Roses recipe codes, Heaven Hill batch codes, Buffalo Trace laser codes, DSP permit numbers.")
                         .font(TypeScale.secondary())
                         .foregroundStyle(Palette.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -72,9 +67,7 @@ struct CodeDecoderView: View {
                 } else if let permit {
                     decodedPermit(permit)
                 } else if typed.trimmingCharacters(in: .whitespaces).count >= 4 {
-                    Text("Not a code this knows. Four Roses is O, then B or E, then "
-                         + "S, then one of V K O Q F. Heaven Hill batches are A, B or "
-                         + "C, then the month, then a two-digit year.")
+                    Text("Not a code this knows.")
                         .font(TypeScale.secondary())
                         .foregroundStyle(Palette.textMuted)
                         .fixedSize(horizontal: false, vertical: true)
@@ -125,21 +118,12 @@ struct CodeDecoderView: View {
                 Text("\(number) is not in the table.")
                     .font(TypeScale.body())
                     .foregroundStyle(Palette.text)
-                Text("The table covers the plants behind most of the bourbon on a shelf, "
-                     + "not every permit in the country. Not knowing is the honest answer; "
-                     + "guessing would name the wrong distillery.")
+                Text("Unknown is the honest answer.")
                     .font(TypeScale.caption())
                     .textCase(nil)
                     .foregroundStyle(Palette.textMuted)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            Text("The label must name the plant that distilled or bottled the whiskey, "
-                 + "by its federal permit. A brand with no distillery of its own carries "
-                 + "somebody else's number — which is how sourced whiskey is unmasked.")
-                .font(TypeScale.caption())
-                .textCase(nil)
-                .foregroundStyle(Palette.textMuted)
-                .fixedSize(horizontal: false, vertical: true)
         }
     }
 
@@ -166,10 +150,7 @@ struct CodeDecoderView: View {
             Text(laser.summary())
                 .font(TypeScale.body())
                 .foregroundStyle(Palette.gold)
-            Text("Etched near the base of the glass on every Buffalo Trace bottle — "
-                 + "Blanton's, Weller, Stagg, E.H. Taylor, Eagle Rare. For most of them "
-                 + "it is the only date the bottle carries. What the letters name is "
-                 + "not decoded: nobody has published it.")
+            Text("Etched near the base of the glass. What the letters name is not published.")
                 .font(TypeScale.caption())
                 .textCase(nil)
                 .foregroundStyle(Palette.textMuted)
@@ -205,11 +186,6 @@ struct CodeDecoderView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            Text("Elijah Craig Barrel Proof and Larceny Barrel Proof share this "
-                 + "scheme.")
-                .font(TypeScale.caption())
-                .textCase(nil)
-                .foregroundStyle(Palette.textMuted)
         }
     }
 
@@ -233,12 +209,6 @@ struct CodeDecoderView: View {
                     .frame(minHeight: Space.tapTarget)
                 }
             }
-            Text("The distillery's own descriptors for each yeast. The mashbills "
-                 + "are Four Roses' published figures.")
-                .font(TypeScale.caption())
-                .textCase(nil)
-                .foregroundStyle(Palette.textMuted)
-                .fixedSize(horizontal: false, vertical: true)
         }
     }
 }

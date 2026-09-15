@@ -231,8 +231,7 @@ struct StatsView: View {
                     value: Money.short(year.cents),
                     isLast: index == summary.spentByYear.count - 1)
             }
-            Text("Bottles on the shelf with a price and a purchase date. What you "
-                 + "paid, not what it is worth.")
+            Text("What you paid, not what it is worth.")
                 .font(TypeScale.caption())
                 .textCase(nil)
                 .foregroundStyle(Palette.textMuted)
@@ -328,9 +327,9 @@ struct StatsView: View {
 struct CollectionCard: View {
     let summary: CollectionStats.Summary
 
-    private let ink = Color(red: 0.95, green: 0.91, blue: 0.86)
-    private let gold = Color(red: 0.79, green: 0.59, blue: 0.23)
-    private let muted = Color(red: 0.59, green: 0.53, blue: 0.44)
+    private let ink = Palette.text
+    private let gold = Palette.gold
+    private let muted = Palette.textMuted
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
@@ -375,7 +374,7 @@ struct CollectionCard: View {
         }
         .padding(28)
         .frame(width: 400, alignment: .leading)
-        .background(Color(red: 0.08, green: 0.06, blue: 0.04))
+        .background(Palette.background)
     }
 
     private func figure(_ value: String, _ label: String) -> some View {

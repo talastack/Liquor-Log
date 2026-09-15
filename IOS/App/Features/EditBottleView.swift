@@ -160,8 +160,7 @@ struct EditBottleView: View {
                             Text(relinkTarget.identity.displayName)
                                 .font(TypeScale.body())
                                 .foregroundStyle(Palette.text)
-                            Text("Every bottle, tasting, wish and note of the typed-in "
-                                 + "product moves to this one when you save.")
+                            Text("Everything on the typed-in product moves to this one when you save.")
                                 .font(TypeScale.caption())
                                 .textCase(nil)
                                 .foregroundStyle(Palette.textMuted)
@@ -319,8 +318,7 @@ struct EditBottleView: View {
                         .foregroundStyle(Palette.gold)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                Text("Saved either way. Labels do contradict the regulations, "
-                     + "and an old bottle can predate a rule.")
+                Text("Saved either way.")
                     .font(TypeScale.caption())
                     .textCase(nil)
                     .foregroundStyle(Palette.textMuted)

@@ -15,6 +15,10 @@ struct LiquorLogApp: App {
     /// on every transaction; sells nothing until asked.
     @State private var store = ProStore()
 
+    /// The chosen look. Changing it rebuilds the root view, which is how
+    /// every `Palette` read picks up the new values.
+    @AppStorage(Palette.Look.key) private var look = Palette.Look.standard.rawValue
+
     init() {
         let env = AppEnvironment.live()
         _environment = State(initialValue: env)
@@ -26,6 +30,7 @@ struct LiquorLogApp: App {
     var body: some Scene {
         WindowGroup {
             MainTabView()
+                .id(look)
                 .environment(environment)
                 .environment(sync)
                 .environment(store)

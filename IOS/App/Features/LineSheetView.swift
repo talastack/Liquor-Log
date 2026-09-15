@@ -68,12 +68,6 @@ struct LineSheetView: View {
                     .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
                     .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.line, lineWidth: 1))
 
-                    Text("Expressions the catalogue knows. A bottle you typed in "
-                         + "yourself is on your shelf whether or not it is listed here.")
-                        .font(TypeScale.caption())
-                        .textCase(nil)
-                        .foregroundStyle(Palette.textMuted)
-                        .fixedSize(horizontal: false, vertical: true)
                 } else {
                     ProgressView().frame(maxWidth: .infinity).padding(.top, 48)
                 }

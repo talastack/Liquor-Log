@@ -99,8 +99,7 @@ struct PourMenuView: View {
                     }
                 }
 
-                Text("Only open bottles, and no prices. A guest wants to know "
-                     + "what they can have, not what it cost.")
+                Text("Open bottles only. No prices.")
                     .font(TypeScale.caption())
                     .textCase(nil)
                     .foregroundStyle(Palette.textMuted)
@@ -169,40 +168,40 @@ struct PourMenuCard: View {
         VStack(alignment: .leading, spacing: 18) {
             Text(title.isEmpty ? "Open tonight" : title)
                 .font(.system(size: 30, weight: .semibold, design: .serif))
-                .foregroundStyle(Color(red: 0.95, green: 0.91, blue: 0.86))
+                .foregroundStyle(Palette.text)
             Rectangle()
-                .fill(Color(red: 0.79, green: 0.59, blue: 0.23))
+                .fill(Palette.gold)
                 .frame(height: 2)
             ForEach(items, id: \.name) { item in
                 VStack(alignment: .leading, spacing: 3) {
                     HStack(alignment: .firstTextBaseline) {
                         Text(item.name)
                             .font(.system(size: 17, weight: .medium))
-                            .foregroundStyle(Color(red: 0.95, green: 0.91, blue: 0.86))
+                            .foregroundStyle(Palette.text)
                             .fixedSize(horizontal: false, vertical: true)
                         Spacer(minLength: 12)
                         if let proof = item.proof {
                             Text(String(format: "%.1f", proof))
                                 .font(.system(size: 14, weight: .regular, design: .monospaced))
-                                .foregroundStyle(Color(red: 0.79, green: 0.59, blue: 0.23))
+                                .foregroundStyle(Palette.gold)
                         }
                     }
                     if let detail = item.detail, !detail.isEmpty {
                         Text(detail)
                             .font(.system(size: 13))
-                            .foregroundStyle(Color(red: 0.59, green: 0.53, blue: 0.44))
+                            .foregroundStyle(Palette.textMuted)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
             }
             Text("Help yourself.")
                 .font(.system(size: 13, design: .serif).italic())
-                .foregroundStyle(Color(red: 0.59, green: 0.53, blue: 0.44))
+                .foregroundStyle(Palette.textMuted)
                 .padding(.top, 6)
         }
         .padding(28)
         .frame(width: 400, alignment: .leading)
-        .background(Color(red: 0.08, green: 0.06, blue: 0.04))
+        .background(Palette.background)
     }
 }
 

@@ -557,8 +557,7 @@ struct LikeThisView: View {
                 }
 
                 if matches.isEmpty {
-                    Text("Nothing else on your shelf shares a line, a recipe or a "
-                         + "distillery with this one.")
+                    Text("Nothing on your shelf shares a line, recipe or distillery with it.")
                         .font(TypeScale.secondary())
                         .foregroundStyle(Palette.textMuted)
                         .fixedSize(horizontal: false, vertical: true)

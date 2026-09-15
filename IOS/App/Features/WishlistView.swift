@@ -139,8 +139,7 @@ struct WishlistView: View {
             Text("Nothing on the list")
                 .font(TypeScale.title())
                 .foregroundStyle(Palette.text)
-            Text("Add a bottle you are looking for, with the most you would pay "
-                 + "for it. The price is the useful part.")
+            Text("A bottle you are after, and the most you would pay.")
                 .font(TypeScale.secondary())
                 .foregroundStyle(Palette.textMuted)
                 .multilineTextAlignment(.center)
@@ -453,12 +452,6 @@ struct AddToWishlistView: View {
                 .background(RoundedRectangle(cornerRadius: 10).fill(Palette.surface))
                 .overlay(RoundedRectangle(cornerRadius: 10).stroke(Palette.line, lineWidth: 1))
 
-            Text("Optional, but it is the useful part — it turns the list from "
-                 + "names you already remember into an answer at the shelf.")
-                .font(TypeScale.caption())
-                .textCase(nil)
-                .foregroundStyle(Palette.textMuted)
-                .fixedSize(horizontal: false, vertical: true)
         }
     }
 
@@ -594,9 +587,7 @@ struct BuyFromWishlistView: View {
                         .background(RoundedRectangle(cornerRadius: 11).fill(Palette.gold))
                 }
 
-                Text("It comes off the wishlist and goes on the shelf, sealed and "
-                     + "full, dated today. Barrel and batch detail can be added on "
-                     + "the bottle afterwards.")
+                Text("Off the list, onto the shelf, sealed and full, dated today.")
                     .font(TypeScale.caption())
                     .textCase(nil)
                     .foregroundStyle(Palette.textMuted)
