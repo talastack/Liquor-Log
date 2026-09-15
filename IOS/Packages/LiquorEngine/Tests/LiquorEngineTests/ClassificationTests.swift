@@ -54,6 +54,12 @@ final class ClassificationTests: XCTestCase {
         XCTAssertTrue(found.contains { $0.rule == "bond.requiresStraight" })
     }
 
+    /// 27 CFR 5.88 does not limit bonding to whiskey; Laird's bonded apple
+    /// brandy is on shelves.
+    func testBottledInBondBrandyIsAllowed() {
+        XCTAssertTrue(issues(.brandy, abv: 50.0, age: 4, bond: true).isEmpty)
+    }
+
     func testStraightRequiresTwoYears() {
         let found = issues(.straightRye, abv: 50.0, age: 1)
         XCTAssertTrue(found.contains { $0.rule == "straight.minimumAge" })

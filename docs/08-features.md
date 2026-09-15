@@ -93,7 +93,7 @@ The aisle question, offline: *do I already own this?*
 - **Decode a code** — Four Roses recipe, Heaven Hill batch, Buffalo Trace
   laser code, DSP permit (`RecipeCode`, `BatchCode`, `LaserCode`,
   `DistilleryPermit`).
-- **Browse the catalogue** — 303 products by distillery, each with your
+- **Browse the catalogue** — 534 products by distillery, each with your
   standing; add or wish from the row.
 - **Your collection** — counts, by kind/distillery/brand/strength/place,
   added-by-year, notable (strongest, oldest, open longest, Blanton's set);
@@ -103,7 +103,7 @@ The aisle question, offline: *do I already own this?*
 - **Wishlist** — ceiling, buy it (one transaction), change the price, share
   as a gift list, finished-lately → buy again.
 - **Taste a flight**, **Pick my pour**, **Shelf walk** (`ReInventory`).
-- **Look** — Label (default), Cellar, Bond, Amber.
+- **Look** — Cellar (default), Label, Bond, Amber.
 - Money switch; ounces switch.
 - **Your data** — CSV export (47+ columns, always free), **back up and
   restore** everything including photos (`CollectionBackup`), Blanton's

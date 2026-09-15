@@ -329,10 +329,13 @@ public enum Classification: Sendable {
             }
         }
 
-        if isBottledInBond, !classType.isStraight {
+        // 27 CFR 5.88 lets any distilled spirit be bonded -- Laird's bottles a
+        // bonded apple brandy -- but a bonded whiskey has spent four years in
+        // wood, so it is a straight whiskey and is labelled as one.
+        if isBottledInBond, classType.family == .whiskey, !classType.isStraight {
             issues.append(Issue(
                 rule: "bond.requiresStraight",
-                detail: "bottled in bond applies to straight whiskey; got \(classType.rawValue)"
+                detail: "a bottled in bond whiskey is a straight whiskey; got \(classType.rawValue)"
             ))
         }
 

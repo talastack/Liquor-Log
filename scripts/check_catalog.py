@@ -186,9 +186,9 @@ def main():
                 "why it varies" % where)
 
         if bonded:
-            if class_type not in straight_types:
+            if families.get(class_type) == "whiskey" and class_type not in straight_types:
                 problems.append(
-                    "%s: bottled in bond applies to straight whiskey; got %s"
+                    "%s: a bottled in bond whiskey is a straight whiskey; got %s"
                     % (where, class_type))
             if age is not None and age < bond_years:
                 problems.append(
