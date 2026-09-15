@@ -55,6 +55,8 @@ use their eyes.
 | Tasting history per bottle, with the trend as a sentence | `TastingTrend`, `TastingHistoryRow` — the evidence under the oxidation clock |
 | Finding one bottle in two hundred | `CollectionFilter` — search, status, kind and place chips, seven sorts |
 | A pick beside the standard release | `PickCompare` — proof, age, recipe, price, your rating; only rows both sides have |
+| The wax drip on a Maker's, measured | `WaxDrip` — a fraction of the bottle from four taps on a photo; ranked among your own, never called rare |
+| Buffalo Trace laser codes | `LaserCode` — year, day of the year, time, line; the bottling date most of those bottles do not otherwise carry |
 | The collection as a document | `InsuranceReport` — what was paid, when, where, with photos; "not an appraisal" on every page |
 
 ### Fill level, and why it is a reading rather than a subtraction

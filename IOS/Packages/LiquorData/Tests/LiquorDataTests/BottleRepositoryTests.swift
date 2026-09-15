@@ -105,6 +105,20 @@ final class BottleRepositoryTests: XCTestCase {
         XCTAssertEqual(try KnowledgeNoteRepository(db).note(productId: "weller-12")?.body, "note")
     }
 
+    // MARK: - The wax
+
+    func testAWaxMeasurementIsStoredAndCleared() throws {
+        let bottle = try addBottle()
+        try bottles.setWax(bottleId: bottle.id, color: .black, dripFraction: 0.31, dripLengthMm: 74)
+        let read = try XCTUnwrap(bottles.summary(id: bottle.id)?.bottle)
+        XCTAssertEqual(read.waxColor, .black)
+        XCTAssertEqual(read.dripFraction ?? 0, 0.31, accuracy: 0.0001)
+        XCTAssertEqual(read.dripLengthMm ?? 0, 74, accuracy: 0.0001)
+
+        try bottles.setWax(bottleId: bottle.id, color: nil, dripFraction: nil, dripLengthMm: nil)
+        XCTAssertNil(try bottles.summary(id: bottle.id)?.bottle.dripFraction)
+    }
+
     // MARK: - Derivation
 
     func testFullBottleReadsSeventeenOfSeventeen() throws {

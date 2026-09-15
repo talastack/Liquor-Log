@@ -289,6 +289,16 @@ create table bottles (
   -- Photo backup is a possible paid service later, never the free tier.
   photo_file          text,
 
+  -- The wax on a Maker's Mark, measured from a photo. Collectors hunt the
+  -- bottles where the wax ran -- a long drip, a cascade -- and nobody
+  -- measures it. The drip is a FRACTION of the bottle's height (0...1),
+  -- which is what makes two photos comparable; millimetres exist only when
+  -- the person typed the bottle's real height. The colour is a fact a
+  -- collector reads on sight: red is the bottle, the rest are releases.
+  wax_color           text,
+  drip_fraction       double precision,
+  drip_length_mm      double precision,
+
   -- Where the bottle physically IS. Collections scatter across closets,
   -- basements and boxes, and people report this mattering more than remembering
   -- what they own.
@@ -339,7 +349,11 @@ create table bottles (
            or bottle_number <= bottles_in_batch),
   -- A bottle has to be identified by something.
   constraint has_an_identity
-    check (catalog_product_id is not null or custom_name is not null)
+    check (catalog_product_id is not null or custom_name is not null),
+  constraint drip_is_a_fraction
+    check (drip_fraction is null or (drip_fraction >= 0 and drip_fraction <= 1)),
+  constraint wax_color_is_known
+    check (wax_color is null or wax_color in ('red', 'black', 'gold', 'green', 'purple', 'blue', 'white', 'other'))
 );
 
 -- ---------------------------------------------------------------------------

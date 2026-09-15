@@ -164,6 +164,24 @@ public struct BottleRepository: Sendable {
     /// offline reaches other devices with the time of the EDIT on it rather
     /// than the time it happened to sync.
     @discardableResult
+    /// Records a wax measurement. Nil for everything clears it.
+    public func setWax(
+        bottleId: String,
+        color: WaxDrip.Color?,
+        dripFraction: Double?,
+        dripLengthMm: Double?
+    ) throws {
+        try db.queue.write { db in
+            guard var bottle = try Bottle.filter(key: bottleId).fetchOne(db) else {
+                throw DataError.bottleNotFound(bottleId)
+            }
+            bottle.waxColor = color
+            bottle.dripFraction = dripFraction
+            bottle.dripLengthMm = dripLengthMm
+            try bottle.saveLocal(db)
+        }
+    }
+
     /// Points the bottle at a photo file, or at none. The file itself is the
     /// photo store's business; this only records which one.
     public func setPhoto(bottleId: String, fileName: String?) throws {

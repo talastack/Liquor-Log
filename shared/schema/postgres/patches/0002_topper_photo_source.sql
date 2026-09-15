@@ -24,3 +24,20 @@ begin
       check (source is null or source in ('bar', 'friend', 'sample', 'store', 'event', 'other'));
   end if;
 end $$;
+
+-- 0003, 15 September 2026: the wax on a Maker's Mark.
+alter table bottles add column if not exists wax_color      text;
+alter table bottles add column if not exists drip_fraction  double precision;
+alter table bottles add column if not exists drip_length_mm double precision;
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'drip_is_a_fraction') then
+    alter table bottles add constraint drip_is_a_fraction
+      check (drip_fraction is null or (drip_fraction >= 0 and drip_fraction <= 1));
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'wax_color_is_known') then
+    alter table bottles add constraint wax_color_is_known
+      check (wax_color is null or wax_color in ('red', 'black', 'gold', 'green', 'purple', 'blue', 'white', 'other'));
+  end if;
+end $$;

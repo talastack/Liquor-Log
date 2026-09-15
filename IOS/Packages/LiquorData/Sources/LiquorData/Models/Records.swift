@@ -44,6 +44,8 @@ public enum TastingStage: String, Codable, Sendable, CaseIterable, DatabaseValue
     case finish
 }
 
+extension WaxDrip.Color: DatabaseValueConvertible {}
+
 // Engine vocabularies are stored by their raw values, so the database and the
 // validation rules cannot describe different worlds.
 //
@@ -240,6 +242,13 @@ public struct Bottle: SyncableRecord {
     /// name syncs, the bytes stay on the device.
     public var photoFile: String?
 
+    /// The wax on a Maker's Mark, measured from a photo -- see `WaxDrip`.
+    /// The fraction is drip over bottle height; millimetres only when the
+    /// person typed the bottle's real height.
+    public var waxColor: WaxDrip.Color?
+    public var dripFraction: Double?
+    public var dripLengthMm: Double?
+
     /// Where the bottle physically is. Collections scatter across closets and
     /// boxes, and people report this mattering more than remembering what they
     /// own at all.
@@ -282,6 +291,7 @@ public struct Bottle: SyncableRecord {
         case shelfPriceCents = "shelf_price_cents"
         case barcode
         case topperLetter = "topper_letter", photoFile = "photo_file"
+        case waxColor = "wax_color", dripFraction = "drip_fraction", dripLengthMm = "drip_length_mm"
         case storageLocation = "storage_location", shelfNumber = "shelf_number"
         case openedAt = "opened_at", finishedAt = "finished_at"
         case lastVerifiedAt = "last_verified_at"
@@ -326,6 +336,9 @@ public struct Bottle: SyncableRecord {
         barcode: String? = nil,
         topperLetter: String? = nil,
         photoFile: String? = nil,
+        waxColor: WaxDrip.Color? = nil,
+        dripFraction: Double? = nil,
+        dripLengthMm: Double? = nil,
         storageLocation: String? = nil,
         shelfNumber: Int? = nil,
         openedAt: Int64? = nil,
@@ -356,6 +369,7 @@ public struct Bottle: SyncableRecord {
         self.purchaseStore = purchaseStore; self.shelfPriceCents = shelfPriceCents
         self.barcode = barcode
         self.topperLetter = topperLetter; self.photoFile = photoFile
+        self.waxColor = waxColor; self.dripFraction = dripFraction; self.dripLengthMm = dripLengthMm
         self.storageLocation = storageLocation; self.shelfNumber = shelfNumber
         self.openedAt = openedAt; self.finishedAt = finishedAt
         self.lastVerifiedAt = lastVerifiedAt

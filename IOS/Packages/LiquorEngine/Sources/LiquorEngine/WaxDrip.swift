@@ -1,0 +1,120 @@
+import Foundation
+
+/// The wax on a Maker's Mark, measured.
+///
+/// Every Maker's is hand-dipped, and collectors hunt the ones where the wax
+/// ran: a long single drip, a cascade, a "slow pour". Some pay for it. The
+/// lore is real and nobody measures it -- it is eyeballed in a store aisle
+/// and argued about afterwards.
+///
+/// This measures it from a photo, honestly. Two lines on the picture: the
+/// bottle, base to cap, and the drip, wax edge to tip. The result is a
+/// FRACTION of the bottle's height, which is what makes it comparable
+/// between photos taken at different distances with different phones. If
+/// the person types the bottle's real height it becomes millimetres too;
+/// the app never guesses a bottle's height for them.
+///
+/// What it will not do is call a drip rare. Nobody has published a
+/// distribution, and the research is explicit about invented rarity tiers.
+/// A drip is ranked among the person's own bottles, and `standing(among:)`
+/// exists so that a community sample, when sync brings one, can place it
+/// without a redesign.
+public enum WaxDrip: Sendable {
+
+    /// A point on the photo, in whatever coordinate space the screen used.
+    /// Only ratios matter, so the units never do.
+    public struct Point: Hashable, Sendable {
+        public let x: Double
+        public let y: Double
+        public init(x: Double, y: Double) { self.x = x; self.y = y }
+
+        func distance(to other: Point) -> Double {
+            ((x - other.x) * (x - other.x) + (y - other.y) * (y - other.y)).squareRoot()
+        }
+    }
+
+    /// The colours Maker's has dipped in. Red is the bottle; the others are
+    /// releases and picks, and a collector knows which is which on sight.
+    public enum Color: String, Sendable, Hashable, CaseIterable, Codable {
+        case red, black, gold, green, purple, blue, white, other
+
+        public var label: String {
+            switch self {
+            case .red: return "Red"
+            case .black: return "Black"
+            case .gold: return "Gold"
+            case .green: return "Green"
+            case .purple: return "Purple"
+            case .blue: return "Blue"
+            case .white: return "White"
+            case .other: return "Another colour"
+            }
+        }
+    }
+
+    public struct Measurement: Hashable, Sendable {
+        /// Drip length over bottle height. 0.3 means the drip runs almost a
+        /// third of the way down the bottle.
+        public let fraction: Double
+        /// Only when the bottle's real height was given.
+        public let millimeters: Double?
+
+        public var percent: Int { Int((fraction * 100).rounded()) }
+    }
+
+    /// Nil when either line has no length: two taps in the same place is
+    /// a slip, not a bottle of zero height.
+    public static func measure(
+        bottleBase: Point, bottleTop: Point,
+        waxEdge: Point, dripTip: Point,
+        bottleHeightMillimeters: Double? = nil
+    ) -> Measurement? {
+        let bottle = bottleBase.distance(to: bottleTop)
+        let drip = waxEdge.distance(to: dripTip)
+        guard bottle > 0, drip >= 0 else { return nil }
+        let fraction = min(1, drip / bottle)
+        let mm = bottleHeightMillimeters.flatMap { $0 > 0 ? fraction * $0 : nil }
+        return Measurement(fraction: fraction, millimeters: mm)
+    }
+
+    /// Where one drip sits among others -- this person's own Maker's, or a
+    /// community sample later. 1-based rank by length, longest first.
+    public struct Standing: Hashable, Sendable {
+        public let rank: Int
+        public let count: Int
+        /// Share of the others this one is longer than, 0...1. Nil with
+        /// nothing to compare against.
+        public let longerThan: Double?
+
+        public var text: String {
+            guard count > 1, let longerThan else { return "The only drip measured so far." }
+            if rank == 1 { return "Longest of \(count)." }
+            return "Longer than \(Int((longerThan * 100).rounded()))% of \(count)."
+        }
+    }
+
+    public static func standing(of fraction: Double, among fractions: [Double]) -> Standing {
+        let others = fractions
+        guard !others.isEmpty else { return Standing(rank: 1, count: 1, longerThan: nil) }
+        let all = others + [fraction]
+        let longer = all.filter { $0 > fraction }.count
+        let shorter = others.filter { $0 < fraction }.count
+        return Standing(
+            rank: longer + 1,
+            count: all.count,
+            longerThan: Double(shorter) / Double(others.count))
+    }
+
+    /// Words for a length, so the screen has something other than a number.
+    /// Bands, and deliberately coarse: the lore is "that one's a drippy one",
+    /// not a decimal.
+    public static func describe(fraction: Double) -> String {
+        switch fraction {
+        case ..<0.05: return "Barely a drip"
+        case ..<0.15: return "A short drip"
+        case ..<0.30: return "A proper drip"
+        case ..<0.50: return "A long drip"
+        default: return "A cascade"
+        }
+    }
+}

@@ -56,6 +56,10 @@ struct BottleDetailView: View {
     /// and batch -- still on the shelf.
     @State private var siblings: [BottleSummary] = []
 
+    /// Every other measured drip on the shelf, for the standing.
+    @State private var otherDrips: [Double] = []
+    @State private var isMeasuringDrip = false
+
     /// The two confirmations. Finishing and removing are both reversible in
     /// the data (a tombstone, a date) and both surprising if they happen on a
     /// mis-tap, so each asks once.
@@ -96,6 +100,9 @@ struct BottleDetailView: View {
                     facts(summary)
                     if summary.bottle.catalogProductId != nil {
                         ProductNoteCard(body_: productNote) { isEditingNote = true }
+                    }
+                    if showsWax(summary) {
+                        wax(summary)
                     }
                     if summary.bottle.hasPickDetail {
                         pickDetail(summary)
@@ -171,6 +178,17 @@ struct BottleDetailView: View {
         .sheet(isPresented: $isSettingLevel) {
             NavigationStack {
                 SetLevelView(bottleId: bottleId, onSave: { reload() })
+            }
+        }
+        .sheet(isPresented: $isMeasuringDrip) {
+            if let summary {
+                NavigationStack {
+                    DripMeasureView(
+                        bottleId: bottleId,
+                        bottleName: env.name(for: summary.bottle),
+                        existingColor: summary.bottle.waxColor,
+                        onSave: { reload() })
+                }
             }
         }
         .sheet(isPresented: $isEditingNote) {
@@ -471,6 +489,80 @@ struct BottleDetailView: View {
             // which is the point.
             reference: shelfReference
                 ?? env.product(for: summary.bottle)?.priceReference)
+    }
+
+    /// A Maker's, or any bottle somebody has measured the wax on. The name
+    /// test is deliberately loose -- "Maker's Mark", "Makers 46", a typed-in
+    /// "Maker's Private Select" all qualify -- and a measurement on anything
+    /// else keeps its section too.
+    private func showsWax(_ summary: BottleSummary) -> Bool {
+        summary.bottle.dripFraction != nil
+            || env.name(for: summary.bottle).localizedCaseInsensitiveContains("maker")
+    }
+
+    /// The wax, measured. Ranked among the person's own bottles and never
+    /// called rare: nobody has published a distribution, and the research is
+    /// explicit about invented rarity tiers.
+    private func wax(_ summary: BottleSummary) -> some View {
+        let bottle = summary.bottle
+        return VStack(alignment: .leading, spacing: Space.m) {
+            HStack {
+                SectionLabel("The wax")
+                Spacer()
+                Button { isMeasuringDrip = true } label: {
+                    Text(bottle.dripFraction == nil ? "Measure the drip" : "Measure again")
+                        .font(TypeScale.secondary())
+                        .foregroundStyle(Palette.gold)
+                        .frame(minHeight: Space.tapTarget)
+                }
+            }
+
+            if let fraction = bottle.dripFraction {
+                VStack(alignment: .leading, spacing: Space.s) {
+                    HStack(alignment: .firstTextBaseline, spacing: Space.s) {
+                        Text("\(Int((fraction * 100).rounded()))%")
+                            .font(TypeScale.largeTitle())
+                            .foregroundStyle(Palette.gold)
+                        Text("of the bottle")
+                            .font(TypeScale.secondary())
+                            .foregroundStyle(Palette.textMuted)
+                        Spacer()
+                        if let color = bottle.waxColor {
+                            Text(color.label + " wax")
+                                .font(TypeScale.caption())
+                                .textCase(nil)
+                                .foregroundStyle(Palette.textSecondary)
+                        }
+                    }
+                    Text(WaxDrip.describe(fraction: fraction)
+                         + (bottle.dripLengthMm.map { String(format: " · about %.0f mm", $0) } ?? "")
+                         + ". "
+                         + WaxDrip.standing(of: fraction, among: otherDrips).text)
+                        .font(TypeScale.body())
+                        .foregroundStyle(Palette.text)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Text("Measured from your photo, as a share of the bottle's height. "
+                         + "Ranked among your own bottles; nobody has published what "
+                         + "counts as rare, so the app does not say.")
+                        .font(TypeScale.caption())
+                        .textCase(nil)
+                        .foregroundStyle(Palette.textMuted)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(Space.l)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.line, lineWidth: 1))
+            } else {
+                Text("Every Maker's is hand-dipped and some of them ran. Four taps on a "
+                     + "photo and the drip is measured against the bottle, so yours can be "
+                     + "compared with your others -- and, one day, with everyone's.")
+                    .font(TypeScale.caption())
+                    .textCase(nil)
+                    .foregroundStyle(Palette.textMuted)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
     }
 
     /// The barrel's own facts. This is the section most apps do not have, and
@@ -841,6 +933,9 @@ struct BottleDetailView: View {
             productNote = try summary?.bottle.catalogProductId
                 .flatMap { try env.notes.note(productId: $0)?.body }
             siblings = try loadSiblings()
+            otherDrips = try env.bottles.summaries(includeFinished: true)
+                .filter { $0.id != bottleId }
+                .compactMap(\.bottle.dripFraction)
             pours = try env.bottles.pours(bottleId: bottleId)
             // Excluding this bottle: comparing a price against itself would
             // always report "about what you usually pay".
