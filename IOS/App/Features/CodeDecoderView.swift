@@ -24,6 +24,10 @@ struct CodeDecoderView: View {
     /// Heaven Hill's scheme, tried when the Four Roses one does not fit. The
     /// two cannot collide: one is four letters, the other a letter and digits.
     private var batch: BatchCode? { code == nil ? BatchCode(typed) : nil }
+    /// Buffalo Trace's laser-etched bottling code, tried last. Five digits
+    /// after the letter, where a batch code has three, so it cannot be
+    /// mistaken for one.
+    private var laser: LaserCode? { code == nil && batch == nil ? LaserCode(typed) : nil }
 
     var body: some View {
         ScrollView {
@@ -32,15 +36,17 @@ struct CodeDecoderView: View {
                     Text("Decode a code")
                         .font(TypeScale.largeTitle())
                         .foregroundStyle(Palette.text)
-                    Text("A Four Roses recipe code like OESQ, or an Elijah Craig "
-                         + "or Larceny batch code like B523. Both say something "
-                         + "specific about the bottle, and nothing else decodes them.")
+                    Text("A Four Roses recipe code like OESQ, an Elijah Craig or "
+                         + "Larceny batch code like B523, or the laser-etched code on "
+                         + "the glass of any Buffalo Trace bottle like L19274 15:02 K. "
+                         + "Each says something specific about the bottle, and "
+                         + "nothing else decodes them.")
                         .font(TypeScale.secondary())
                         .foregroundStyle(Palette.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
-                TextField("OESQ or B523", text: $typed)
+                TextField("OESQ, B523 or L19274", text: $typed)
                     .font(TypeScale.code(28))
                     .foregroundStyle(Palette.text)
                     .textInputAutocapitalization(.characters)
@@ -50,13 +56,15 @@ struct CodeDecoderView: View {
                     .frame(maxWidth: .infinity, minHeight: 72)
                     .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
                     .overlay(RoundedRectangle(cornerRadius: 12)
-                        .stroke(code != nil || batch != nil ? Palette.gold : Palette.line,
+                        .stroke(code != nil || batch != nil || laser != nil ? Palette.gold : Palette.line,
                                 lineWidth: 1))
 
                 if let code {
                     decoded(code)
                 } else if let batch {
                     decodedBatch(batch)
+                } else if let laser {
+                    decodedLaser(laser)
                 } else if typed.trimmingCharacters(in: .whitespaces).count >= 4 {
                     Text("Not a code this knows. Four Roses is O, then B or E, then "
                          + "S, then one of V K O Q F. Heaven Hill batches are A, B or "
@@ -85,6 +93,40 @@ struct CodeDecoderView: View {
             FactRow(label: code.mashbill.rawValue, value: "Mashbill · " + code.mashbill.summary)
             FactRow(label: "S", value: "Straight whiskey")
             FactRow(label: code.yeast.rawValue, value: "Yeast · " + code.yeast.character, isLast: true)
+        }
+    }
+
+    private func decodedLaser(_ laser: LaserCode) -> some View {
+        VStack(alignment: .leading, spacing: Space.s) {
+            VStack(alignment: .leading, spacing: 0) {
+                SectionLabel("What it means")
+                    .padding(.bottom, Space.xs)
+                if let prefix = laser.prefix {
+                    FactRow(label: String(prefix), value: "Leading letter, always printed")
+                }
+                FactRow(label: String(format: "%02d", laser.year % 100), value: "\(laser.year)")
+                FactRow(label: String(format: "%03d", laser.dayOfYear),
+                        value: "Day \(laser.dayOfYear) of the year",
+                        isLast: laser.hour == nil && laser.line == nil)
+                if let hour = laser.hour, let minute = laser.minute {
+                    FactRow(label: String(format: "%02d:%02d", hour, minute),
+                            value: "Time of day, 24-hour", isLast: laser.line == nil)
+                }
+                if let line = laser.line {
+                    FactRow(label: String(line), value: "Bottling line", isLast: true)
+                }
+            }
+            Text(laser.summary())
+                .font(TypeScale.body())
+                .foregroundStyle(Palette.gold)
+            Text("Etched near the base of the glass on every Buffalo Trace bottle — "
+                 + "Blanton's, Weller, Stagg, E.H. Taylor, Eagle Rare. For most of them "
+                 + "it is the only date the bottle carries. What the letters name is "
+                 + "not decoded: nobody has published it.")
+                .font(TypeScale.caption())
+                .textCase(nil)
+                .foregroundStyle(Palette.textMuted)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 

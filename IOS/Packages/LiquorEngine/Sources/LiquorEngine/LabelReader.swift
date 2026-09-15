@@ -37,6 +37,8 @@ public enum LabelReader: Sendable {
         public var barrelNumber: String?
         public var recipeCode: String?
         public var statedAgeYears: Int?
+        /// A Buffalo Trace laser code, when the photo caught the etching.
+        public var laserCode: LaserCode?
         public var isBottledInBond: Bool = false
         public var isSingleBarrel: Bool = false
         public var isSmallBatch: Bool = false
@@ -122,6 +124,13 @@ public enum LabelReader: Sendable {
         reading.batchCode = firstString(in: joined, pattern: batchPattern)
         reading.barrelNumber = firstString(in: joined, pattern: barrelPattern)
         reading.statedAgeYears = firstNumber(in: joined, pattern: agePattern).map(Int.init)
+        // The etching reads as its own line, "L19274 15:02 K", or as one run
+        // of characters. Either way the decoder validates it as a date, so a
+        // random five-digit number on the label is not taken for one.
+        reading.laserCode = upper.compactMap { LaserCode($0) }.first
+            ?? upper.flatMap { $0.split(separator: " ").map(String.init) }
+                .compactMap { LaserCode($0) }
+                .first { $0.prefix != nil }
 
         // A Four Roses code is four letters with a fixed shape, so it is
         // recognised by validating against the ten real codes rather than by a

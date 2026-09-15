@@ -82,6 +82,17 @@ final class LabelReaderTests: XCTestCase {
         XCTAssertNil(reading.recipeCode)
     }
 
+    /// The etching on the glass, as Vision returns it: its own line, or run
+    /// together with the label text.
+    func testItReadsABuffaloTraceLaserCode() {
+        let own = LabelReader.read(["BLANTON'S", "L19274 15:02 K"])
+        XCTAssertEqual(own.laserCode?.year, 2019)
+        XCTAssertEqual(own.laserCode?.dayOfYear, 274)
+        let inline = LabelReader.read(["KENTUCKY STRAIGHT BOURBON L21045 750 ML"])
+        XCTAssertEqual(inline.laserCode?.dayOfYear, 45)
+        XCTAssertNil(LabelReader.read(["BATCH B523", "94 PROOF"]).laserCode)
+    }
+
     func testItReadsAnAgeStatement() {
         XCTAssertEqual(LabelReader.read(["AGED 12 YEARS"]).statedAgeYears, 12)
         XCTAssertEqual(LabelReader.read(["10 YEARS OLD"]).statedAgeYears, 10)

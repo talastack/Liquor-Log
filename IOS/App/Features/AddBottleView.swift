@@ -57,6 +57,8 @@ struct AddBottleView: View {
     @State private var floor = ""
     @State private var dumpedAt: Date = Date()
     @State private var hasDumpDate = false
+    /// The year on the glass or the label. A laser code fills it in.
+    @State private var bottledYear = ""
     @State private var chillFiltered: ChillFiltration = .notStated
 
     // Where you put it
@@ -536,6 +538,7 @@ struct AddBottleView: View {
                     field("Age (years)", text: $ageYears, keyboard: .numberPad, placeholder: "9")
                     field("and months", text: $ageMonths, keyboard: .numberPad, placeholder: "4")
                 }
+                field("Bottled (year)", text: $bottledYear, keyboard: .numberPad, placeholder: "2019")
                 HStack(spacing: Space.m) {
                     field("Char level", text: $charLevel, keyboard: .numberPad, placeholder: "4")
                     field("Finish", text: $finish, placeholder: "Toasted oak")
@@ -649,6 +652,8 @@ struct AddBottleView: View {
         if let barrel = reading.barrelNumber { barrelNumber = barrel }
         if let code = reading.recipeCode { recipeCode = code }
         if let age = reading.statedAgeYears { ageYears = String(age) }
+        // The laser code is the bottling date for most Buffalo Trace bottles.
+        if let laser = reading.laserCode { bottledYear = String(laser.year) }
 
         // A label saying "single barrel" or naming a barrel is a store pick or
         // a single barrel, so the section holding those fields opens itself.
@@ -694,6 +699,7 @@ struct AddBottleView: View {
             dumpedAt: hasDumpDate ? Int64(dumpedAt.timeIntervalSince1970 * 1000) : nil,
             abv: Double(proof).map { $0 / 2 },
             chillFiltered: chillFiltered.value,
+            bottledYear: Int(bottledYear),
             volumeMl: Double(volumeMl) ?? 750,
             purchaseDate: Int64(purchasedOn.timeIntervalSince1970 * 1000),
             // Rounded, not truncated: 79.99 * 100 is 7998.999... in binary and
