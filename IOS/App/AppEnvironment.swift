@@ -14,6 +14,9 @@ final class AppEnvironment {
     let database: AppDatabase
     let catalog: Catalog
     let wheel: FlavorWheel
+    /// The CRT's registry of tequila producers, for the NOM on a label.
+    /// Loaded once, lazily: it is only read on the Decode screen.
+    private(set) lazy var tequila: TequilaRegistry = Self.loadTequila()
     /// Bottle photos, as files beside the database. Nil when the folder
     /// could not be made; every photo affordance then stays hidden.
     let photos: BottlePhotoStore?
@@ -89,6 +92,13 @@ final class AppEnvironment {
               let catalog = try? Catalog.decode(from: data)
         else { return .empty }
         return catalog
+    }
+
+    static func loadTequila() -> TequilaRegistry {
+        guard let data = bundled("tequila-nom.v1"),
+              let registry = try? TequilaRegistry.decode(from: data)
+        else { return .empty }
+        return registry
     }
 
     static func loadWheel() -> FlavorWheel {

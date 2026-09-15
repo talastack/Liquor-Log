@@ -160,3 +160,33 @@ label facts from published sources but did not flip any row to verified.
   step between neighbours (0.45–0.53, rising smoothly); every misread digit
   in the OCR broke that pattern. Outside 51–150 the app answers nothing.
 - **Teaspoon:** a US teaspoon is 4.92892 ml (NIST Handbook 44, Appendix C).
+
+## Wild Turkey bottling codes
+
+- Rare Bird 101, "Wild Turkey Bottle Codes" (rarebird101.com/bottle-codes),
+  the collectors' reference for the brand: every format from 1992 to the
+  present with a worked example each, which are the tests. Wild Turkey
+  publishes nothing; the app says so on screen and leaves the undocumented
+  letters undecoded.
+
+## Tequila NOM
+
+- Consejo Regulador del Tequila, "Brands and Companies" registry
+  (crt.org.mx/en/brands-and-associates/), fetched 15 September 2026 and
+  rebuilt by `scripts/build_tequila_registry.py` into
+  `shared/data/tequila-nom.v1.json`: 201 producers, 2,577 registered brands,
+  names exactly as the CRT lists them. Nothing added by hand — an earlier
+  from-memory draft had Sauza and Tapatío on the wrong numbers, which is why
+  the file is generated and not typed.
+
+## Dating a dusty
+
+- Strip stamps ended 1 July 1985: Deficit Reduction Act of 1984, repeal of
+  26 U.S.C. 5205's strip stamp requirement.
+- ATF created 1 July 1972; the IRS → ATF wording on strips, "Series 111/112"
+  1945–1972, volume marks on strip ends before 1973, green BIB strips with
+  seasons discontinued 1 December 1982: Whiskey Prof, "Tax Stamps – BIB &
+  Other" (whiskeyprof.com/tax-stamps-bib), and whiskeyid.com, "How to
+  date / identify vintage whiskey bottles".
+- Metric standards of fill mandatory 1 January 1980, permitted from 1976:
+  27 CFR 5.47a (as then numbered).

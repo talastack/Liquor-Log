@@ -18,7 +18,9 @@ import LiquorEngine
 /// The decoder is the engine's, so the ten codes are the ten real ones and an
 /// unrecognised string says so rather than inventing three letters out of four.
 struct CodeDecoderView: View {
+    @Environment(AppEnvironment.self) private var env
     @State private var typed = ""
+    @State private var dustyChosen: Set<String> = []
 
     private var code: RecipeCode? { RecipeCode(typed) }
     /// Heaven Hill's scheme, tried when the Four Roses one does not fit. The
@@ -31,6 +33,20 @@ struct CodeDecoderView: View {
     /// The federal permit on the back label. Normalised even when unknown,
     /// so the screen can say "not in the table" rather than nothing.
     private var permit: String? { DistilleryPermit.normalise(typed) }
+    /// Wild Turkey's, tried after the others: its shapes share nothing
+    /// with them.
+    private var turkey: WildTurkeyCode? {
+        code == nil && batch == nil && laser == nil && permit == nil ? WildTurkeyCode(typed) : nil
+    }
+    /// A four-digit NOM, or a tequila brand name, against the CRT registry.
+    private var nomProducer: TequilaRegistry.Producer? {
+        permit == nil ? env.tequila.producer(nom: typed) : nil
+    }
+    private var brandHits: [(producer: TequilaRegistry.Producer, brand: String)] {
+        guard code == nil, batch == nil, laser == nil, permit == nil, turkey == nil, nomProducer == nil
+        else { return [] }
+        return env.tequila.find(brand: typed, limit: 6)
+    }
 
     var body: some View {
         ScrollView {
@@ -39,13 +55,13 @@ struct CodeDecoderView: View {
                     Text("Decode a code")
                         .font(TypeScale.largeTitle())
                         .foregroundStyle(Palette.text)
-                    Text("Four Roses recipe codes, Heaven Hill batch codes, Buffalo Trace laser codes, DSP permit numbers.")
+                    Text("Four Roses recipe codes, Heaven Hill batch codes, Buffalo Trace and Wild Turkey bottling codes, DSP permits, tequila NOMs and brands.")
                         .font(TypeScale.secondary())
                         .foregroundStyle(Palette.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
-                TextField("OESQ, B523, L19274 or DSP-KY-113", text: $typed)
+                TextField("OESQ, B523, L19274, LL/DF021000, DSP-KY-113, NOM 1139", text: $typed)
                     .font(TypeScale.code(28))
                     .foregroundStyle(Palette.text)
                     .textInputAutocapitalization(.characters)
@@ -55,7 +71,9 @@ struct CodeDecoderView: View {
                     .frame(maxWidth: .infinity, minHeight: 72)
                     .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
                     .overlay(RoundedRectangle(cornerRadius: 12)
-                        .stroke(code != nil || batch != nil || laser != nil || permit != nil ? Palette.gold : Palette.line,
+                        .stroke(code != nil || batch != nil || laser != nil || permit != nil
+                                || turkey != nil || nomProducer != nil || !brandHits.isEmpty
+                                ? Palette.gold : Palette.line,
                                 lineWidth: 1))
 
                 if let code {
@@ -66,6 +84,12 @@ struct CodeDecoderView: View {
                     decodedLaser(laser)
                 } else if let permit {
                     decodedPermit(permit)
+                } else if let turkey {
+                    decodedTurkey(turkey)
+                } else if let nomProducer {
+                    decodedNOM(nomProducer)
+                } else if !brandHits.isEmpty {
+                    decodedBrands(brandHits)
                 } else if typed.trimmingCharacters(in: .whitespaces).count >= 4 {
                     Text("Not a code this knows.")
                         .font(TypeScale.secondary())
@@ -74,6 +98,7 @@ struct CodeDecoderView: View {
                 }
 
                 allTen
+                dusty
             }
             .padding(.horizontal, Space.xl)
             .padding(.top, Space.l)
@@ -125,6 +150,130 @@ struct CodeDecoderView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
+    }
+
+    private func decodedTurkey(_ code: WildTurkeyCode) -> some View {
+        VStack(alignment: .leading, spacing: Space.s) {
+            SectionLabel("What it means")
+            Text(code.summary)
+                .font(TypeScale.body())
+                .foregroundStyle(Palette.gold)
+            Text("Wild Turkey's bottling code, read by the formats Rare Bird 101 has documented from bottles in hand. "
+                 + "The brand does not publish the scheme; what the other letters mean is not known.")
+                .font(TypeScale.caption())
+                .textCase(nil)
+                .foregroundStyle(Palette.textMuted)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private func decodedNOM(_ producer: TequilaRegistry.Producer) -> some View {
+        VStack(alignment: .leading, spacing: Space.s) {
+            VStack(alignment: .leading, spacing: 0) {
+                SectionLabel("NOM \(producer.nom)")
+                    .padding(.bottom, Space.xs)
+                FactRow(label: "Producer", value: producer.company, isLast: true)
+            }
+            Text(brandsLine(producer))
+                .font(TypeScale.secondary())
+                .foregroundStyle(Palette.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+            Text("From the Consejo Regulador del Tequila's registry of authorised producers, names as the CRT lists them.")
+                .font(TypeScale.caption())
+                .textCase(nil)
+                .foregroundStyle(Palette.textMuted)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private func decodedBrands(_ hits: [(producer: TequilaRegistry.Producer, brand: String)]) -> some View {
+        VStack(alignment: .leading, spacing: Space.s) {
+            VStack(alignment: .leading, spacing: 0) {
+                SectionLabel("Who makes it")
+                    .padding(.bottom, Space.xs)
+                ForEach(Array(hits.enumerated()), id: \.offset) { index, hit in
+                    FactRow(
+                        label: hit.brand.capitalized,
+                        value: "NOM \(hit.producer.nom) · \(hit.producer.company)",
+                        isLast: index == hits.count - 1)
+                }
+            }
+            if hits.count == 1, let only = hits.first {
+                Text(brandsLine(only.producer))
+                    .font(TypeScale.secondary())
+                    .foregroundStyle(Palette.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Text("From the CRT's registry. A brand's NOM can change when it moves distillery; the registry is what it is today.")
+                .font(TypeScale.caption())
+                .textCase(nil)
+                .foregroundStyle(Palette.textMuted)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    /// "Also from this plant: Corona, Jarana, Kirkland Signature and 4 more."
+    private func brandsLine(_ producer: TequilaRegistry.Producer) -> String {
+        let names = producer.brands.map { $0.capitalized }
+        guard !names.isEmpty else { return "No brands registered against it." }
+        let shown = names.prefix(6)
+        let rest = names.count - shown.count
+        var line = (names.count == 1 ? "Registered brand: " : "Registered brands: ") + shown.joined(separator: ", ")
+        if rest > 0 { line += " and \(rest) more" }
+        return line + "."
+    }
+
+    /// Dating an old bottle: tick what it shows, read the window. Every
+    /// clue carries its reason; two that cannot both hold are said so.
+    private var dusty: some View {
+        VStack(alignment: .leading, spacing: Space.m) {
+            SectionLabel("Dating an old bottle")
+            Text("Tick what the bottle shows.")
+                .font(TypeScale.secondary())
+                .foregroundStyle(Palette.textSecondary)
+            VStack(spacing: 0) {
+                ForEach(DustyClues.Clue.allCases) { clue in
+                    Button {
+                        if dustyChosen.contains(clue.id) { dustyChosen.remove(clue.id) } else { dustyChosen.insert(clue.id) }
+                    } label: {
+                        HStack(alignment: .top, spacing: Space.m) {
+                            Image(systemName: dustyChosen.contains(clue.id) ? "checkmark.square.fill" : "square")
+                                .foregroundStyle(dustyChosen.contains(clue.id) ? Palette.gold : Palette.textMuted)
+                                .frame(width: 22)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(clue.text)
+                                    .font(TypeScale.body())
+                                    .foregroundStyle(Palette.text)
+                                    .multilineTextAlignment(.leading)
+                                Text(clue.why)
+                                    .font(TypeScale.caption())
+                                    .textCase(nil)
+                                    .foregroundStyle(Palette.textMuted)
+                                    .multilineTextAlignment(.leading)
+                            }
+                            Spacer(minLength: 0)
+                        }
+                        .padding(.vertical, Space.s)
+                        .frame(minHeight: Space.tapTarget)
+                    }
+                    .buttonStyle(.plain)
+                    Divider().overlay(Palette.line)
+                }
+            }
+            let window = DustyClues.window(for: DustyClues.Clue.allCases.filter { dustyChosen.contains($0.id) })
+            Text(window.text)
+                .font(TypeScale.body())
+                .foregroundStyle(window.conflict == nil ? Palette.gold : Palette.bad)
+                .fixedSize(horizontal: false, vertical: true)
+            Text("Windows from federal dates and the collectors' references (whiskeyid.com, whiskeyprof.com); the bottle is where they overlap.")
+                .font(TypeScale.caption())
+                .textCase(nil)
+                .foregroundStyle(Palette.textMuted)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(Space.l)
+        .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.line, lineWidth: 1))
     }
 
     private func decodedLaser(_ laser: LaserCode) -> some View {
@@ -215,5 +364,6 @@ struct CodeDecoderView: View {
 
 #Preview {
     NavigationStack { CodeDecoderView() }
+        .environment(AppEnvironment.preview())
         .preferredColorScheme(.dark)
 }

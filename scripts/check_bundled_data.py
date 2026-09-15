@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parent.parent
 CANONICAL = ROOT / "shared" / "data"
 BUNDLED = ROOT / "IOS" / "App" / "Resources" / "Data"
 
-FILES = ["spirits.v1.json", "flavor-wheel.v1.json"]
+FILES = ["spirits.v1.json", "flavor-wheel.v1.json", "tequila-nom.v1.json"]
 
 
 def main():

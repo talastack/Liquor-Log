@@ -1,0 +1,3790 @@
+{
+ "version": 1,
+ "source": "https://www.crt.org.mx/en/brands-and-associates/",
+ "note": "Consejo Regulador del Tequila, public registry of authorised producers and their registered brands. Company and brand names as the CRT lists them.",
+ "producers": [
+  {
+   "nom": "1068",
+   "company": "AGROINDUSTRIA GUADALAJARA, S.A. DE C.V.",
+   "brands": [
+    "30-30",
+    "COMONFORD",
+    "COMPOVEDA",
+    "JALISCIENSE",
+    "LA PULGA",
+    "LAS NUEVAS TRANCAS",
+    "PERSEIDAS",
+    "REY DE COPAS",
+    "REYAZQUILA"
+   ]
+  },
+  {
+   "nom": "1102",
+   "company": "TEQUILA SAUZA, S. DE R.L. DE C.V.",
+   "brands": [
+    "100 AÑOS",
+    "CASA SAUZA",
+    "CONMEMORATIVO",
+    "HACIENDA SAUZA",
+    "HORNITOS",
+    "HORNITOS BLACK BARREL",
+    "SAUZA",
+    "SAUZA AGUA FUERTE",
+    "SAUZA BLANCO",
+    "SAUZA CONMEMORATIVO",
+    "TRES GENERACIONES"
+   ]
+  },
+  {
+   "nom": "1103",
+   "company": "TEQUILA SAN MATIAS DE JALISCO, S.A. DE C.V.",
+   "brands": [
+    "ARROJO",
+    "CARMESI",
+    "CORAZON DE AGAVE",
+    "MIRAVIDA",
+    "ORGULLO PUEBLO VIEJO",
+    "PUEBLO VIEJO",
+    "REY SOL",
+    "SAN MATIAS",
+    "SAN MATIAS CRISTAL",
+    "SAN MATIAS GRAN RESERVA",
+    "SAN MATIAS LEGADO",
+    "SAN MATIAS TAHONA",
+    "THE LAST DROP"
+   ]
+  },
+  {
+   "nom": "1107",
+   "company": "TEQUILA EL VIEJITO, S.A. DE C.V.",
+   "brands": [
+    "AGUILA",
+    "BAJARRIBA",
+    "BUEN MEXICANO",
+    "CALENDE",
+    "DE LA TIERRE BEREZAN",
+    "DON QUIXOTE",
+    "EL BANDIDO YANKEE",
+    "EL VIEJITO",
+    "ESPÉRALO",
+    "LILIANA ARRIAGA LA CHUPITOS",
+    "ROSITA",
+    "SANTO FINO",
+    "SUNNY HILL"
+   ]
+  },
+  {
+   "nom": "1108",
+   "company": "JORGE SALLES CUERVO Y SUCESORES, S.A. DE C.V.",
+   "brands": [
+    "EL TEQUILEÑO"
+   ]
+  },
+  {
+   "nom": "1109",
+   "company": "TEQUILA ARETTE DE JALISCO, S.A. DE C.V.",
+   "brands": [
+    "ARETTE",
+    "ARETTE GRAN CLASE",
+    "PALADAR"
+   ]
+  },
+  {
+   "nom": "1110",
+   "company": "TEQUILA ORENDAIN DE JALISCO, S.A. DE C.V.",
+   "brands": [
+    "BATANGA",
+    "BRIX",
+    "CANTINERO",
+    "CANTINERO ORENDAIN",
+    "CASA RAYOS",
+    "CUTWATER",
+    "FLECHA AZUL",
+    "GRAN ORENDAIN",
+    "IMPERIO DEL DON",
+    "KALORE",
+    "KOMOS",
+    "OLLITAS",
+    "ORENDAIN",
+    "ORENDAIN 95 ANIVERSARIO",
+    "ORENDAIN ANNIVERSARIO",
+    "ORENDAIN CELEBRACION",
+    "ORENDAIN EXTRA",
+    "PADRINO",
+    "PUERTO VALLARTA",
+    "REY COYOTE"
+   ]
+  },
+  {
+   "nom": "1111",
+   "company": "PERNOD RICARD MEXICO, S.A. DE C.V.",
+   "brands": [
+    "AVION",
+    "OLMECA",
+    "OLMECA ALTOS"
+   ]
+  },
+  {
+   "nom": "1119",
+   "company": "BROWN - FORMAN TEQUILA MEXICO, S. DE R.L. DE C.V.",
+   "brands": [
+    "ANTIGUO DE HERRADURA",
+    "DON EDUARDO",
+    "EL JIMADOR",
+    "HACIENDA DEL CRISTERO",
+    "HERRADURA",
+    "HERRADURA COLECCIÓN DE LA CASA",
+    "HERRADURA SELECCIÓN SUPREMA DE HERRADURA",
+    "HERRADURA ULTRA",
+    "NEW MIX"
+   ]
+  },
+  {
+   "nom": "1120",
+   "company": "TEQUILA SIETE LEGUAS, S.A. DE C.V.",
+   "brands": [
+    "7 LEGUAS",
+    "7 LEGUAS SIETE DECADAS",
+    "DE ANTAÑO SIETE LEGUAS",
+    "SIETE LEGUAS",
+    "SIETE LEGUAS 47",
+    "SIETE LEGUAS 7 LEGUAS"
+   ]
+  },
+  {
+   "nom": "1122",
+   "company": "CASA CUERVO, S.A. DE C.V.",
+   "brands": [
+    "1800",
+    "1800 COLECCION",
+    "1800 GUACHIMONTON",
+    "1800 MILENIO",
+    "1800 THE ULTIMATE MARGARITA",
+    "ATELIER",
+    "BICENTENARIO",
+    "CENTENARIO",
+    "CUERVO",
+    "CUERVO ESPECIAL",
+    "CUERVO TRADICIONAL",
+    "DOBEL",
+    "DOBEL DIAMANTE",
+    "DOBEL GRANDES MAESTROS",
+    "DOBEL MX",
+    "ESSENTIAL 1800",
+    "GALLARDO",
+    "GRAN CENTENARIO",
+    "GRAN CENTENARIO AZUL",
+    "GRAN CENTENARIO GALLARDO",
+    "GRAN CENTENARIO GRAN RESERVA",
+    "GRAN CENTENARIO LEYENDA",
+    "GRAN CORAMINO",
+    "GUACHIMONTON",
+    "JAJA",
+    "JOSE CUERVO",
+    "JOSE CUERVO 250 ANIVERSARIO",
+    "JOSE CUERVO AUTHENTIC MARGARITAS",
+    "JOSE CUERVO BLACK",
+    "JOSE CUERVO ESPECIAL",
+    "JOSE CUERVO PLATINO RESERVA DE LA FAMILIA",
+    "JOSE CUERVO RESERVA DE LA FAMILIA",
+    "JOSE CUERVO SPARKLING MARGARITA",
+    "JOSE CUERVO TRADICIONAL",
+    "LA ROJEÑA",
+    "MAESTRO",
+    "MAESTRO DOBEL",
+    "MAESTRO DOBEL 50",
+    "MAESTRO DOBEL ATELIER",
+    "MAESTRO DOBEL DIAMANTE",
+    "MAESTRO DOBEL HUMITO",
+    "MAESTRO DOBEL PAVITO",
+    "MAESTRO TEQUILERO",
+    "MAESTRO TEQUILERO HUMITO",
+    "MATADOR",
+    "OSO NEGRO",
+    "RESERVA 1800",
+    "RESERVA DE LA FAMILIA",
+    "RESERVA DEL MAESTRO",
+    "RESERVA DEL TEQUILERO",
+    "ROSANGEL",
+    "TENAMPA",
+    "TENAMPA AZUL",
+    "TRADICIONAL"
+   ]
+  },
+  {
+   "nom": "1123",
+   "company": "TEQUILA CASCAHUIN, S.A.",
+   "brands": [
+    "AD",
+    "AGUASOL",
+    "ARTENOM SELECCIÓN DE 1123",
+    "CASA J",
+    "CASCAHUIN",
+    "CUERNITO",
+    "EL GRAN LEGADO DE VIDA",
+    "EL NEGOCIO",
+    "HACIENDA AGAVE TEQUILA",
+    "LAGRIMAS DEL VALLE",
+    "MARIA PASCUALA",
+    "MONTAGAVE",
+    "REVOLUCION",
+    "SANTANERA",
+    "SIEMBRA VALLES",
+    "SUPREMO",
+    "TEQUITIME",
+    "TICO",
+    "WILD COMMON"
+   ]
+  },
+  {
+   "nom": "1124",
+   "company": "TEQUILAS DEL SEÑOR, S.A. DE C.V.",
+   "brands": [
+    "AUTHENTICO",
+    "CASA 1884",
+    "DILIGENCIAS",
+    "DON DIEGO SANTA",
+    "DON DIEGO SANTA BLANC DE BLANCS",
+    "GARCIA",
+    "GRAN SOMBRERO",
+    "HACIENDA DE XALPA",
+    "HERENCIA",
+    "HERENCIA DE PLATA",
+    "HERENCIA HISTORICO 27 DE MAYO",
+    "HISTORICO 27 DE MAYO",
+    "MASUAVE",
+    "OUROBOROS",
+    "RESERVA DEL SEÑOR",
+    "RIO DE PLATA",
+    "SANDINISTA",
+    "SIP & SIP",
+    "SOMBRERO",
+    "SOMBRERO NEGRO",
+    "TEKALI",
+    "TIERRA VIVA"
+   ]
+  },
+  {
+   "nom": "1127",
+   "company": "TEQUILERA LA GONZALEÑA, S.A. DE C.V.",
+   "brands": [
+    "CHINACO",
+    "CIELO DEL NORTE"
+   ]
+  },
+  {
+   "nom": "1137",
+   "company": "LA COFRADIA, S.A. DE C.V.",
+   "brands": [
+    "512",
+    "ACOSTA",
+    "AGUASCALIENTES",
+    "ANTAÑO",
+    "ARTILLERO",
+    "ATALAJE",
+    "AUGUSTO",
+    "BROCE",
+    "CABO UNICO",
+    "CADADIA",
+    "CASA COFRADÍA",
+    "CASA KOMOS",
+    "CASA NOBLE",
+    "CASA TURRENT",
+    "CAZUL 100",
+    "CINCO DE MAYO",
+    "CLASE CUARENTA Y CUATRO",
+    "CN CASA NOBLE",
+    "DAY OF AARIACHI",
+    "DE LOS DORADOS",
+    "DON PRIMO",
+    "DOS FLAMOS",
+    "EL PINTOR",
+    "ELVELO",
+    "GEMA",
+    "GRAN COFRADIA",
+    "HUERTO",
+    "IMPERIO REAL",
+    "LA BRUNE",
+    "LA CAVA DEL VILLANO",
+    "LA COFRADIA",
+    "LA HORMIGA",
+    "LA MONTURA",
+    "LAJACH",
+    "LOS COFRADES",
+    "MAMALÓN",
+    "MARIANGEL",
+    "MARQUES DE CASA NOBLE",
+    "MAVERICK",
+    "MI BUEN",
+    "MUNDO",
+    "MY PRIDE",
+    "NUEVA ERA",
+    "OSCADA",
+    "PEPE VINORIA",
+    "PP EL TORO",
+    "REAL VALLEDERO",
+    "REYALIBRE",
+    "RICAVA",
+    "SAN HAGEN",
+    "SAN SOLON",
+    "SANGRE DE VIDA",
+    "SEVILLA LA VILLA",
+    "SEÑOR RIO",
+    "SIEMPRE",
+    "SIETELETRAS",
+    "SONETO",
+    "STORYWOOD",
+    "TEQUILA 512",
+    "TEQUILADOR",
+    "THE WORLD OF CHALLENGE",
+    "TOLECO",
+    "TRES ALEGRES COMPADRES",
+    "UNA VIDA",
+    "UWA",
+    "VIVA MOJO",
+    "VIVAANO",
+    "X-30"
+   ]
+  },
+  {
+   "nom": "1139",
+   "company": "TEQUILA TAPATIO, S.A. DE C.V.",
+   "brands": [
+    "EL TESORO",
+    "EL TESORO DE DON FELIPE",
+    "PARADISO",
+    "SIEMBRA ALTEÑO",
+    "TAPATIO",
+    "TAPATIO EXCELENCIA GRAN RESERVA",
+    "VILLA LOBOS"
+   ]
+  },
+  {
+   "nom": "1140",
+   "company": "TEQUILA CENTINELA, S.A. DE C.V.",
+   "brands": [
+    "CABRITO",
+    "CENTINELA",
+    "CENTINELA ETERNO CRISTALINO",
+    "CHICAS DIVERTIDAS",
+    "CLASICO DE CENTINELA",
+    "ETERNO CENTINELA OVER 120 YEARS OF LEGACY",
+    "LOS 7 ÁNGELES",
+    "LÒS 7 ÁNGELÈS"
+   ]
+  },
+  {
+   "nom": "1142",
+   "company": "LA MADRILEÑA, S.A. DE C.V.",
+   "brands": [
+    "CORONA",
+    "JARANA",
+    "KIRKLAND SIGNATURE",
+    "MAYORAZGO",
+    "PIEDRA AZUL",
+    "VIUDA DE ROMERO",
+    "XICOTE"
+   ]
+  },
+  {
+   "nom": "1143",
+   "company": "DESTILADORA GONZALEZ GONZALEZ, S.A. DE C.V.",
+   "brands": [
+    "CENZON",
+    "CLARK & SHEFFIELD",
+    "EXOTICO",
+    "HERVÁS",
+    "M MASTER DISTILLERS SELECTION",
+    "MEMBER´S MARK",
+    "MONTE ALBAN",
+    "PELIGROSO",
+    "ROCADO",
+    "SOLANA",
+    "TRADER JOE´S",
+    "VIZÓN"
+   ]
+  },
+  {
+   "nom": "1146",
+   "company": "TEQUILEÑA, S.A. DE C.V.",
+   "brands": [
+    "ARQUITECTO",
+    "ARTENOM SELECCIÓN DE 1146",
+    "CHINACO",
+    "CIERTO",
+    "CIMARRON",
+    "DON FULANO",
+    "FUENTE SECA",
+    "LAPIS",
+    "PURA SANGRE",
+    "TEARS OF LLORONA",
+    "TRES, CUATRO Y CINCO, 3,4 Y 5",
+    "XALIXCO"
+   ]
+  },
+  {
+   "nom": "1173",
+   "company": "CORPORATIVO DESTILERIA SANTA LUCIA, S.A. DE C.V.",
+   "brands": [
+    "1908 GRAN ARRAIGO",
+    "3 FUSILES",
+    "ALCE NEGRO",
+    "ARRAIGO",
+    "BAD HOMBRES",
+    "BALA PERDIDA",
+    "BERMITO",
+    "CASTA PASION",
+    "CHARRERIA",
+    "CHUYS",
+    "CINCO DE MAYO",
+    "CINCO PERROS",
+    "CRISTAL AZUL",
+    "CUATRO MANOS",
+    "EL AFAN",
+    "EL DESTILADOR",
+    "EL MERENDERO",
+    "ESPECIAL NEWTON",
+    "GRAN AGAVE",
+    "KIRKLAND SIGNATURE",
+    "LOS CORRALES",
+    "LUNA AZTECA",
+    "MAGAVE",
+    "MAYA AZUL",
+    "PADROTE",
+    "RANCHO LA GLORIA",
+    "REY CHACAL",
+    "SATRYNA",
+    "SUEÑO AZTECA",
+    "TIERRA AZTECA",
+    "UNO MAS",
+    "WONDERTEQ"
+   ]
+  },
+  {
+   "nom": "1258",
+   "company": "DESTILERIA EL MAGNIFICO, S.A. DE C.V.",
+   "brands": [
+    "CHULA PARRANDA",
+    "DON PIPOCHO",
+    "HOYO 19 HOLE",
+    "MAR ADENTRO",
+    "ORIGEN 1258",
+    "PODÉRROSA DE RAMÍREZ",
+    "TEKY LADYS",
+    "TESORO DEL HACENDADO",
+    "THE LOST EXPLORER"
+   ]
+  },
+  {
+   "nom": "1333",
+   "company": "FABRICA DE AGUARDIENTES DE AGAVE LA MEXICANA, S.A. DE C.V.",
+   "brands": [
+    "FORASTERO",
+    "MEXICO ANTIGUO",
+    "MEXICO VIEJO",
+    "MEXIQUITO"
+   ]
+  },
+  {
+   "nom": "1360",
+   "company": "CORPORACION ANSAN, S.A. DE C.V.",
+   "brands": [
+    "AGAVALES",
+    "AMIGO TEQUILERO",
+    "ARCANO",
+    "ARTA",
+    "CON ORGULLO",
+    "DB DELBUENO",
+    "DON SERGIO",
+    "HONORABLE",
+    "LOS CUCOS",
+    "PEDRO FURTIVO",
+    "SUBLIME",
+    "TACO TUESDAY TEQUILA BLANCO HECHO EN MEXICO 100% PURO DE AGAVE 40% ALC./VOL. 80 PROOF. 750ML",
+    "TEJITAS",
+    "TEQUILIFE",
+    "THE PALM LOS CABOS",
+    "TIERRA FERTIL"
+   ]
+  },
+  {
+   "nom": "1368",
+   "company": "TEQUILERA CORRALEJO, S.A. DE C.V.",
+   "brands": [
+    "18 KILATES",
+    "55000 HORAS",
+    "99000 HORAS",
+    "CORRALEJO",
+    "CORRALEJO 1753",
+    "CORRALEJO 1810",
+    "CORRALEJO 1821",
+    "CORRALEJO 99000 HORAS",
+    "GRAN CORRALEJO",
+    "LOS ARANGO",
+    "QUITAPENAS"
+   ]
+  },
+  {
+   "nom": "1412",
+   "company": "DESTILADORA DE LOS ALTOS, S.A. DE C.V.",
+   "brands": [
+    "CANTARITOS DON FÉLIX",
+    "CORRIDO",
+    "DON FÉLIX",
+    "EL ARQUERO",
+    "EL MAYORAL DE LA HACIENDA",
+    "HACIENDA VIEJA",
+    "RICO ROYALE",
+    "TROPA"
+   ]
+  },
+  {
+   "nom": "1414",
+   "company": "FELICIANO VIVANCO Y ASOCIADOS, S.A. DE C.V.",
+   "brands": [
+    "21",
+    "21 TWENTY-ONE",
+    "500 NOVILLOS",
+    "ACEVES",
+    "ALDERETE",
+    "ALMA DEL JAGUAR",
+    "ANCLA",
+    "ARTENOM SELECCIÓN DE 1414",
+    "BUSCADORES",
+    "COMPOVEDA",
+    "CONFIANZA",
+    "CULTURA 100",
+    "DE-NADA",
+    "DELANTERO",
+    "DIVISIÓN DEL NORTE",
+    "DON JACOBO",
+    "DON JACOBO 68",
+    "DON WEBER",
+    "EGO",
+    "EMERALD SPEAR",
+    "ESPAÇIAL",
+    "ESQUISITO",
+    "FLOR Y CANTO",
+    "FUEGO",
+    "HONOR DEL CASTILLO",
+    "JIMA IMPERIAL",
+    "JUAN LOBO",
+    "LA CAZA",
+    "LA POLAR",
+    "LOS LINDEROS",
+    "LOST LORE",
+    "LUNA NUEVA",
+    "MACHO D´ MONTE",
+    "MANO DE OBRA",
+    "PLANTADOR",
+    "RIMARI",
+    "S LA SANTA AIDA HARFUSH RON",
+    "SERPIENTE FOR THE BOLD",
+    "SIEMBRA AZUL",
+    "SIEMPRE",
+    "T TRULUSSÓ",
+    "TAJANTE",
+    "TAU",
+    "TESORO MAYA",
+    "VIVA MEXICO",
+    "YÉYO"
+   ]
+  },
+  {
+   "nom": "1416",
+   "company": "PRODUCTOS FINOS DE AGAVE, S.A. DE C.V.",
+   "brands": [
+    "AGUILA DE PLATA",
+    "ALACRÁN",
+    "ALEX",
+    "AVION",
+    "BODEGA SUPREMA N°5",
+    "CAMPO AZUL",
+    "CAMPO AZUL 100",
+    "CAMPO AZUL 1940",
+    "CAMPO AZUL CLASICO",
+    "CAMPO AZUL ESPECIAL",
+    "CAMPO AZUL GRAN CLASICO",
+    "CAMPO AZUL SELECTO",
+    "CASAMIGOS",
+    "CONTRALUZ",
+    "CUMBRES",
+    "DEFRENTE",
+    "DON ALEJANDRO",
+    "ESTAMPIDA",
+    "GRAN CLASICO",
+    "IGUANA RANA",
+    "J.M.",
+    "JALMEX",
+    "MESSICANO ALTEÑO",
+    "MI GENERACION",
+    "MONTE AZTECA",
+    "MULA ALACRAN",
+    "NEGRO ZAFIRO",
+    "PANCHO ALEGRE",
+    "RANCHO ALEGRE",
+    "RANCHO CALIENTE",
+    "REVERENDO",
+    "RILO",
+    "RILO AGAVE",
+    "RIO CALIENTE",
+    "TESORO AZUL",
+    "TRES BARRICAS"
+   ]
+  },
+  {
+   "nom": "1417",
+   "company": "INDUSTRIALIZADORA INTEGRAL DEL AGAVE, S.A.P.I. DE C.V.",
+   "brands": [
+    "125",
+    "BUEN AMIGO",
+    "DON ALVARO",
+    "DON CHUMA",
+    "DON RAMÓN",
+    "DOS CORONAS",
+    "DOS SANTOS",
+    "ENVIDIA",
+    "FIRST STREET",
+    "HERODES",
+    "HIJOS DE VILLA",
+    "MANGATTA",
+    "MEDICINA MEXICANA",
+    "PICAFLOR",
+    "PROCURADOR",
+    "RESERVA DE DON RAMÓN",
+    "TAKE",
+    "TE QUIERO",
+    "TRES CACTUS",
+    "TRES SOMBREROS",
+    "VALEROSO",
+    "VAQUETON"
+   ]
+  },
+  {
+   "nom": "1419",
+   "company": "METLALLI, S.A. DE C.V.",
+   "brands": [
+    "ACUMBARO",
+    "AMATIRANCH",
+    "BUEN MOTIVO",
+    "CANICAS",
+    "COPITA",
+    "EL CATORAL",
+    "REGALO MEXICANO",
+    "REY VIEJO",
+    "SOLORZANO"
+   ]
+  },
+  {
+   "nom": "1424",
+   "company": "DESTILADORA DE AGAVE AZUL, S.A. DE C.V.",
+   "brands": [
+    "ASOMBROSO",
+    "ASOMBROSO ULTRAFINO",
+    "AZTECA AZUL",
+    "BROTE",
+    "CALAVERA",
+    "CANTAROS DE MIEL",
+    "CASA MAIA",
+    "CASA RICA",
+    "CAYÉYA",
+    "CHULAVISTA",
+    "DON ANSELMO",
+    "DON SANTOS",
+    "DOÑA SILVIA",
+    "EL GRAN RODEO",
+    "EL GÜEL",
+    "EL PIAL",
+    "ESLABON",
+    "FAMILIA ES MAS VIDA",
+    "HISTORIA DE LEYENDA 1874",
+    "LA TAREA",
+    "LOS POTRILLOS DE CHALEKO",
+    "MARACAME",
+    "PACO JONES",
+    "POINT BLANK",
+    "PROEZA",
+    "RIO J",
+    "S LA SANTA AIDA HARFUSH RON",
+    "SEXTO",
+    "SUAVECITO",
+    "UNA VIDA"
+   ]
+  },
+  {
+   "nom": "1426",
+   "company": "AGAVEROS UNIDOS DE AMATITAN, S.A. DE C.V.",
+   "brands": [
+    "AZUÑIA",
+    "CASA VARONES",
+    "DIVA MAYA",
+    "EL VILLANO MAGISTER DISTILLER",
+    "MEXA",
+    "MIRAVALLE",
+    "NUEVEUNO",
+    "PAREJO ES LO QUE ES",
+    "SANDOVALES 1887"
+   ]
+  },
+  {
+   "nom": "1431",
+   "company": "DESTILADORA LOS MAGOS, S.A. DE C.V.",
+   "brands": [
+    "10 EXACTO",
+    "3 REGLAS",
+    "420 TIME",
+    "916",
+    "ADORABLE Y LINDA",
+    "ADÁN Y EVA",
+    "ALABANZA",
+    "ALUZAR",
+    "AMOR DE ANGEL ENAMORADO",
+    "BAJO CERO",
+    "BARRIL LA CAVA",
+    "BEACH LILA",
+    "BELLEZA ÚNICA",
+    "BER 1978 NAL",
+    "BESO CON PASIÓN",
+    "BLUE J",
+    "CALERA",
+    "CALERA REAL",
+    "CAMPORO",
+    "CASA CATADOR",
+    "CATADOR",
+    "CATOCHO",
+    "CAVA ANTIGUA",
+    "CAVA VIEJA",
+    "CC CASA CISNEROS",
+    "CELADOR",
+    "CELTA",
+    "CHARRO GORDO",
+    "CLUB LGBTQ +",
+    "CORAZÓN IRRESPETUOSO",
+    "COSECHA DORADA",
+    "CRIZTOS",
+    "D RESERVA DEL REFUGIO",
+    "DELEITE",
+    "DESPIADADO",
+    "DESTELLO",
+    "DESTELLO AZUL",
+    "DIABOLICO",
+    "DOMINANTE",
+    "DON RAMIRO",
+    "DON TADEO",
+    "EL BASTÓN DEL REY",
+    "EL COLOR DE MÉXICO",
+    "EL FARO DE LUPE & FRANK",
+    "EL GRAN RODEO",
+    "EL MAS GRANDE",
+    "EL REY DE LOS VAMPIROS",
+    "ESENCIA LATINA",
+    "ESPONTÁNEO",
+    "ESTRELLA DE AGAVE",
+    "EXQUISITO AZUL",
+    "GEN AZTECA",
+    "GOD ENOC",
+    "GOLLETE",
+    "GRAN DESTELLO AZUL",
+    "GRAND LOVE",
+    "HACIENDA CATALINA",
+    "HERENCIA AGAVERA",
+    "JARABE TAPATIO DE NUESTRA TIERRA",
+    "KBRON",
+    "LA LADINA",
+    "LA MARTINA",
+    "LA PROPUESTA",
+    "LEGIONARIO",
+    "MI GRAN CABALLO",
+    "NOBLE 1975",
+    "NUESTRO DESTINO",
+    "PAPACITO",
+    "PENCA VIEJA",
+    "PRECIOSA Y ORGULLOSA",
+    "PRODIGIO MAYA",
+    "PUEBLO BLANCO",
+    "RANCHO EL GATO",
+    "RIQUEZA NATURAL",
+    "RIVIERA MAYA",
+    "SALAMANCA",
+    "SENSORIAL",
+    "SFA ADELAN",
+    "SIN ORIGEN",
+    "SOLLOZO AZTECA",
+    "SOÑADOR",
+    "SUEÑO DORADO",
+    "TERRAMIEL",
+    "TIERRA MEXICANA",
+    "TOBIEN",
+    "UANDANI SUSURROS SER FELIZ ES TU ELECCION, LA VIDA ES ESTE MOMENTO, DISFRUTA SER TÚ, TODO ESTÁ BIEN EN TÍ, ERES UN SER INFINITO, GOZA, VIVE, VIBRA ALTO, ÁNIMATE HOY Y SIEMPRE",
+    "VIEJA ERMITAÑA",
+    "XOCHIMILCO",
+    "XYZ"
+   ]
+  },
+  {
+   "nom": "1433",
+   "company": "TEQUILA QUIOTE, S.A. DE C.V.",
+   "brands": [
+    "AS CABALLITO SERRANO",
+    "CAVA DON ANASTACIO",
+    "EL TORIL",
+    "RESERVA DE PAPI MX",
+    "SOLO MEXICO"
+   ]
+  },
+  {
+   "nom": "1434",
+   "company": "PROCESADORA DE AGAVE PENJAMO, S.A. DE C.V.",
+   "brands": [
+    "REAL DE PENJAMO"
+   ]
+  },
+  {
+   "nom": "1436",
+   "company": "TEQUILA ARTESANAL DE LOS ALTOS DE JALISCO, S.A. DE C.V.",
+   "brands": [
+    "CASA ELEMENTAL COLECCIONES",
+    "CATON",
+    "CAZCABEL",
+    "COFRE DE ORO",
+    "FINA ESTAMPA",
+    "GUERRERO MAYA",
+    "MR. SANCHO PANCHO",
+    "ROSALUZ",
+    "VIVA MOJO"
+   ]
+  },
+  {
+   "nom": "1437",
+   "company": "CASA DON ROBERTO, S.A. DE C.V.",
+   "brands": [
+    "3 TRES",
+    "ANTIGUO TEQUILERO",
+    "BAYO",
+    "BELSANTO",
+    "BRIBON",
+    "CASA NOBLE",
+    "CAZUL 100",
+    "CHAVO MALO",
+    "CU-COX",
+    "DON ROBERTO",
+    "DON ROBERTO 1924",
+    "DON ROBERTO RAGO",
+    "DON TECO",
+    "EL ABAJEÑO",
+    "ESPÍRITU ALUMBRES",
+    "FIERO",
+    "LA ARENITA",
+    "LOS RIJOS",
+    "MEMBER´S MARK",
+    "MI CAMPO",
+    "MONTEAZUL",
+    "PAGOS DE DON ISIDRO",
+    "PELIGROSO",
+    "PRIMO QUERIDO",
+    "PROSPERO",
+    "RAGO",
+    "SEVERO",
+    "SIN PENSAR",
+    "TOSCO",
+    "VIRREYES"
+   ]
+  },
+  {
+   "nom": "1438",
+   "company": "DESTILADORA DEL VALLE DE TEQUILA, S.A. DE C.V.",
+   "brands": [
+    "1",
+    "2 CAMINOS",
+    "21SEEDS",
+    "5 MILLAS",
+    "66 BY NORWEGIAN",
+    "ABREOJOS",
+    "AGAVALES",
+    "AGAVE BOOM",
+    "AGAVE SALVAJE",
+    "AGAVEMIO",
+    "AGUAMIEL",
+    "ALIDA",
+    "AMARNOS",
+    "AMOR A LA FAMILIA",
+    "AMOR Y GUERRA",
+    "ANNIE UP",
+    "ANTEEL",
+    "ANTONIO´S",
+    "APPLEQUILA",
+    "ASESINATO",
+    "AZULEJOS",
+    "BAHNBRËCKER",
+    "BAMBARRIA",
+    "BELLAGAVE",
+    "BESTIES ALL-IN",
+    "BIG BOY TEQUILA",
+    "BILLFISH",
+    "BLOWFISH",
+    "BLU",
+    "BONE ORCHARD",
+    "BUENDIA",
+    "BUTTERFLY CANNON",
+    "CABALLO AZUL",
+    "CAL&GARY´S CURATED",
+    "CALEON",
+    "CALIDO",
+    "CANDENTE",
+    "CAPE HORN",
+    "CASA CAPISTRANO",
+    "CASA DE REYES",
+    "CASA DEL VALLE",
+    "CASA FLAMENCO",
+    "CASA MAESTRI",
+    "CASA MAESTRI 66 BY NORWEGIAN",
+    "CASA MAESTRI RESERVA DE MFM",
+    "CASA MALKA",
+    "CASAGAVE",
+    "CASINO AZUL",
+    "CASORO",
+    "CAVA DEL VOLCAN",
+    "CAVAGAVE",
+    "CELAYA",
+    "CENTENERA 1572",
+    "CHAMELEON",
+    "CHAQUIRA",
+    "CHARDAÑEJO",
+    "CHIMAYO",
+    "CINCORO",
+    "COCA PURA",
+    "COLIBRI",
+    "COSTA TEQUILA",
+    "DE MAYA",
+    "DELICADO",
+    "DIA DE LA SIRENA",
+    "DIA SANTO",
+    "DISBELEF",
+    "DISPAROS",
+    "DON CHENTE BAR & GRILL",
+    "DON COSME",
+    "DON DADA",
+    "DON GINO",
+    "DON LEVI",
+    "DON LITO",
+    "DON ROMEO",
+    "DON SERGIO",
+    "DON TIMBÓN",
+    "DOS FLAMOS",
+    "DOS SERPIENTES",
+    "DOÑA CELIA",
+    "E. CUARENTA",
+    "EGO",
+    "EL CHANGUITO",
+    "EL CHUBBY",
+    "EL HIJO DE MIS AMORES",
+    "EL JEFE",
+    "EL JET´S CANTINA BORN IN BAJA",
+    "EL MACHO",
+    "EL PADRINO DE MI TIERRA",
+    "EL PERRO GRANDE",
+    "EL POBRE",
+    "EL PODERIO",
+    "EL REFORMADOR",
+    "EL REY Y YO",
+    "EL SUEÑO",
+    "EL TIEMPO",
+    "EL TIRADOR",
+    "EMYLA",
+    "ESPIRITU DE CELIA & MIGUEL",
+    "ESPLÉNDIDO",
+    "ESTEVANICO \"LITTLE STEPHEN\"",
+    "EUFORIA",
+    "EXITO",
+    "FLAMA DE FUEGO FINO",
+    "FRIDA MEXICAN CUISINE",
+    "FUCK YES!",
+    "GENERAL DIAZ",
+    "GEORGIA AZUL",
+    "GOOD FUCKING",
+    "GRAN LATSUL",
+    "GRAN VIDA",
+    "GRANDIOSA AZTECA",
+    "HACIEN",
+    "HEROE DE MI TIERRA",
+    "HOTTORQUE",
+    "HUSSONG´S",
+    "HÁPAX",
+    "IDENTITY",
+    "IEIE PREMIUM",
+    "INCLUSIVO",
+    "INDIANOS",
+    "INEVITABLE",
+    "INTENSO AMOR",
+    "IZO",
+    "JON BASIL",
+    "JOSE COIRA",
+    "JOSE LEON",
+    "JOSELITO",
+    "LA BODEGA",
+    "LA LANGOSTA BLANCA",
+    "LA PALMOSA",
+    "LA SERPIENTE EMPLUMADA",
+    "LAGRIMAS DE LEON",
+    "LANETA",
+    "LOLITA",
+    "LOS AMIGOS",
+    "LOS AZULEJOS",
+    "LOS CUCOS",
+    "LOS DIAS MAGICOS",
+    "LOS HERMANOS 1978",
+    "LOS LOCOS",
+    "LOS MUERTOS",
+    "LOS SUNDAYS",
+    "MACIZO",
+    "MAJI",
+    "MAMA KIM´S",
+    "MARFANISTA",
+    "MARIA ISABEL",
+    "MARLA CHITO",
+    "MAS Y MAS",
+    "MEMBER´S MARK",
+    "MIAGAVE",
+    "MIEL AMARGA",
+    "MIO BY CASA MAESTRI",
+    "MIS AMIGOS",
+    "MISGUIDED SPIRITS",
+    "MONTAUKILA",
+    "MORAMOR",
+    "MOZALBETE",
+    "MÚSICA",
+    "NAKED DIABLO",
+    "NAUGHTY PAWS",
+    "NECESITA",
+    "NOEL FAMILY",
+    "NUEVE 9",
+    "NUEVE B",
+    "OMANO",
+    "ORGULLO AJENO",
+    "OSADIA",
+    "PADRISIMO",
+    "PAINTED DONKEY",
+    "PARA ELLOS",
+    "PARIA",
+    "PARRANDA",
+    "PEPES CANTINA",
+    "PINK PIG",
+    "PINK POISON BY MÜGGLER",
+    "PISTOLA DEL DIABLO 54",
+    "PLAYA",
+    "PLAYA DIA",
+    "PODER DE LA TIERRA",
+    "RANCHO ALTO",
+    "RANCHO CABALLO",
+    "RAVELLA",
+    "REJONEO",
+    "RESERVA DE BORREGOS",
+    "RESERVA DE MFM",
+    "RICARDA AMOR",
+    "ROSALUZ",
+    "ROW",
+    "S.O.S.",
+    "SABOR",
+    "SABOR DE EXCELENCIA",
+    "SAN MARTIN DE HIDALGO",
+    "SANTA FAMILIA",
+    "SANTERA",
+    "SATOMA",
+    "SELF MADE DEE BROWN CEO",
+    "SER YO",
+    "SERPENTES",
+    "SERPIENTE EMPLUMADA",
+    "SEÑOR PALOMA",
+    "SHADOW",
+    "SIEMPRE",
+    "SILVENA 1950",
+    "SOLISCA",
+    "SOLO AGAVE",
+    "SOUTHBOUND",
+    "SPARKLE DONKEY",
+    "STAGE SEVEN",
+    "STREET TEQUILA",
+    "SUMMER GODS",
+    "SUNBIRD",
+    "TACO TUESDAY",
+    "TACO TUESDAY TEQUILA BLANCO HECHO EN MEXICO 100% PURO DE AGAVE 40% ALC./VOL. 80 PROOF. 750ML",
+    "TDLG",
+    "TE AMO REPOSADO TEQUILA",
+    "TECÁN",
+    "TEEQ",
+    "TENTADOR",
+    "TEQUILA NO. 1",
+    "TESLA",
+    "TIBURÓN´S FIN",
+    "TIERRA DE CABALLOS",
+    "TIERRA FERTIL",
+    "TIERRA Y PODER",
+    "TIQUIS MIQUIS",
+    "TITA",
+    "TITA DOÑA CELIA EDITION",
+    "TONINO LAMBORGHINI",
+    "TOPANITO",
+    "TRAVESURAS",
+    "TRES GRINGOS",
+    "TROO",
+    "TU",
+    "TUYO",
+    "TWF TEQUILA WITH FRIENDS",
+    "V",
+    "VELVIQUE",
+    "VENENO",
+    "VERDE GREEN",
+    "VIDA DE LOUIE",
+    "VIVAMOR",
+    "VIVIR",
+    "VOZUL",
+    "WANNA TASTE",
+    "YAVE",
+    "ZARZA"
+   ]
+  },
+  {
+   "nom": "1439",
+   "company": "PROVEEDORA Y PROCESADORA DE AGAVE TRES HERMANOS, S.A. DE C.V.",
+   "brands": [
+    "1000 BANDERAS",
+    "7 AGAVES",
+    "924",
+    "ALUVALLES",
+    "BAKUA",
+    "BLUE SHOT",
+    "CABO REAL",
+    "CALMITA",
+    "CHIQUEÑO",
+    "CINCO PATRICIOS VERDE",
+    "CON AMOR 34",
+    "COPAL 22",
+    "DA 5",
+    "DEATH WHISTLE",
+    "DEL DIA",
+    "DELIQUIO",
+    "DON VERDIN",
+    "DOÑA AZUL",
+    "DULCE ORO",
+    "EL ACUERDO",
+    "EL FOGONERO",
+    "EL MANDO",
+    "EL PASEILLO CHARRO",
+    "EL PENCO",
+    "ELEVEN20",
+    "ENCARNACION",
+    "EQUANIMITY",
+    "ETEREO",
+    "FORLIFE",
+    "GALLO AZTECA",
+    "GRAN TEZCALAMA",
+    "GRAND BAY",
+    "GRANDE GUAPO",
+    "GREEN CARD LIMITED",
+    "HACIENDA MEXICANA EL LLANO",
+    "HERMANAS AMIGAS",
+    "HOT TORQUE",
+    "IMA6INE",
+    "INFINITO F(X)",
+    "ISLA MAYA",
+    "JORNALERO",
+    "KATERI",
+    "LA CONECTA",
+    "LA GRANDE CYNTHIA SILVA",
+    "LOS ALUMBRADOS",
+    "LOS VALENTONES",
+    "LUNA LLENA BY ORFARMS",
+    "MARINA DE ORO",
+    "METAGAVE",
+    "MIIXA 100",
+    "MONITA",
+    "PACHECO 1988",
+    "PI TEQUILA",
+    "PRADO AZUL",
+    "PRIMERA XENERACION",
+    "REGALO MIXTECO",
+    "RETAR",
+    "REY SUPREMO",
+    "SHADOW",
+    "SIERREÑO",
+    "SIR ALPHA",
+    "SNOW TE SKI LA",
+    "SPIRITS & SPICE",
+    "SUEÑOS GLOBAL",
+    "THE DIRTY SANCHEZ SPIRIT CO.",
+    "THE NAKED MARGARITA",
+    "TIO BILLY",
+    "UN GRITO DE SABOR",
+    "VIVA LA HERENCIA DE ABUELITOS",
+    "VREY SUPREMO",
+    "ZENZONTE"
+   ]
+  },
+  {
+   "nom": "1440",
+   "company": "CAMPARI MEXICO, S.A. DE C.V.",
+   "brands": [
+    "CABO WABO",
+    "EL ESPOLON",
+    "MAYENDA"
+   ]
+  },
+  {
+   "nom": "1443",
+   "company": "GRUPO INDUSTRIAL TEQUILERO DE LOS ALTOS DE JALISCO, S.A. DE C.V.",
+   "brands": [
+    "BRALTOS",
+    "CAMPANARIO",
+    "DON PILAR",
+    "DULCE VIDA",
+    "EL CARRIL",
+    "EL SECRETO DE DON PILAR",
+    "EL TESORO DE CHUY CHAVEZ",
+    "HACIENDA EL CAMPANARIO",
+    "HOGSHEAD",
+    "SANGRE AZUL",
+    "SOLEDAD"
+   ]
+  },
+  {
+   "nom": "1445",
+   "company": "UNION DE PRODUCTORES DE AGAVE, S.A. DE C.V.",
+   "brands": [
+    "EL GRAN JUBILEO",
+    "EL LABRADOR",
+    "LA ALBORADA",
+    "PROVOCACION"
+   ]
+  },
+  {
+   "nom": "1449",
+   "company": "DIAGEO MEXICO COMERCIALIZADORA, S.A. DE C.V.",
+   "brands": [
+    "194 DON JULIO 1942",
+    "1942 DON JULIO 70",
+    "DON JULIO",
+    "DON JULIO 1942",
+    "DON JULIO 70",
+    "DON JULIO ALMA MIEL",
+    "DON JULIO CENIZA",
+    "DON JULIO PRIMAVERA",
+    "DON JULIO PRIVADO",
+    "DON JULIO REAL",
+    "DON JULIO ULTIMA RESERVA",
+    "RESERVA DE DON JULIO"
+   ]
+  },
+  {
+   "nom": "1450",
+   "company": "MARCO ANTONIO JAUREGUI HUERTA",
+   "brands": [
+    "BONITA BY DON VALENTE",
+    "DV DON VALENTE",
+    "GOYA",
+    "MADRUGADA",
+    "MEXA",
+    "MISIONERO",
+    "PERFECCION INMACULADA",
+    "TIQUILITO-UF"
+   ]
+  },
+  {
+   "nom": "1451",
+   "company": "DESTILERIAS SIERRA UNIDAS S.A. DE C.V.",
+   "brands": [
+    "SIERRA",
+    "SIERRA ANTIGUO"
+   ]
+  },
+  {
+   "nom": "1455",
+   "company": "FABRICA DE TEQUILA EL NACIMIENTO, S.A. DE C.V.",
+   "brands": [
+    "BLANCO 13",
+    "COSECHA SUPREMA",
+    "EL NACIMIENTO",
+    "F FINO",
+    "PEPPER´S",
+    "ROSAMANTE",
+    "TRAGO FUERTE"
+   ]
+  },
+  {
+   "nom": "1458",
+   "company": "TEQUILERA LA PRIMAVERA, S.A. DE C.V.",
+   "brands": [
+    "DON FELIX CANTARITOS",
+    "MB MI BARRIO",
+    "MONTELARGO",
+    "REAL 1688"
+   ]
+  },
+  {
+   "nom": "1459",
+   "company": "TEQUILA SELECTO DE AMATITAN, S.A. DE C.V.",
+   "brands": [
+    "24K DELICIOSA VIDA",
+    "AAM AMAFER",
+    "ALTO DE AMATITÁN",
+    "AMOR ROMANTICO",
+    "AMORARTE",
+    "ANTILLON RESERVA",
+    "AROMA AZUL",
+    "ARRIESGADO",
+    "ARTE AZUL",
+    "ASOMBROSO",
+    "ASTRO",
+    "B!ATCH",
+    "BARRIL LA CAVA",
+    "BLUE NECTAR",
+    "BOUQUET MEXICANO",
+    "C1",
+    "CACHANILLA",
+    "CALIROSA",
+    "CAMA DE PIEDRA",
+    "CASA J",
+    "CASA JALISCO",
+    "CODIGO 1316",
+    "COMANDO AZUL",
+    "CORACHO",
+    "DERECHITO",
+    "DINASTIA REAL",
+    "DON ADRIANO 1950",
+    "DON AZUL ESPECIAL",
+    "DON AZUL PLATINUM",
+    "DOS LOCOS",
+    "EL AMIGO LAGOS",
+    "EL BUEN BOUQUET",
+    "EL GLOBO",
+    "EL HIJO DE MIS AMORES",
+    "EL HIJUELO",
+    "EL JEFE LUIS",
+    "EL SEÑOR DE ORO",
+    "EL TECOLOTE",
+    "EL TRAIDOR",
+    "EL VIEJO ANDRES",
+    "ELEVASO",
+    "ENVUELTO",
+    "ESCORTAURO",
+    "ESPIRITU DE SAN MIGUEL DE ALLENDE",
+    "GRAN TULUM",
+    "GRAND CASINO AZUL",
+    "GRAND MAYAN",
+    "INSOLENTE",
+    "JFC",
+    "JUSTINA & LEANDRO",
+    "LA CATRINA",
+    "LA MONTA",
+    "LA PROPUESTA",
+    "LA SIN ROSTRO",
+    "LEGACIA",
+    "LEYENDA 1975",
+    "LOS TRES TOÑOS",
+    "LUIS AIMAR",
+    "MAJALCA",
+    "MALAS LENGUAS",
+    "MAXIMO IMPERIO",
+    "MEDIO LIMÓN",
+    "MI CHANTE",
+    "MI FAMILIA MF FLORES",
+    "MI GRAN CABALLO",
+    "MI SORPRESA",
+    "MI TIERRA LA QUITERIA",
+    "MIS AGUACATES",
+    "MUJER MESTIZA",
+    "MUNDO DE ORO",
+    "NICHO DE ORO",
+    "NICHO REAL",
+    "NICHO SELECTO",
+    "NUDA",
+    "NUESTRO DESTINO",
+    "ORO SELECTO",
+    "PICOCHULO",
+    "PRIMERA CLASE",
+    "RESERVA HUIZAR",
+    "RIQUEZA ARTESANAL",
+    "RIQUEZA CULTURAL",
+    "RIQUEZA NATURAL",
+    "ROMÁNTICO",
+    "RUBÍ CORAZÓN",
+    "SABOR AZTECA",
+    "SALAMANCA",
+    "SANCTUS AQUAM",
+    "SR DISANTY",
+    "TALAVA LOWLANDS ORIGEN",
+    "TANGAIXTLE",
+    "TANTITA PENA",
+    "TE AMO",
+    "TESORO AZTECA",
+    "TESORO CHANTECO",
+    "THE MEXICAN LUCHA",
+    "TIERRA AZUL",
+    "TURKS &",
+    "VIUDA DE MARTINEZ",
+    "Y LLEGO JALISCO"
+   ]
+  },
+  {
+   "nom": "1460",
+   "company": "COMPAÑIA TEQUILERA DE ARANDAS, S.A. DE C.V.",
+   "brands": [
+    "100 VECES",
+    "3 CABALLOS",
+    "5 DE MAYO",
+    "771",
+    "A TEQUILA ANTIGUA SOL",
+    "ANTIGUA CRUZ",
+    "CASAFINA",
+    "CHILANGO",
+    "CODORNIZ",
+    "DON MIRO",
+    "DON NICO",
+    "DOS CACHORROS LA CACHORRA",
+    "EL CHARRO",
+    "EL DFÑO",
+    "EL MANDATARIO",
+    "ESCUDERO",
+    "FIESTA CANCÚN",
+    "GARBANCERA VIVA LA CALAVERA",
+    "GRAN AMIGO",
+    "GRAN ARTE",
+    "GRAN DIAMANTE",
+    "GRAN MAGISTRADO",
+    "HACIENDA DE TEPA",
+    "HACIENDAS DE JALISCO",
+    "HT HACIENDA DE TEPA BLACK HT",
+    "INSECTO",
+    "KAFKA",
+    "LA LEYENDA DE DON REYES",
+    "LAPITTAYYA BY RIAZUL",
+    "MANGATTA",
+    "MAS",
+    "MATICES DE MI TIERRA",
+    "MAXIMO",
+    "MAXXIMO DE CODORNIZ",
+    "OLAMENDI´S GOURMET FOODS",
+    "OMG",
+    "PANCHON TRUCKING",
+    "PASIÓN",
+    "QUO´S",
+    "RANCHERO JALISCIENCE",
+    "REAL HACIENDA",
+    "RIAZUL",
+    "RSV AGAVIA",
+    "SENADOR",
+    "SM SOUL MATE",
+    "SOMOS KOMPADRES",
+    "TEKONIAK",
+    "TEPA",
+    "TEQUONIAC",
+    "THE BAD STUFF",
+    "TOLTECA",
+    "TRES CABALLOS",
+    "TRES REYES",
+    "UXMAL",
+    "VIDA",
+    "Z PEPE ZEVADA"
+   ]
+  },
+  {
+   "nom": "1463",
+   "company": "COOPERATIVA TEQUILERA LA MAGDALENA, S.C. DE R.L.",
+   "brands": [
+    "AGAVITA",
+    "ALBA",
+    "BALA PERDIDA",
+    "DON TIMBÓN",
+    "EL CAUDILLO",
+    "EL DESTILADOR",
+    "EL FINANCIERO",
+    "GRAN AGAVE",
+    "GRAND MAYAN",
+    "LOS GENERALES",
+    "REAL HACIENDA 100",
+    "SANGRE AZTECA",
+    "TEKIO"
+   ]
+  },
+  {
+   "nom": "1464",
+   "company": "DESTILERIA 501, S.A. DE C.V.",
+   "brands": [
+    "510",
+    "BESTIA",
+    "EVOLUCION",
+    "EVOLUCION 510",
+    "GRAN PADRE",
+    "LOCOMOTORA",
+    "LOS MONTENEROS",
+    "MUÑECA",
+    "TORERO",
+    "TROMPETA MEXICANA"
+   ]
+  },
+  {
+   "nom": "1465",
+   "company": "FABRICA DE TEQUILA EL EDEN, S.A. DE C.V.",
+   "brands": [
+    "5 CINCO AGAVES",
+    "AFICIONADO",
+    "ALCE",
+    "ALTO PASO",
+    "CANTAORO",
+    "CARRERA",
+    "CASA MALDINI",
+    "CATARINA",
+    "CINCO AGAVES",
+    "DSGN",
+    "EL OCOTE",
+    "ESPAÇIAL",
+    "GRANALTA",
+    "LA CAVA DE CARLOS",
+    "LICORES ALAMEDA MX",
+    "OAXALISCO",
+    "PADRE TIEMPO",
+    "PROVIDENCIA",
+    "RR DOS ERRES",
+    "SANTO CATRIN"
+   ]
+  },
+  {
+   "nom": "1466",
+   "company": "TEQUILA TRES MUJERES, S.A. DE C.V.",
+   "brands": [
+    "AFAMADO",
+    "AMOR MIO",
+    "AUGUSTO",
+    "CASA MANI",
+    "CHULA PARRANDA",
+    "DOBLE B EL ORGULLO DE MI PADRE",
+    "DONA VICTORIA",
+    "DOS ARTES",
+    "ELIJE MAS RIQUEZA",
+    "EPIFANIA AZUL",
+    "III DISTALES",
+    "LAS POTRANCAS",
+    "LEVE 36",
+    "MISIONERO",
+    "PADRE AZUL",
+    "PINTORESCO",
+    "SANTANERA",
+    "SIN RIVAL",
+    "TRES CANDADOS",
+    "TRES MUJERES",
+    "UNO DE 10",
+    "VASANTA"
+   ]
+  },
+  {
+   "nom": "1467",
+   "company": "IMPULSORA ROMBO, S.A. DE C.V.",
+   "brands": [
+    "ESPANITA",
+    "FINEZA",
+    "KAOS",
+    "RUDO",
+    "TERRAFIRME",
+    "TÉCNICO",
+    "ZAFARRANCHO",
+    "ÉXODO"
+   ]
+  },
+  {
+   "nom": "1468",
+   "company": "GRUPO TEQUILERO MEXICO, S.A. DE C.V.",
+   "brands": [
+    "ALQUIMIA",
+    "ARANDENSE",
+    "CARDENAS LEGACY",
+    "CASA REAL",
+    "CASA VIEJA",
+    "DESDEYA",
+    "GIULIA",
+    "HURRA",
+    "LALO",
+    "MEMORIAL",
+    "TIERRA BRAVA"
+   ]
+  },
+  {
+   "nom": "1471",
+   "company": "GRUPO INTERNACIONAL DE EXPORTACION, S.A DE C.V.",
+   "brands": [
+    "EL ARRIERO",
+    "EL DRAGÓN 2000",
+    "EL RETIRO",
+    "GRAN ARRIERO",
+    "LA REVANCHA",
+    "MONTE ÌNDIGO",
+    "SOL ROJO"
+   ]
+  },
+  {
+   "nom": "1472",
+   "company": "AMBER PRODUCTION TEQUILA, S.A. DE C.V.",
+   "brands": [
+    "CENOTE",
+    "EL DIAMANTE DEL CIELO",
+    "KAH",
+    "OLUJO",
+    "ROGER CLYNE´S MEXICAN MOONSHINE",
+    "ROOSTER ROJO",
+    "TONALA",
+    "VILLA ONE"
+   ]
+  },
+  {
+   "nom": "1473",
+   "company": "TEQUILERA DE LA BARRANCA DE AMATITAN, S.A. DE C.V.",
+   "brands": [
+    "AGUA VIDA",
+    "BATALLON",
+    "CASA 1919",
+    "CASA MALLORCA",
+    "CASA PECADOS",
+    "DON FERNANDO",
+    "DON FERNANDO T.K.O.",
+    "INDIANOS",
+    "MEXICO AZTECA",
+    "MEXÍA",
+    "MEZCOLOGO",
+    "MI BONITA",
+    "MI TIERRA",
+    "PREFIERO"
+   ]
+  },
+  {
+   "nom": "1474",
+   "company": "CIA. TEQUILERA LOS ALAMBIQUES, S.A. DE C.V.",
+   "brands": [
+    "CURADO",
+    "EL PRIMER CURADO DE DON TOMAS",
+    "LOS ALAMBIQUES",
+    "MUESTRA NO. OCHO",
+    "OCHO"
+   ]
+  },
+  {
+   "nom": "1476",
+   "company": "DESTILADORA RUBIO, S.A. DE C.V.",
+   "brands": [
+    "EL CARGUERO",
+    "EL ESTIBADOR",
+    "EL TEQUILENSE",
+    "LA CARROZA",
+    "LA INVENCIBLE",
+    "LA RIENDA",
+    "LOS TALPEÑOS"
+   ]
+  },
+  {
+   "nom": "1477",
+   "company": "LETICIA HERMOSILLO RAVELERO",
+   "brands": [
+    "3RS LEGADO DEL ABUELO",
+    "ADICCIÓN",
+    "ADICTIVO",
+    "AMATITEÑA",
+    "AMATITEÑA BARRANCAS",
+    "BANDIDO DE AMORES",
+    "CAVA DE ORO",
+    "CAVA DE ORO GRAN CAVA DE ORO",
+    "COMPOVEDA",
+    "CON ALMA DE MUJER",
+    "DESDICHADO",
+    "DIOS AZUL",
+    "DOBLE ORO",
+    "EDM ZRO",
+    "EL BASTÓN DEL REY",
+    "GRAN RESERVA DE DON ALBERTO",
+    "IDILICA",
+    "INCORRUPTO",
+    "LOTE MAESTRO",
+    "M77 NOBAN",
+    "NOBLE PASION",
+    "PUERTA DE HIERRO",
+    "SAINT MAYA",
+    "SWOL",
+    "TIERRA SAGRADA",
+    "VUELO DEL AVIADOR"
+   ]
+  },
+  {
+   "nom": "1479",
+   "company": "COMPAÑIA TEQUILERA HACIENDA LA CAPILLA, S.A. DE C.V.",
+   "brands": [
+    "100X",
+    "3 CABALLOS",
+    "406 AGAVE",
+    "AMO ACEVES",
+    "AMO AGAVES",
+    "ASTRO",
+    "CAPE HORN",
+    "CASINO AZUL",
+    "CHISME",
+    "CUERNO DE TORO",
+    "DON CHINTO",
+    "EL AMO",
+    "EL RAYO",
+    "EL RAYO HA VUELTO",
+    "HACIENDA LA CAPILLA",
+    "INTERNATIONAL FOOTBALL",
+    "LA ADELITA",
+    "LEY .925",
+    "MEMBER´S SELECTION",
+    "NUNCAMIENTE",
+    "PATRIZIA LAMBORGHINI DISTRIBUZIONE",
+    "POR LA GENTE",
+    "PROVADO AZUL",
+    "PUNTAGAVE",
+    "QUETZAL F40",
+    "RANCHO LOS AGAVES",
+    "TEQUILA ERENA",
+    "TITANIUM TEQUILA",
+    "TORUS REAL",
+    "TRAMPA DE MUERTE",
+    "UNO POR FAVOR"
+   ]
+  },
+  {
+   "nom": "1480",
+   "company": "TEQUILA LAS AMERICAS, S.A. DE C.V.",
+   "brands": [
+    "123 TEQUILA CERTIFIED ORGANIC 100% DE AGAVE",
+    "545",
+    "88 EIGHTY EIGHT",
+    "AGAVELUZ",
+    "ALDEZ",
+    "CABAL",
+    "CABALGADURA",
+    "CASA AZUL",
+    "CASCADA",
+    "CONEJO SALVAJE",
+    "DESNUDA",
+    "DIABLITO",
+    "DIABLITO ROJO",
+    "DON ABRAHAM",
+    "DON MONTES",
+    "DOS RIOS",
+    "EL BERRINCHE",
+    "EL DISEÑADOR",
+    "EL GRAN JURADO",
+    "EL LUCHADOR",
+    "EL SATIVO",
+    "FIVE SEVEN FOUR",
+    "GENERACION XXI",
+    "GRAN CORONEL",
+    "GRAN LUJO",
+    "LAYA",
+    "LEUCADIA 1875",
+    "LOS NÉGROS",
+    "MAMBA",
+    "O IMPARA",
+    "ONE WITH LIFE",
+    "PEZUÑA BLANCA",
+    "PUEBLO AMIGO",
+    "PURO VERDE",
+    "RYNO",
+    "SANTOYO GRAND LEYENDA",
+    "SEDUCE",
+    "SOLENTO",
+    "SUR J.W.P.",
+    "TEZCAZUL",
+    "ÓLE ALL DAY COCKTAILS"
+   ]
+  },
+  {
+   "nom": "1487",
+   "company": "BACARDI Y COMPAÑIA, S.A. DE C.V.",
+   "brands": [
+    "4 VIENTOS",
+    "CAZADORES",
+    "CORZO"
+   ]
+  },
+  {
+   "nom": "1489",
+   "company": "DESTILERIA LEYROS, S.A. DE C.V.",
+   "brands": [
+    "ANDALE TEQUILA",
+    "CACHITO DE AGAVE",
+    "CANTINA AZUL",
+    "CASA DRAGONES",
+    "CASA JUGADORES",
+    "CASA REPÚBLICA",
+    "CASA TIEMPO",
+    "CASAZUL",
+    "CHROME HORSE SOCIETY",
+    "CIENFUEGOS",
+    "COSMOS",
+    "CÓSMICO",
+    "DON FERMIN",
+    "ENEMIGO",
+    "FIVE SEVEN FOUR",
+    "ICONOS DE MEXICO",
+    "IGNITE",
+    "IMPERIO DEL TIEMPO",
+    "LAS MARACAS",
+    "LEYROS",
+    "LITOS",
+    "LOS AZULES",
+    "MEXICA",
+    "MI AMOR",
+    "MIDI",
+    "MUJER AMERICANA",
+    "MUJEREAL",
+    "OCTAVIO",
+    "OPALO AZUL",
+    "REPUBLIC",
+    "RESERVA MOMENTO 1423",
+    "SAPIENS BEBIDA DE SABIOS",
+    "SAUDADE",
+    "SCORE BAJA 1000",
+    "SOLARUM",
+    "TEQUILA 52 CASA CINCO DOS",
+    "TRIDENTE",
+    "VECINDAD",
+    "VELOCITY"
+   ]
+  },
+  {
+   "nom": "1492",
+   "company": "PATRON SPIRITS MEXICO, S.A. DE C.V.",
+   "brands": [
+    "GRAN PATRON BURDEOS",
+    "GRAN PATRON PIEDRA",
+    "GRAN PATRON PLATINUM",
+    "PATRON",
+    "PATRÓN EL ALTO",
+    "PATRÓN EL CIELO"
+   ]
+  },
+  {
+   "nom": "1493",
+   "company": "TEQUILA LOS ABUELOS, S.A. DE C.V.",
+   "brands": [
+    "FORTALEZA",
+    "LOS ABUELOS"
+   ]
+  },
+  {
+   "nom": "1494",
+   "company": "TEQUILERA LA NORIA, S.A. DE C.V.",
+   "brands": [
+    "AZUL 78",
+    "DOS ADELAS",
+    "EL GRAN JURADO",
+    "GRAN CASALÁ",
+    "HOLDEN",
+    "KYPROS",
+    "PANDORA",
+    "REGIÓN DE MÉXICO",
+    "SIGLO AZUL",
+    "SR DISANTY",
+    "TOPACIO"
+   ]
+  },
+  {
+   "nom": "1498",
+   "company": "TEQUILERA LA PERLA, S.A. DE C.V.",
+   "brands": [
+    "CAPE HORN VETERAN MADE SAILOR APPROVED",
+    "SNOW TE SKI LA",
+    "WHITEOUT"
+   ]
+  },
+  {
+   "nom": "1499",
+   "company": "CASA TEQUILERA DE ARANDAS, S.A. DE C.V.",
+   "brands": [
+    "1349",
+    "1824 CASTA ANTIGUA",
+    "1921",
+    "ANGELISCO",
+    "ANTIGUO IMPERIO",
+    "AQUARIVA",
+    "AUGIE´S",
+    "BENDITA VIDA",
+    "BILLY´S",
+    "BOSS SPIRITS",
+    "CELEBRE",
+    "CLANDESTINA HECHO EN MEXICO. SOÑADO EN BARCELONA",
+    "COMISARIO",
+    "DON SUEÑOS",
+    "DONAVANT EL LEGADO",
+    "DR. GOODBURN´S",
+    "D´YAVOL",
+    "EL BRINDIS MEXICANO",
+    "EL CRISTIANO 1761",
+    "EL MUSICO",
+    "FÓSFORO",
+    "GRAN COMISARIO",
+    "GRAN RESERVA DE JALISCO",
+    "HACIENDA LOS SAUCES",
+    "I LOVE",
+    "LALA",
+    "LEON Y SOL",
+    "MARTA LEYENDA DE LA MAGIA",
+    "MAXWELL PARK",
+    "MI CASA",
+    "MIJENTA",
+    "MURCIÉLAGO",
+    "NOSTRA MÁTER",
+    "OLAS",
+    "PAPELITO",
+    "PENTA",
+    "PENTA DIAMANTE",
+    "REINA DE LA MUERTE",
+    "ROCK ´N ROLL",
+    "SÕLIDA",
+    "TEQUILA CLANDESTINA HECHO EN MEXICO. SOÑADO EN BARCELONA",
+    "TRADICIÓN AZUL",
+    "TRECE COLONIAS",
+    "VOLANDO"
+   ]
+  },
+  {
+   "nom": "1500",
+   "company": "TEQUILERA LAS JUNTAS, S.A. DE C.V.",
+   "brands": [
+    "BARAJAS",
+    "CIEN RIFLES",
+    "HEREDERO DEL FUEGO",
+    "JUAN DE LEON",
+    "KOSTIV",
+    "KYPROS",
+    "LA BRECHA",
+    "MONTE FINO",
+    "O OPERA",
+    "SAVIA AZUL"
+   ]
+  },
+  {
+   "nom": "1501",
+   "company": "TEQUILERA EL TRIANGULO, S.A. DE C.V.",
+   "brands": [
+    "AGAVE THIEVES",
+    "AMATITLAN",
+    "CASAZAR",
+    "EL TRIANGULO",
+    "GRAN PENACHO AZTECA",
+    "HERENCIA DEL VIEJO",
+    "POLUX",
+    "SUEÑO AZTECA"
+   ]
+  },
+  {
+   "nom": "1502",
+   "company": "AUTENTICA TEQUILERA, S.A. DE C.V.",
+   "brands": [
+    "3 - POINT",
+    "6 ESCALADORES DE WD",
+    "ABANDONADO",
+    "ARSENAL",
+    "B BELTRONES",
+    "CASA AJURRA",
+    "CASA ALEBRIJE",
+    "CASA MÁXIMO",
+    "CASA OLAZÁBAL",
+    "CASA REPÚBLICA",
+    "CASTO ORIGEN",
+    "CAZ POKER REINA",
+    "DIZZY DONKEY",
+    "DON DIABLO",
+    "DOS FUENTES",
+    "EL MAGICO",
+    "EVAGA",
+    "FORTAHONA",
+    "GALOPE",
+    "LA VENTANA CASA DE CAMPO",
+    "LEGADO DEL SUR",
+    "MARCADO 28",
+    "MMI MIL IMPERIOS",
+    "MR. SANCHO PANCHO",
+    "MUZE",
+    "NOCK",
+    "OCTOBLUE",
+    "PARTIDA",
+    "PASA TIEMPO",
+    "REGALO ANCESTRAL",
+    "RG LEGADO",
+    "SOTIER AGRAVES",
+    "SU",
+    "TALENSE",
+    "TAMAYO",
+    "THE WALL",
+    "TIERRAS AUTENTICAS DE JALISCO",
+    "ULTIMA LUNA ROSA",
+    "UNO CASA HERGUETA 1",
+    "VENERADO",
+    "VIDAMIGOS"
+   ]
+  },
+  {
+   "nom": "1504",
+   "company": "AGAVE AZUL SAN JOSE, S.A. DE C.V.",
+   "brands": [
+    "6 BALAS",
+    "AMANTES DE LO AJENO",
+    "BLANCO MUERTE, INC.",
+    "CENTURION",
+    "CRUZPLATA",
+    "DETONACION",
+    "ESPINOZA",
+    "LAS MAÑANITAS",
+    "LOKITA",
+    "MERIDA",
+    "MONTE FINO",
+    "QUILA MARIA´S",
+    "R.H. ÚNICO",
+    "TLALOC"
+   ]
+  },
+  {
+   "nom": "1507",
+   "company": "CASA REYES BARAJAS S.A. DE C.V.",
+   "brands": [
+    "AGUA DE MÉXICO",
+    "AHTORON",
+    "AUSTERO",
+    "CASA ESPIGA",
+    "DANO´S DANGEROUS",
+    "EL CABALLO ESTRELLA",
+    "EL PERRITO",
+    "GRAN LINAJE FCH",
+    "HOMIES",
+    "LA CAVA DE LOS MORALES",
+    "LO SIENTO CALIENTE",
+    "MATALOTE",
+    "O&R ESTOICO INDIGO",
+    "PALERO CORONEL",
+    "PARA TODO XUMA",
+    "RB DE´REYES NATURAL",
+    "RB D´REYES TORITO",
+    "RB REY",
+    "RESERVA FAMILIAR TEQUILA DE DON JESUS RB",
+    "VAQUETON"
+   ]
+  },
+  {
+   "nom": "1508",
+   "company": "FABRICA DE TEQUILA DON NACHO, S.A. DE C.V.",
+   "brands": [
+    "DON NACHO",
+    "DON NACHO TRIBUTO",
+    "SOMONQUE",
+    "SOMONQUE DON NACHO"
+   ]
+  },
+  {
+   "nom": "1509",
+   "company": "TEQUILA EMBAJADOR, S.A. DE C.V.",
+   "brands": [
+    "ALMA DE AGAVE",
+    "BAYONETA",
+    "CATARINA",
+    "DEFRENTE",
+    "DELOLA",
+    "LICORES ALAMEDA MX",
+    "REAL DEL VALLE",
+    "RESERVA DE LA PENCA",
+    "SANGRE TEQUILERA",
+    "VIEJOS AMIGOS"
+   ]
+  },
+  {
+   "nom": "1511",
+   "company": "COMPAÑIA TEQUILERA HACIENDA SAHUAYO, S.A. DE C.V.",
+   "brands": [
+    "99 AÑOS",
+    "HACIENDA SAHUAYO",
+    "TLAHUALIL"
+   ]
+  },
+  {
+   "nom": "1513",
+   "company": "TIERRA DE AGAVES, S. DE R.L. DE C.V.",
+   "brands": [
+    "CASA OBSIDIANA",
+    "LUNAZUL",
+    "LUNAZUL EL HUMOSO",
+    "LUNAZUL PRIMERO",
+    "PRIMERO LUNAZUL",
+    "PRIMERO LUNAZUL HUMOSO"
+   ]
+  },
+  {
+   "nom": "1514",
+   "company": "PRODUCTORES DE AGAVE Y DERIVADOS DE DEGOLLADO, S.P.R. DE R.L.",
+   "brands": [
+    "BREZON",
+    "CALIFINO",
+    "CAMARADAS",
+    "DEGOLLADO",
+    "EL DADITO",
+    "FINITO",
+    "HERMANOS DE SANGRE",
+    "LA MESA 1993",
+    "LEVANTÓ",
+    "MONTE ALTO",
+    "PURO POTRO",
+    "REAL DEL VALLE",
+    "REAL PARIS"
+   ]
+  },
+  {
+   "nom": "1515",
+   "company": "DESTILADORA SANTA VIRGINIA, S.A. DE C.V.",
+   "brands": [
+    "CUADRA",
+    "HACIENDA LOS SIE7E FRANCOS",
+    "LA 7 VIDAS",
+    "LOS 3 POTRILLOS",
+    "LOS YUGOS",
+    "MARCANS",
+    "MIL COPAS",
+    "SANGRE ALTEÑA"
+   ]
+  },
+  {
+   "nom": "1517",
+   "company": "TEQUILA GALINDO, S.A. DE C.V.",
+   "brands": [
+    "11 NAVIOS",
+    "AAM AMAFER",
+    "AFICIONADO",
+    "ANCIENT TRACE",
+    "BUSE",
+    "CAMINO BLANCO",
+    "CUAIMA",
+    "DALLAS",
+    "EL LUCHADOR",
+    "GALINDO",
+    "GRAND CASINO AZUL",
+    "HACIENDA GALINDO",
+    "HOTEZ",
+    "LA DAMA DIVINA",
+    "LION HEAD",
+    "MAKECH ROYALE",
+    "MELQUIADES",
+    "NOT A CELEBRITY TEQUILA",
+    "OCEANO AZUL",
+    "PATRIZIA LAMBORGHINI DISTRIBUZIONE",
+    "RODEO DE LAS AGUAS",
+    "STRONG BOLT",
+    "THE AGAVE REPUBLIC CRAFT TEQUILA",
+    "UNIDO",
+    "VIVA EL GALLO",
+    "ZARPADO"
+   ]
+  },
+  {
+   "nom": "1518",
+   "company": "TEQUILA CASA DE LOS GONZALEZ, S.A. DE C.V.",
+   "brands": [
+    "ARGENTILIA",
+    "CAABSA EAGLE",
+    "CAVA 11 + ON CE",
+    "CAVA 20",
+    "CAVA 23",
+    "CHEPECHE",
+    "DON LONDRÉS",
+    "FRANCISCO J. GONZALEZ G",
+    "GRAN PASION",
+    "IGER",
+    "OFTENO",
+    "RESERVA DE JAVIER´S",
+    "RESERVA DE LOS GONZALEZ",
+    "SANCOY",
+    "TRES LEONES"
+   ]
+  },
+  {
+   "nom": "1519",
+   "company": "AGROINDUSTRIAS CASA RAMIREZ, S.A. DE C.V.",
+   "brands": [
+    "BROWN SUGAR CAFÉ MEXICANA",
+    "PURISIMA"
+   ]
+  },
+  {
+   "nom": "1522",
+   "company": "HACIENDA DE ORO, S.A. DE C.V.",
+   "brands": [
+    "1840",
+    "4 COPAS",
+    "ACREEDOR",
+    "ADRIAN´S TEQUILA VANILLA",
+    "AMATITENSE",
+    "AMIGO DEL TIEMPO",
+    "ATO ORTIZ",
+    "BARRICA AZUL",
+    "BY ST&G PALCORA",
+    "CABALLO MEXICANO",
+    "CACHASOL",
+    "CASA BARIACHI",
+    "CASA RANGEL",
+    "CUATRO ARROYOS",
+    "DIVERTIDO",
+    "DOS ANGELES CAIDOS",
+    "DOS CUERNOS",
+    "EL NORTEÑO",
+    "EL PAYO",
+    "EL ULTIMO AGAVE",
+    "ELEVACIÓN1250",
+    "ENCARNACION",
+    "ENTREMANOS",
+    "FENZUL",
+    "HACIENDA DE ORO",
+    "HACIENDA RIO VERDE",
+    "HERMANA DE LA MUERTE",
+    "KAA DOS SELECTION",
+    "LA CASA ESCAPAR",
+    "LOS 3 POTRILLOS",
+    "LUCKY BASTARDO",
+    "MAYACIEL",
+    "MEXIMODO",
+    "OMADON",
+    "ONZA",
+    "PONCHO Y CISCO",
+    "PONDERADO",
+    "QUINTALIZA",
+    "RESERVA VALLADARES",
+    "S PREMIUM SUAVE",
+    "S SUAVE",
+    "SKORPIOS 1618",
+    "TINAJA DE LA REINA",
+    "TORERO",
+    "TRES AGAVES",
+    "TRESIELOS",
+    "TROMPETA MEXICANA",
+    "TWERK TEQUILA",
+    "VISTA AZUL",
+    "VR 20-20"
+   ]
+  },
+  {
+   "nom": "1523",
+   "company": "AGROTEQUILERA DE JALISCO, S.A. DE C.V.",
+   "brands": [
+    "VOLCAN DE MI TIERRA",
+    "VOLCAN X.A"
+   ]
+  },
+  {
+   "nom": "1524",
+   "company": "ELABORACION DE BEBIDAS DESTILADAS DE AGAVE, S.A. DE C.V.",
+   "brands": [
+    "BANDOLON",
+    "BRACERO",
+    "DISTINCION DE ORO",
+    "EL CAMICHIN"
+   ]
+  },
+  {
+   "nom": "1525",
+   "company": "DESTILADORA LOS SAUCES, S.A. DE C.V.",
+   "brands": [
+    "CAVA ALTEÑA",
+    "QUI"
+   ]
+  },
+  {
+   "nom": "1530",
+   "company": "TEQUILERA SIMBOLO, S.A. DE C.V.",
+   "brands": [
+    "SUERTE"
+   ]
+  },
+  {
+   "nom": "1531",
+   "company": "RIVESCA, S.A. DE C.V.",
+   "brands": [
+    "20 DE ENERO",
+    "BARRON",
+    "DIAMANTE ANCESTRAL",
+    "DON COSME",
+    "EL ALBUR",
+    "EL VILLANO MAGISTER DISTILLER",
+    "ESTRELLA AZUL",
+    "LA DUEÑA",
+    "NUMBER JUAN",
+    "ORO DE LIDIA",
+    "PÁJARO VERDE",
+    "REGALO DE DIOS",
+    "REJON",
+    "RIVESCA",
+    "TEQUILA SEA OF LOVE",
+    "TORO DE LIDIA"
+   ]
+  },
+  {
+   "nom": "1533",
+   "company": "VINOS Y LICORES AZTECA, S.A. DE C.V.",
+   "brands": [
+    "BARA-CARA",
+    "LA GRITONA",
+    "LEYENDA DE MEXICO",
+    "MASCOTA",
+    "PURPURA",
+    "SINO S",
+    "TAS TEQUILA ESPECTACULAR",
+    "TC CRAFT"
+   ]
+  },
+  {
+   "nom": "1534",
+   "company": "COMPAÑIA DESTILADORA DE XAMAY, S.A. DE C.V.",
+   "brands": [
+    "C TEQUILA CENTENAL",
+    "CAZUELA",
+    "DON CHENTE",
+    "DON GOMEZ",
+    "HACIENDA CHACTUN",
+    "MI POTRILLO",
+    "NOCHE VIDA",
+    "TANZANITE",
+    "ZEUS AK. 907"
+   ]
+  },
+  {
+   "nom": "1535",
+   "company": "DESTILERIA MORALES, S.A. DE C.V.",
+   "brands": [
+    "CIRCULO",
+    "EL CIRCULO",
+    "REAL DE MEXICO",
+    "TRES COMAS"
+   ]
+  },
+  {
+   "nom": "1538",
+   "company": "DESTILADORA DE AGAVE HACIENDA LOS HUAJES, S.C. DE R.L.",
+   "brands": [
+    "357",
+    "EL RELIZ",
+    "EL ROBLERAL",
+    "HACIENDA LOS HUAJES",
+    "TORO NEGRO"
+   ]
+  },
+  {
+   "nom": "1543",
+   "company": "LUCIO RIVERA DE ARO",
+   "brands": [
+    "EL COLEGA"
+   ]
+  },
+  {
+   "nom": "1545",
+   "company": "HACIENDA CAPELLANIA, S.A. DE C.V.",
+   "brands": [
+    "AMAN",
+    "AMNA",
+    "ARMERO",
+    "ARRABALERO",
+    "CALLE 23",
+    "CASA CISNES",
+    "DAVO",
+    "DOÑA JOSEFA",
+    "FUENTES GUERRA",
+    "HOTEL CALIFORNIA",
+    "IZTIC",
+    "LA ESPERANZA",
+    "LUNA DE JALISCO",
+    "LÁTIGO NEGRO",
+    "MONTEMPLO",
+    "NO BOXING NO LIFE",
+    "PENCA DE LUZ",
+    "QUO´S",
+    "REGENTE ALTEÑO",
+    "TU LEGADO",
+    "XOLOITZCUINTLE"
+   ]
+  },
+  {
+   "nom": "1547",
+   "company": "INTEGRADORA SAN AGUSTIN, S.A. DE C.V.",
+   "brands": [
+    "ALIEN",
+    "AMO GRANDE",
+    "AMOR",
+    "BIGUI",
+    "BLACK SHEEP",
+    "CASA AMOR",
+    "CEDANO",
+    "CENECISTA",
+    "EL PILLO",
+    "EL TESORO DE MI TIERRA",
+    "GRANADITAS",
+    "HUANI 1875",
+    "LAYA",
+    "LEGACY 71",
+    "MATLI",
+    "REAL DE GUANAJUATO",
+    "SUEÑO DE ATZO",
+    "TROMBA",
+    "WHISPER"
+   ]
+  },
+  {
+   "nom": "1548",
+   "company": "GRUPO TEQUILERO DE LOS ALTOS, S.A. DE C.V.",
+   "brands": [
+    "AHA TORO",
+    "AHA YETO",
+    "ALTA AZUL",
+    "ANGEL SPECIAL",
+    "BAGUAL",
+    "CASA DE CUATRO PREMIUM",
+    "CHILE CALIENTE",
+    "COLORATO TEQUILA",
+    "DON GILDARDO",
+    "ERENA",
+    "FIESTA BRAVA",
+    "LOCUAZ",
+    "MD MANO DERECHA",
+    "REHILETE PAPALOTE",
+    "RS CÁZARES",
+    "SAGE",
+    "SAN MIGUEL IMPERIAL",
+    "SCORE",
+    "SECTA SIETE"
+   ]
+  },
+  {
+   "nom": "1549",
+   "company": "DESTILADORA REFUGIO, S.A. DE C.V.",
+   "brands": [
+    "CORTE REAL",
+    "CUESTION",
+    "DON RIGO",
+    "LA CAVA DE LOS MORALES",
+    "REAL ZEPEDA CLASSIC",
+    "REAL ZEPEDA LEGACY",
+    "TIERRA FERTIL"
+   ]
+  },
+  {
+   "nom": "1551",
+   "company": "DESTILADORA JUANACATLAN, S.P.R. DE R.L. DE C.V.",
+   "brands": [
+    "CARRETA DE ORO",
+    "DON CHICHO",
+    "EL GRAN LEGADO DE VIDA",
+    "EL INOLVIDABLE"
+   ]
+  },
+  {
+   "nom": "1554",
+   "company": "CAVAS DE DON MAX, S.A. DE C.V.",
+   "brands": [
+    "EL CAPRICHO",
+    "EMPERADOR",
+    "ZARPADO"
+   ]
+  },
+  {
+   "nom": "1555",
+   "company": "DESTILADORA DE LOS ALTOS LA JOYA, S.A. DE C.V.",
+   "brands": [
+    "JOYA DIAMANTE",
+    "RANCHO LA JOYA"
+   ]
+  },
+  {
+   "nom": "1558",
+   "company": "PREMIUM DE JALISCO, S.A. DE C.V.",
+   "brands": [
+    "CAMPO ROBLE",
+    "CASAMATA",
+    "CORTE FINO",
+    "DOS ARMADILLOS",
+    "INSOLITO",
+    "PURA VIDA",
+    "REYJACO",
+    "SEIS PUERTAS"
+   ]
+  },
+  {
+   "nom": "1559",
+   "company": "TEQUILERA MILAGRO, S.A. DE C.V.",
+   "brands": [
+    "LEYENDA DEL MILAGRO",
+    "LEYENDA DEL MILAGRO MILAGRO CRISTALINO",
+    "MILAGRO BARRICA SELECTA",
+    "ROMANCE"
+   ]
+  },
+  {
+   "nom": "1560",
+   "company": "TEQUILAS GONZALEZ LARA, S.A. DE C.V.",
+   "brands": [
+    "1560",
+    "ALEGRIA MEXICANA",
+    "AMOR INDIO",
+    "B!ATCH",
+    "BEBEMOS",
+    "BIATCH",
+    "BOATO",
+    "CASA CHICA",
+    "CASA VERDE",
+    "EL PERSEGUIDO",
+    "JALICALI",
+    "MARENGO",
+    "MEXITA´S",
+    "PANCHO´S EL CHARRO FELIZ",
+    "PROYECTO VALE",
+    "REALEZA MEXICANA",
+    "SABOR DEL SOL",
+    "TS EL SAGRADO"
+   ]
+  },
+  {
+   "nom": "1561",
+   "company": "DESTILADORA EL PAISANO, S.A. DE C.V.",
+   "brands": [
+    "AGAVEAL",
+    "DOS ALAS",
+    "GENEBA",
+    "MI COSECHA",
+    "TEQUIERO TEQUILA"
+   ]
+  },
+  {
+   "nom": "1564",
+   "company": "COMPAÑIA TEQUILERA LA MISION, S.A. DE C.V.",
+   "brands": [
+    "AMIGO 852",
+    "CARABUENA",
+    "CATRINA 1881",
+    "DESEO MEXICANO",
+    "DOUBLE MM",
+    "GRAN CONTEMPORANEO",
+    "GRAN GALLO 1960",
+    "JALIEZA",
+    "JUAN LOPEZ",
+    "JUAN MAGUEY",
+    "LA MISION DEL SIGLO XXI",
+    "PANCHITOS",
+    "PINUPS",
+    "RANCHO MI HERENCIA",
+    "SENTIMIENTO MEXICANO"
+   ]
+  },
+  {
+   "nom": "1566",
+   "company": "PRODUCTOS SELECTOS DE AGAVE, S.P.R. DE R.L. DE C.V.",
+   "brands": [
+    "CAMPO BRAVO",
+    "EL GRITO",
+    "EL GRITO DE MEXICO",
+    "MURMULLO",
+    "NEURITA",
+    "SAPIENS BEBIDA DE SABIOS"
+   ]
+  },
+  {
+   "nom": "1567",
+   "company": "TEQUILA RUBIO, S.A. DE C.V.",
+   "brands": [
+    "BANDERO",
+    "BOATO",
+    "EJIDAL",
+    "EL PADRINO DE MI TIERRA",
+    "LA CAVA DE LOS MORALES",
+    "LA MAFIA",
+    "LOS CUCOS",
+    "POTRANCON",
+    "PURO AMOR",
+    "REGION REAL",
+    "RESERVA DE DON GILBERTO 1986",
+    "SEPA LA BOLA",
+    "TACO TUESDAY",
+    "TIERRA FERTIL",
+    "VOLCANES 1991"
+   ]
+  },
+  {
+   "nom": "1570",
+   "company": "ALTOS CIENEGA UNIDOS, S. DE. P.R. DE R.L.",
+   "brands": [
+    "3 AMIGOS",
+    "GONZÁLEZ 1939",
+    "LE LATINO ESPECIAL"
+   ]
+  },
+  {
+   "nom": "1571",
+   "company": "TEQUILA ZAPOTLAN DEL REY, S.A. DE C.V.",
+   "brands": [
+    "FLORCITA"
+   ]
+  },
+  {
+   "nom": "1572",
+   "company": "DESTILADORA DE AGAVE EL MENTIDERO, S.C. DE R.L.",
+   "brands": [
+    "DEMETRIO",
+    "LUNA MALVADA",
+    "TESORO AZTECA"
+   ]
+  },
+  {
+   "nom": "1574",
+   "company": "DESTILADORA DE TEQUILA MARAVA, S.P.R. DE R.L.",
+   "brands": [
+    "500 NOVILLOS",
+    "BRIDIA",
+    "MARAVA",
+    "TEKIAH KOSHER SPIRITS",
+    "TESORO DE CASTILLO",
+    "ZARPADO"
+   ]
+  },
+  {
+   "nom": "1575",
+   "company": "TEQUILERA CASA REAL GUSTO, S.A. DE C.V.",
+   "brands": [
+    "LUNA MALVADA"
+   ]
+  },
+  {
+   "nom": "1577",
+   "company": "AGAVE CONQUISTA, S. DE R.L. DE C.V.",
+   "brands": [
+    "1519",
+    "4 VAQUEROS DEL OESTE",
+    "916",
+    "CABO MAYA",
+    "CASA MATE",
+    "D RESERVA DEL REFUGIO",
+    "DAME MÁS",
+    "FIEL CONSEJERO",
+    "KALDERA",
+    "NUEVO LEGADO FVG",
+    "PARYZON LOCO",
+    "REAL 1519",
+    "SANTOS DIOSES",
+    "TIERRA Y LIBERTAD"
+   ]
+  },
+  {
+   "nom": "1579",
+   "company": "DESTILERIA EL PANDILLO, S.A. DE C.V.",
+   "brands": [
+    "ARTENOM SELECCIÓN DE 1579",
+    "DON VICENTE",
+    "EL PANDILLO",
+    "G4",
+    "JH EL TORITO",
+    "NOBLEZA 33",
+    "TEQUILA GENERAL GOROSTIETA",
+    "TERRALTA",
+    "VOLANS"
+   ]
+  },
+  {
+   "nom": "1580",
+   "company": "HACIENDA EL OLVIDO, S.A. DE C.V.",
+   "brands": [
+    "1967",
+    "ACRE LARGO",
+    "ALTA AZUL",
+    "CARBONERO",
+    "CASA ELEMENTAL COLECCIONES",
+    "CASA MOSTO",
+    "CINCA",
+    "DUOCORDE",
+    "ESLABON",
+    "JUAN CABALLERO",
+    "LOS MUERTOS",
+    "OTILIA",
+    "TIERRA DE ENSUEÑO",
+    "VIAMUNDI",
+    "VILLA AZUL",
+    "ÁNTOLOS COLLECTION"
+   ]
+  },
+  {
+   "nom": "1581",
+   "company": "FTPSA, S.A. DE C.V.",
+   "brands": [
+    "ANCESTRA",
+    "DF AZUL",
+    "DF DISTRITO FEDERAL",
+    "JUAN LOCO",
+    "MAGIA EXTRAÑA",
+    "PA´L MAL DE AMORES",
+    "POTRERO DE SAN ANTONIO",
+    "TABÚ"
+   ]
+  },
+  {
+   "nom": "1583",
+   "company": "DESTILADORES UNIDOS LAS 3 RRR, S.C. DE R.L. DE C.V.",
+   "brands": [
+    "DON BENJO",
+    "EL PADRINO JUAN VILLAGRANA"
+   ]
+  },
+  {
+   "nom": "1584",
+   "company": "TEQUILA EL TEPOZAN, S.A. DE C.V.",
+   "brands": [
+    "DON CHENCHO",
+    "IBIKA",
+    "MADRE DESDE SIEMPRE",
+    "PASOTE",
+    "TCAPRI",
+    "TEPOZAN"
+   ]
+  },
+  {
+   "nom": "1585",
+   "company": "DESTILERIA LA EXPERIENCIA, S.A. DE C.V.",
+   "brands": [
+    "AMAN",
+    "AY! AY! AY!",
+    "BALUARTE",
+    "GRAN EXPERIENCIA",
+    "HUMANO BY ARTISANAL HANDS",
+    "LOTERIA MEXICANA"
+   ]
+  },
+  {
+   "nom": "1586",
+   "company": "DESTILERIA CASA DE PIEDRA, S.A. DE C.V.",
+   "brands": [
+    "ALDEZ",
+    "ARTEMIZA",
+    "CHAMUCOS",
+    "COBALTO",
+    "LOS PISTOLEROS TEQUILA",
+    "OLAMENDI´S",
+    "ZURDO"
+   ]
+  },
+  {
+   "nom": "1588",
+   "company": "TEQUILAS EL MEXICANO, S.A. DE C.V.",
+   "brands": [
+    "BARREL GLOBAL",
+    "BÁS-AGUS-GLÓIR IRLANDÉS",
+    "C.O.JONES",
+    "CASA MOLINA",
+    "DOS ARTES",
+    "EL MEXICANO",
+    "FLOR DE FUEGO",
+    "GRAN NOTA",
+    "INBARREL",
+    "LA BESTIA",
+    "LA CAZA",
+    "LOCA LOKA",
+    "NOHACA",
+    "PASION SEIS NUEVE",
+    "TORRENTE"
+   ]
+  },
+  {
+   "nom": "1589",
+   "company": "EL PATRIOTA AGAVE SPIRITS, S. DE R.L. DE C.V.",
+   "brands": [
+    "ARCHIDUQUE",
+    "BLUE STAR SPIRITS",
+    "CASA MÉXICO",
+    "CASA WARU",
+    "DON TAPEXCO",
+    "ECLIPSE DE SOL",
+    "LA MARIA",
+    "LEGADO DE DON ANTONIO",
+    "MANDO DE ORIGEN",
+    "OCHAN",
+    "SANTA GRAN GULA",
+    "SHUYITO KING",
+    "TELSÓN",
+    "WHITEOUT TEQUILA"
+   ]
+  },
+  {
+   "nom": "1590",
+   "company": "TEQUILERA LA HERENCIA, S. DE R.L. DE C.V.",
+   "brands": [
+    "CRISTEROS",
+    "CRISTEROS PLATINIUM",
+    "LA SUPREMACIA",
+    "LEYENDA 1 9 SINCE 2 5",
+    "LEYENDA 1925",
+    "LOMAS",
+    "REY DEL MUNDO",
+    "SÍMBOLO NACIONAL"
+   ]
+  },
+  {
+   "nom": "1591",
+   "company": "DESTILADORA YARA, S.A. DE C.V.",
+   "brands": [
+    "CERAMIST",
+    "INSTITUCIONAL",
+    "JAGUAR DE ORO",
+    "MAESTRANZA"
+   ]
+  },
+  {
+   "nom": "1592",
+   "company": "ENVASADORA DE PRODUCTOS LIDERES, S.A. DE C.V.",
+   "brands": [
+    "AGUILA DE PLATA",
+    "CARALEGRE",
+    "COA DE JIMA",
+    "EL AGUILA CIA",
+    "ESTAMPIDA",
+    "GILA",
+    "GRAN MALO",
+    "MEMBER´S MARK",
+    "PRIMERA MANO",
+    "RANCHO ALEGRE",
+    "REAL HACIENDA 100",
+    "TESORO MIO",
+    "TEZÓN",
+    "TORO ALTEÑO"
+   ]
+  },
+  {
+   "nom": "1593",
+   "company": "SOCIOS AGAVEROS DE HUANIMARO, S.P.R. DE R.L. DE C.V.",
+   "brands": [
+    "HUANI 1875",
+    "MARADONA",
+    "REAL DEL VALLE"
+   ]
+  },
+  {
+   "nom": "1594",
+   "company": "CASA TEQUILERA ALCARDAN K & ASOCIADOS, S.A. DE C.V.",
+   "brands": [
+    "LOS 3 GARCIAS DE ARANDAS"
+   ]
+  },
+  {
+   "nom": "1595",
+   "company": "CASA TRADICION, S.A. DE C.V.",
+   "brands": [
+    "CLASE AZUL",
+    "CLASE AZUL THE LOFT BROOKLYN COLLECTION",
+    "CLASE AZUL ULTRA",
+    "LA PINTA"
+   ]
+  },
+  {
+   "nom": "1596",
+   "company": "CASA TEQUILERA HERENCIA DE LOS ALTOS, S.A. DE C.V.",
+   "brands": [
+    "FAMILIA CAMARENA",
+    "MEMBER´S MARK"
+   ]
+  },
+  {
+   "nom": "1598",
+   "company": "IBEV CASA TEQUILERA, S.A. DE C.V.",
+   "brands": [
+    "ATRACTIVO",
+    "BARRIECITO",
+    "CARLITO´S 1979 SPIRITS",
+    "CASA GARANA",
+    "CASA RODANDO",
+    "CASA VALERIO",
+    "CINCO",
+    "ERES TU",
+    "HONOR TEQUILERO BLACK SOLERA",
+    "INDELEBLE",
+    "LADYDRAGON",
+    "LOS TRES RIVERA",
+    "MIRADIVA",
+    "MUNDO AZUL",
+    "MÚSICA",
+    "NUEVA MARCA BY DON TOMÁS",
+    "POCOS HUEVOS",
+    "PRIMIS DI VERACHI",
+    "SURTIERRA",
+    "YEGUADA LA RESERVA"
+   ]
+  },
+  {
+   "nom": "1599",
+   "company": "FAMILIA LANDEROS, S.C. DE R.L. DE C.V.",
+   "brands": [
+    "ATANASIO",
+    "ATANASIO BESO DE AMOR",
+    "ATANASIO ORIGENES",
+    "SANTERITA",
+    "VALOR"
+   ]
+  },
+  {
+   "nom": "1600",
+   "company": "JOAQUIN ROBLES ROBLES",
+   "brands": [
+    "DON ELIAS"
+   ]
+  },
+  {
+   "nom": "1601",
+   "company": "CASA MONTES LEYVA, S. DE R.L. DE C.V.",
+   "brands": [
+    "AZUL IMPERIAL",
+    "EL BAR",
+    "EL PADRINO DE MI TIERRA",
+    "LA FLOR VERDE",
+    "PÓSTUMO",
+    "SACRILEGIO"
+   ]
+  },
+  {
+   "nom": "1603",
+   "company": "DGL DESTILADORES, S. DE R.L. DE C.V.",
+   "brands": [
+    "CORTADA",
+    "DOS PRIMOS",
+    "EL MAYOR",
+    "ESCASA",
+    "EXOTICO"
+   ]
+  },
+  {
+   "nom": "1604",
+   "company": "DESTILADORA BONANZA, S.A. DE C.V.",
+   "brands": [
+    "1953",
+    "ANA MARIA",
+    "CANTERA NEGRA",
+    "KOKORO",
+    "KOKORO SPIRITS",
+    "LIBELULA",
+    "OJO DE AGUA",
+    "SANTALEZA",
+    "SATRYNA",
+    "VENDEDOR DE SUEÑOS"
+   ]
+  },
+  {
+   "nom": "1605",
+   "company": "INULINA Y MIEL DE AGAVE, S.A. DE C.V.",
+   "brands": [
+    "600",
+    "AMAN",
+    "BILLIONAIRES ROW",
+    "CAMBIO",
+    "CANAVARO",
+    "CANAVARU",
+    "CASA CANNES",
+    "CASA MALDINI",
+    "CHISPO",
+    "CLASE 33",
+    "CLASE CUARENTA Y CUATRO",
+    "DON ANDRES Z BARBA",
+    "EDM ZERO",
+    "EL JHONY C",
+    "FREGON",
+    "GHOST",
+    "INMORTAL CUCO",
+    "LA NIMA",
+    "LUNA 76",
+    "MALA SANGRE",
+    "MARADONA",
+    "NON NO ME VOY AÚN",
+    "PERRO BUENO",
+    "QUERIDO",
+    "QUI",
+    "REAL DE HIERRO",
+    "REAL GAVELÓ",
+    "SEÑORITA MEXICANA",
+    "TCANAVARO",
+    "TRAGO FUERTE",
+    "TRUJILLO",
+    "TURINCIO",
+    "UNA VIDA"
+   ]
+  },
+  {
+   "nom": "1607",
+   "company": "GRUPO SOLAVE, S.A. DE C.V.",
+   "brands": [
+    "818",
+    "ASTRAL",
+    "DON GATO",
+    "EIGHT RESERVE BY 818",
+    "KOMOS",
+    "LAELIA",
+    "NATIMA",
+    "ONDA",
+    "SEÑORA LEONA",
+    "SUPERBIRD"
+   ]
+  },
+  {
+   "nom": "1608",
+   "company": "COMPAÑIA TEQUILERA LOS VALORES, S.A. DE C.V.",
+   "brands": [
+    "DON RICH",
+    "DON RICO",
+    "LOS VALORES",
+    "MIDAS MMXXI",
+    "NAHOA",
+    "OTOMI",
+    "PANTERA DE ORO",
+    "S LA SANTA AIDA HARFUSH RON",
+    "TIKAL YAX MUTUL",
+    "VIUDA DE MARTINEZ",
+    "W FAMILY"
+   ]
+  },
+  {
+   "nom": "1609",
+   "company": "DIAGEO MEXICO OPERACIONES, S.A. DE C.V.",
+   "brands": [
+    "CASAMIGOS"
+   ]
+  },
+  {
+   "nom": "1610",
+   "company": "CASA TEQUILERA DINASTIA ARANDINA, S.A. DE C.V.",
+   "brands": [
+    "ALTURA DIVINA",
+    "ANTIGUO ORIGEN",
+    "CARRERA",
+    "CASCO VIEJO",
+    "CLASE 33",
+    "DOS AMIGOS",
+    "FAMILIA CAMARENA",
+    "LA CAVA DE DON AGUSTIN",
+    "LA GRAN SEÑORA",
+    "LA VIEJA TABERNA",
+    "RESERVA DE 1950",
+    "SENCILLO",
+    "SOCORRO",
+    "SOLEDAD",
+    "SÔWLS"
+   ]
+  },
+  {
+   "nom": "1611",
+   "company": "CASA VICTORIA LATINA, S.A. DE C.V.",
+   "brands": [
+    "EXIR"
+   ]
+  },
+  {
+   "nom": "1612",
+   "company": "CASA 1800, S.A. DE C.V.",
+   "brands": [
+    "1800",
+    "GRAN CORAMINO",
+    "RESERVA 1800"
+   ]
+  },
+  {
+   "nom": "1613",
+   "company": "DESTILERIA TEREMANA DE AGAVE, S. DE R.L. DE C.V.",
+   "brands": [
+    "TEREMANA"
+   ]
+  },
+  {
+   "nom": "1614",
+   "company": "TEQUILERA TAP, S. DE R.L. DE C.V.",
+   "brands": [
+    "CAZCANES",
+    "CICLOS",
+    "DOS HOMBRES",
+    "EL BANDIDO YANKEE",
+    "HÍJOLE!",
+    "LA ESCONDIDA",
+    "PADRE AZUL",
+    "PADRECITO",
+    "PANTALONES",
+    "TRES AGAVES"
+   ]
+  },
+  {
+   "nom": "1615",
+   "company": "AGAVES SELECTOS CORONA, S.P.R. DE R.L. DE C.V.",
+   "brands": [
+    "ALUXES",
+    "AVENTURERO",
+    "AZUL FORCE",
+    "BUEN PUNTO",
+    "CASALOCO",
+    "DON AGAVE",
+    "ESPIRITU SANTO",
+    "GENERACION REBELDE",
+    "HOLY HELL",
+    "JALISCO TQ",
+    "RESERVA DON ARMANDO"
+   ]
+  },
+  {
+   "nom": "1616",
+   "company": "VARO DESTILERIA, S. DE R.L. DE C.V.",
+   "brands": [
+    "CODIGO 1530",
+    "CÓDIGO 1530"
+   ]
+  },
+  {
+   "nom": "1617",
+   "company": "CORTES Y CAMARENA, S.A. DE C.V.",
+   "brands": [
+    "AVE SINGLE STATE",
+    "EL VILLANO MAGISTER DISTILLER"
+   ]
+  },
+  {
+   "nom": "1618",
+   "company": "JARABES Y DESTILADOS DE JALISCO, S.A. DE C.V.",
+   "brands": [
+    "406 AGAVE",
+    "DON ESPARZA",
+    "HISTORIA DE LEYENDA 1874"
+   ]
+  },
+  {
+   "nom": "1619",
+   "company": "PRODUCTOS DE JALISCO, S. DE R.L. DE C.V.",
+   "brands": [
+    "CHISPO",
+    "CUADRA",
+    "DON CRUZ PLATINIUM",
+    "EL JHONY C",
+    "EL MARIACHEÑO",
+    "ESPERO",
+    "GP GRAN PODER",
+    "LOS DOS CARNALES",
+    "LUCKY STASH",
+    "RANCHO LOS COYOTES",
+    "REDONDEL DIAMANTE",
+    "TANTEO",
+    "TILIN",
+    "VIVARITA"
+   ]
+  },
+  {
+   "nom": "1620",
+   "company": "GLORIA CECILIA PARRA MALDONADO",
+   "brands": [
+    "CONVIVENCIA"
+   ]
+  },
+  {
+   "nom": "1621",
+   "company": "HACIENDA CASA MACIAS, S.A. DE C.V.",
+   "brands": [
+    "ASOMBROSO",
+    "ATRACTIVO",
+    "CASA MACIAS",
+    "CHEZ",
+    "COSTA TEQUILA",
+    "EL ARCA AZUL",
+    "EL CABALLO ESTRELLA",
+    "EL DISPARATE",
+    "EL REFORMADOR",
+    "GUACAMAYA",
+    "INDELEBLE",
+    "LA CAVA DE LOS MORALES",
+    "LA HISTORIA DE NOSOTROS",
+    "M CASA MACÍAS",
+    "PÁJARO VERDE",
+    "´AY PA´ TODOS"
+   ]
+  },
+  {
+   "nom": "1622",
+   "company": "MUJERES AMIGAS DEL TEQUILA, S.A. DE C.V.",
+   "brands": [
+    "7 DE ORO",
+    "EL COLOTLENSE",
+    "RESERVA PALACIOS",
+    "SANTOS DIOSES",
+    "WARBLER"
+   ]
+  },
+  {
+   "nom": "1623",
+   "company": "CASA NEWTON, S.A. DE C.V.",
+   "brands": [
+    "CHARRERIA",
+    "COSECHA MAGICA",
+    "EL DESTILADOR",
+    "GAVA",
+    "GRAN AGAVE",
+    "LOS GENERALES"
+   ]
+  },
+  {
+   "nom": "1624",
+   "company": "TEQUILERA SANTA TERESA, S.A. DE C.V.",
+   "brands": [
+    "4JUANES",
+    "AMOR PROPIO",
+    "BRAHMAN MEX",
+    "CAMPORO",
+    "CONDESA DEL RÍO",
+    "DEL TORO G",
+    "DON HUGO LEAL",
+    "DON MAXIMO",
+    "EL AJETREO",
+    "F6C",
+    "FO FIEBRE DE ORO",
+    "MALACO",
+    "MONTE IMPERION",
+    "MORTEZA",
+    "NEGAVE",
+    "OCASIÓN",
+    "OTOMI",
+    "PERRO DE FUEGO",
+    "PISPIRETO",
+    "RANCHO DEL TORO",
+    "SAND RIDERS",
+    "TEN TEM PIE",
+    "TEQ CHICK CHICK -"
+   ]
+  },
+  {
+   "nom": "1625",
+   "company": "VINICOLA JALICIENSE, S. DE R.L. DE C.V.",
+   "brands": [
+    "BROCHE DE ORO",
+    "COMONFORD",
+    "DON ANTONIO DE ACEVES",
+    "RESERVA DE LA TORRE",
+    "REY DE COPENHAGUE"
+   ]
+  },
+  {
+   "nom": "1626",
+   "company": "TEQUILERA RIOS, S.A. DE C.V.",
+   "brands": [
+    "888 TRES 8IGHT",
+    "CRISTOBAL DE OÑATE",
+    "DON HENRIQUE",
+    "DOS LETRAS",
+    "KANKENAMI BY JC",
+    "OCTOBLUE",
+    "PACIFIC & LIME",
+    "PHRASES MADE OF WORDS HANDCRAFTED",
+    "PROLIJO",
+    "QUERENDON",
+    "QUINTO SOL",
+    "REAL MIRELES",
+    "SHIZUKU",
+    "TRECE COLONIAS",
+    "YOLO"
+   ]
+  },
+  {
+   "nom": "1627",
+   "company": "AGROINDUSTRIAS AMATITAN, S. DE P.R. DE R.L.",
+   "brands": [
+    "BANDERO"
+   ]
+  },
+  {
+   "nom": "1628",
+   "company": "DEHAT, S.A. DE C.V.",
+   "brands": [
+    "CAZANGA AZUL",
+    "CELEM",
+    "REAL DE IXTLAN"
+   ]
+  },
+  {
+   "nom": "1629",
+   "company": "TEQUILERA BSC, S.A.P.I. DE C.V.",
+   "brands": [
+    "BUEN AMIGO",
+    "DON RAMÓN",
+    "PROCURADOR"
+   ]
+  },
+  {
+   "nom": "1630",
+   "company": "MATERIA PRIMA SPIRITS, S.A. DE C.V.",
+   "brands": [
+    "DERECHITO",
+    "EL OCCIDENTAL",
+    "IROKE",
+    "SOR JUANA"
+   ]
+  },
+  {
+   "nom": "1631",
+   "company": "TEQUILERA PUNTO AZUL, S.A. DE C.V.",
+   "brands": [
+    "CASA VELAZQUEZ",
+    "CL CASA LUJO",
+    "DICIEMBRE 12",
+    "DON PALEMÓN",
+    "EL POTRILLO DE ALONSO",
+    "HUELLA DE AGAVE",
+    "RAYUELA",
+    "ROTUNDO",
+    "SOCORRO",
+    "SOLAZUL",
+    "VÍBORA NEGRA"
+   ]
+  },
+  {
+   "nom": "1632",
+   "company": "TEQUILERA TATEPOSCO, S.A. DE C.V.",
+   "brands": [
+    "ALQUERÍA",
+    "CHARRO VOLADOR",
+    "DON DAVID",
+    "DOS ARTES",
+    "EL CUERNO MOCHO",
+    "EL NEXTIPAQUEÑO",
+    "EL PATRIARCA",
+    "ESPIGA DE ORO",
+    "LA LEGIÓN DE LOS RV",
+    "MATERIA OSCURA",
+    "MATIARI",
+    "PROMESA AGAVERA",
+    "RN ROJI NEGRO",
+    "SANGRE CHARRA",
+    "SESIÓN",
+    "SUEÑOS BAJO LA LUNA",
+    "TATEPOSCO",
+    "ZUMO BARRIO"
+   ]
+  },
+  {
+   "nom": "1633",
+   "company": "TEQUILERA DE LOS ALTOS CASA LOY, S.A. DE C.V.",
+   "brands": [
+    "900 GRADOS",
+    "CASA BRECK TEQUILA",
+    "CASA LOY",
+    "CASA LOY PIEDRA Y AGAVE",
+    "DAMA FORTUNA",
+    "DELOY",
+    "EXCUSE",
+    "FIESTA CANCÚN",
+    "MXCO POLANCO",
+    "PAGOS DE DON ISIDRO",
+    "TADDEL",
+    "TADDEL 1937",
+    "TIERRA ZAFIRO",
+    "TRES PAISES"
+   ]
+  },
+  {
+   "nom": "1634",
+   "company": "TEQUILERIA TRUJILLO, S.A. DE C.V.",
+   "brands": [
+    "CENZO",
+    "CODIGO 47700",
+    "DO2 O DIEZ",
+    "DOCE CASAS",
+    "DULCE VIDA",
+    "FELICENTE",
+    "HOGSHEAD",
+    "MARADONA",
+    "MIYA DE ALTURA",
+    "NUESTRO PLACER",
+    "TRUJILLO",
+    "TRUJILLO CARBON",
+    "TRUJILLO CRYSTAL",
+    "TRUJILLO CU4TRO",
+    "TRUJILLO CUARENTA",
+    "TRUJILLO TAHONA",
+    "TT TRUJILLO TAHONA",
+    "TURINCIO"
+   ]
+  },
+  {
+   "nom": "1635",
+   "company": "PLANTACIONES TEQUILANA, S.P.R. DE R.L. DE C.V.",
+   "brands": [
+    "EL ATEO"
+   ]
+  },
+  {
+   "nom": "1636",
+   "company": "TEQUILA EL ROCIO, S.A. DE C.V.",
+   "brands": [
+    "ALTO CANTO"
+   ]
+  },
+  {
+   "nom": "1637",
+   "company": "FUSION AGROINDUSTRIAL, S.A. DE C.V.",
+   "brands": [
+    "BARAJAS",
+    "DESPERTAR",
+    "DON LAMBERTO FELIX 1935",
+    "RENACER",
+    "SANTA LEYENDA",
+    "SAVIA AZUL"
+   ]
+  },
+  {
+   "nom": "1638",
+   "company": "CM HACIENDA CASA GONZALEZ, S.A. DE C.V.",
+   "brands": [
+    "BLUE WEBER NEON",
+    "EL 701",
+    "HÍBRIDO",
+    "INDEPENDENCIA 1810"
+   ]
+  },
+  {
+   "nom": "1639",
+   "company": "GRUPO PEÑA BLANCA DE LOS ALTOS, S. DE R.L. DE C.V.",
+   "brands": [
+    "AGAZUL",
+    "CAMPEONES DEL MUNDO",
+    "ENELALMA",
+    "HACIENDA 14",
+    "LEGADO DEL BANQUERO",
+    "PRIMO 1861",
+    "REAL DEL VALLE"
+   ]
+  },
+  {
+   "nom": "1640",
+   "company": "AGAVEROS DE LA REGION, S.A. DE C.V.",
+   "brands": [
+    "CINCO DIOSES",
+    "DIAMANTE NEGRO",
+    "DULCE MARIA",
+    "HAZAÑA",
+    "PASIÓN TAURINA"
+   ]
+  },
+  {
+   "nom": "1641",
+   "company": "PRODUCTOS UNICOS DE AGAVE, S.P.R. DE R.L.",
+   "brands": [
+    "AMIGO 852",
+    "BOATO",
+    "CARABUENA",
+    "DESEO MEXICANO",
+    "DON GERENCIO 1950",
+    "EL TEXANO",
+    "GRAN CONTEMPORANEO",
+    "LOS GUAYABOS",
+    "LOS TONELEROS",
+    "RANCHO MI HERENCIA"
+   ]
+  },
+  {
+   "nom": "1642",
+   "company": "BIOCOSECHAS DE MEXICO, S.A. DE C.V.",
+   "brands": [
+    "AGUILA AZTECA",
+    "CENTURION",
+    "DRAGON STONE",
+    "GTT",
+    "HACIENDA NEGRA",
+    "LA BODEGA",
+    "ORIGEN DE MI PUEBLO",
+    "RUGIENTE",
+    "SOWIKI"
+   ]
+  },
+  {
+   "nom": "1643",
+   "company": "DESTILERIA EL SABINO, S.A. DE C.V.",
+   "brands": [
+    "CASA DON DIEGO V",
+    "LEGADO DEL BANQUERO",
+    "LÓPEZ",
+    "MANUSCRITO",
+    "MAPELO",
+    "ZUMBADOR"
+   ]
+  },
+  {
+   "nom": "1644",
+   "company": "INDUSTRIA DE BEBIDAS ESPIRITUOSAS, S.A. DE C.V.",
+   "brands": [
+    "916"
+   ]
+  },
+  {
+   "nom": "1645",
+   "company": "AGAVES SELECTOS DE AMATITAN, S.A. DE C.V.",
+   "brands": [
+    "EL HIJUELO",
+    "MI FAMILIA MF FLORES",
+    "REAL 71",
+    "RESERVA HUIZAR",
+    "TIERRA CORA"
+   ]
+  },
+  {
+   "nom": "1646",
+   "company": "DESTILADORA LA ROCA, S.A. DE C.V.",
+   "brands": [
+    "ALMATITAN",
+    "CABAL",
+    "CABALGADURA",
+    "CASA AZUL",
+    "CASA MILENIO",
+    "GRAN LUJO",
+    "HERENCIA MEXICANA",
+    "REY LOBO"
+   ]
+  },
+  {
+   "nom": "1647",
+   "company": "DIAGEO MEXICO SPIRITS, S.A. DE C.V.",
+   "brands": [
+    "ASTRAL",
+    "LD D E L E Ó N"
+   ]
+  },
+  {
+   "nom": "1648",
+   "company": "HERENCIA DE AGAVES, S.A. DE C.V.",
+   "brands": [
+    "COMPOVEDA",
+    "HOUSE OF RARE",
+    "TABERNA DE ÁGUILAS"
+   ]
+  },
+  {
+   "nom": "1649",
+   "company": "COMPAÑIA TEQUILERA DON CAYO, S. DE R.L. DE C.V.",
+   "brands": [
+    "A CONTRERAS 1986",
+    "A JIMENEZ 1974",
+    "ARROLLO SECO",
+    "AVE DE PASO",
+    "BADASS",
+    "CAVA ROBLES 50 1970 ´S",
+    "DESCARRIADO",
+    "DON CAYO",
+    "DON GERENCIO 1950",
+    "DULCE SECRETO",
+    "EL CIENTELLEO",
+    "EL TIO JUAN",
+    "INQUIETO",
+    "JOYA MAESTRA BLUE LUXURY",
+    "LOS GUAYABOS",
+    "MAS ALLA DE TU IMAGINACIÓN",
+    "MONTEAGAVE",
+    "OCÉANO AZUL",
+    "ORO IMPERIAL",
+    "OTP",
+    "PELOTÓN DE LA MUERTE",
+    "RAYBLANC",
+    "RAYGOZA",
+    "RAYGOZA ORIGEN",
+    "SUBVERSIVO",
+    "SÚBELE",
+    "TALISMAN TRISTAN TATE",
+    "VILLA LAS MARIQUITAS1997"
+   ]
+  },
+  {
+   "nom": "1650",
+   "company": "CAVA LOS MARTINEZ, S.A. DE C.V.",
+   "brands": [
+    "CAVA LOS MARTINEZ"
+   ]
+  },
+  {
+   "nom": "1651",
+   "company": "TC SPIRITS COMPANY, S.A. DE C.V.",
+   "brands": [
+    "BLENDED BLUE",
+    "BOCA SUELTA",
+    "CASA 1989",
+    "CRISTAL AZUL",
+    "FLOR ALTEÑA",
+    "GRAN DOVEJO",
+    "SOLO AGAVE",
+    "TERRACOTA"
+   ]
+  },
+  {
+   "nom": "1652",
+   "company": "TEQUILAS DE AUTOR, S.P.R. DE R.L. DE C.V.",
+   "brands": [
+    "CASAÑEJA",
+    "MANDALA",
+    "MANDHALA NIGHT MANDALA"
+   ]
+  },
+  {
+   "nom": "1653",
+   "company": "GILDARDO PARTIDA HERMOSILLO",
+   "brands": [
+    "ADICTIVO",
+    "ADICTIVO DOBLE",
+    "BANDIDO DE AMORES",
+    "DON DONATO",
+    "LOTE MAESTRO",
+    "ZEE"
+   ]
+  },
+  {
+   "nom": "1654",
+   "company": "CASA TEQUILERA ALMA DE MEXICO, S.A. DE C.V.",
+   "brands": [
+    "BLUE BARREL",
+    "BLUE STAR SPIRITS",
+    "BLUE STAR TEQUILA",
+    "CASA DE HAMSA",
+    "CHANCÉ MAÑANA",
+    "DAY DREAMER",
+    "ESPARTACUS",
+    "HACIENDA DE MEXICO",
+    "LA BODEGA",
+    "MAYAN",
+    "PAPI",
+    "SCORE",
+    "TRES GUITARRAS",
+    "UNO DE 10"
+   ]
+  },
+  {
+   "nom": "1655",
+   "company": "GRUPO IKAM, S.A. DE C.V.",
+   "brands": [
+    "GRAN MANIK",
+    "HERENCIA DE HACIENDA",
+    "MANIK",
+    "ME MUY ESPECIAL",
+    "MORETT HACIENDA",
+    "MULUK",
+    "MUY ESPECIAL",
+    "UXUÚ"
+   ]
+  },
+  {
+   "nom": "1656",
+   "company": "TEQUILA CUADRA, S. DE R.L. DE C.V.",
+   "brands": [
+    "CASA DEL SOL",
+    "CUADRA",
+    "LUCKY STASH",
+    "TANTEO"
+   ]
+  },
+  {
+   "nom": "1657",
+   "company": "AGAVEROS GABA, S.A. DE C.V.",
+   "brands": [
+    "AGAVES D´GAYTAN",
+    "LA PUERTA DE AGAVE",
+    "LAS MAÑANITAS",
+    "MEXÍA",
+    "REAL ZEPEDA CLASSIC",
+    "REAL ZEPEDA LEGACY",
+    "TRAGO AZUL"
+   ]
+  },
+  {
+   "nom": "1658",
+   "company": "DESTILADORA REALEZA, S. DE R.L. DE C.V.",
+   "brands": [
+    "COSTA MARINA",
+    "GRAN REALEZA",
+    "LOS GENERALES",
+    "MEXXO"
+   ]
+  },
+  {
+   "nom": "1659",
+   "company": "CIA. TEQUILERA CASA ESPARZA, S.A. DE C.V.",
+   "brands": [
+    "406 AGAVE",
+    "EL AGUIJON PLATINIUM"
+   ]
+  },
+  {
+   "nom": "1660",
+   "company": "CHULA PARRANDA, S.A. DE C.V.",
+   "brands": [
+    "3 R",
+    "CASA BORRACHO",
+    "EL TRIUNFO DE JALISCO",
+    "LA MAFIA",
+    "LEGADO TTM",
+    "REGION REAL"
+   ]
+  },
+  {
+   "nom": "1661",
+   "company": "INDUSTRIALIZADORA DE FRUCTANOS TIERRA BLANCA, S.A. DE C.V.",
+   "brands": [
+    "COFRE DE ORO"
+   ]
+  },
+  {
+   "nom": "1662",
+   "company": "SPIRITS PRODUCTION SERVICES, S.A. DE C.V.",
+   "brands": [
+    "FOLCKLOREJALISCIENSE",
+    "SANTO FINO",
+    "SOLARIEGO"
+   ]
+  },
+  {
+   "nom": "1663",
+   "company": "LICORES Y DESTILADOS GRAN MALO, S.A.P.I. DE C.V.",
+   "brands": [
+    "EL UNICO GRAN MALO",
+    "GRAN MALO",
+    "GRAN MALO SHOTS"
+   ]
+  },
+  {
+   "nom": "1668",
+   "company": "TEQUILERA DE LOS EMPERADORES, S.A. DE C.V.",
+   "brands": [
+    "TAHONA EMPERADORES"
+   ]
+  },
+  {
+   "nom": "1669",
+   "company": "TEQUILA PLANET, S.A. DE C.V.",
+   "brands": [
+    "NUESTRO PLACER",
+    "RA RA RA",
+    "TURINCIO"
+   ]
+  },
+  {
+   "nom": "1670",
+   "company": "TEQUILERA CARRANZA 82, S.A. DE C.V.",
+   "brands": [
+    "222 ORGULLO Y LINAJE",
+    "300 TRESCIENTOS"
+   ]
+  },
+  {
+   "nom": "1673",
+   "company": "DESTILADORA JARRO VIEJO DE LOS ALTOS, S.A. DE C.V.",
+   "brands": [
+    "EL DESORDEN"
+   ]
+  },
+  {
+   "nom": "1675",
+   "company": "CASA TEQUILERA JOSELITO, S.A. DE C.V.",
+   "brands": [
+    "ESPÍRITU BRAMIDO TIZAPÁN EL ALTO JALISCO 5ª QUINTA GENERACIÓN AGAVERA TRADICIÓN ESTABLECIDA EN EL AÑO 1869"
+   ]
+  },
+  {
+   "nom": "1677",
+   "company": "DESTILERIA EL BAGAZO, S.A. DE C.V.",
+   "brands": [
+    "EL BAGAZO"
+   ]
+  }
+ ]
+}

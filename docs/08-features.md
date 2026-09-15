@@ -117,8 +117,12 @@ The aisle question, offline: *do I already own this?*
   optional rephraser on iOS 26 (`AskModel`). Nothing leaves the phone; no
   "AI" on screen.
 - **Decode a code** — Four Roses recipe, Heaven Hill batch, Buffalo Trace
-  laser code, DSP permit (`RecipeCode`, `BatchCode`, `LaserCode`,
-  `DistilleryPermit`).
+  laser code, Wild Turkey bottling code (four formats, 1992 on), DSP
+  permit, tequila NOM or brand against the CRT's registry of 201 producers
+  and 2,577 brands, and a tick-list for dating a dusty (tax strip, IRS/ATF,
+  4/5 quart, metric…) that returns a window, never a date (`RecipeCode`,
+  `BatchCode`, `LaserCode`, `WildTurkeyCode`, `DistilleryPermit`,
+  `TequilaRegistry`, `DustyClues`).
 - **Browse the catalogue** — 534 products by distillery, each with your
   standing; add or wish from the row.
 - **Your collection** — counts, by kind/distillery/brand/strength/place,
