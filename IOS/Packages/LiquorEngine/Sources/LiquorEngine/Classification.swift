@@ -264,6 +264,12 @@ public enum Classification: Sendable {
     /// Bottled-in-bond is exactly 100 proof, by definition.
     public static let bottledInBondABV = ABV(percent: 50.0)
 
+    /// The floor most distilled spirits share. Per-class values live on
+    /// `ClassType.minimumBottlingStrength`. Read by scripts/check_catalog.py,
+    /// which takes the federal rules from this file rather than restating
+    /// them -- so it stays even though no Swift references it.
+    public static let americanMinimumABV = ABV(percent: 40.0)
+
     /// Minimum barrel time for a "straight" designation.
     public static let straightMinimumYears = 2
 
