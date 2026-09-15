@@ -29,6 +29,7 @@ public enum CollectionFilter: Sendable {
         public let isStorePick: Bool
         public let isOpen: Bool
         public let isFinished: Bool
+        public let isSample: Bool
         public let storageLocation: String?
         public let addedAt: Date
         public let lastPouredAt: Date?
@@ -48,6 +49,7 @@ public enum CollectionFilter: Sendable {
             isStorePick: Bool = false,
             isOpen: Bool = false,
             isFinished: Bool = false,
+            isSample: Bool = false,
             storageLocation: String? = nil,
             addedAt: Date,
             lastPouredAt: Date? = nil,
@@ -65,6 +67,7 @@ public enum CollectionFilter: Sendable {
             self.isStorePick = isStorePick
             self.isOpen = isOpen
             self.isFinished = isFinished
+            self.isSample = isSample
             self.storageLocation = storageLocation
             self.addedAt = addedAt
             self.lastPouredAt = lastPouredAt
@@ -113,6 +116,7 @@ public enum CollectionFilter: Sendable {
         case wheatWhiskey
         case scotch
         case notWhiskey
+        case sample
 
         public var label: String {
             switch self {
@@ -126,6 +130,7 @@ public enum CollectionFilter: Sendable {
             case .wheatWhiskey: return "Wheat whiskey"
             case .scotch: return "Scotch"
             case .notWhiskey: return "Not whiskey"
+            case .sample: return "Samples"
             }
         }
 
@@ -158,6 +163,7 @@ public enum CollectionFilter: Sendable {
             case .notWhiskey:
                 guard let type = row.classType else { return false }
                 return type.family != .whiskey
+            case .sample: return row.isSample
             }
         }
     }

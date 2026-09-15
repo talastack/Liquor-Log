@@ -141,7 +141,9 @@ struct PourMenuView: View {
     private func reload() {
         let bottles = (try? env.bottles.summaries()) ?? []
         items = bottles
-            .filter { $0.bottle.isOpen && !$0.status.isEmpty }
+            // A sample is not on offer: there is one pour in it, and it was
+            // given to you.
+            .filter { $0.bottle.isOpen && !$0.status.isEmpty && !$0.bottle.isSample }
             .map { row in
                 let product = env.product(for: row.bottle)
                 return PourMenu.Item(

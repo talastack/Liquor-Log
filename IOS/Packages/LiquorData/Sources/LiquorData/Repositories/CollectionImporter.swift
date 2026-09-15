@@ -50,10 +50,14 @@ public struct CollectionImporter: Sendable {
                     barrelNumber: row.barrel,
                     batchNumber: row.batch,
                     abv: row.proof.map { $0 / 2 },
-                    volumeMl: row.volumeMilliliters ?? 750,
+                    // A sample with no size given is the 50 ml most sample
+                    // bottles hold, not a fifth.
+                    volumeMl: row.volumeMilliliters ?? (row.isSample ? 50 : 750),
                     purchasePriceCents: row.paidCents,
                     purchaseStore: row.store,
                     storageLocation: row.storageLocation,
+                    isSample: row.isSample,
+                    sampleFrom: row.sampleFrom,
                     // Open and finished are states the spreadsheet asserted.
                     // The DATES are unknown, so they are set to now rather
                     // than invented: "opened at some point" is true, and a

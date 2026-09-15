@@ -37,6 +37,24 @@ public enum TastingSource: String, Codable, Sendable, CaseIterable, DatabaseValu
     }
 }
 
+/// How a sample came to be on your shelf. Mirrors `sample_source_is_known`
+/// in the Postgres schema.
+public enum SampleSource: String, Codable, Sendable, CaseIterable, DatabaseValueConvertible {
+    case gift
+    case swap
+    case bought
+    case decant
+
+    public var label: String {
+        switch self {
+        case .gift: return "From a friend"
+        case .swap: return "A swap"
+        case .bought: return "Bought"
+        case .decant: return "Poured off my own bottle"
+        }
+    }
+}
+
 public enum TastingStage: String, Codable, Sendable, CaseIterable, DatabaseValueConvertible {
     case nose
     case entry
@@ -269,6 +287,15 @@ public struct Bottle: SyncableRecord {
     /// is what bridges a shelf to a database.
     public var shelfNumber: Int?
 
+    /// A sample -- two ounces from a friend, a swap, a sample set -- rather
+    /// than a bottle. Every serious collector's spreadsheet has a samples
+    /// tab; no app models one. A sample pours, tastes and finishes like a
+    /// bottle, and is kept out of the bottle counts and off the guest menu.
+    public var isSample: Bool
+    /// Who it came from, in their words: "Mike", "the Louisville swap".
+    public var sampleFrom: String?
+    public var sampleSource: SampleSource?
+
     public var openedAt: Int64?
     public var finishedAt: Int64?
 
@@ -304,6 +331,7 @@ public struct Bottle: SyncableRecord {
         case waxColor = "wax_color", dripFraction = "drip_fraction", dripLengthMm = "drip_length_mm"
         case staveRecipe = "stave_recipe", dsp
         case storageLocation = "storage_location", shelfNumber = "shelf_number"
+        case isSample = "is_sample", sampleFrom = "sample_from", sampleSource = "sample_source"
         case openedAt = "opened_at", finishedAt = "finished_at"
         case lastVerifiedAt = "last_verified_at"
         case createdAt = "created_at", updatedAt = "updated_at"
@@ -354,6 +382,9 @@ public struct Bottle: SyncableRecord {
         dsp: String? = nil,
         storageLocation: String? = nil,
         shelfNumber: Int? = nil,
+        isSample: Bool = false,
+        sampleFrom: String? = nil,
+        sampleSource: SampleSource? = nil,
         openedAt: Int64? = nil,
         finishedAt: Int64? = nil,
         lastVerifiedAt: Int64? = nil,
@@ -385,6 +416,7 @@ public struct Bottle: SyncableRecord {
         self.waxColor = waxColor; self.dripFraction = dripFraction; self.dripLengthMm = dripLengthMm
         self.staveRecipe = staveRecipe; self.dsp = dsp
         self.storageLocation = storageLocation; self.shelfNumber = shelfNumber
+        self.isSample = isSample; self.sampleFrom = sampleFrom; self.sampleSource = sampleSource
         self.openedAt = openedAt; self.finishedAt = finishedAt
         self.lastVerifiedAt = lastVerifiedAt
         self.createdAt = createdAt; self.updatedAt = updatedAt
@@ -476,6 +508,10 @@ public struct Pour: SyncableRecord {
     public var pouredAt: Int64
     public var volumeMl: Double
     public var note: String?
+    /// Who the pour was for, when it was not you: a sample decanted for a
+    /// friend, a swap sent off. Nil is your own glass. It is how "samples
+    /// given" is answered without a second ledger.
+    public var givenTo: String?
     public var createdAt: Int64
     public var updatedAt: Int64
     public var deletedAt: Int64?
@@ -484,6 +520,7 @@ public struct Pour: SyncableRecord {
     enum CodingKeys: String, CodingKey {
         case id, userId = "user_id", bottleId = "bottle_id"
         case pouredAt = "poured_at", volumeMl = "volume_ml", note
+        case givenTo = "given_to"
         case createdAt = "created_at", updatedAt = "updated_at"
         case deletedAt = "deleted_at", dirty
     }
@@ -495,6 +532,7 @@ public struct Pour: SyncableRecord {
         pouredAt: Int64 = Self.nowMilliseconds(),
         volumeMl: Double,
         note: String? = nil,
+        givenTo: String? = nil,
         createdAt: Int64 = Self.nowMilliseconds(),
         updatedAt: Int64 = Self.nowMilliseconds(),
         deletedAt: Int64? = nil,
@@ -502,6 +540,7 @@ public struct Pour: SyncableRecord {
     ) {
         self.id = id; self.userId = userId; self.bottleId = bottleId
         self.pouredAt = pouredAt; self.volumeMl = volumeMl; self.note = note
+        self.givenTo = givenTo
         self.createdAt = createdAt; self.updatedAt = updatedAt
         self.deletedAt = deletedAt; self.dirty = dirty
     }

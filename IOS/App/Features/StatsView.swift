@@ -19,6 +19,17 @@ struct StatsView: View {
     @Environment(AppEnvironment.self) private var env
 
     @State private var summary: CollectionStats.Summary?
+    /// Pours that went to other people, newest first, with the bottle's name.
+    @State private var given: [Given] = []
+    @AppStorage(VolumeDisplay.key) private var ounces = false
+
+    struct Given: Identifiable {
+        let id: String
+        let who: String
+        let bottle: String
+        let milliliters: Double
+        let at: Date
+    }
 
     /// The same switch as More and the Collection. Money appears here only
     /// when it was asked for.
@@ -51,6 +62,9 @@ struct StatsView: View {
                         growth(summary)
                     }
                     notes(summary)
+                    if !given.isEmpty {
+                        givenAway
+                    }
                     if showsValue {
                         money(summary)
                     }
@@ -117,6 +131,9 @@ struct StatsView: View {
                 figure("\(summary.classCount)", "kinds")
                 if summary.picks > 0 {
                     figure("\(summary.picks)", summary.picks == 1 ? "pick" : "picks")
+                }
+                if summary.samples > 0 {
+                    figure("\(summary.samples)", summary.samples == 1 ? "sample" : "samples")
                 }
             }
             .padding(.top, Space.s)
@@ -291,8 +308,32 @@ struct StatsView: View {
         .padding(.top, 64)
     }
 
+    /// What has gone to other people, from the pour log. A samples-given
+    /// list is on every serious collector's spreadsheet; here it is the
+    /// pours that were marked as somebody else's.
+    private var givenAway: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            SectionLabel("Given away")
+                .padding(.bottom, Space.xs)
+            ForEach(Array(given.prefix(12).enumerated()), id: \.element.id) { index, pour in
+                FactRow(
+                    label: pour.who,
+                    value: "\(VolumeDisplay.text(pour.milliliters, ounces: ounces)) · \(pour.bottle) · "
+                        + pour.at.formatted(date: .abbreviated, time: .omitted),
+                    isLast: index == min(given.count, 12) - 1)
+            }
+        }
+    }
+
     private func reload() {
         let bottles = (try? env.bottles.summaries(includeFinished: true)) ?? []
+        let names = Dictionary(uniqueKeysWithValues: bottles.map { ($0.id, env.name(for: $0.bottle)) })
+        given = ((try? env.bottles.poursGivenAway()) ?? []).compactMap { pour in
+            guard let who = pour.givenTo, let name = names[pour.bottleId] else { return nil }
+            return Given(
+                id: pour.id, who: who, bottle: name, milliliters: pour.volumeMl,
+                at: Date(timeIntervalSince1970: Double(pour.pouredAt) / 1000))
+        }
         summary = CollectionStats.summarise(bottles.map { row in
             let bottle = row.bottle
             let product = env.product(for: bottle)
@@ -306,6 +347,7 @@ struct StatsView: View {
                 abv: bottle.abv ?? product?.abv,
                 isOpen: bottle.isOpen,
                 isFinished: bottle.isFinished,
+                isSample: bottle.isSample,
                 isPick: bottle.hasPickDetail,
                 addedAt: Date(timeIntervalSince1970: Double(bottle.createdAt) / 1000),
                 openedAt: bottle.openedAt.map { Date(timeIntervalSince1970: Double($0) / 1000) },
@@ -349,6 +391,9 @@ struct CollectionCard: View {
                 figure("\(summary.classCount)", summary.classCount == 1 ? "kind" : "kinds")
                 if summary.picks > 0 {
                     figure("\(summary.picks)", summary.picks == 1 ? "pick" : "picks")
+                }
+                if summary.samples > 0 {
+                    figure("\(summary.samples)", summary.samples == 1 ? "sample" : "samples")
                 }
             }
 

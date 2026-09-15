@@ -72,6 +72,10 @@ struct AddBottleView: View {
     @State private var openedOn = Date()
     @State private var fillPercent: Double = 100
 
+    @State private var isSample = false
+    @State private var sampleFrom = ""
+    @State private var sampleSource: SampleSource = .gift
+
     @State private var error: String?
     @State private var isScanning = false
     @State private var scannedBarcode: String?
@@ -103,6 +107,7 @@ struct AddBottleView: View {
             VStack(alignment: .leading, spacing: Space.xl) {
                 whatIsIt
                 if chosen != nil || isTypingItIn {
+                    sample
                     thisBottle
                     releaseDetail
                     whereYouKeepIt
@@ -301,11 +306,72 @@ struct AddBottleView: View {
         }
     }
 
+    // MARK: - A sample
+
+    /// A sample is a bottle in every way but size and provenance. It is
+    /// asked first because the answer changes the size field's default,
+    /// and because "who gave it to you" is the fact people want back.
+    private var sample: some View {
+        VStack(alignment: .leading, spacing: Space.m) {
+            Toggle(isOn: $isSample) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("This is a sample")
+                        .font(TypeScale.body())
+                        .foregroundStyle(Palette.text)
+                    Text("A few ounces, not a bottle")
+                        .font(TypeScale.caption())
+                        .textCase(nil)
+                        .foregroundStyle(Palette.textMuted)
+                }
+            }
+            .tint(Palette.gold)
+            .padding(Space.l)
+            .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.line, lineWidth: 1))
+            .onChange(of: isSample) { _, on in
+                // The size follows the toggle only while it still holds the
+                // default for the other case, so a typed size is never lost.
+                if on, volumeMl == "750" { volumeMl = "50" }
+                if !on, ["30", "50", "60", "100"].contains(volumeMl) { volumeMl = "750" }
+            }
+
+            if isSample {
+                HStack(spacing: Space.s) {
+                    ForEach([30, 50, 60, 100], id: \.self) { ml in
+                        Button {
+                            volumeMl = String(ml)
+                        } label: {
+                            Text("\(ml) ml")
+                                .font(TypeScale.code(13))
+                                .foregroundStyle(volumeMl == String(ml) ? Palette.onGold : Palette.text)
+                                .padding(.horizontal, Space.m)
+                                .frame(minHeight: Space.tapTarget - 8)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(volumeMl == String(ml) ? Palette.gold : Palette.surface))
+                                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Palette.line, lineWidth: 1))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    Spacer()
+                }
+                field("From", text: $sampleFrom, placeholder: "Mike")
+                Picker("How it came", selection: $sampleSource) {
+                    ForEach(SampleSource.allCases, id: \.self) { source in
+                        Text(source.label).tag(source)
+                    }
+                }
+                .pickerStyle(.menu)
+                .tint(Palette.gold)
+            }
+        }
+    }
+
     // MARK: - This bottle
 
     private var thisBottle: some View {
         VStack(alignment: .leading, spacing: Space.m) {
-            SectionLabel("This bottle")
+            SectionLabel(isSample ? "This sample" : "This bottle")
             HStack(spacing: Space.m) {
                 field("Size (ml)", text: $volumeMl, keyboard: .numberPad)
                 field("Proof", text: $proof, keyboard: .decimalPad, placeholder: "124.2")
@@ -701,6 +767,9 @@ struct AddBottleView: View {
             dsp: DistilleryPermit.normalise(dsp),
             storageLocation: storageLocation.isEmpty ? nil : storageLocation,
             shelfNumber: Int(shelfNumber),
+            isSample: isSample,
+            sampleFrom: isSample && !sampleFrom.isEmpty ? sampleFrom : nil,
+            sampleSource: isSample ? sampleSource : nil,
             openedAt: isAlreadyOpen ? Int64(openedOn.timeIntervalSince1970 * 1000) : nil)
 
         do {

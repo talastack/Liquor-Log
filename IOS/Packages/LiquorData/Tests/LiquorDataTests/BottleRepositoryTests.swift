@@ -292,4 +292,47 @@ final class BottleRepositoryTests: XCTestCase {
         XCTAssertEqual(weller.status.remainingPours, 5)
         XCTAssertEqual(weller.fillLevel.headroom, .high, "the fading bottle")
     }
+
+    // MARK: - Samples and pours for other people
+
+    /// A pour for somebody else comes off the fill like any pour, and is
+    /// answerable afterwards as "what have I given away".
+    func testAPourForSomeoneElseIsLoggedAgainstThemAndComesOffTheFill() throws {
+        let bottle = try addBottle()
+        let given = try bottles.logPour(bottleId: bottle.id, volumeMl: 60, givenTo: "  Mike ")
+        try bottles.logPour(bottleId: bottle.id, volumeMl: 44)
+
+        XCTAssertEqual(given.givenTo, "Mike")
+        let away = try bottles.poursGivenAway()
+        XCTAssertEqual(away.map(\.id), [given.id])
+        XCTAssertEqual(try bottles.summary(id: bottle.id)?.status.remainingMilliliters, 750 - 60 - 44)
+    }
+
+    func testABlankRecipientIsYourOwnGlass() throws {
+        let bottle = try addBottle()
+        let pour = try bottles.logPour(bottleId: bottle.id, volumeMl: 44, givenTo: "   ")
+        XCTAssertNil(pour.givenTo)
+        XCTAssertTrue(try bottles.poursGivenAway().isEmpty)
+    }
+
+    /// A sample is a bottle in every way but size and provenance, and the
+    /// shelf check is told so.
+    func testASampleRoundTripsAndReachesTheShelfCheckAsASample() throws {
+        let saved = try bottles.add(Bottle(
+            catalogProductId: "ec-barrel-proof", volumeMl: 50,
+            isSample: true, sampleFrom: "Mike", sampleSource: .swap))
+        let back = try XCTUnwrap(try bottles.summary(id: saved.id)?.bottle)
+        XCTAssertTrue(back.isSample)
+        XCTAssertEqual(back.sampleFrom, "Mike")
+        XCTAssertEqual(back.sampleSource, .swap)
+
+        let identity = ProductIdentity(
+            productId: "ec-barrel-proof", distillery: "Heaven Hill", brand: "Elijah Craig",
+            expression: "Barrel Proof", classType: .kentuckyStraightBourbon, productionType: .smallBatch)
+        let holdings = try bottles.holdings { _ in identity }
+        XCTAssertEqual(holdings.map(\.isSample), [true])
+        XCTAssertEqual(
+            ShelfCheck.evaluate(product: identity, holdings: holdings, tastings: []).headline,
+            .haveASample)
+    }
 }

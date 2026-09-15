@@ -165,11 +165,12 @@ enum Palette {
 
     /// The one place colour is categorical. Every one of these is paired with a
     /// text label in the UI -- colour alone fails a dim shop aisle and fails
-    /// anyone colour-blind. Three of the five are fixed across looks so they
+    /// anyone colour-blind. Four of the six are fixed across looks so they
     /// stay distinguishable from each other and from the accent.
     enum Verdict {
         static var onShelf: Color { Palette.gold }
         static var haveTheLine: Color { dynamic(Palette.current.haveTheLine) }
+        static var haveASample: Color { dynamic((0x6FA8A0, 0x2E6B64)) }
         static var tastedNotOwned: Color { dynamic((0x9D84B8, 0x4E4176)) }
         static var hadItBefore: Color { dynamic((0x7F96AB, 0x3A5670)) }
         static var neverHadIt: Color { dynamic((0xB5705A, 0x94402A)) }

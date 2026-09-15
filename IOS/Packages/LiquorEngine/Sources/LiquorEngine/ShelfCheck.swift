@@ -48,19 +48,25 @@ public struct Holding: Hashable, Sendable {
     public let releaseLabel: String?
     public let isOpen: Bool
     public let isFinished: Bool
+    /// A sample -- a couple of ounces from a friend, a swap or a sample set --
+    /// rather than a bottle. Owning one does not mean owning the bottle,
+    /// which is the question the aisle asks.
+    public let isSample: Bool
 
     public init(
         bottleId: String,
         product: ProductIdentity,
         releaseLabel: String? = nil,
         isOpen: Bool = false,
-        isFinished: Bool = false
+        isFinished: Bool = false,
+        isSample: Bool = false
     ) {
         self.bottleId = bottleId
         self.product = product
         self.releaseLabel = releaseLabel
         self.isOpen = isOpen
         self.isFinished = isFinished
+        self.isSample = isSample
     }
 }
 
@@ -123,6 +129,9 @@ public struct ShelfCheckResult: Sendable {
         /// flat "do I own this brand" lookup gets wrong.
         case haveTheLineNotThisRelease
         case onYourShelf
+        /// A sample of it on hand and no bottle. Sits between owning and
+        /// having owned: you can pour it tonight, and you still might buy it.
+        case haveASample
         case hadItBefore
         case tastedNeverOwned
     }
@@ -167,8 +176,10 @@ public enum ShelfCheck: Sendable {
             .sorted { $0.displayName < $1.displayName }
 
         let headline: ShelfCheckResult.Headline
-        if !onShelf.isEmpty {
+        if onShelf.contains(where: { !$0.isSample }) {
             headline = .onYourShelf
+        } else if !onShelf.isEmpty {
+            headline = .haveASample
         } else if !finished.isEmpty {
             headline = .hadItBefore
         } else if !tastings.isEmpty {

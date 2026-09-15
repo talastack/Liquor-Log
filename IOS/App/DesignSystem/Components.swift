@@ -38,7 +38,7 @@ struct VerdictBadge: View {
     /// The fill is what carries at arm's length.
     private var isFilled: Bool {
         switch headline {
-        case .onYourShelf, .haveTheLineNotThisRelease: return true
+        case .onYourShelf, .haveTheLineNotThisRelease, .haveASample: return true
         case .hadItBefore, .tastedNeverOwned, .neverHadIt: return false
         }
     }
@@ -47,6 +47,7 @@ struct VerdictBadge: View {
         switch headline {
         case .onYourShelf: return Palette.Verdict.onShelf
         case .haveTheLineNotThisRelease: return Palette.Verdict.haveTheLine
+        case .haveASample: return Palette.Verdict.haveASample
         case .tastedNeverOwned: return Palette.Verdict.tastedNotOwned
         case .hadItBefore: return Palette.Verdict.hadItBefore
         case .neverHadIt: return Palette.Verdict.neverHadIt
@@ -57,6 +58,7 @@ struct VerdictBadge: View {
         switch headline {
         case .onYourShelf: return "On your shelf"
         case .haveTheLineNotThisRelease: return "Have the line"
+        case .haveASample: return "Have a sample"
         case .tastedNeverOwned: return "Tasted, not owned"
         case .hadItBefore: return "Had it before"
         case .neverHadIt: return "Never had it"
@@ -278,6 +280,7 @@ struct FactRow: View {
             ForEach([
                 ShelfCheckResult.Headline.onYourShelf,
                 .haveTheLineNotThisRelease,
+                .haveASample,
                 .tastedNeverOwned,
                 .hadItBefore,
                 .neverHadIt

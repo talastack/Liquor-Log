@@ -13,6 +13,8 @@ public enum LineView: Sendable {
 
     public enum Standing: String, Sendable, Hashable {
         case onShelf
+        /// A sample on hand and no bottle.
+        case sample
         case hadItBefore
         case tastedOnly
         case never
@@ -20,6 +22,7 @@ public enum LineView: Sendable {
         public var label: String {
             switch self {
             case .onShelf: return "On your shelf"
+            case .sample: return "Have a sample"
             case .hadItBefore: return "Had it"
             case .tastedOnly: return "Tasted"
             case .never: return "Never had it"
@@ -52,7 +55,9 @@ public enum LineView: Sendable {
         let key = product.lineKey
         let members = catalogue.filter { $0.lineKey == key }
 
-        let onShelf = Set(holdings.filter { !$0.isFinished }.map(\.product.productId))
+        let live = holdings.filter { !$0.isFinished }
+        let onShelf = Set(live.filter { !$0.isSample }.map(\.product.productId))
+        let sampled = Set(live.filter(\.isSample).map(\.product.productId))
         let finished = Set(holdings.filter(\.isFinished).map(\.product.productId))
         let tasted = Set(tastings.map(\.product.productId))
 
@@ -61,6 +66,8 @@ public enum LineView: Sendable {
             let standing: Standing
             if onShelf.contains(id) {
                 standing = .onShelf
+            } else if sampled.contains(id) {
+                standing = .sample
             } else if finished.contains(id) {
                 standing = .hadItBefore
             } else if tasted.contains(id) {

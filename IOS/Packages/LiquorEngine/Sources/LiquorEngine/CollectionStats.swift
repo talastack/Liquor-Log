@@ -29,6 +29,10 @@ public enum CollectionStats: Sendable {
         public let abv: Double?
         public let isOpen: Bool
         public let isFinished: Bool
+        /// A sample rather than a bottle. Counted on its own line and kept
+        /// out of the bottle counts and breakdowns: fifty millilitres from
+        /// a friend is not a bottle of Weller on the shelf.
+        public let isSample: Bool
         /// A store pick, single barrel or anything else with barrel detail.
         public let isPick: Bool
         public let addedAt: Date
@@ -49,6 +53,7 @@ public enum CollectionStats: Sendable {
             abv: Double? = nil,
             isOpen: Bool = false,
             isFinished: Bool = false,
+            isSample: Bool = false,
             isPick: Bool = false,
             addedAt: Date = Date(),
             openedAt: Date? = nil,
@@ -66,6 +71,7 @@ public enum CollectionStats: Sendable {
             self.abv = abv
             self.isOpen = isOpen
             self.isFinished = isFinished
+            self.isSample = isSample
             self.isPick = isPick
             self.addedAt = addedAt
             self.openedAt = openedAt
@@ -112,6 +118,8 @@ public enum CollectionStats: Sendable {
         /// Archived, not deleted. Reported as a plain number with no
         /// celebration attached.
         public let finished: Int
+        /// Samples on hand, not finished. Never folded into `onShelf`.
+        public let samples: Int
 
         public let byClass: [Slice]
         public let byDistillery: [Slice]
@@ -153,7 +161,7 @@ public enum CollectionStats: Sendable {
         public let dearestPour: Standout?
         public let cheapestPour: Standout?
 
-        public var isEmpty: Bool { onShelf == 0 && finished == 0 }
+        public var isEmpty: Bool { onShelf == 0 && finished == 0 && samples == 0 }
     }
 
     /// Strength bands, in the words people use rather than numbers.
@@ -175,8 +183,10 @@ public enum CollectionStats: Sendable {
         now: Date = Date(),
         calendar: Calendar = .current
     ) -> Summary {
-        let live = entries.filter { !$0.isFinished }
-        let finished = entries.count - live.count
+        let unfinished = entries.filter { !$0.isFinished }
+        let finished = entries.count - unfinished.count
+        let samples = unfinished.filter(\.isSample).count
+        let live = unfinished.filter { !$0.isSample }
 
         let byClass = tally(live.compactMap { $0.classType?.label })
         let byDistillery = tally(live.compactMap(\.distillery))
@@ -227,6 +237,7 @@ public enum CollectionStats: Sendable {
             open: live.filter(\.isOpen).count,
             sealed: live.filter { !$0.isOpen }.count,
             finished: finished,
+            samples: samples,
             byClass: byClass,
             byDistillery: byDistillery,
             byStrength: byStrength,

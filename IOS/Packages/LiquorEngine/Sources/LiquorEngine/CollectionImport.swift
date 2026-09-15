@@ -36,6 +36,10 @@ public enum CollectionImport: Sendable {
         public var storageLocation: String?
         public var isOpen: Bool
         public var isFinished: Bool
+        /// A "sample" column: "yes" marks a sample, any other text marks a
+        /// sample AND names who it came from.
+        public var isSample: Bool
+        public var sampleFrom: String?
         public var note: String?
         /// Where it came from in the file, for a "row 14 was skipped" message.
         public let line: Int
@@ -44,13 +48,15 @@ public enum CollectionImport: Sendable {
             name: String, proof: Double? = nil, volumeMilliliters: Double? = nil,
             paidCents: Int? = nil, store: String? = nil, batch: String? = nil,
             barrel: String? = nil, storageLocation: String? = nil,
-            isOpen: Bool = false, isFinished: Bool = false, note: String? = nil,
+            isOpen: Bool = false, isFinished: Bool = false,
+            isSample: Bool = false, sampleFrom: String? = nil, note: String? = nil,
             line: Int
         ) {
             self.name = name; self.proof = proof; self.volumeMilliliters = volumeMilliliters
             self.paidCents = paidCents; self.store = store; self.batch = batch
             self.barrel = barrel; self.storageLocation = storageLocation
-            self.isOpen = isOpen; self.isFinished = isFinished; self.note = note
+            self.isOpen = isOpen; self.isFinished = isFinished
+            self.isSample = isSample; self.sampleFrom = sampleFrom; self.note = note
             self.line = line
         }
     }
@@ -68,7 +74,7 @@ public enum CollectionImport: Sendable {
     }
 
     public enum Field: String, Sendable, Hashable, CaseIterable {
-        case name, proof, abv, volume, paid, store, batch, barrel, location, status, note
+        case name, proof, abv, volume, paid, store, batch, barrel, location, status, sample, note
     }
 
     /// Header names that mean each field, lowercase. The first match wins, so
@@ -86,6 +92,7 @@ public enum CollectionImport: Sendable {
         .barrel: ["barrel", "barrel number", "barrel #", "barrel_number", "cask"],
         .location: ["storage_location", "location", "storage", "shelf", "where kept"],
         .status: ["status", "state", "opened", "open"],
+        .sample: ["sample_from", "sample from", "is_sample", "sample"],
         .note: ["notes", "note", "comments", "comment", "review", "liked"],
     ]
 
@@ -131,6 +138,14 @@ public enum CollectionImport: Sendable {
                 ["open", "opened", "yes", "y", "true"].contains { status == $0 || status.hasPrefix($0) }
             )
 
+            // "yes" alone is a sample from nobody in particular; a name is a
+            // sample from that person. "no" and blank are bottles.
+            let sampleText = (get(.sample) ?? "").trimmingCharacters(in: .whitespaces)
+            let sampleWord = sampleText.lowercased()
+            let isSample = !sampleText.isEmpty && !["no", "n", "false", "0"].contains(sampleWord)
+            let sampleFrom = isSample && !["yes", "y", "true", "1", "sample"].contains(sampleWord)
+                ? sampleText : nil
+
             rows.append(Row(
                 name: name,
                 proof: proof,
@@ -142,6 +157,8 @@ public enum CollectionImport: Sendable {
                 storageLocation: get(.location),
                 isOpen: isOpen,
                 isFinished: isFinished,
+                isSample: isSample,
+                sampleFrom: sampleFrom,
                 note: get(.note),
                 line: line))
         }

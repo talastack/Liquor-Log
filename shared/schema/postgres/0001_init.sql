@@ -321,6 +321,13 @@ create table bottles (
   -- It is what bridges a shelf to a database.
   shelf_number        integer,
 
+  -- A sample rather than a bottle: two ounces from a friend, a swap, a
+  -- sample set. Every serious collector's spreadsheet has a samples tab and
+  -- no app models one. Kept out of bottle counts and off the guest menu.
+  is_sample           boolean not null default false,
+  sample_from         text,
+  sample_source       text,
+
   opened_at           bigint,
   finished_at         bigint,
 
@@ -350,6 +357,8 @@ create table bottles (
     check (char_level is null or char_level between 1 and 7),
   constraint entry_proof_is_plausible
     check (entry_proof is null or (entry_proof > 1 and entry_proof <= 190)),
+  constraint sample_source_is_known
+    check (sample_source is null or sample_source in ('gift', 'swap', 'bought', 'decant')),
   constraint bottle_number_is_positive
     check (bottle_number is null or bottle_number > 0),
   constraint shelf_number_is_positive
@@ -383,6 +392,9 @@ create table pours (
   poured_at          bigint not null,
   volume_ml          double precision not null,
   note               text,
+  -- Who the pour was for when it was not you: a sample decanted for a
+  -- friend. Null is your own glass.
+  given_to           text,
   created_at         bigint not null,
   updated_at         bigint not null,
   deleted_at         bigint,

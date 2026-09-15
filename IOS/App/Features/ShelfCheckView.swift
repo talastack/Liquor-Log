@@ -467,6 +467,11 @@ struct ShelfCheckCard: View {
             let open = verdict.openBottleCount
             if open > 0 { return "\(open) open of \(count) you own." }
             return count == 1 ? "One unopened bottle." : "\(count) bottles, none open."
+        case .haveASample:
+            let count = verdict.onShelf.count
+            return count == 1
+                ? "A sample on your shelf, no bottle."
+                : "\(count) samples on your shelf, no bottle."
         case .haveTheLineNotThisRelease:
             let others = verdict.sameLine.map(\.displayName).joined(separator: ", ")
             return "You have \(others). This one you have never had."

@@ -47,6 +47,9 @@ struct EditBottleView: View {
     @State private var storageLocation = ""
     @State private var shelfNumber = ""
     @State private var customName = ""
+    @State private var isSample = false
+    @State private var sampleFrom = ""
+    @State private var sampleSource: SampleSource = .gift
 
     // A typed-in product, editable here because its identity is what the
     // shelf check matches on: brand groups a line, class is a filter.
@@ -70,6 +73,7 @@ struct EditBottleView: View {
                         typedInProduct
                     }
                     strength
+                    sample
                     barrel
                     where_
                     money
@@ -278,6 +282,26 @@ struct EditBottleView: View {
         return name.localizedCaseInsensitiveContains("blanton")
     }
 
+    private var sample: some View {
+        VStack(alignment: .leading, spacing: Space.m) {
+            SectionLabel("Sample")
+            Toggle("This is a sample, not a bottle", isOn: $isSample)
+                .font(TypeScale.body())
+                .foregroundStyle(Palette.text)
+                .tint(Palette.gold)
+            if isSample {
+                field("From", text: $sampleFrom)
+                Picker("How it came", selection: $sampleSource) {
+                    ForEach(SampleSource.allCases, id: \.self) { source in
+                        Text(source.label).tag(source)
+                    }
+                }
+                .pickerStyle(.menu)
+                .tint(Palette.gold)
+            }
+        }
+    }
+
     private var where_: some View {
         VStack(alignment: .leading, spacing: Space.m) {
             SectionLabel("Where you keep it")
@@ -405,6 +429,9 @@ struct EditBottleView: View {
         edited.dsp = blankAsNil(dsp).flatMap(DistilleryPermit.normalise)
         edited.storageLocation = blankAsNil(storageLocation)
         edited.shelfNumber = Int(shelfNumber)
+        edited.isSample = isSample
+        edited.sampleFrom = isSample ? blankAsNil(sampleFrom) : nil
+        edited.sampleSource = isSample ? sampleSource : nil
     }
 
     private func blankAsNil(_ value: String) -> String? {
@@ -436,6 +463,9 @@ struct EditBottleView: View {
         staveRecipe = found.staveRecipe ?? ""
         dsp = found.dsp ?? ""
         storageLocation = found.storageLocation ?? ""
+        isSample = found.isSample
+        sampleFrom = found.sampleFrom ?? ""
+        sampleSource = found.sampleSource ?? .gift
 
         // A typed-in product resolves to a custom entry; a catalogue one to
         // nothing here, and the section stays hidden.

@@ -47,3 +47,17 @@ alter table bottles add column if not exists stave_recipe text;
 
 -- 0005, 15 September 2026: the DSP permit number on the label.
 alter table bottles add column if not exists dsp text;
+
+-- 0006, 15 September 2026: samples, and who a pour was for.
+alter table bottles add column if not exists is_sample     boolean not null default false;
+alter table bottles add column if not exists sample_from   text;
+alter table bottles add column if not exists sample_source text;
+alter table pours   add column if not exists given_to      text;
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'sample_source_is_known') then
+    alter table bottles add constraint sample_source_is_known
+      check (sample_source is null or sample_source in ('gift', 'swap', 'bought', 'decant'));
+  end if;
+end $$;

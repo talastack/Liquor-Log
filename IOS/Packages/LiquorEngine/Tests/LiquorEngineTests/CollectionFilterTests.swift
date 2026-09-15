@@ -161,4 +161,19 @@ final class CollectionFilterTests: XCTestCase {
         XCTAssertTrue(CollectionFilter.Criteria(status: .any).isNarrowing)
         XCTAssertTrue(CollectionFilter.Criteria(location: "Cabinet").isNarrowing)
     }
+
+    // MARK: - Samples
+
+    func testTheSamplesKindFindsSamplesAndSearchFindsWhoTheyCameFrom() {
+        let rows = shelf + [
+            CollectionFilter.Row(
+                id: "s1", name: "Stagg Jr", distillery: "Buffalo Trace",
+                extraSearchText: ["Mike"], classType: .kentuckyStraightBourbon,
+                isOpen: true, isSample: true, addedAt: day(40), fillFraction: 1),
+        ]
+        XCTAssertEqual(CollectionFilter.apply(.init(kinds: [.sample]), to: rows).map(\.id), ["s1"])
+        XCTAssertEqual(CollectionFilter.apply(.init(query: "mike"), to: rows).map(\.id), ["s1"])
+        XCTAssertTrue(CollectionFilter.availableKinds(in: rows).contains(.sample))
+        XCTAssertFalse(CollectionFilter.availableKinds(in: shelf).contains(.sample))
+    }
 }

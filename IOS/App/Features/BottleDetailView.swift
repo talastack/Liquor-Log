@@ -69,6 +69,8 @@ struct BottleDetailView: View {
     @State private var isConfirmingRemove = false
     @State private var isEnteringPour = false
     @State private var customPourText = ""
+    @State private var isGivingPour = false
+    @State private var giveToText = ""
 
     /// The rendered bottle card, while its share sheet is up.
     @State private var shareCard: RenderedBottleCard?
@@ -168,6 +170,19 @@ struct BottleDetailView: View {
         .sheet(item: $shareCard) { card in
             ShareSheet(items: [card.image])
         }
+        .alert("Pour for someone", isPresented: $isGivingPour) {
+            TextField("Who", text: $giveToText)
+            TextField("ml", text: $customPourText)
+                .keyboardType(.decimalPad)
+            Button("Log it") {
+                if let ml = Double(customPourText), ml > 0 {
+                    logPour(milliliters: ml, givenTo: giveToText)
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("A sample decanted for a friend, or a swap. It comes off the bottle like any pour; 60 ml is a 2 oz sample.")
+        }
         .alert("Pour how much?", isPresented: $isEnteringPour) {
             TextField("ml", text: $customPourText)
                 .keyboardType(.decimalPad)
@@ -240,6 +255,13 @@ struct BottleDetailView: View {
                         isEnteringPour = true
                     } label: {
                         Label("Another amount…", systemImage: "drop")
+                    }
+                    Button {
+                        customPourText = ""
+                        giveToText = ""
+                        isGivingPour = true
+                    } label: {
+                        Label("Pour for someone…", systemImage: "gift")
                     }
                 }
                 if !summary.bottle.isOpen {
@@ -421,6 +443,12 @@ struct BottleDetailView: View {
                         .textCase(nil)
                         .foregroundStyle(Palette.textMuted)
                     Spacer()
+                    if let who = pour.givenTo {
+                        Text("to \(who)")
+                            .font(TypeScale.caption())
+                            .textCase(nil)
+                            .foregroundStyle(Palette.textSecondary)
+                    }
                     Text(VolumeDisplay.text(pour.volumeMl, ounces: ounces))
                         .font(TypeScale.code(12))
                         .foregroundStyle(Palette.textMuted)
@@ -526,6 +554,9 @@ struct BottleDetailView: View {
             }
             if let store = summary.bottle.purchaseStore {
                 FactRow(label: "Bought at", value: store)
+            }
+            if summary.bottle.isSample {
+                FactRow(label: "Sample", value: sampleLine(summary.bottle))
             }
             FactRow(
                 label: "Size",
@@ -1229,12 +1260,21 @@ struct BottleDetailView: View {
         logPour(milliliters: nil)
     }
 
+    /// "From Mike · a swap". Whatever was recorded, nothing invented.
+    private func sampleLine(_ bottle: Bottle) -> String {
+        var parts: [String] = []
+        if let from = bottle.sampleFrom, !from.isEmpty { parts.append("From " + from) }
+        if let source = bottle.sampleSource { parts.append(source.label) }
+        return parts.isEmpty ? "Yes" : parts.joined(separator: " · ")
+    }
+
     /// Nil pours the bottle's own pour size; a number pours that many ml.
-    private func logPour(milliliters: Double?) {
+    private func logPour(milliliters: Double?, givenTo: String? = nil) {
         guard let summary else { return }
         do {
             let before = summary.status.remainingPours
-            justPouredId = try env.bottles.logPour(bottleId: summary.id, volumeMl: milliliters).id
+            justPouredId = try env.bottles.logPour(
+                bottleId: summary.id, volumeMl: milliliters, givenTo: givenTo).id
             reload()
             offerReplacement(before: before)
         } catch DataError.bottleIsEmpty {

@@ -101,6 +101,7 @@ struct LineSheetView: View {
     private func symbol(_ standing: LineView.Standing) -> String {
         switch standing {
         case .onShelf: return "checkmark.circle.fill"
+        case .sample: return "eyedropper"
         case .hadItBefore: return "clock"
         case .tastedOnly: return "mouth"
         case .never: return "circle"
@@ -110,6 +111,7 @@ struct LineSheetView: View {
     private func color(_ standing: LineView.Standing) -> Color {
         switch standing {
         case .onShelf: return Palette.Verdict.onShelf
+        case .sample: return Palette.Verdict.haveASample
         case .hadItBefore: return Palette.Verdict.hadItBefore
         case .tastedOnly: return Palette.Verdict.tastedNotOwned
         case .never: return Palette.textMuted

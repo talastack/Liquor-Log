@@ -219,4 +219,42 @@ final class ShelfCheckTests: XCTestCase {
         )
         XCTAssertEqual(messy.lineKey, barrelProof.lineKey)
     }
+
+    // MARK: - Samples
+
+    /// A sample on hand is not a bottle on the shelf. In the aisle the
+    /// difference is the whole question: you can pour it tonight, and you
+    /// still do not own it.
+    func testASampleAloneReadsAsHaveASampleNotOnYourShelf() {
+        let result = ShelfCheck.evaluate(
+            product: smallBatch,
+            holdings: [Holding(bottleId: "s1", product: smallBatch, isSample: true)],
+            tastings: []
+        )
+        XCTAssertEqual(result.headline, .haveASample)
+        XCTAssertEqual(result.onShelf.count, 1)
+    }
+
+    /// A bottle beside a sample is a bottle: owning wins.
+    func testABottleBesideASampleIsOnYourShelf() {
+        let result = ShelfCheck.evaluate(
+            product: smallBatch,
+            holdings: [
+                Holding(bottleId: "s1", product: smallBatch, isSample: true),
+                Holding(bottleId: "b1", product: smallBatch),
+            ],
+            tastings: []
+        )
+        XCTAssertEqual(result.headline, .onYourShelf)
+    }
+
+    /// A finished sample is history, the same as a finished bottle.
+    func testAFinishedSampleIsHadItBefore() {
+        let result = ShelfCheck.evaluate(
+            product: smallBatch,
+            holdings: [Holding(bottleId: "s1", product: smallBatch, isFinished: true, isSample: true)],
+            tastings: []
+        )
+        XCTAssertEqual(result.headline, .hadItBefore)
+    }
 }

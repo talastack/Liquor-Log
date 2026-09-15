@@ -15,8 +15,9 @@ Engine files are `IOS/Packages/LiquorEngine/Sources/LiquorEngine/`, data files
 The aisle question, offline: *do I already own this?*
 
 - Search by distillery, brand or expression; three example chips.
-- Five verdicts, each a badge and a sentence: on your shelf · have the line,
-  not this release · tasted, never owned · had it before · never had it.
+- Six verdicts, each a badge and a sentence: on your shelf · have a sample,
+  no bottle · have the line, not this release · tasted, never owned · had it
+  before · never had it.
 - **Tap the brand** on a card → every expression of that line with your
   standing on each (`LineView`).
 - **Price on the shelf?** — type it, get it against what you usually pay,
@@ -34,7 +35,12 @@ The aisle question, offline: *do I already own this?*
 
 - Search, status chips (on the shelf · open · unopened · finished ·
   everything), kind chips (store pick, single barrel, barrel proof, bourbon,
-  rye…), place chips, seven sorts (`CollectionFilter`).
+  rye, samples…), place chips, seven sorts (`CollectionFilter`).
+- **Samples** — a sample is a bottle in every way but size and provenance:
+  30/50/60/100 ml, who it came from, how (gift, swap, bought, decanted).
+  Shown as "Sample · 50 ml · from Mike", searchable by the name, counted
+  apart from bottles, kept off the guest menu; the shelf check says "have a
+  sample" rather than "on your shelf".
 - "1 of 3" on multiples of one pick (`Multiples`).
 - Long-press → others like this on your shelf.
 - Empty shelf offers three ways in: scan a shelf, import a spreadsheet, add one.
@@ -61,8 +67,10 @@ The aisle question, offline: *do I already own this?*
   (`WaxDrip`). **The staves** — a Private Select recipe as a flavour profile,
   compared with your other picks (`StaveRecipe`).
 - Your note on the product; you have N more of this (siblings).
-- Menu: pours at ½/1/1½/2 oz or any amount, mark opened, mark finished,
-  remove, share as an image. Photo: take/choose/remove.
+- Menu: pours at ½/1/1½/2 oz or any amount, **pour for someone** (a sample
+  decanted for a friend — comes off the fill, logged against their name),
+  mark opened, mark finished, remove, share as an image. Photo:
+  take/choose/remove.
 - Nearly-gone → wishlist offer, asked once (`Replenish`).
 
 ## Adding
@@ -71,7 +79,8 @@ The aisle question, offline: *do I already own this?*
   already-opened slider; shelf price; bought-on date; DSP; bottled year.
 - **Add a shelf** — scan after scan, nothing in between.
 - **Import a spreadsheet** — CSV, columns matched by name, all-or-nothing
-  (`CollectionImport`, `CSVReader`).
+  (`CollectionImport`, `CSVReader`). A "sample" column imports a samples
+  tab: "yes" or a name.
 - **Record a tasting** without a bottle — what it was, where (bar, friend's,
   sample, store, event).
 
@@ -96,7 +105,8 @@ The aisle question, offline: *do I already own this?*
 - **Browse the catalogue** — 534 products by distillery, each with your
   standing; add or wish from the row.
 - **Your collection** — counts, by kind/distillery/brand/strength/place,
-  added-by-year, notable (strongest, oldest, open longest, Blanton's set);
+  added-by-year, notable (strongest, oldest, open longest, Blanton's set),
+  samples on hand, **given away** (every pour marked as somebody else's);
   money behind the switch; share as a card (`CollectionStats`).
 - **What's open** — a guest menu as text or image (`PourMenu`).
 - **Sync** — optional, Supabase, two-clock LWW (`SyncEngine`); Pro.

@@ -50,4 +50,17 @@ final class LineViewTests: XCTestCase {
         XCTAssertEqual(line.rows.map(\.product.productId), ["weller-sr"])
         XCTAssertEqual(line.rows.first?.standing, .never)
     }
+
+    /// A sample of an expression is its own standing: not owned, not
+    /// history, on hand tonight.
+    func testASampleIsItsOwnStanding() {
+        let product = ProductIdentity(
+            productId: "w12", distillery: "Buffalo Trace", brand: "W. L. Weller",
+            expression: "12 Year", classType: .kentuckyStraightBourbon, productionType: .unspecified)
+        let line = LineView.line(
+            of: product, catalogue: [product],
+            holdings: [Holding(bottleId: "s", product: product, isSample: true)],
+            tastings: [])
+        XCTAssertEqual(line.rows.map(\.standing), [.sample])
+    }
 }

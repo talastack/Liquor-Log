@@ -210,6 +210,7 @@ struct ImportView: View {
         case .barrel: return "Barrel"
         case .location: return "Location"
         case .status: return "Status"
+        case .sample: return "Sample"
         case .note: return "Notes"
         }
     }

@@ -154,4 +154,28 @@ final class CollectionImportTests: XCTestCase {
         XCTAssertEqual(mapping[.paid], "price")
         XCTAssertEqual(Set(mapping.values).count, mapping.count)
     }
+
+    // MARK: - Samples
+
+    /// A "sample" column: "yes" is a sample, a name is a sample from that
+    /// person, "no" and blank are bottles. The samples tab of a spreadsheet
+    /// imports without renaming anything.
+    func testASampleColumnMarksSamplesAndWhoTheyCameFrom() {
+        let plan = CollectionImport.plan(csv: """
+        Name,Sample
+        Weller 12,Mike
+        Stagg,yes
+        Blanton's,no
+        Eagle Rare,
+        """)
+        XCTAssertEqual(plan.rows.map(\.isSample), [true, true, false, false])
+        XCTAssertEqual(plan.rows.map(\.sampleFrom), ["Mike", nil, nil, nil])
+        XCTAssertEqual(plan.mapping[.sample], "sample")
+    }
+
+    func testSampleFromIsRecognisedAsAHeader() {
+        let plan = CollectionImport.plan(csv: "Name,Sample From\nWeller 12,the Louisville swap\n")
+        XCTAssertEqual(plan.rows[0].sampleFrom, "the Louisville swap")
+        XCTAssertTrue(plan.rows[0].isSample)
+    }
 }

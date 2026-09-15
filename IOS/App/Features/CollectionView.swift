@@ -400,7 +400,7 @@ struct CollectionView: View {
             extraSearchText: [
                 bottle.releaseLabel, bottle.barrelNumber, bottle.batchNumber,
                 bottle.pickStore, bottle.purchaseStore, bottle.pickGroup,
-                bottle.customName,
+                bottle.customName, bottle.sampleFrom,
             ].compactMap { $0 },
             classType: product?.classType ?? entry?.classType,
             productionType: product?.productionType ?? entry?.productionType ?? .unspecified,
@@ -409,6 +409,7 @@ struct CollectionView: View {
             isStorePick: bottle.isStorePick,
             isOpen: bottle.isOpen,
             isFinished: bottle.isFinished,
+            isSample: bottle.isSample,
             storageLocation: bottle.storageLocation,
             addedAt: Date(timeIntervalSince1970: Double(bottle.createdAt) / 1000),
             lastPouredAt: summary.lastPouredAt,
@@ -424,6 +425,7 @@ struct CollectionView: View {
 /// rounding carrying weight on its own.
 struct BottleCard: View {
     @Environment(AppEnvironment.self) private var env
+    @AppStorage(VolumeDisplay.key) private var ounces = false
     let summary: BottleSummary
     var place: Multiples.Place? = nil
 
@@ -469,6 +471,11 @@ struct BottleCard: View {
                     Text(release)
                         .font(TypeScale.code(13))
                         .foregroundStyle(Palette.textMuted)
+                }
+                if summary.bottle.isSample {
+                    Text(sampleLine(summary.bottle))
+                        .font(TypeScale.code(13))
+                        .foregroundStyle(Palette.Verdict.haveASample)
                 }
 
                 FillBar(status: summary.status)
@@ -521,6 +528,14 @@ struct BottleCard: View {
         case ..<365: return "Last poured \(days / 30) months ago"
         default: return "Last poured over a year ago"
         }
+    }
+
+    /// "Sample · 50 ml · from Mike". The size is the fact that separates
+    /// a sample from a bottle of the same name on the shelf.
+    private func sampleLine(_ bottle: Bottle) -> String {
+        var parts = ["Sample", VolumeDisplay.text(bottle.volumeMl, ounces: ounces)]
+        if let from = bottle.sampleFrom, !from.isEmpty { parts.append("from \(from)") }
+        return parts.joined(separator: " · ")
     }
 }
 

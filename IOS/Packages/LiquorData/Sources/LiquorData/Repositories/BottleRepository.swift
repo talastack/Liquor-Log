@@ -96,7 +96,8 @@ public struct BottleRepository: Sendable {
                 product: identity,
                 releaseLabel: bottle.releaseLabel,
                 isOpen: bottle.isOpen,
-                isFinished: bottle.isFinished
+                isFinished: bottle.isFinished,
+                isSample: bottle.isSample
             )
         }
     }
@@ -314,6 +315,18 @@ public struct BottleRepository: Sendable {
         }
     }
 
+    /// Every pour that went to somebody else, newest first: the "samples
+    /// given" list, answered from the pour log rather than a second ledger.
+    public func poursGivenAway() throws -> [Pour] {
+        try db.queue.read { db in
+            try Pour
+                .live()
+                .filter(Column("given_to") != nil)
+                .order(Column("poured_at").desc)
+                .fetchAll(db)
+        }
+    }
+
     /// Undoes a pour. A tombstone, so it syncs; the fill comes back because
     /// tombstoned pours never count against the bottle. A tasting that was
     /// pinned to the pour keeps its opinion and loses only the pin.
@@ -345,8 +358,12 @@ public struct BottleRepository: Sendable {
     ///
     /// Over-pouring past empty is clamped: a bottle cannot owe you whiskey, and
     /// a mis-tap should not produce a negative fill.
+    /// `givenTo` names who the pour was for when it was not you -- a sample
+    /// decanted for a friend. It comes off the fill like any pour.
     @discardableResult
-    public func logPour(bottleId: String, volumeMl: Double? = nil, note: String? = nil) throws -> Pour {
+    public func logPour(
+        bottleId: String, volumeMl: Double? = nil, note: String? = nil, givenTo: String? = nil
+    ) throws -> Pour {
         try db.queue.write { db in
             guard let bottle = try Bottle.filter(key: bottleId).fetchOne(db) else {
                 throw DataError.bottleNotFound(bottleId)
@@ -361,10 +378,12 @@ public struct BottleRepository: Sendable {
             let requested = volumeMl ?? bottle.pourSizeMl
             guard remaining > 0 else { throw DataError.bottleIsEmpty(bottleId) }
 
+            let recipient = givenTo?.trimmingCharacters(in: .whitespaces)
             var pour = Pour(
                 bottleId: bottleId,
                 volumeMl: min(requested, remaining),
-                note: note
+                note: note,
+                givenTo: recipient.flatMap { $0.isEmpty ? nil : $0 }
             )
             try pour.saveLocal(db)
 
