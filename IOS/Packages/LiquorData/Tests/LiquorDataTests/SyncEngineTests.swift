@@ -212,4 +212,13 @@ final class SyncEngineTests: XCTestCase {
         let count = try await db.queue.read { db in try Bottle.fetchCount(db) }
         XCTAssertEqual(count, 1, "same id, one row")
     }
+
+    /// A row from a project that has not run a later patch lacks the
+    /// columns it added. The schema's default fills in; the pull goes on.
+    func testARowWithoutALaterNotNullColumnStillDecodes() {
+        let row = SyncEngine.decodeFromServer(["id": "x", "custom_name": "Weller"])
+        XCTAssertEqual(row["is_sample"] as? Bool, false)
+        let kept = SyncEngine.decodeFromServer(["id": "x", "is_sample": true])
+        XCTAssertEqual(kept["is_sample"] as? Bool, true)
+    }
 }

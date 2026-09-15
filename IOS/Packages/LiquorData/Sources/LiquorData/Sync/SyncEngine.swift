@@ -212,12 +212,27 @@ public actor SyncEngine {
     /// `dirty` is not optional on the record and is absent from every server
     /// row, so decoding without it fails. It is injected as false rather than
     /// made optional because a row that just arrived genuinely is not pending.
+    ///
+    /// Non-optional columns added after launch get the schema's own default
+    /// when a row arrives without them -- a project that has not run the
+    /// patch yet still serves rows, and one missing flag must not stop the
+    /// whole pull.
     static func decodeFromServer(_ row: [String: Any]) -> [String: Any] {
         var copy = row
         copy["dirty"] = false
         copy.removeValue(forKey: "server_updated_at")
+        for (column, fallback) in Self.addedColumnDefaults where copy[column] == nil {
+            copy[column] = fallback
+        }
         return copy
     }
+
+    /// Mirrors the `not null default` clauses in
+    /// `shared/schema/postgres/patches/`. Optional columns need no entry;
+    /// widen the value type the day a non-boolean column joins.
+    static let addedColumnDefaults: [String: Bool] = [
+        "is_sample": false,   // patch 0006
+    ]
 }
 
 // MARK: - Type erasure
