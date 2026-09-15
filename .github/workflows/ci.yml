@@ -93,7 +93,7 @@ jobs:
           # "terminating connection due to administrator command". The real
           # server is the second "ready to accept connections" in the log.
           for i in $(seq 1 60); do
-            ready=$(docker logs pg 2>&1 | grep -c "ready to accept connections")
+            ready=$(docker logs pg 2>&1 | grep -c "ready to accept connections" || true)
             [ "$ready" -ge 2 ] && docker exec pg pg_isready -U postgres && break
             sleep 1
           done
