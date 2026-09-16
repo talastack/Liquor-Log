@@ -65,6 +65,7 @@ struct FlightView: View {
                 TastingSheetView(
                     bottleId: glass.summary.id,
                     pourId: glass.pourId,
+                    blind: isBlind,
                     onSaved: { markTasted(glass.id) })
                 .navigationTitle(isBlind ? "Glass \(glass.letter)" : env.name(for: glass.summary.bottle))
             }

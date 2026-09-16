@@ -332,6 +332,10 @@ create table bottles (
   -- it lives in blend_additions; abv is kept equal to the blend's strength.
   is_infinity         boolean not null default false,
 
+  -- The empty bottle's weight in grams, from one weighing at a known level;
+  -- with the proof, every later weighing is a fill level.
+  tare_grams          double precision,
+
   opened_at           bigint,
   finished_at         bigint,
 
@@ -546,6 +550,10 @@ create table tastings (
   -- own. The note is the venue or the friend, free text.
   source              text,
   source_note         text,
+  -- Rated without knowing which bottle: a glass in a flight, before the
+  -- reveal. What you say about a label against what you say about the
+  -- whiskey.
+  blind               boolean not null default false,
 
   liked               text,
   disliked            text,

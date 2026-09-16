@@ -246,6 +246,7 @@ public actor SyncEngine {
     static let addedColumnDefaults: [String: Bool] = [
         "is_sample": false,   // patch 0006
         "is_infinity": false, // patch 0007
+        "blind": false,       // patch 0010
     ]
 }
 

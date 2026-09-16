@@ -42,15 +42,20 @@ struct TastingSheetView: View {
     @State private var source: TastingSource?
     @State private var sourceNote = ""
 
+    /// True for a glass in a flight rated before the reveal.
+    let blind: Bool
+
     init(
         bottleId: String? = nil,
         catalogProductId: String? = nil,
         pourId: String? = nil,
+        blind: Bool = false,
         onSaved: (() -> Void)? = nil
     ) {
         self.bottleId = bottleId
         self.catalogProductId = catalogProductId
         self.pourId = pourId
+        self.blind = blind
         self.onSaved = onSaved
     }
 
@@ -492,6 +497,7 @@ struct TastingSheetView: View {
                 finishSeconds: finishLength.seconds,
                 source: bottleId == nil ? source : nil,
                 sourceNote: bottleId == nil && !sourceNote.isEmpty ? sourceNote : nil,
+                blind: blind,
                 liked: liked.isEmpty ? nil : liked,
                 disliked: disliked.isEmpty ? nil : disliked)
             // Tasting and picks save in ONE transaction: a rating that survived

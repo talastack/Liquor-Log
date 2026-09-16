@@ -302,6 +302,11 @@ public struct Bottle: SyncableRecord {
     /// screen that reads a bottle's proof reads the right one.
     public var isInfinity: Bool
 
+    /// The empty bottle's weight in grams -- glass, cork, label -- worked
+    /// out from one weighing at a known level. With it and the proof, any
+    /// later weighing is a fill level to a few millilitres. See `Weighing`.
+    public var tareGrams: Double?
+
     public var openedAt: Int64?
     public var finishedAt: Int64?
 
@@ -338,7 +343,7 @@ public struct Bottle: SyncableRecord {
         case staveRecipe = "stave_recipe", dsp
         case storageLocation = "storage_location", shelfNumber = "shelf_number"
         case isSample = "is_sample", sampleFrom = "sample_from", sampleSource = "sample_source"
-        case isInfinity = "is_infinity"
+        case isInfinity = "is_infinity", tareGrams = "tare_grams"
         case openedAt = "opened_at", finishedAt = "finished_at"
         case lastVerifiedAt = "last_verified_at"
         case createdAt = "created_at", updatedAt = "updated_at"
@@ -393,6 +398,7 @@ public struct Bottle: SyncableRecord {
         sampleFrom: String? = nil,
         sampleSource: SampleSource? = nil,
         isInfinity: Bool = false,
+        tareGrams: Double? = nil,
         openedAt: Int64? = nil,
         finishedAt: Int64? = nil,
         lastVerifiedAt: Int64? = nil,
@@ -425,7 +431,7 @@ public struct Bottle: SyncableRecord {
         self.staveRecipe = staveRecipe; self.dsp = dsp
         self.storageLocation = storageLocation; self.shelfNumber = shelfNumber
         self.isSample = isSample; self.sampleFrom = sampleFrom; self.sampleSource = sampleSource
-        self.isInfinity = isInfinity
+        self.isInfinity = isInfinity; self.tareGrams = tareGrams
         self.openedAt = openedAt; self.finishedAt = finishedAt
         self.lastVerifiedAt = lastVerifiedAt
         self.createdAt = createdAt; self.updatedAt = updatedAt
@@ -855,6 +861,11 @@ public struct Tasting: SyncableRecord {
     /// The bar, the friend, the swap partner. Free text.
     public var sourceNote: String?
 
+    /// Rated without knowing which bottle it was -- a glass in a flight,
+    /// before the reveal. Kept so the palate can compare what you say
+    /// about a label with what you say about the whiskey.
+    public var blind: Bool
+
     public var liked: String?
     public var disliked: String?
     public var createdAt: Int64
@@ -870,7 +881,7 @@ public struct Tasting: SyncableRecord {
         case worthThePrice = "worth_the_price"
         case perceivedHeat = "perceived_heat"
         case finishSeconds = "finish_seconds"
-        case source, sourceNote = "source_note"
+        case source, sourceNote = "source_note", blind
         case liked, disliked
         case createdAt = "created_at", updatedAt = "updated_at"
         case deletedAt = "deleted_at", dirty
@@ -890,6 +901,7 @@ public struct Tasting: SyncableRecord {
         finishSeconds: Int? = nil,
         source: TastingSource? = nil,
         sourceNote: String? = nil,
+        blind: Bool = false,
         liked: String? = nil,
         disliked: String? = nil,
         createdAt: Int64 = Self.nowMilliseconds(),
@@ -900,7 +912,7 @@ public struct Tasting: SyncableRecord {
         self.id = id; self.userId = userId
         self.bottleId = bottleId; self.catalogProductId = catalogProductId
         self.pourId = pourId
-        self.source = source; self.sourceNote = sourceNote
+        self.source = source; self.sourceNote = sourceNote; self.blind = blind
         self.tastedAt = tastedAt; self.rating = rating; self.wouldRebuy = wouldRebuy
         self.worthThePrice = worthThePrice
         self.perceivedHeat = perceivedHeat; self.finishSeconds = finishSeconds
