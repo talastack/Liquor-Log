@@ -36,6 +36,9 @@ struct SetLevelView: View {
     @State private var millilitresText = ""
     @State private var note = ""
     @State private var error: String?
+    /// The scale's reading, in grams, for the by-weight path.
+    @State private var gramsText = ""
+    @State private var isSettingTare = false
 
     var body: some View {
         ScrollView {
@@ -45,6 +48,9 @@ struct SetLevelView: View {
                     slider(summary)
                     presets(summary)
                     exact(summary)
+                    if let proof = proof(summary) {
+                        byWeight(summary, proof: proof)
+                    }
                     noteField
                     saveButton(summary)
                     explanation
@@ -154,6 +160,120 @@ struct SetLevelView: View {
                     .font(TypeScale.secondary())
                     .foregroundStyle(Palette.textMuted)
             }
+        }
+    }
+
+    // MARK: - By weight
+
+    /// The bottle's proof, measured first, the catalogue's second. Without
+    /// one the grams cannot become millilitres and the section stays away.
+    private func proof(_ summary: BottleSummary) -> Double? {
+        (summary.bottle.abv ?? env.product(for: summary.bottle)?.abv)
+            .map { ABV(percent: $0).proof }
+            .flatMap { Weighing.density(proof: $0) == nil ? nil : $0 }
+    }
+
+    /// A kitchen scale beats an eye. The first weighing, at a level the
+    /// app already knows, gives the empty bottle's weight; every weighing
+    /// after is a level to a few millilitres.
+    private func byWeight(_ summary: BottleSummary, proof: Double) -> some View {
+        VStack(alignment: .leading, spacing: Space.m) {
+            SectionLabel("Or weigh it")
+            if let tare = summary.bottle.tareGrams {
+                HStack(spacing: Space.m) {
+                    TextField("grams on the scale", text: $gramsText)
+                        .font(TypeScale.body())
+                        .foregroundStyle(Palette.text)
+                        .keyboardType(.decimalPad)
+                        .padding(.horizontal, Space.m)
+                        .frame(minHeight: 46)
+                        .background(RoundedRectangle(cornerRadius: 10).fill(Palette.surface))
+                        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Palette.line, lineWidth: 1))
+                    Button { weigh(summary, proof: proof) } label: {
+                        Text("Read it")
+                            .font(TypeScale.secondary().weight(.semibold))
+                            .foregroundStyle(Palette.onGold)
+                            .padding(.horizontal, Space.l)
+                            .frame(minHeight: 46)
+                            .background(RoundedRectangle(cornerRadius: 10).fill(Palette.gold))
+                    }
+                    .disabled(LocalNumber.parse(gramsText) == nil)
+                }
+                if let grams = LocalNumber.parse(gramsText),
+                   let left = Weighing.remainingMilliliters(grossGrams: grams, tareGrams: tare, proof: proof) {
+                    Text("\(VolumeDisplay.both(min(left, summary.bottle.volumeMl), ounces: ounces)) left, by weight.")
+                        .font(TypeScale.body())
+                        .foregroundStyle(Palette.text)
+                }
+                Text(String(format: "Empty bottle %.0f g. At %@ proof the whiskey weighs %.3f g per ml (TTB Gauging Manual, Table 6).",
+                            tare, proofText(proof), Weighing.density(proof: proof) ?? 0))
+                    .font(TypeScale.caption())
+                    .textCase(nil)
+                    .foregroundStyle(Palette.textMuted)
+                    .fixedSize(horizontal: false, vertical: true)
+                Button { isSettingTare = true } label: {
+                    Text("Weigh it again at a known level")
+                        .font(TypeScale.caption())
+                        .textCase(nil)
+                        .foregroundStyle(Palette.gold)
+                        .frame(minHeight: Space.tapTarget - 12)
+                }
+            } else {
+                Text("Weigh the bottle once now, while the level above is right — a new bottle is full — and from then on the scale sets the level.")
+                    .font(TypeScale.secondary())
+                    .foregroundStyle(Palette.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                Button { isSettingTare = true } label: {
+                    Text("Weigh it now")
+                        .font(TypeScale.secondary().weight(.semibold))
+                        .foregroundStyle(Palette.gold)
+                        .frame(maxWidth: .infinity, minHeight: Space.tapTarget)
+                        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Palette.gold, lineWidth: 1))
+                }
+            }
+        }
+        .alert("Grams on the scale", isPresented: $isSettingTare) {
+            TextField("grams", text: $gramsText).keyboardType(.decimalPad)
+            Button("Save") { setTare(summary, proof: proof) }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("With \(VolumeDisplay.text(chosenMilliliters(summary), ounces: ounces)) in it, as set above. The empty bottle's weight follows from that.")
+        }
+    }
+
+    private func proofText(_ proof: Double) -> String {
+        proof == proof.rounded() ? String(Int(proof)) : String(format: "%.1f", proof)
+    }
+
+    /// The tare is worked from the level chosen on this screen, which is
+    /// saved first so the two agree.
+    private func setTare(_ summary: BottleSummary, proof: Double) {
+        guard let grams = LocalNumber.parse(gramsText), grams > 0 else { return }
+        do {
+            try env.bottles.setLevel(
+                bottleId: summary.id,
+                remainingMl: chosenMilliliters(summary),
+                note: "Set when the bottle was weighed")
+            _ = try env.bottles.setTare(bottleId: summary.id, grossGrams: grams, proof: proof)
+            gramsText = ""
+            load()
+        } catch DataError.weightMakesNoSense {
+            error = "That is lighter than the whiskey alone would weigh. Check the level above, or the proof."
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+
+    private func weigh(_ summary: BottleSummary, proof: Double) {
+        guard let grams = LocalNumber.parse(gramsText), grams > 0 else { return }
+        do {
+            try env.bottles.weigh(bottleId: summary.id, grossGrams: grams, proof: proof)
+            onSave?()
+            dismiss()
+        } catch DataError.weightMakesNoSense {
+            error = "That reading does not fit this bottle. Check the grams, or weigh it again at a known level."
+        } catch {
+            self.error = error.localizedDescription
         }
     }
 

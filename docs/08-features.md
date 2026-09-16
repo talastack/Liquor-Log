@@ -56,7 +56,11 @@ The aisle question, offline: *do I already own this?*
 ## A bottle
 
 - Fill bar as pours and ml (and oz if you like); **Set level** by eye —
-  a reading, not a subtraction (`PourMath`, `fill_readings`).
+  a reading, not a subtraction (`PourMath`, `fill_readings`) — or **by
+  weight**: weigh the bottle once at a known level (new is full) and the
+  app keeps the empty bottle's weight; every weighing after is a level to
+  a few millilitres, because density is fixed by proof (TTB Table 6 with
+  the Gauging Manual's constants; `Weighing`). No app does this.
 - Pour log with undo; readings log; open-date oxidation band (`OxidationBand`).
 - **How it has drunk** — every tasting, day-N-open, and the trend as a
   sentence (`TastingTrend`).

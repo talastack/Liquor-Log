@@ -349,6 +349,42 @@ public struct BottleRepository: Sendable {
         }
     }
 
+    // MARK: - By weight
+
+    /// Records the empty bottle's weight, from a weighing at a level the
+    /// app already knows (a new bottle is full; a level just set by eye
+    /// counts too). After this, `weigh` turns grams into a level.
+    public func setTare(bottleId: String, grossGrams: Double, proof: Double) throws -> Double {
+        try db.queue.write { db in
+            guard var bottle = try Bottle.live().filter(key: bottleId).fetchOne(db) else {
+                throw DataError.bottleNotFound(bottleId)
+            }
+            let known = try Self.summary(for: bottle, in: db).status.remainingMilliliters
+            guard let tare = Weighing.tare(grossGrams: grossGrams, knownMilliliters: known, proof: proof) else {
+                throw DataError.weightMakesNoSense
+            }
+            bottle.tareGrams = tare
+            try bottle.saveLocal(db)
+            return tare
+        }
+    }
+
+    /// A weighing as a level reading: what is left, from the grams on the
+    /// scale, the tare and the proof. Recorded like a level set by eye,
+    /// with the weight in the note.
+    @discardableResult
+    public func weigh(bottleId: String, grossGrams: Double, proof: Double) throws -> FillReading {
+        let bottle = try db.queue.read { db in try Bottle.live().filter(key: bottleId).fetchOne(db) }
+        guard let bottle else { throw DataError.bottleNotFound(bottleId) }
+        guard let tare = bottle.tareGrams,
+              let remaining = Weighing.remainingMilliliters(grossGrams: grossGrams, tareGrams: tare, proof: proof)
+        else { throw DataError.weightMakesNoSense }
+        return try setLevel(
+            bottleId: bottleId,
+            remainingMl: min(remaining, bottle.volumeMl),
+            note: String(format: "By weight: %.0f g on the scale", grossGrams))
+    }
+
     // MARK: - Infinity bottles
 
     /// Starts an infinity bottle: a vessel of `volumeMl`, empty, open from
@@ -811,5 +847,8 @@ public enum DataError: Error, Sendable, Equatable {
     case bottleNotFound(String)
     case bottleIsEmpty(String)
     case bottleIsFull(String)
+    /// A weighing lighter than the bottle's own contents, or with no proof
+    /// or tare to read it by.
+    case weightMakesNoSense
     case productNotFound(String)
 }
