@@ -39,10 +39,26 @@ final class DatabaseMigrationTests: XCTestCase {
         XCTAssertFalse(FileManager.default.fileExists(atPath: legacy.path))
         XCTAssertTrue(try AppDatabase.holdsBottles(at: shared))
         XCTAssertEqual(try BottleRepository(try AppDatabase.onDisk(at: shared)).summaries().count, 3)
-        // WAL mode leaves a -wal beside the file; it must have travelled.
+        // The WAL was checkpointed into the main file before the move, so
+        // nothing of the old database is left behind.
         for suffix in AppDatabase.sidecars {
             XCTAssertFalse(FileManager.default.fileExists(atPath: legacy.path + suffix), suffix)
         }
+    }
+
+    /// Rows still in the old file's WAL -- a database closed without a
+    /// checkpoint -- arrive too. The connection stays open here so the WAL
+    /// is real when the move happens.
+    func testUncheckpointedRowsArrive() throws {
+        let legacy = folder.appendingPathComponent("legacy.sqlite")
+        let db = try AppDatabase.onDisk(at: legacy)
+        for _ in 0..<4 { try BottleRepository(db).add(Bottle(catalogProductId: "weller-12")) }
+        XCTAssertTrue(FileManager.default.fileExists(atPath: legacy.path + "-wal"))
+
+        let shared = folder.appendingPathComponent("shared.sqlite")
+        try AppDatabase.migrate(from: legacy, to: shared, fileManager: .default)
+        XCTAssertEqual(try BottleRepository(try AppDatabase.onDisk(at: shared)).summaries().count, 4)
+        _ = db
     }
 
     /// The widget of an earlier build could have created an empty group

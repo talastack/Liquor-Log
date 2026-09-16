@@ -16,7 +16,8 @@ public struct BottlePhotoStore: Sendable {
     /// the only one this ever needs.
     private var fileManager: FileManager { .default }
 
-    /// Under Application Support beside the database by default, so a
+    /// Under Application Support by default (the database itself now
+    /// lives in the app group container; photos stay here), so a
     /// device backup that carries the collection carries its photos.
     public init(folder: URL? = nil) throws {
         let fileManager = FileManager.default

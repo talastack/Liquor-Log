@@ -100,31 +100,56 @@ public struct AppDatabase: Sendable {
         config.prepareDatabase { db in
             try db.execute(sql: "PRAGMA journal_mode = WAL")
         }
+        #if os(iOS)
+        // A file in a shared container held open across suspension is a
+        // 0xDEAD10CC kill; GRDB closes it on the way to the background and
+        // reopens on the way back when told to watch for that.
+        config.observesSuspensionNotifications = true
+        #endif
         return try AppDatabase(try DatabaseQueue(path: location.path, configuration: config))
     }
 
     /// The sidecar files SQLite keeps beside a database, in either journal
-    /// mode. A hot "-journal" is the rollback of an interrupted write and
-    /// must travel with the file it belongs to.
-    static let sidecars = ["", "-journal", "-wal", "-shm"]
+    /// mode: the rollback journal of an interrupted write, the WAL, the
+    /// shared-memory index.
+    static let sidecars = ["-journal", "-wal", "-shm"]
 
-    /// Moves a database and its sidecars. A group database that already
-    /// holds bottles wins and the move is skipped; an empty one (a build
-    /// that created it before this rule) is replaced.
+    /// Moves a database into the group container. A group database that
+    /// already holds bottles wins and the move is skipped; an empty one (a
+    /// build that created it before this rule) is replaced.
+    ///
+    /// The old file is opened once first, which is what makes the move
+    /// safe: SQLite rolls a hot journal back and the WAL is checkpointed
+    /// into the main file, so afterwards the main file is the whole
+    /// database and is the only thing that has to arrive. Leftover
+    /// sidecars are deleted rather than carried, and a move interrupted
+    /// half-way leaves the old file in place to be found again.
     static func migrate(from legacy: URL, to shared: URL, fileManager: FileManager) throws {
         if fileManager.fileExists(atPath: shared.path) {
             if try holdsBottles(at: shared) { return }
-            for suffix in sidecars {
-                let stale = URL(fileURLWithPath: shared.path + suffix)
-                if fileManager.fileExists(atPath: stale.path) { try fileManager.removeItem(at: stale) }
-            }
+            try fileManager.removeItem(at: shared)
         }
+        try settle(legacy)
         for suffix in sidecars {
-            let source = URL(fileURLWithPath: legacy.path + suffix)
-            let target = URL(fileURLWithPath: shared.path + suffix)
-            if fileManager.fileExists(atPath: source.path) {
-                try fileManager.moveItem(at: source, to: target)
-            }
+            let stale = URL(fileURLWithPath: shared.path + suffix)
+            if fileManager.fileExists(atPath: stale.path) { try fileManager.removeItem(at: stale) }
+        }
+        try fileManager.moveItem(at: legacy, to: shared)
+        for suffix in sidecars {
+            let leftover = URL(fileURLWithPath: legacy.path + suffix)
+            if fileManager.fileExists(atPath: leftover.path) { try? fileManager.removeItem(at: leftover) }
+        }
+    }
+
+    /// Opens and closes a database so that everything it holds is in its
+    /// main file: a hot journal rolled back, the WAL checkpointed and
+    /// truncated.
+    static func settle(_ url: URL) throws {
+        var config = Configuration()
+        config.busyMode = .timeout(5)
+        let queue = try DatabaseQueue(path: url.path, configuration: config)
+        try queue.writeWithoutTransaction { db in
+            try db.execute(sql: "PRAGMA wal_checkpoint(TRUNCATE)")
         }
     }
 

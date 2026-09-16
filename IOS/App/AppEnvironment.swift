@@ -17,7 +17,7 @@ final class AppEnvironment {
     let wheel: FlavorWheel
     /// The CRT's registry of tequila producers, for the NOM on a label.
     let tequila: TequilaRegistry
-    /// Bottle photos, as files beside the database. Nil when the folder
+    /// Bottle photos, as files in Application Support. Nil when the folder
     /// could not be made; every photo affordance then stays hidden.
     let photos: BottlePhotoStore?
 

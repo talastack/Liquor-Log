@@ -36,6 +36,10 @@ settings:
     SWIFT_TREAT_WARNINGS_AS_ERRORS: NO
     ENABLE_USER_SCRIPT_SANDBOXING: YES
     DEAD_CODE_STRIPPING: YES
+    # One version for the app and its extension. Two that differ are
+    # refused at upload (ITMS-90473), so they are set once, here.
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
   configs:
     debug:
       SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG
@@ -98,8 +102,6 @@ targets:
         DEVELOPMENT_TEAM: UARGCN2739
         CODE_SIGN_STYLE: Automatic
         PRODUCT_NAME: LiquorLog
-        MARKETING_VERSION: "0.1.0"
-        CURRENT_PROJECT_VERSION: "1"
         INFOPLIST_FILE: App/Resources/Info.plist
         TARGETED_DEVICE_FAMILY: "1,2"
         # No UIUserInterfaceStyle key on purpose: the app ships both palettes
@@ -130,8 +132,6 @@ targets:
         CODE_SIGN_ENTITLEMENTS: Widgets/LiquorLogWidgets.entitlements
         DEVELOPMENT_TEAM: UARGCN2739
         CODE_SIGN_STYLE: Automatic
-        MARKETING_VERSION: "0.1.0"
-        CURRENT_PROJECT_VERSION: "1"
         TARGETED_DEVICE_FAMILY: "1,2"
         SKIP_INSTALL: YES
 

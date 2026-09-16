@@ -38,7 +38,9 @@ USAGE = {
 
 
 def main():
-    plists = sorted(ROOT.glob("IOS/**/*.plist"))
+    # Entitlements are plists too, with the same XML-comment trap, and are
+    # not processed by an unsigned CI build -- so they are parsed here.
+    plists = sorted(ROOT.glob("IOS/**/*.plist")) + sorted(ROOT.glob("IOS/**/*.entitlements"))
     plists = [p for p in plists if ".build" not in p.parts and "DerivedData" not in p.parts]
 
     if not plists:
@@ -60,17 +62,21 @@ def main():
                     "hyphen used as a dash")
             continue
 
-        # Only the app's own Info.plist carries the bundle keys. An
-        # extension's plist (Widgets/) declares its extension point and
-        # never opens a camera.
-        if path.name != "Info.plist" or "Widgets" in path.parts:
-            if path.name == "Info.plist" and not contents.get("NSExtension"):
-                problems.append("%s: an extension plist needs NSExtension" % where)
+        if path.name != "Info.plist":
             continue
 
+        # Every bundle -- the app and each extension -- needs the bundle
+        # keys; App Store Connect validates nested bundles too.
         for key, consequence in REQUIRED.items():
             if not contents.get(key):
                 problems.append("%s: missing %s -- %s" % (where, key, consequence))
+
+        # An extension's plist declares its extension point and never
+        # opens a camera, so the usage strings are the app's alone.
+        if "Widgets" in path.parts:
+            if not contents.get("NSExtension"):
+                problems.append("%s: an extension plist needs NSExtension" % where)
+            continue
 
         for key, api in USAGE.items():
             value = contents.get(key, "")
