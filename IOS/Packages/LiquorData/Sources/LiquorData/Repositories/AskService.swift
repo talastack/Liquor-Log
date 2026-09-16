@@ -349,7 +349,9 @@ public struct AskService {
             let key = Hunt.storeKey(person)
             guard let match = ledger.first(where: { $0.key == key })
                 ?? ledger.first(where: { $0.key.hasPrefix(key) || key.hasPrefix($0.key) }) else {
-                return "Nothing logged from \(person). A sample that names who it came from, or a pour marked as theirs, would show here."
+                // The grammar lowercases; a name reads better capitalised.
+                let typed = person.prefix(1).uppercased() + person.dropFirst()
+                return "Nothing logged from \(typed). A sample that names who it came from, or a pour marked as theirs, would show here."
             }
             var lines: [String] = []
             if !match.received.isEmpty {
