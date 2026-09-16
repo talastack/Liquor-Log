@@ -58,7 +58,11 @@ enum Palette {
         /// with defaults of its own -- renders the look the app chose.
         /// Falls back to the app's standard defaults, where a choice made
         /// before the group existed still lives.
-        static let defaults: UserDefaults = UserDefaults(suiteName: AppDatabase.appGroup) ?? .standard
+        static var defaults: UserDefaults { shared.defaults }
+        /// One instance, so @AppStorage observes the same object the widget
+        /// reads. UserDefaults is documented thread-safe; the box says so.
+        private struct Shared: @unchecked Sendable { let defaults: UserDefaults }
+        private static let shared = Shared(defaults: UserDefaults(suiteName: AppDatabase.appGroup) ?? .standard)
 
         static var current: Look {
             let stored = defaults.string(forKey: key) ?? UserDefaults.standard.string(forKey: key)

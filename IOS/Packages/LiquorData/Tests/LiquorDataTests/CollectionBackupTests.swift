@@ -62,7 +62,7 @@ final class CollectionBackupTests: XCTestCase {
 
     func testRestoringTwiceChangesNothingTheSecondTime() throws {
         let source = try populated()
-        try CollectionBackup(source).write(to: url)
+        _ = try CollectionBackup(source).write(to: url)
         let data = try Data(contentsOf: url)
         let target = try AppDatabase.inMemory()
         let first = try CollectionBackup(target).restore(data)
@@ -74,7 +74,7 @@ final class CollectionBackupTests: XCTestCase {
 
     func testTheNewerRowWins() throws {
         let source = try populated()
-        try CollectionBackup(source).write(to: url)
+        _ = try CollectionBackup(source).write(to: url)
         let data = try Data(contentsOf: url)
 
         // Edit locally AFTER the backup was taken: the local edit is newer.
@@ -91,9 +91,9 @@ final class CollectionBackupTests: XCTestCase {
 
     func testRestoredRowsAreMarkedForPush() throws {
         let source = try populated()
-        try CollectionBackup(source).write(to: url)
+        _ = try CollectionBackup(source).write(to: url)
         let target = try AppDatabase.inMemory()
-        try CollectionBackup(target).restore(try Data(contentsOf: url))
+        _ = try CollectionBackup(target).restore(try Data(contentsOf: url))
         let pending = try target.queue.read { db in try Bottle.pending().fetchCount(db) }
         XCTAssertEqual(pending, 2)
     }

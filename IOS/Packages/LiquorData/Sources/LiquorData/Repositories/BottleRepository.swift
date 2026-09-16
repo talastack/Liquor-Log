@@ -139,19 +139,6 @@ public struct BottleRepository: Sendable {
         return (savedProduct, savedBottle)
     }
 
-    /// Saves an edited bottle.
-    ///
-    /// **The identity columns are not writable through here.** `id` addresses
-    /// the row, and `createdAt`, `userId` and the sync columns are taken from
-    /// the stored copy rather than from the caller — a screen that round-trips
-    /// a record can otherwise send back a stale `createdAt` or, worse, a
-    /// `user_id` it guessed, and RLS would then hide the row from its owner
-    /// forever.
-    ///
-    /// `saveLocal` stamps `updated_at` and queues the push, so an edit made
-    /// offline reaches other devices with the time of the EDIT on it rather
-    /// than the time it happened to sync.
-    @discardableResult
     /// Records a wax measurement. Nil for everything clears it.
     public func setWax(
         bottleId: String,
@@ -182,6 +169,19 @@ public struct BottleRepository: Sendable {
         }
     }
 
+    /// Saves an edited bottle.
+    ///
+    /// **The identity columns are not writable through here.** `id` addresses
+    /// the row, and `createdAt`, `userId` and the sync columns are taken from
+    /// the stored copy rather than from the caller — a screen that round-trips
+    /// a record can otherwise send back a stale `createdAt` or, worse, a
+    /// `user_id` it guessed, and RLS would then hide the row from its owner
+    /// forever.
+    ///
+    /// `saveLocal` stamps `updated_at` and queues the push, so an edit made
+    /// offline reaches other devices with the time of the EDIT on it rather
+    /// than the time it happened to sync.
+    @discardableResult
     public func update(_ bottle: Bottle) throws -> Bottle {
         try db.queue.write { db in
             guard let stored = try Bottle.filter(key: bottle.id).fetchOne(db) else {

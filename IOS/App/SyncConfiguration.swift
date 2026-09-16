@@ -186,7 +186,7 @@ final class SyncController {
         await changeHousehold("leave_household", [:])
     }
 
-    private func changeHousehold(_ function: String, _ arguments: [String: Any]) async {
+    private func changeHousehold(_ function: String, _ arguments: [String: any Sendable]) async {
         guard let communityTransport, isSignedIn else { return }
         householdError = nil
         do {

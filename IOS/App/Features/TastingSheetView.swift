@@ -529,9 +529,15 @@ struct TastingSheetView: View {
     }
 }
 
+#if compiler(>=6.0)
+extension TastingStage: @retroactive Identifiable {
+    public var id: String { rawValue }
+}
+#else
 extension TastingStage: Identifiable {
     public var id: String { rawValue }
 }
+#endif
 
 /// Wraps chips onto as many lines as they need. No fixed height anywhere, so it
 /// survives the largest accessibility type size.

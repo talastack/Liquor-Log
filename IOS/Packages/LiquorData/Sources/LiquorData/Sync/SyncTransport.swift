@@ -37,11 +37,15 @@ public protocol SyncCursorStore: Sendable {
 }
 
 public struct UserDefaultsCursorStore: SyncCursorStore {
-    private let defaults: UserDefaults
+    /// UserDefaults is documented thread-safe; the checker cannot see that,
+    /// so the instance travels in a box that says so.
+    private struct Store: @unchecked Sendable { let defaults: UserDefaults }
+    private let store: Store
     private let prefix: String
+    private var defaults: UserDefaults { store.defaults }
 
     public init(defaults: UserDefaults = .standard, prefix: String = "sync.cursor.") {
-        self.defaults = defaults
+        self.store = Store(defaults: defaults)
         self.prefix = prefix
     }
 

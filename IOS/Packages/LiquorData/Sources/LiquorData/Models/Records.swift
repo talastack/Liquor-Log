@@ -62,7 +62,11 @@ public enum TastingStage: String, Codable, Sendable, CaseIterable, DatabaseValue
     case finish
 }
 
+#if compiler(>=6.0)
+extension WaxDrip.Color: @retroactive DatabaseValueConvertible {}
+#else
 extension WaxDrip.Color: DatabaseValueConvertible {}
+#endif
 
 // Engine vocabularies are stored by their raw values, so the database and the
 // validation rules cannot describe different worlds.

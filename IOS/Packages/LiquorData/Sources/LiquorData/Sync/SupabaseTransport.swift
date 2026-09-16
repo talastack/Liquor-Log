@@ -82,7 +82,7 @@ public struct SupabaseTransport: SyncTransport, CommunityTransport {
 
     /// Calls a Postgres function through PostgREST, signed in. The
     /// household functions live behind this; each returns a JSON array.
-    public func rpc(_ name: String, arguments: [String: Any] = [:]) async throws -> Data {
+    public func rpc(_ name: String, arguments: [String: any Sendable] = [:]) async throws -> Data {
         guard let token = await accessToken() else { throw SyncError.notAuthenticated }
         var request = URLRequest(url: baseURL.appendingPathComponent("rest/v1/rpc").appendingPathComponent(name))
         request.httpMethod = "POST"

@@ -217,7 +217,7 @@ struct MoreView: View {
             }
             .tint(Palette.gold)
             .onChange(of: isSharing) { _, on in
-                if !on { try? env.reports.withdrawAll() }
+                if !on { _ = try? env.reports.withdrawAll() }
             }
             .padding(Space.l)
             .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
