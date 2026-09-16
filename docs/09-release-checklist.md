@@ -35,19 +35,27 @@ named and where it lands in the repo is given.
 
 ## 2. Supabase
 
-The runbook is `shared/schema/README.md`. In the SQL editor, in order:
+Project ref `fppntlzyorvfnncgpvmo`. The runbook is `shared/schema/README.md`.
+Done on 16 September 2026:
 
-- [ ] `postgres/patches/0002_topper_photo_source.sql` through
-      `0012_visits.sql`, each pasted whole. All are re-runnable.
-- [ ] `rls/policies.sql` last — it enables row-level security on the new
-      tables.
-- [ ] Verify RLS by direct API call, not through the app: insert a row as
-      user A with curl and the anon key, then read it as user B and
-      anonymously. Both must come back empty. An empty database proves
-      nothing.
-- [ ] `supabase functions deploy menu --no-verify-jwt` from the repo root,
-      with the CLI linked to the project. Publish a menu from the app and
+- [x] Patches 0002 through 0012 applied in the SQL editor; 17 tables and
+      the two community views present.
+- [x] `rls/policies.sql` applied; `rowsecurity` true on every table.
+- [x] RLS proven by direct API call against the live project: a row owned
+      by user A is invisible anonymously and to user B; B cannot insert in
+      A's name (42501) nor rewrite A's row; the server clock trigger
+      stamps `server_updated_at`.
+
+Still to do:
+
+- [ ] `npx supabase@latest login`, `npx supabase@latest link --project-ref
+      fppntlzyorvfnncgpvmo`, `npx supabase@latest functions deploy menu
+      --no-verify-jwt`, from the repo root. Publish a menu from the app and
       open its link.
+- [ ] The dashboard now issues keys as `sb_publishable_…` (the anon key's
+      new name) and `sb_secret_…` (the service role's). The publishable one
+      is what `SUPABASE_ANON_KEY` takes; the secret one never leaves the
+      dashboard.
 
 ## 3. Decisions
 
