@@ -99,6 +99,81 @@ final class CollectionExportTests: XCTestCase {
         XCTAssertNotNil(candidate.lastPouredAt)
         XCTAssertEqual(candidate.name, "Weller")
     }
+
+    // MARK: - The rest of the record
+
+    private func rows(_ text: String) -> [[String]] {
+        text.components(separatedBy: "\r\n").filter { !$0.isEmpty }.map { $0.components(separatedBy: ",") }
+    }
+
+    func testEveryTastingIsARowWithItsWheelPicks() throws {
+        let db = try database()
+        let bottles = BottleRepository(db)
+        let bottle = try bottles.add(Bottle(customName: "Stagg", volumeMl: 750))
+        let tastings = TastingRepository(db)
+        try tastings.save(Tasting(bottleId: bottle.id, tastedAt: 86_400_000, rating: 8, blind: true, liked: "the heat"),
+                          descriptors: [.nose: ["caramel", "oak"], .finish: ["pepper"]])
+        try tastings.save(Tasting(bottleId: bottle.id, tastedAt: 2 * 86_400_000, rating: 9))
+
+        let out = rows(try export(db).tastingsCSV(
+            resolveName: { $0.customName ?? $0.id }, resolveIdentity: { _ in nil },
+            word: { $0.capitalized }))
+        XCTAssertEqual(out.count, 3, "header plus two tastings; the bottle export would carry one")
+        for row in out { XCTAssertEqual(row.count, CollectionExport.tastingsHeader.count) }
+        let older = out[2]
+        XCTAssertEqual(older[0], "1970-01-02")
+        XCTAssertEqual(older[1], "Stagg")
+        XCTAssertEqual(older[4], "8")
+        XCTAssertEqual(older[5], "yes", "blind")
+        XCTAssertEqual(older[12], "the heat")
+        XCTAssertEqual(older[14], "Caramel; Oak", "nose, as words")
+        XCTAssertEqual(older[17], "Pepper", "finish")
+    }
+
+    func testEveryPourIsARowWithWhoItWentTo() throws {
+        let db = try database()
+        let bottles = BottleRepository(db)
+        let bottle = try bottles.add(Bottle(customName: "Stagg", volumeMl: 750))
+        try bottles.open(bottleId: bottle.id)
+        _ = try bottles.logPour(bottleId: bottle.id, volumeMl: 30, givenTo: "Mike")
+        _ = try bottles.logPour(bottleId: bottle.id, volumeMl: 44.36)
+
+        let out = rows(try export(db).poursCSV(resolveName: { $0.customName ?? $0.id }))
+        XCTAssertEqual(out.count, 3)
+        for row in out { XCTAssertEqual(row.count, CollectionExport.poursHeader.count) }
+        XCTAssertEqual(out[1][2], "44.4")
+        XCTAssertEqual(out[2][1], "Stagg")
+        XCTAssertEqual(out[2][2], "30.0")
+        XCTAssertEqual(out[2][3], "Mike")
+    }
+
+    func testTheHuntLogIsARowPerSighting() throws {
+        let db = try database()
+        let log = SightingRepository(db)
+        let seen = try log.record(customName: "Blanton's Gold", store: "Total Wine", cents: 12_999, count: 2, seenAt: 86_400_000)
+        try log.markBought(id: seen.id, bottleId: "b1")
+        let entry = try log.record(customName: "Stagg", kind: .entered, store: "Virginia ABC", seenAt: 2 * 86_400_000)
+        try log.setOutcome(id: entry.id, outcome: .won)
+
+        let out = rows(try export(db).huntLogCSV(resolveIdentity: { _ in nil }))
+        XCTAssertEqual(out.count, 3)
+        for row in out { XCTAssertEqual(row.count, CollectionExport.huntLogHeader.count) }
+        XCTAssertEqual(out[1], ["1970-01-03", "entered", "Stagg", "Virginia ABC", "", "", "", "won", "", ""])
+        XCTAssertEqual(out[2], ["1970-01-02", "seen", "Blanton's Gold", "Total Wine", "", "129.99", "2", "", "yes", ""])
+    }
+
+    func testWriteAllSkipsEmptyFilesAndKeepsTheBottles() throws {
+        let db = try database()
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let none = try export(db).writeAll(to: directory, resolveName: { $0.customName ?? $0.id }, resolveIdentity: { _ in nil })
+        XCTAssertEqual(none.count, 1, "an empty collection still exports its (empty) bottles file")
+
+        try SightingRepository(db).record(customName: "Stagg", store: "Total Wine")
+        let some = try export(db).writeAll(to: directory, resolveName: { $0.customName ?? $0.id }, resolveIdentity: { _ in nil })
+        XCTAssertEqual(some.count, 2)
+        XCTAssertTrue(some[1].lastPathComponent.hasPrefix("liquor-log-hunt-log-"))
+    }
 }
 
 /// The shelf walk against real rows. The engine pins the ordering; these pin
@@ -177,80 +252,4 @@ final class ReInventoryRepositoryTests: XCTestCase {
         XCTAssertEqual(outcome.skipped, [c.id])
         XCTAssertEqual(outcome.checkedCount, 2)
     }
-
-    // MARK: - The rest of the record
-
-    private func rows(_ text: String) -> [[String]] {
-        text.components(separatedBy: "\r\n").filter { !$0.isEmpty }.map { $0.components(separatedBy: ",") }
-    }
-
-    func testEveryTastingIsARowWithItsWheelPicks() throws {
-        let db = try database()
-        let bottles = BottleRepository(db)
-        let bottle = try bottles.add(Bottle(customName: "Stagg", volumeMl: 750))
-        let tastings = TastingRepository(db)
-        try tastings.save(Tasting(bottleId: bottle.id, tastedAt: 86_400_000, rating: 8, blind: true, liked: "the heat"),
-                          descriptors: [.nose: ["caramel", "oak"], .finish: ["pepper"]])
-        try tastings.save(Tasting(bottleId: bottle.id, tastedAt: 2 * 86_400_000, rating: 9))
-
-        let out = rows(try export(db).tastingsCSV(
-            resolveName: { $0.customName ?? $0.id }, resolveIdentity: { _ in nil },
-            word: { $0.capitalized }))
-        XCTAssertEqual(out.count, 3, "header plus two tastings; the bottle export would carry one")
-        for row in out { XCTAssertEqual(row.count, CollectionExport.tastingsHeader.count) }
-        let older = out[2]
-        XCTAssertEqual(older[0], "1970-01-02")
-        XCTAssertEqual(older[1], "Stagg")
-        XCTAssertEqual(older[4], "8")
-        XCTAssertEqual(older[5], "yes", "blind")
-        XCTAssertEqual(older[12], "the heat")
-        XCTAssertEqual(older[14], "Caramel; Oak", "nose, as words")
-        XCTAssertEqual(older[17], "Pepper", "finish")
-    }
-
-    func testEveryPourIsARowWithWhoItWentTo() throws {
-        let db = try database()
-        let bottles = BottleRepository(db)
-        let bottle = try bottles.add(Bottle(customName: "Stagg", volumeMl: 750))
-        try bottles.open(bottleId: bottle.id)
-        _ = try bottles.logPour(bottleId: bottle.id, volumeMl: 30, givenTo: "Mike")
-        _ = try bottles.logPour(bottleId: bottle.id, volumeMl: 44.36)
-
-        let out = rows(try export(db).poursCSV(resolveName: { $0.customName ?? $0.id }))
-        XCTAssertEqual(out.count, 3)
-        for row in out { XCTAssertEqual(row.count, CollectionExport.poursHeader.count) }
-        XCTAssertEqual(out[1][2], "44.4")
-        XCTAssertEqual(out[2][1], "Stagg")
-        XCTAssertEqual(out[2][2], "30.0")
-        XCTAssertEqual(out[2][3], "Mike")
-    }
-
-    func testTheHuntLogIsARowPerSighting() throws {
-        let db = try database()
-        let log = SightingRepository(db)
-        let seen = try log.record(customName: "Blanton's Gold", store: "Total Wine", cents: 12_999, count: 2, seenAt: 86_400_000)
-        try log.markBought(id: seen.id, bottleId: "b1")
-        let entry = try log.record(customName: "Stagg", kind: .entered, store: "Virginia ABC", seenAt: 2 * 86_400_000)
-        try log.setOutcome(id: entry.id, outcome: .won)
-
-        let out = rows(try export(db).huntLogCSV(resolveIdentity: { _ in nil }))
-        XCTAssertEqual(out.count, 3)
-        for row in out { XCTAssertEqual(row.count, CollectionExport.huntLogHeader.count) }
-        XCTAssertEqual(out[1], ["1970-01-03", "entered", "Stagg", "Virginia ABC", "", "", "", "won", "", ""])
-        XCTAssertEqual(out[2], ["1970-01-02", "seen", "Blanton's Gold", "Total Wine", "", "129.99", "2", "", "yes", ""])
-    }
-
-    func testWriteAllSkipsEmptyFilesAndKeepsTheBottles() throws {
-        let db = try database()
-        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        let none = try export(db).writeAll(to: directory, resolveName: { $0.customName ?? $0.id }, resolveIdentity: { _ in nil })
-        XCTAssertEqual(none.count, 1, "an empty collection still exports its (empty) bottles file")
-
-        try SightingRepository(db).record(customName: "Stagg", store: "Total Wine")
-        let some = try export(db).writeAll(to: directory, resolveName: { $0.customName ?? $0.id }, resolveIdentity: { _ in nil })
-        XCTAssertEqual(some.count, 2)
-        XCTAssertTrue(some[1].lastPathComponent.hasPrefix("liquor-log-hunt-log-"))
-    }
 }
-
