@@ -141,10 +141,13 @@ final class CollectionExportTests: XCTestCase {
         let out = rows(try export(db).poursCSV(resolveName: { $0.customName ?? $0.id }))
         XCTAssertEqual(out.count, 3)
         for row in out { XCTAssertEqual(row.count, CollectionExport.poursHeader.count) }
-        XCTAssertEqual(out[1][2], "44.4")
-        XCTAssertEqual(out[2][1], "Stagg")
-        XCTAssertEqual(out[2][2], "30.0")
-        XCTAssertEqual(out[2][3], "Mike")
+        // Two pours in the same millisecond have no order; find them by
+        // what they are.
+        let given = try XCTUnwrap(out.first { $0[3] == "Mike" })
+        XCTAssertEqual(given[1], "Stagg")
+        XCTAssertEqual(given[2], "30.0")
+        let own = try XCTUnwrap(out.first { $0[2] == "44.4" })
+        XCTAssertEqual(own[3], "")
     }
 
     func testTheHuntLogIsARowPerSighting() throws {
