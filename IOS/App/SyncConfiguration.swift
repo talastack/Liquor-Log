@@ -225,8 +225,8 @@ final class SyncController {
     /// phone so it is nobody's again. The collection itself stays here.
     /// App Store guideline 5.1.1(v).
     func deleteAccount() async {
-        guard let communityTransport, let auth, let userId = auth.userId,
-              case .signedIn(let email) = state else { return }
+        guard let communityTransport, let auth, case .signedIn(let email) = state,
+              let userId = await auth.userId else { return }
         state = .working
         lastError = nil
         do {
