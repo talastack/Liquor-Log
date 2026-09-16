@@ -33,14 +33,15 @@ public struct AppDatabase: Sendable {
     ///
     /// A database left in Application Support by an earlier build is moved
     /// across once, the first time the app opens with the container
-    /// present -- with its journal, WAL and shm files, since a hot journal
-    /// is the crash recovery SQLite performs on the next open. The move is
-    /// recorded by a marker file, not by the group file's absence: the
-    /// widget cannot be the one to create the group database (see
+    /// present -- settled first, so a hot journal is rolled back and the
+    /// WAL folded into the file before it travels. The move is recorded
+    /// by a marker file, not by the group file's absence: the widget
+    /// cannot be the one to create the group database (see
     /// `createIfMissing`), but a failed or partial move must not be
     /// retried forever either. If a group database somehow exists before
     /// the move and holds bottles, it is kept and the old file left where
-    /// it is; an empty one is replaced.
+    /// it is; an empty one is replaced. A move that fails opens the old
+    /// file where it is: the shelf is never traded for an error banner.
     public static func onDisk(
         at url: URL? = nil,
         appGroup: String? = appGroup,
@@ -68,12 +69,17 @@ public struct AppDatabase: Sendable {
                 let marker = folder.appendingPathComponent("moved-from-application-support")
 
                 if createIfMissing {
+                    var opened = shared
                     if !fileManager.fileExists(atPath: marker.path),
                        fileManager.fileExists(atPath: legacy.path) {
-                        try migrate(from: legacy, to: shared, fileManager: fileManager)
-                        fileManager.createFile(atPath: marker.path, contents: Data())
+                        do {
+                            try migrate(from: legacy, to: shared, fileManager: fileManager)
+                            fileManager.createFile(atPath: marker.path, contents: Data())
+                        } catch {
+                            opened = legacy
+                        }
                     }
-                    location = shared
+                    location = opened
                 } else {
                     guard fileManager.fileExists(atPath: shared.path) else { throw OpenError.notCreatedYet }
                     location = shared
