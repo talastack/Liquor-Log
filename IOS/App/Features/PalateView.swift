@@ -139,6 +139,8 @@ struct PalateView: View {
                 return product == nil ? nil : false
             }()
             return Palate.Tasting(
+                productId: productId,
+                isBlind: tasting.blind,
                 classType: classType,
                 abv: bottleABV ?? product?.abv,
                 isWheated: isWheated,

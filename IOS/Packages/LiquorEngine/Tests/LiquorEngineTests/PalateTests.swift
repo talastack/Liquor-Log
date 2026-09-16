@@ -71,6 +71,30 @@ final class PalateTests: XCTestCase {
         XCTAssertTrue(sentences.contains("You would buy again 8 of every 10 you rated."))
     }
 
+    /// The same bottle rated blind and knowing what it was, paired by
+    /// product; the average gap is the label's worth to you.
+    func testLabelBiasPairsBlindAndSightedRatingsOfTheSameBottle() {
+        let profile = Palate.profile([
+            t(rating: 9, words: []).with(product: "w12"), t(rating: 7).with(product: "w12", blind: true),
+            t(rating: 8).with(product: "ec"), t(rating: 6).with(product: "ec", blind: true), t(rating: 8).with(product: "ec", blind: true),
+            t(rating: 7).with(product: "fr"), t(rating: 7).with(product: "fr", blind: true),
+            t(rating: 10).with(product: "lonely"),
+        ])
+        // w12: 9 − 7 = 2; ec: 8 − 7 = 1; fr: 0 → 1.0 over three pairs.
+        XCTAssertEqual(profile.labelBiasPairs, 3)
+        XCTAssertEqual(profile.labelBias ?? 0, 1.0, accuracy: 0.0001)
+        let sentences = Palate.sentences(profile) { $0 }
+        XCTAssertTrue(sentences.contains { $0.hasPrefix("Knowing the label adds 1.0 points") })
+    }
+
+    func testTwoPairsAreNotABias() {
+        let profile = Palate.profile([
+            t(rating: 9).with(product: "a"), t(rating: 5).with(product: "a", blind: true),
+            t(rating: 9).with(product: "b"), t(rating: 5).with(product: "b", blind: true),
+        ])
+        XCTAssertNil(profile.labelBias)
+    }
+
     /// Two tastings say nothing yet. Silence is the honest profile.
     func testTooFewSaysNothing() {
         let profile = Palate.profile([t(rating: 9, words: ["oak"]), t(rating: 3, words: ["oak"])])
@@ -78,5 +102,14 @@ final class PalateTests: XCTestCase {
         XCTAssertNil(profile.rebuyShare)
         XCTAssertTrue(Palate.sentences(profile) { $0 }.isEmpty)
         XCTAssertTrue(Palate.profile([]).isEmpty)
+    }
+}
+
+private extension Palate.Tasting {
+    func with(product: String, blind: Bool = false) -> Palate.Tasting {
+        Palate.Tasting(
+            productId: product, isBlind: blind, classType: classType, abv: abv, isWheated: isWheated,
+            rating: rating, perceivedHeat: perceivedHeat, finishSeconds: finishSeconds,
+            wouldRebuy: wouldRebuy, descriptors: descriptors)
     }
 }

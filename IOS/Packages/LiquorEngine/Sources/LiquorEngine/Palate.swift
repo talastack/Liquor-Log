@@ -15,6 +15,11 @@ public enum Palate: Sendable {
 
     /// One tasting, reduced to what the profile needs.
     public struct Tasting: Hashable, Sendable {
+        /// The product, so a blind rating and a sighted one of the same
+        /// whiskey can be paired.
+        public let productId: String?
+        /// Rated without knowing which bottle it was.
+        public let isBlind: Bool
         public let classType: ClassType?
         public let abv: Double?
         /// True for a wheated recipe, false for another bourbon recipe,
@@ -29,10 +34,12 @@ public enum Palate: Sendable {
         public let descriptors: [String]
 
         public init(
+            productId: String? = nil, isBlind: Bool = false,
             classType: ClassType? = nil, abv: Double? = nil, isWheated: Bool? = nil,
             rating: Int? = nil, perceivedHeat: Int? = nil, finishSeconds: Int? = nil,
             wouldRebuy: Bool? = nil, descriptors: [String] = []
         ) {
+            self.productId = productId; self.isBlind = isBlind
             self.classType = classType; self.abv = abv; self.isWheated = isWheated
             self.rating = rating; self.perceivedHeat = perceivedHeat
             self.finishSeconds = finishSeconds; self.wouldRebuy = wouldRebuy
@@ -74,6 +81,12 @@ public enum Palate: Sendable {
         public let rebuyShare: Double?
         public let rebuyAnswered: Int
 
+        /// Label bias: over products you rated both blind and knowing the
+        /// bottle, the average of (sighted − blind). Positive means the
+        /// label adds points. Nil under `minimum` pairs.
+        public let labelBias: Double?
+        public let labelBiasPairs: Int
+
         public var isEmpty: Bool { tastings == 0 }
     }
 
@@ -111,12 +124,32 @@ public enum Palate: Sendable {
         let rebuy = answered.count >= minimum
             ? Double(answered.filter { $0 }.count) / Double(answered.count) : nil
 
+        // One pair per product: the average of its sighted ratings against
+        // the average of its blind ones, so a bottle tasted often does not
+        // outvote one tasted twice.
+        var sighted: [String: [Int]] = [:]
+        var blind: [String: [Int]] = [:]
+        for t in rated {
+            guard let id = t.productId, let rating = t.rating else { continue }
+            if t.isBlind { blind[id, default: []].append(rating) } else { sighted[id, default: []].append(rating) }
+        }
+        let differences = sighted.compactMap { id, seen -> Double? in
+            guard let hidden = blind[id] else { return nil }
+            return mean(seen) - mean(hidden)
+        }
+        let bias = differences.count >= minimum ? differences.reduce(0, +) / Double(differences.count) : nil
+
         return Profile(
             tastings: tastings.count, rated: rated.count, words: words,
             byClass: byClass, byStrength: byStrength,
             wheated: wheated, otherBourbon: other,
             averageFinishSeconds: finish, whenHot: hot, whenEasy: easy,
-            rebuyShare: rebuy, rebuyAnswered: answered.count)
+            rebuyShare: rebuy, rebuyAnswered: answered.count,
+            labelBias: bias, labelBiasPairs: differences.count)
+    }
+
+    static func mean(_ values: [Int]) -> Double {
+        Double(values.reduce(0, +)) / Double(values.count)
     }
 
     /// What the profile says, in sentences, each only when the numbers
@@ -160,6 +193,16 @@ public enum Palate: Sendable {
         }
         if let share = p.rebuyShare {
             out.append("You would buy again \(Int((share * 10).rounded())) of every 10 you rated.")
+        }
+        if let bias = p.labelBias {
+            let pairs = "\(p.labelBiasPairs) bottles rated both ways"
+            if bias >= 0.5 {
+                out.append(String(format: "Knowing the label adds %.1f points: bottles you rated blind and again knowing what they were came in higher the second time (%@).", bias, pairs))
+            } else if bias <= -0.5 {
+                out.append(String(format: "The label costs %.1f points with you: bottles rated blind came in higher than the same bottles rated knowing what they were (%@).", -bias, pairs))
+            } else {
+                out.append("The label does not move you: blind and knowing, you rate the same bottles about the same (\(pairs)).")
+            }
         }
         return out
     }
