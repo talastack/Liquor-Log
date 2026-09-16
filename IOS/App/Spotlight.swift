@@ -38,6 +38,8 @@ enum Spotlight {
             if let distillery = env.distillery(for: bottle) { lines.append(distillery) }
             if bottle.isSample {
                 lines.append("Sample" + (bottle.sampleFrom.map { " from \($0)" } ?? ""))
+            } else if bottle.isOpen, summary.status.hasPartialPourOnly {
+                lines.append("Open · less than a pour left")
             } else if bottle.isOpen {
                 lines.append("Open · \(summary.status.remainingPours) of \(summary.status.totalPours) pours")
             } else {

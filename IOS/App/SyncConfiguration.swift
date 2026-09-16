@@ -42,6 +42,10 @@ struct SyncConfiguration: Sendable {
 @Observable
 @MainActor
 final class SyncController {
+    /// Called after a sync that pulled rows. The app wires this to
+    /// `AppEnvironment.noteChange`.
+    var onPulled: (() -> Void)?
+
     enum State: Equatable {
         case unavailable            // no Supabase project in this build
         case signedOut
@@ -135,6 +139,9 @@ final class SyncController {
         let outcome = await engine.sync()
         lastOutcome = outcome
         unowned = (try? AccountLinker(database).unownedCount()) ?? 0
+        // Rows pulled from the server changed the shelf; the widget and
+        // the search index are told the way any write tells them.
+        if outcome.pulled > 0 { onPulled?() }
         if let first = outcome.failures.first {
             lastError = "\(first.key): \(first.value)"
         }

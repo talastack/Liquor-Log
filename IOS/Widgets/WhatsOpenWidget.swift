@@ -105,7 +105,9 @@ enum WidgetData {
                 id: summary.id,
                 name: name(for: summary.bottle, catalog: catalog, bottles: bottles),
                 fraction: capacity > 0 ? summary.status.remainingMilliliters / capacity : 0,
-                remainingText: "\(summary.status.remainingPours) of \(summary.status.totalPours) pours",
+                remainingText: summary.status.hasPartialPourOnly
+                    ? "less than a pour"
+                    : "\(summary.status.remainingPours) of \(summary.status.totalPours) pours",
                 isEmpty: summary.status.isEmpty)
         }
         return OpenEntry(date: now, bottles: rows, openCount: rows.count)

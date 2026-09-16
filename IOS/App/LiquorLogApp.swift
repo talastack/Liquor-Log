@@ -23,9 +23,11 @@ struct LiquorLogApp: App {
     init() {
         let env = AppEnvironment.live()
         _environment = State(initialValue: env)
-        _sync = State(initialValue: SyncController(
+        let sync = SyncController(
             database: env.database,
-            configuration: SyncConfiguration.fromBundle()))
+            configuration: SyncConfiguration.fromBundle())
+        sync.onPulled = { env.noteChange() }
+        _sync = State(initialValue: sync)
     }
 
     var body: some Scene {

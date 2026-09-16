@@ -286,6 +286,7 @@ struct FlightView: View {
                 let pourId = try env.bottles.logPour(bottleId: summary.id, volumeMl: ml).id
                 return Glass(letter: letters[index], summary: summary, pourId: pourId)
             }
+            env.noteChange()
         } catch {
             self.error = error.localizedDescription
         }

@@ -82,13 +82,16 @@ struct CollectionView: View {
                 LikeThisView(summary: summary, shelf: summaries.filter { !$0.bottle.isFinished })
             }
         }
-        .sheet(isPresented: $isAddingShelf, onDismiss: reload) {
+        // noteChange rather than reload: this screen reloads on the change
+        // count anyway, and the widget and the search index learn of the
+        // new bottles the same way.
+        .sheet(isPresented: $isAddingShelf, onDismiss: env.noteChange) {
             NavigationStack { BulkAddView() }
         }
-        .sheet(isPresented: $isImporting, onDismiss: reload) {
+        .sheet(isPresented: $isImporting, onDismiss: env.noteChange) {
             NavigationStack { ImportView() }
         }
-        .sheet(isPresented: $isAddingOne, onDismiss: reload) {
+        .sheet(isPresented: $isAddingOne, onDismiss: env.noteChange) {
             NavigationStack { AddBottleView() }
         }
         // Opened from outside: a widget, a search result.
