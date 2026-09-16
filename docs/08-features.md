@@ -50,7 +50,8 @@ The aisle question, offline: *do I already own this?*
 - "1 of 3" on multiples of one pick (`Multiples`).
 - Long-press → others like this on your shelf.
 - Empty shelf offers three ways in: scan a shelf, import a spreadsheet, add one.
-- Photo thumbnail on the card.
+- Photo thumbnail on the card; a grid button shows the shelf as photos,
+  three across.
 
 ## A bottle
 
@@ -130,6 +131,12 @@ The aisle question, offline: *do I already own this?*
   samples on hand, **given away** (every pour marked as somebody else's);
   money behind the switch; share as a card (`CollectionStats`).
 - **What's open** — a guest menu as text or image (`PourMenu`).
+- **Tonight** — the IBA's official cocktails (29 of them, the IBA's own
+  measures) against your open bottles: ready ones with the bottle chosen
+  for each slot (highest rated, then fullest), then those one bottle
+  short with what would fill it, sealed bottle named if you have one.
+  Slots match by class — sweet vs dry vermouth, white vs dark rum and the
+  named liqueurs by name (`Cocktails`).
 - **Sync** — optional, Supabase, two-clock LWW (`SyncEngine`); Pro.
 - **Wishlist** — ceiling, buy it (one transaction), change the price, share
   as a gift list, finished-lately → buy again.

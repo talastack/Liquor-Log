@@ -190,3 +190,11 @@ label facts from published sources but did not flip any row to verified.
   date / identify vintage whiskey bottles".
 - Metric standards of fill mandatory 1 January 1980, permitted from 1976:
   27 CFR 5.47a (as then numbered).
+
+## Tonight (cocktails)
+
+- International Bartenders Association, "IBA Official Cocktails"
+  (iba-world.com/cocktails): the recipes and measures as the IBA lists
+  them, transcribed into `Cocktails.swift`. A recipe is a list of
+  ingredients and a method, which is not protected expression; the
+  method lines are paraphrased to one sentence. Nothing added or adjusted.

@@ -113,6 +113,15 @@ struct MoreView: View {
             }
 
             NavigationLink {
+                CocktailsView()
+            } label: {
+                row(
+                    "Tonight",
+                    detail: "The IBA's cocktails you can make from what is open",
+                    symbol: "wineglass")
+            }
+
+            NavigationLink {
                 SyncView()
             } label: {
                 row(

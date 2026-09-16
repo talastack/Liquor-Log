@@ -36,6 +36,9 @@ struct CollectionView: View {
     /// figure is wanted by some people and actively avoided by others, and a
     /// total nobody asked for is the version that causes harm.
     @AppStorage("showsCollectionValue") private var showsValue = CollectionValue.shownByDefault
+    /// The shelf as photos rather than cards. Per device; a preference,
+    /// not data.
+    @AppStorage("collection.photoGrid") private var showsPhotos = false
 
     var body: some View {
         ScrollView {
@@ -48,6 +51,8 @@ struct CollectionView: View {
                     finder
                     if shown.isEmpty {
                         nothingMatches
+                    } else if showsPhotos {
+                        photoGrid
                     } else {
                         ForEach(shown) { summary in
                             NavigationLink {
@@ -105,6 +110,40 @@ struct CollectionView: View {
         }
     }
 
+    /// The shelf as photos, three across. A bottle with no photo shows
+    /// the mark and its name, so the grid is still the whole shelf.
+    private var photoGrid: some View {
+        LazyVGrid(columns: [GridItem(.flexible(), spacing: Space.s), GridItem(.flexible(), spacing: Space.s), GridItem(.flexible(), spacing: Space.s)],
+                  spacing: Space.s) {
+            ForEach(shown) { summary in
+                NavigationLink {
+                    BottleDetailView(bottleId: summary.id)
+                } label: {
+                    VStack(spacing: Space.xs) {
+                        if BottlePhoto.load(summary.bottle.photoFile, from: env.photos) != nil {
+                            BottleImage(fileName: summary.bottle.photoFile, height: 150)
+                        } else {
+                            BottleMark(height: 96)
+                                .frame(height: 150)
+                        }
+                        Text(env.name(for: summary.bottle))
+                            .font(TypeScale.caption())
+                            .textCase(nil)
+                            .foregroundStyle(Palette.textSecondary)
+                            .lineLimit(2)
+                            .multilineTextAlignment(.center)
+                            .frame(height: 30, alignment: .top)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(Space.s)
+                    .background(RoundedRectangle(cornerRadius: 10).fill(Palette.surface))
+                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(Palette.line, lineWidth: 1))
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
     private var header: some View {
         VStack(alignment: .leading, spacing: Space.m) {
             HStack(alignment: .firstTextBaseline) {
@@ -112,6 +151,17 @@ struct CollectionView: View {
                     .font(TypeScale.largeTitle())
                     .foregroundStyle(Palette.text)
                 Spacer()
+                if !summaries.isEmpty {
+                    Button {
+                        showsPhotos.toggle()
+                    } label: {
+                        Image(systemName: showsPhotos ? "list.bullet" : "square.grid.3x3")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(Palette.gold)
+                            .frame(width: Space.tapTarget, height: Space.tapTarget)
+                    }
+                    .accessibilityLabel(showsPhotos ? "Show as a list" : "Show as photos")
+                }
             }
 
             // Bottles, not drinks. See the note on this view.
