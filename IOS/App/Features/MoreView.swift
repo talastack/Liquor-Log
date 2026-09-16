@@ -181,6 +181,15 @@ struct MoreView: View {
             }
 
             NavigationLink {
+                YearView()
+            } label: {
+                row(
+                    "Your year",
+                    detail: "What was collected and written this year, in a few sentences",
+                    symbol: "calendar")
+            }
+
+            NavigationLink {
                 FlightView()
             } label: {
                 row(

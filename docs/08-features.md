@@ -204,6 +204,16 @@ The aisle question, offline: *do I already own this?*
   with you". Tap through to both lists with dates, sizes and your
   ratings. Nothing about how much anyone drank; what changed hands
   (`People`). No schema change.
+- **Your year** — a calendar year of collecting in sentences, from the
+  record: "14 bottles added, from 9 distilleries. Buffalo Trace most, 4
+  times." / "Mostly kentucky straight bourbon: 9 of them." / "First of
+  the year: Weller 12, 3 January." / "9 bottles opened." / "23 tastings
+  written. Highest: Stagg, 9/10." / "The word you reached for most:
+  caramel, 11 times." (once per tasting) / "5 samples from Mike, Sarah."
+  / "31 sightings at 6 stores; Total Wine most." / "3 lotteries entered,
+  1 won." What it cost appears only behind the money switch, and never on
+  the share card. Nothing about pours or bottles emptied, no comparison
+  with last year, no streak (`YearInReview`).
 - **Taste a flight**, **Pick my pour**, **Shelf walk** (`ReInventory`).
 - **Look** — Cellar (default), Label, Bond, Amber.
 - Money switch; ounces switch.
