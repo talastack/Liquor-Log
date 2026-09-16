@@ -1,4 +1,5 @@
 import SwiftUI
+import LiquorData
 import WidgetKit
 
 @main
