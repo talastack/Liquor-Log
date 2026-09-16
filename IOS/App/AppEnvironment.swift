@@ -74,12 +74,12 @@ final class AppEnvironment {
     /// a price is typed against a catalogue product.
     func sawPrice(productId: String?, cents: Int?) {
         guard isSharing, let productId, let cents, cents > 0 else { return }
-        try? reports.recordPrice(productId: productId, cents: cents, region: region)
+        _ = try? reports.recordPrice(productId: productId, cents: cents, region: region)
     }
 
     func measuredDrip(productId: String?, fraction: Double?) {
         guard isSharing, let productId, let fraction else { return }
-        try? reports.recordDrip(productId: productId, fraction: fraction)
+        _ = try? reports.recordDrip(productId: productId, fraction: fraction)
     }
 
     init(
