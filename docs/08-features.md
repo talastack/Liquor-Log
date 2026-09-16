@@ -240,7 +240,9 @@ tablet; the photo grid runs six across. Everything else is the same view.
 - **Siri and Shortcuts** — "What's open in <the app>", "What's nearly gone
   in <the app>", and "Ask <the app>", which takes any sentence the Ask
   grammar knows: a question is answered, a command is read back and
-  confirmed before it is written, as in the app. Each returns its answer
+  confirmed before it is written, as in the app (on iOS 17, where the
+  only confirmation call left is deprecated, the command is read back and
+  done in the app instead; nothing is ever written unconfirmed). Each returns its answer
   as text for a Shortcut to use. Runs in the app's own process against
   its own database (`AskIntent`, `WhatsOpenIntent`, `NearlyGoneIntent`,
   `LiquorLogShortcuts`).
