@@ -52,6 +52,7 @@ final class AppEnvironment {
     var export: CollectionExport { CollectionExport(database) }
     var notes: KnowledgeNoteRepository { KnowledgeNoteRepository(database) }
     var reports: ReportRepository { ReportRepository(database) }
+    var sightings: SightingRepository { SightingRepository(database) }
 
     /// Everyone's reports, reduced, from the Supabase project. Nil when
     /// the build has no project; every community line then stays hidden.
@@ -186,6 +187,13 @@ final class AppEnvironment {
             return identity.displayName
         }
         return bottle.customName ?? "Untitled bottle"
+    }
+
+    func sightingName(_ sighting: Sighting) -> String {
+        if let id = sighting.catalogProductId, let identity = identity(id) {
+            return identity.displayName
+        }
+        return sighting.customName ?? "Something"
     }
 
     func distillery(for bottle: Bottle) -> String? {

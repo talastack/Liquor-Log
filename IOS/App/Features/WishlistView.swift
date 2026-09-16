@@ -11,6 +11,8 @@ struct WishlistView: View {
     @Environment(AppEnvironment.self) private var env
 
     @State private var items: [WishlistItem] = []
+    /// Newest shelf sighting per wishlisted product, from the hunt log.
+    @State private var seen: [String: Hunt.Sighting] = [:]
     @State private var isAdding = false
     /// The wish being turned into a bottle, while its sheet is up.
     @State private var buying: WishlistItem?
@@ -49,6 +51,7 @@ struct WishlistView: View {
                         WishlistRow(
                             item: item,
                             name: name(for: item),
+                            seen: item.catalogProductId.flatMap { seen[$0] }.map { Hunt.line($0) },
                             onBuy: { buying = item },
                             onRemove: { remove(item) })
                         .contextMenu {
@@ -237,6 +240,11 @@ struct WishlistView: View {
 
     private func reload() {
         do { items = try env.wishlist.items() } catch { self.error = error.localizedDescription }
+        let wanted = Set(items.compactMap(\.catalogProductId))
+        let log = (try? env.sightings.facts { env.sightingName($0) }) ?? []
+        seen = Dictionary(
+            Hunt.onYourList(log, wishlist: wanted, within: 90).compactMap { s in s.productId.map { ($0, s) } },
+            uniquingKeysWith: { a, _ in a })
         loadRecentlyFinished()
     }
 
@@ -258,6 +266,9 @@ struct WishlistView: View {
 struct WishlistRow: View {
     let item: WishlistItem
     let name: String
+    /// "At Total Wine 12 days ago · $74.99 · 3 on the shelf", when the
+    /// hunt log has seen it lately.
+    var seen: String? = nil
     let onBuy: () -> Void
     let onRemove: () -> Void
 
@@ -287,6 +298,14 @@ struct WishlistRow: View {
                         .font(TypeScale.caption())
                         .textCase(nil)
                         .foregroundStyle(Palette.textMuted)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                if let seen {
+                    Text(seen)
+                        .font(TypeScale.caption())
+                        .textCase(nil)
+                        .foregroundStyle(Palette.good)
                         .fixedSize(horizontal: false, vertical: true)
                 }
 

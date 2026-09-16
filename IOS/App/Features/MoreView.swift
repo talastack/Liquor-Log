@@ -163,6 +163,15 @@ struct MoreView: View {
             }
 
             NavigationLink {
+                HuntLogView()
+            } label: {
+                row(
+                    "Hunt log",
+                    detail: "Where you looked, what was on the shelf, the lotteries you entered",
+                    symbol: "binoculars")
+            }
+
+            NavigationLink {
                 FlightView()
             } label: {
                 row(

@@ -512,6 +512,9 @@ struct AislePriceCheck: View {
     @State private var lines: [(text: String, tone: Tone)] = []
     /// Everyone's sightings of this product, fetched once per card.
     @State private var community: [CommunityPrice.Aggregate] = []
+    /// Your own last shelf sighting of it, from the hunt log.
+    @State private var lastSeen: Hunt.Sighting?
+    @State private var isLogging = false
 
     enum Tone { case good, neutral, bad }
 
@@ -540,11 +543,57 @@ struct AislePriceCheck: View {
                     .foregroundStyle(color(line.tone))
                     .fixedSize(horizontal: false, vertical: true)
             }
+
+            // The hunt log, both ways: what you saw last time, and a way
+            // to write down where you are standing now.
+            if let lastSeen {
+                HStack(alignment: .top, spacing: Space.s) {
+                    Text("SEEN")
+                        .font(TypeScale.caption())
+                        .foregroundStyle(Palette.gold)
+                    Text(Hunt.line(lastSeen))
+                        .font(TypeScale.secondary())
+                        .foregroundStyle(Palette.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            Button { isLogging = true } label: {
+                HStack(spacing: Space.xs) {
+                    Image(systemName: "binoculars")
+                    Text("Log where you saw it")
+                }
+                .font(TypeScale.caption())
+                .textCase(nil)
+                .foregroundStyle(Palette.gold)
+                .frame(minHeight: Space.tapTarget - 12)
+            }
         }
         .task {
+            lastSeen = (try? env.sightings.latest(catalogProductId: result.hit.product.productId))
+                .flatMap { row in
+                    Hunt.Sighting(
+                        id: row.id, productId: row.catalogProductId, name: result.hit.product.displayName,
+                        store: row.store, kind: row.kind, outcome: row.outcome, cents: row.cents, count: row.count,
+                        at: Date(timeIntervalSince1970: Double(row.seenAt) / 1000), boughtBottleId: row.bottleId)
+                }
             guard let service = env.community else { return }
             community = await service.prices(for: result.hit.product.productId)
         }
+        .sheet(isPresented: $isLogging, onDismiss: reloadSeen) {
+            NavigationStack {
+                SightingSheet(
+                    product: result.hit.product,
+                    cents: LocalNumber.parse(typed).map { Int(($0 * 100).rounded()) })
+            }
+        }
+    }
+
+    private func reloadSeen() {
+        guard let row = try? env.sightings.latest(catalogProductId: result.hit.product.productId) else { return }
+        lastSeen = Hunt.Sighting(
+            id: row.id, productId: row.catalogProductId, name: result.hit.product.displayName,
+            store: row.store, kind: row.kind, outcome: row.outcome, cents: row.cents, count: row.count,
+            at: Date(timeIntervalSince1970: Double(row.seenAt) / 1000), boughtBottleId: row.bottleId)
     }
 
     private func record() {

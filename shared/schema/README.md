@@ -23,8 +23,10 @@ tables):
    households, invite codes, the functions the app calls.
 4. `postgres/patches/0010_weight_and_blind.sql` — a tare weight per bottle,
    a blind flag per tasting.
-5. `rls/policies.sql` — now "yours, or a household member's" on every
-   data table.
+5. `postgres/patches/0011_sightings.sql` — the hunt log: sightings and
+   lottery entries, and the household touch told about the table.
+6. `rls/policies.sql` — now "yours, or a household member's" on every
+   data table, the hunt log included.
 
 Paste each file whole into the SQL editor (Database → SQL) and run it.
 

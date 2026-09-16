@@ -648,6 +648,47 @@ create table knowledge_notes (
 );
 
 -- ---------------------------------------------------------------------------
+-- sightings
+-- ---------------------------------------------------------------------------
+--
+-- The hunt log: a bottle seen on a shelf (where, at what, how many), or a
+-- lottery entered and how it came out. The half of collecting that happens
+-- before a bottle is bought, kept so the stores that actually get the good
+-- stuff, and your own lottery luck, can be read back from a record instead
+-- of guessed. A sighting names a catalogue product or a typed name.
+
+create table sightings (
+  id                  text primary key,
+  user_id             uuid not null references auth.users (id) on delete cascade,
+  catalog_product_id  text,
+  custom_name         text,
+  -- 'seen' on a shelf, or 'entered' in a lottery or raffle.
+  kind                text not null default 'seen',
+  -- For an entry: 'won' or 'lost' once known; null while pending.
+  outcome             text,
+  -- The shop, or the board that runs the lottery ("Virginia ABC").
+  store               text not null,
+  region              text,
+  cents               integer,
+  -- How many were on the shelf. Zero is a sighting too: sold out.
+  count               integer,
+  -- Set once the bottle was bought and is on the shelf.
+  bottle_id           text,
+  note                text,
+  seen_at             bigint not null,
+  created_at          bigint not null,
+  updated_at          bigint not null,
+  deleted_at          bigint,
+  server_updated_at   bigint not null default 0,
+
+  constraint sighting_names_something check (catalog_product_id is not null or custom_name is not null),
+  constraint sighting_kind_is_known check (kind in ('seen', 'entered')),
+  constraint sighting_outcome_is_known check (outcome is null or outcome in ('won', 'lost')),
+  constraint sighting_price_is_positive check (cents is null or cents > 0),
+  constraint sighting_count_is_a_count check (count is null or count >= 0)
+);
+
+-- ---------------------------------------------------------------------------
 -- subscriptions
 -- ---------------------------------------------------------------------------
 --
@@ -779,6 +820,9 @@ create trigger a_wishlist_items_reject_stale
 create trigger a_knowledge_notes_reject_stale
   before update on knowledge_notes
   for each row execute function reject_stale_writes();
+create trigger a_sightings_reject_stale
+  before update on sightings
+  for each row execute function reject_stale_writes();
 
 create trigger custom_catalog_entries_server_clock
   before insert or update on custom_catalog_entries
@@ -816,6 +860,9 @@ create trigger wishlist_items_server_clock
 create trigger knowledge_notes_server_clock
   before insert or update on knowledge_notes
   for each row execute function set_server_updated_at();
+create trigger sightings_server_clock
+  before insert or update on sightings
+  for each row execute function set_server_updated_at();
 create trigger subscriptions_server_clock
   before insert or update on subscriptions
   for each row execute function set_server_updated_at();
@@ -839,6 +886,7 @@ create index tastings_pull on tastings (user_id, server_updated_at);
 create index tasting_notes_pull on tasting_notes (user_id, server_updated_at);
 create index wishlist_items_pull on wishlist_items (user_id, server_updated_at);
 create index knowledge_notes_pull on knowledge_notes (user_id, server_updated_at);
+create index sightings_pull on sightings (user_id, server_updated_at);
 create index subscriptions_pull on subscriptions (user_id, server_updated_at);
 
 -- Reads the app actually makes.
@@ -854,6 +902,7 @@ create index tastings_by_bottle on tastings (bottle_id, tasted_at);
 create index tastings_by_product on tastings (catalog_product_id, tasted_at);
 create index tasting_notes_by_tasting on tasting_notes (tasting_id);
 create index bottles_by_product on bottles (user_id, catalog_product_id);
+create index sightings_by_product on sightings (user_id, catalog_product_id, seen_at);
 
 commit;
 
@@ -927,7 +976,7 @@ begin
   foreach t in array array[
     'custom_catalog_entries', 'bottles', 'pours', 'fill_readings', 'blend_additions',
     'price_reports', 'drip_reports', 'menus', 'tastings', 'tasting_notes',
-    'wishlist_items', 'knowledge_notes'
+    'wishlist_items', 'knowledge_notes', 'sightings'
   ] loop
     execute format(
       'update %I set server_updated_at = (extract(epoch from clock_timestamp()) * 1000)::bigint '

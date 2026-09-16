@@ -178,7 +178,21 @@ The aisle question, offline: *do I already own this?*
   (`CommunityService`, `ReportRepository`, the `community_prices` and
   `community_drips` views). Nothing is a valuation.
 - **Wishlist** — ceiling, buy it (one transaction), change the price, share
-  as a gift list, finished-lately → buy again.
+  as a gift list, finished-lately → buy again; each row says where the
+  hunt log last saw it, when, at what.
+- **Hunt log** — the half of collecting that happens before a bottle is
+  bought. A sighting: a bottle seen on a shelf, where, at what price, how
+  many (zero counts: it was there and went). An entry: a lottery or raffle
+  entered, who runs it, and won / lost / pending. Read back as stores
+  ranked by what you have found there (spellings merged, "3 products · 2
+  from your wishlist · last 3 weeks ago"), your wishlist against the last
+  60 days of sightings, and "4 entered · 1 won · 2 pending". A shelf-check
+  card shows your last sighting of the product and logs a new one with
+  the price already typed; "Bought it" on a sighting opens Add with the
+  store and price filled and points the sighting at the bottle. Prices go
+  into the community reports when sharing is on. Synced, backed up, in
+  the household. Your own record only; nothing says where a bottle is
+  now (`Hunt`, `SightingRepository`, `sightings`, patch 0011).
 - **Taste a flight**, **Pick my pour**, **Shelf walk** (`ReInventory`).
 - **Look** — Cellar (default), Label, Bond, Amber.
 - Money switch; ounces switch.

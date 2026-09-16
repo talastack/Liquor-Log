@@ -20,10 +20,22 @@ struct AddBottleView: View {
     @State private var isTypingItIn = false
 
     /// Opened with the product already chosen -- from the catalogue browser,
-    /// or anywhere else that already knows what the bottle is.
-    init(product: CatalogProduct? = nil) {
+    /// or anywhere else that already knows what the bottle is. A sighting
+    /// also knows the store and the price, and wants the bottle back so it
+    /// can point at it.
+    init(
+        product: CatalogProduct? = nil,
+        store: String? = nil,
+        priceCents: Int? = nil,
+        onSaved: ((Bottle) -> Void)? = nil
+    ) {
         _chosen = State(initialValue: product)
+        _store = State(initialValue: store ?? "")
+        _price = State(initialValue: priceCents.map { String(format: "%.2f", Double($0) / 100) } ?? "")
+        self.onSaved = onSaved
     }
+
+    private let onSaved: ((Bottle) -> Void)?
 
     // Custom product
     @State private var customBrand = ""
@@ -780,6 +792,7 @@ struct AddBottleView: View {
                 // The shelf price if one was typed, else what was paid: a
                 // sighting either way, when sharing is on.
                 env.sawPrice(productId: chosen.id, cents: bottle.shelfPriceCents ?? bottle.purchasePriceCents)
+                onSaved?(bottle)
             } else {
                 let product = CustomCatalogEntry(
                     distillery: customDistillery.isEmpty ? customBrand : customDistillery,
@@ -789,6 +802,7 @@ struct AddBottleView: View {
                 bottle.customName = customName
                 let saved = try env.bottles.addCustom(product: product, bottle: bottle)
                 try recordOpeningLevel(saved.bottle)
+                onSaved?(saved.bottle)
             }
             dismiss()
         } catch {

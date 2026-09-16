@@ -273,6 +273,27 @@ public enum Migrations {
                 t.column("dirty", .boolean).notNull().defaults(to: true)
             }
 
+            // The hunt log: a bottle seen on a shelf, or a lottery entered.
+            try db.create(table: "sightings") { t in
+                t.primaryKey("id", .text).notNull()
+                t.column("user_id", .text)
+                t.column("catalog_product_id", .text)
+                t.column("custom_name", .text)
+                t.column("kind", .text).notNull().defaults(to: "seen")
+                t.column("outcome", .text)
+                t.column("store", .text).notNull()
+                t.column("region", .text)
+                t.column("cents", .integer)
+                t.column("count", .integer)
+                t.column("bottle_id", .text)
+                t.column("note", .text)
+                t.column("seen_at", .integer).notNull()
+                t.column("created_at", .integer).notNull()
+                t.column("updated_at", .integer).notNull()
+                t.column("deleted_at", .integer)
+                t.column("dirty", .boolean).notNull().defaults(to: true)
+            }
+
             try db.create(table: "subscriptions") { t in
                 t.primaryKey("id", .text).notNull()
                 t.column("user_id", .text)
@@ -301,6 +322,8 @@ public enum Migrations {
             try db.create(index: "blend_additions_by_blend", on: "blend_additions",
                           columns: ["blend_bottle_id", "added_at"])
             try db.create(index: "tastings_dirty", on: "tastings", columns: ["dirty"])
+            try db.create(index: "sightings_by_product", on: "sightings",
+                          columns: ["catalog_product_id", "seen_at"])
         }
 
         return migrator

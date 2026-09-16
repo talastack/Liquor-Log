@@ -851,4 +851,8 @@ public enum DataError: Error, Sendable, Equatable {
     /// or tare to read it by.
     case weightMakesNoSense
     case productNotFound(String)
+    case sightingNotFound(String)
+    /// A sighting with nowhere, or nothing, in it.
+    case sightingNeedsAStore
+    case sightingNeedsAName
 }

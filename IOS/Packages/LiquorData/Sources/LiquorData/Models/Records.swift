@@ -64,8 +64,12 @@ public enum TastingStage: String, Codable, Sendable, CaseIterable, DatabaseValue
 
 #if compiler(>=6.0)
 extension WaxDrip.Color: @retroactive DatabaseValueConvertible {}
+extension Hunt.Kind: @retroactive DatabaseValueConvertible {}
+extension Hunt.Outcome: @retroactive DatabaseValueConvertible {}
 #else
 extension WaxDrip.Color: DatabaseValueConvertible {}
+extension Hunt.Kind: DatabaseValueConvertible {}
+extension Hunt.Outcome: DatabaseValueConvertible {}
 #endif
 
 // Engine vocabularies are stored by their raw values, so the database and the
@@ -646,6 +650,61 @@ public struct BlendAddition: SyncableRecord {
         self.abv = abv; self.volumeMl = volumeMl; self.pourId = pourId
         self.addedAt = addedAt; self.note = note
         self.createdAt = createdAt; self.updatedAt = updatedAt
+        self.deletedAt = deletedAt; self.dirty = dirty
+    }
+}
+
+// MARK: - sightings
+
+/// The hunt log: a bottle seen on a shelf -- where, at what price, how
+/// many -- or a lottery entered and how it came out. Names a catalogue
+/// product or a typed name; `bottleId` is set once it was bought.
+public struct Sighting: SyncableRecord {
+    public static let databaseTableName = "sightings"
+
+    public var id: String
+    public var userId: String?
+    public var catalogProductId: String?
+    public var customName: String?
+    public var kind: Hunt.Kind
+    public var outcome: Hunt.Outcome?
+    /// The shop, or the board that runs the lottery.
+    public var store: String
+    public var region: String?
+    public var cents: Int?
+    /// How many were on the shelf. Zero is a sighting too: sold out.
+    public var count: Int?
+    public var bottleId: String?
+    public var note: String?
+    public var seenAt: Int64
+    public var createdAt: Int64
+    public var updatedAt: Int64
+    public var deletedAt: Int64?
+    public var dirty: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case id, userId = "user_id", catalogProductId = "catalog_product_id"
+        case customName = "custom_name", kind, outcome, store, region, cents, count
+        case bottleId = "bottle_id", note, seenAt = "seen_at"
+        case createdAt = "created_at", updatedAt = "updated_at"
+        case deletedAt = "deleted_at", dirty
+    }
+
+    public init(
+        id: String = UUID().uuidString, userId: String? = nil,
+        catalogProductId: String? = nil, customName: String? = nil,
+        kind: Hunt.Kind = .seen, outcome: Hunt.Outcome? = nil,
+        store: String, region: String? = nil, cents: Int? = nil, count: Int? = nil,
+        bottleId: String? = nil, note: String? = nil,
+        seenAt: Int64 = Self.nowMilliseconds(),
+        createdAt: Int64 = Self.nowMilliseconds(), updatedAt: Int64 = Self.nowMilliseconds(),
+        deletedAt: Int64? = nil, dirty: Bool = true
+    ) {
+        self.id = id; self.userId = userId
+        self.catalogProductId = catalogProductId; self.customName = customName
+        self.kind = kind; self.outcome = outcome; self.store = store; self.region = region
+        self.cents = cents; self.count = count; self.bottleId = bottleId; self.note = note
+        self.seenAt = seenAt; self.createdAt = createdAt; self.updatedAt = updatedAt
         self.deletedAt = deletedAt; self.dirty = dirty
     }
 }
