@@ -76,7 +76,7 @@ struct HuntLogView: View {
         }
         .task { reload() }
         .onChange(of: env.changeCount) { _, _ in reload() }
-        .sheet(isPresented: $isAdding, onDismiss: reload) {
+        .sheet(isPresented: $isAdding, onDismiss: env.noteChange) {
             NavigationStack { SightingSheet() }
         }
         .sheet(item: $buying, onDismiss: env.noteChange) { record in

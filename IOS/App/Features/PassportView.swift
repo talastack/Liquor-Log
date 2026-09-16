@@ -106,7 +106,7 @@ struct PassportView: View {
         }
         .task { reload() }
         .onChange(of: env.changeCount) { _, _ in reload() }
-        .sheet(isPresented: $isAdding, onDismiss: reload) {
+        .sheet(isPresented: $isAdding, onDismiss: env.noteChange) {
             NavigationStack { VisitSheet() }
         }
         .alert("Something went wrong", isPresented: .constant(error != nil)) {

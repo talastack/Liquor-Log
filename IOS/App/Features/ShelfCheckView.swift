@@ -589,6 +589,7 @@ struct AislePriceCheck: View {
     }
 
     private func reloadSeen() {
+        env.noteChange()
         guard let row = try? env.sightings.latest(catalogProductId: result.hit.product.productId) else { return }
         lastSeen = Hunt.Sighting(
             id: row.id, productId: row.catalogProductId, name: result.hit.product.displayName,
