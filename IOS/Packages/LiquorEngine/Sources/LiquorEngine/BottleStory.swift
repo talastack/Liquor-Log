@@ -64,6 +64,13 @@ public enum BottleStory: Sendable {
         /// "Opened after 412 days on the shelf. Finished 97 days later:
         /// 17 pours, 3 tastings, the rating up from 7 to 9."
         public let summary: String?
+
+        public init(events: [Event], summary: String?) {
+            self.events = events
+            self.summary = summary
+        }
+
+        public static let empty = Story(events: [], summary: nil)
     }
 
     public static func tell(_ f: Facts, ounces: Bool = false, calendar: Calendar = .current) -> Story {
