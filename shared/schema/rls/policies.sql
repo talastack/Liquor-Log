@@ -48,13 +48,19 @@ begin
     execute format('drop policy if exists %I_owner_insert on %I', t, t);
     execute format('drop policy if exists %I_owner_update on %I', t, t);
 
+    -- Yours, or a household member's (patch 0009): a shelf shared with a
+    -- partner is one shelf to read and to pour from. A new row is always
+    -- the writer's own -- nobody creates rows in somebody else's name --
+    -- and an update keeps the row's owner as it was.
     execute format(
-      'create policy %I_owner_select on %I for select using (auth.uid() = user_id)', t, t);
+      'create policy %I_owner_select on %I for select '
+      || 'using (auth.uid() = user_id or user_id in (select household_user_ids()))', t, t);
     execute format(
       'create policy %I_owner_insert on %I for insert with check (auth.uid() = user_id)', t, t);
     execute format(
-      'create policy %I_owner_update on %I for update using (auth.uid() = user_id) '
-      || 'with check (auth.uid() = user_id)', t, t);
+      'create policy %I_owner_update on %I for update '
+      || 'using (auth.uid() = user_id or user_id in (select household_user_ids())) '
+      || 'with check (auth.uid() = user_id or user_id in (select household_user_ids()))', t, t);
     -- No delete policy anywhere, deliberately. Deletes are soft: an update
     -- setting deleted_at, which travels through the same path as any other
     -- change. A hard delete breaks sync and destroys the history the product

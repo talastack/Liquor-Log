@@ -30,8 +30,10 @@ SWIFT = (ROOT / "IOS" / "Packages" / "LiquorData" / "Sources" / "LiquorData"
 LOCAL_ONLY = {"dirty"}
 SERVER_ONLY = {"server_updated_at"}
 
-# Tables Supabase owns, or that we stub only so the file applies standalone.
-IGNORED_TABLES = {"auth.users", "users"}
+# Tables Supabase owns, or that we stub only so the file applies standalone,
+# and the household tables, which live on the server only: membership is
+# asked for over the network, never synced.
+IGNORED_TABLES = {"auth.users", "users", "households", "household_members"}
 
 # Line starts that are table constraints rather than columns.
 NOT_A_COLUMN = {

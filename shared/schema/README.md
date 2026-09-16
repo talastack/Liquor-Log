@@ -19,7 +19,10 @@ tables):
    infinity bottles). Skip any section already applied; each is guarded.
 2. `postgres/patches/0008_community.sql` — price and drip reports, hosted
    menus, the two community views.
-3. `rls/policies.sql`.
+3. `postgres/patches/0009_households.sql` — sharing a shelf with a partner:
+   households, invite codes, the functions the app calls.
+4. `rls/policies.sql` — now "yours, or a household member's" on every
+   data table.
 
 Paste each file whole into the SQL editor (Database → SQL) and run it.
 
