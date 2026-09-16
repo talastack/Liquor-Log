@@ -59,4 +59,18 @@ final class WaxDripTests: XCTestCase {
         XCTAssertEqual(mid.text, "Longer than 50% of 5.")
     }
 
+    // MARK: - Among everyone's
+
+    func testCommunityStandingSpeaksInQuarters() {
+        let standing = WaxDrip.CommunityStanding(catalogProductId: "makers", reports: 40, p25: 0.1, p50: 0.15, p75: 0.2)
+        XCTAssertEqual(standing.text(for: 0.25), "Longer than three quarters of the 40 drips people have measured.")
+        XCTAssertEqual(standing.text(for: 0.16), "Longer than half of the 40 drips people have measured.")
+        XCTAssertEqual(standing.text(for: 0.12), "Longer than a quarter of the 40 drips people have measured.")
+        XCTAssertEqual(standing.text(for: 0.05), "Among the shortest quarter of the 40 drips people have measured.")
+    }
+
+    func testTooFewMeasuredDripsSayNothing() {
+        let standing = WaxDrip.CommunityStanding(catalogProductId: "makers", reports: 3, p25: 0.1, p50: 0.15, p75: 0.2)
+        XCTAssertNil(standing.text(for: 0.5))
+    }
 }

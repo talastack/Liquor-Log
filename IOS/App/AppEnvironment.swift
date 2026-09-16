@@ -51,6 +51,35 @@ final class AppEnvironment {
     var wishlist: WishlistRepository { WishlistRepository(database) }
     var export: CollectionExport { CollectionExport(database) }
     var notes: KnowledgeNoteRepository { KnowledgeNoteRepository(database) }
+    var reports: ReportRepository { ReportRepository(database) }
+
+    /// Everyone's reports, reduced, from the Supabase project. Nil when
+    /// the build has no project; every community line then stays hidden.
+    var community: CommunityService?
+
+    /// Sharing what this person sees -- shelf prices, wax drips -- is off
+    /// until they switch it on, and switching it off withdraws everything.
+    static let sharingKey = "community.share"
+    static let regionKey = "community.region"
+
+    var isSharing: Bool { UserDefaults.standard.bool(forKey: Self.sharingKey) }
+    var region: String? {
+        let raw = UserDefaults.standard.string(forKey: Self.regionKey)?
+            .trimmingCharacters(in: .whitespaces).uppercased() ?? ""
+        return raw.isEmpty ? nil : raw
+    }
+
+    /// Records a shelf-price sighting, if sharing is on. Called wherever
+    /// a price is typed against a catalogue product.
+    func sawPrice(productId: String?, cents: Int?) {
+        guard isSharing, let productId, let cents, cents > 0 else { return }
+        try? reports.recordPrice(productId: productId, cents: cents, region: region)
+    }
+
+    func measuredDrip(productId: String?, fraction: Double?) {
+        guard isSharing, let productId, let fraction else { return }
+        try? reports.recordDrip(productId: productId, fraction: fraction)
+    }
 
     init(
         database: AppDatabase,

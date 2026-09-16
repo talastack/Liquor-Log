@@ -27,6 +27,7 @@ struct LiquorLogApp: App {
             database: env.database,
             configuration: SyncConfiguration.fromBundle())
         sync.onPulled = { env.noteChange() }
+        env.community = sync.communityTransport.map { CommunityService(transport: $0) }
         _sync = State(initialValue: sync)
     }
 

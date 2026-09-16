@@ -305,6 +305,9 @@ struct DripMeasureView: View {
                 color: color,
                 dripFraction: measurement.fraction,
                 dripLengthMm: measurement.millimeters)
+            env.measuredDrip(
+                productId: try? env.bottles.summary(id: bottleId)?.bottle.catalogProductId,
+                fraction: measurement.fraction)
             onSave?()
             dismiss()
         } catch {

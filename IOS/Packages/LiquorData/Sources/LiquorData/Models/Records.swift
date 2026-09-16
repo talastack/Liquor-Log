@@ -640,6 +640,122 @@ public struct BlendAddition: SyncableRecord {
     }
 }
 
+// MARK: - price_reports, drip_reports, menus
+
+/// A shelf price somebody saw, contributed when they chose to. The only
+/// price data the app can honestly own: an observation is the observer's
+/// to give, it carries no licence, and it says how many it rests on.
+public struct PriceReport: SyncableRecord {
+    public static let databaseTableName = "price_reports"
+
+    public var id: String
+    public var userId: String?
+    public var catalogProductId: String
+    public var cents: Int
+    /// A US state or a country code, coarsely. Nil when not set.
+    public var region: String?
+    public var seenAt: Int64
+    public var createdAt: Int64
+    public var updatedAt: Int64
+    public var deletedAt: Int64?
+    public var dirty: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case id, userId = "user_id", catalogProductId = "catalog_product_id"
+        case cents, region, seenAt = "seen_at"
+        case createdAt = "created_at", updatedAt = "updated_at"
+        case deletedAt = "deleted_at", dirty
+    }
+
+    public init(
+        id: String = UUID().uuidString, userId: String? = nil,
+        catalogProductId: String, cents: Int, region: String? = nil,
+        seenAt: Int64 = Self.nowMilliseconds(),
+        createdAt: Int64 = Self.nowMilliseconds(), updatedAt: Int64 = Self.nowMilliseconds(),
+        deletedAt: Int64? = nil, dirty: Bool = true
+    ) {
+        self.id = id; self.userId = userId; self.catalogProductId = catalogProductId
+        self.cents = cents; self.region = region; self.seenAt = seenAt
+        self.createdAt = createdAt; self.updatedAt = updatedAt
+        self.deletedAt = deletedAt; self.dirty = dirty
+    }
+}
+
+/// A wax drip measured from a photo, as a fraction of the bottle's height.
+public struct DripReport: SyncableRecord {
+    public static let databaseTableName = "drip_reports"
+
+    public var id: String
+    public var userId: String?
+    public var catalogProductId: String
+    public var fraction: Double
+    public var createdAt: Int64
+    public var updatedAt: Int64
+    public var deletedAt: Int64?
+    public var dirty: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case id, userId = "user_id", catalogProductId = "catalog_product_id", fraction
+        case createdAt = "created_at", updatedAt = "updated_at"
+        case deletedAt = "deleted_at", dirty
+    }
+
+    public init(
+        id: String = UUID().uuidString, userId: String? = nil,
+        catalogProductId: String, fraction: Double,
+        createdAt: Int64 = Self.nowMilliseconds(), updatedAt: Int64 = Self.nowMilliseconds(),
+        deletedAt: Int64? = nil, dirty: Bool = true
+    ) {
+        self.id = id; self.userId = userId; self.catalogProductId = catalogProductId
+        self.fraction = fraction
+        self.createdAt = createdAt; self.updatedAt = updatedAt
+        self.deletedAt = deletedAt; self.dirty = dirty
+    }
+}
+
+/// A published "what's open": the menu as text, under a slug a page is
+/// served at. One per person is the normal case; the slug is the link.
+public struct HostedMenu: SyncableRecord {
+    public static let databaseTableName = "menus"
+
+    public var id: String
+    public var userId: String?
+    public var slug: String
+    public var title: String
+    public var body: String
+    public var publishedAt: Int64
+    public var createdAt: Int64
+    public var updatedAt: Int64
+    public var deletedAt: Int64?
+    public var dirty: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case id, userId = "user_id", slug, title, body
+        case publishedAt = "published_at"
+        case createdAt = "created_at", updatedAt = "updated_at"
+        case deletedAt = "deleted_at", dirty
+    }
+
+    public init(
+        id: String = UUID().uuidString, userId: String? = nil,
+        slug: String, title: String, body: String,
+        publishedAt: Int64 = Self.nowMilliseconds(),
+        createdAt: Int64 = Self.nowMilliseconds(), updatedAt: Int64 = Self.nowMilliseconds(),
+        deletedAt: Int64? = nil, dirty: Bool = true
+    ) {
+        self.id = id; self.userId = userId; self.slug = slug
+        self.title = title; self.body = body; self.publishedAt = publishedAt
+        self.createdAt = createdAt; self.updatedAt = updatedAt
+        self.deletedAt = deletedAt; self.dirty = dirty
+    }
+
+    /// A slug nobody can guess: 12 characters from a URL-safe alphabet.
+    public static func makeSlug() -> String {
+        let alphabet = Array("abcdefghijkmnpqrstuvwxyz23456789")
+        return String((0..<12).map { _ in alphabet[Int.random(in: 0..<alphabet.count)] })
+    }
+}
+
 public struct FillReading: SyncableRecord {
     public static let databaseTableName = "fill_readings"
 

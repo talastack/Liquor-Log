@@ -11,7 +11,7 @@ import Foundation
 /// JWT, Postgres scopes each table to `auth.uid() = user_id`, and no filter
 /// here is load-bearing for privacy — a bug in this file cannot leak somebody
 /// else's collection.
-public struct SupabaseTransport: SyncTransport {
+public struct SupabaseTransport: SyncTransport, CommunityTransport {
 
     private let baseURL: URL
     private let anonKey: String
@@ -75,6 +75,24 @@ public struct SupabaseTransport: SyncTransport {
         request.httpMethod = "GET"
         sign(&request, token: token)
 
+        return try await send(request)
+    }
+
+    // MARK: - Public views
+
+    /// The community views are granted to the anon role, so this signs
+    /// with the access token when there is one and the anon key alone
+    /// when there is not: a person with no account still sees the
+    /// figures, and contributes nothing.
+    public func fetchPublic(view: String, query: [URLQueryItem]) async throws -> Data {
+        var components = URLComponents(url: endpoint(view), resolvingAgainstBaseURL: false)!
+        components.queryItems = query
+        var request = URLRequest(url: components.url!)
+        request.httpMethod = "GET"
+        request.setValue(anonKey, forHTTPHeaderField: "apikey")
+        if let token = await accessToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
         return try await send(request)
     }
 

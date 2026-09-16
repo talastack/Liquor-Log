@@ -510,6 +510,8 @@ struct AislePriceCheck: View {
 
     @State private var typed = ""
     @State private var lines: [(text: String, tone: Tone)] = []
+    /// Everyone's sightings of this product, fetched once per card.
+    @State private var community: [CommunityPrice.Aggregate] = []
 
     enum Tone { case good, neutral, bad }
 
@@ -524,6 +526,9 @@ struct AislePriceCheck: View {
                     .foregroundStyle(Palette.text)
                     .keyboardType(.decimalPad)
                     .onChange(of: typed) { _, _ in check() }
+                    // A sighting is recorded when the field is left, not
+                    // on every keystroke, and only when sharing is on.
+                    .onSubmit { record() }
             }
             .padding(.horizontal, Space.m)
             .frame(minHeight: 40)
@@ -536,6 +541,15 @@ struct AislePriceCheck: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
+        .task {
+            guard let service = env.community else { return }
+            community = await service.prices(for: result.hit.product.productId)
+        }
+    }
+
+    private func record() {
+        guard let dollars = LocalNumber.parse(typed), dollars > 0 else { return }
+        env.sawPrice(productId: result.hit.product.productId, cents: Int((dollars * 100).rounded()))
     }
 
     private func color(_ tone: Tone) -> Color {
@@ -583,6 +597,20 @@ struct AislePriceCheck: View {
             case .noReference: tone = .neutral
             }
             next.append(("\(check.headline) — \(Money.short(reference.cents)) \(reference.source).", tone))
+        }
+
+        // Against what other people saw on shelves -- a range with its
+        // count, never a valuation -- when enough have reported it.
+        if let estimate = CommunityPrice.best(from: community, preferring: env.region) {
+            let check = PriceCheck.compare(paidCents: asking, reference: estimate.reference)
+            let tone: Tone
+            switch check.band {
+            case .atOrBelow: tone = .good
+            case .slightlyOver: tone = .neutral
+            case .wellOver, .farOver: tone = .bad
+            case .noReference: tone = .neutral
+            }
+            next.append(("\(check.headline) — \(estimate.source), \(Money.short(estimate.lowestCents)) to \(Money.short(estimate.highestCents)).", tone))
         }
 
         // Against the ceiling you set yourself.

@@ -130,7 +130,10 @@ The aisle question, offline: *do I already own this?*
   added-by-year, notable (strongest, oldest, open longest, Blanton's set),
   samples on hand, **given away** (every pour marked as somebody else's);
   money behind the switch; share as a card (`CollectionStats`).
-- **What's open** — a guest menu as text or image (`PourMenu`).
+- **What's open** — a guest menu as text or image (`PourMenu`), and, for
+  Pro with an account, **as a link**: a page served by the `menu` Edge
+  Function at an address nobody can guess, republished under the same
+  link, taken down on request (`HostedMenu`).
 - **Tonight** — the IBA's official cocktails (29 of them, the IBA's own
   measures) against your open bottles: ready ones with the bottle chosen
   for each slot (highest rated, then fullest), then those one bottle
@@ -138,6 +141,13 @@ The aisle question, offline: *do I already own this?*
   Slots match by class — sweet vs dry vermouth, white vs dark rum and the
   named liqueurs by name (`Cocktails`).
 - **Sync** — optional, Supabase, two-clock LWW (`SyncEngine`); Pro.
+- **Sharing** (off by default) — shelf prices you type and wax drips you
+  measure go up as anonymous reports carrying only your state; switching
+  it off withdraws them. In return the aisle price check shows "N shelf
+  prices reported in KY, $X to $Y" once three or more exist, and the wax
+  card says where your drip falls among everyone's measured ones
+  (`CommunityService`, `ReportRepository`, the `community_prices` and
+  `community_drips` views). Nothing is a valuation.
 - **Wishlist** — ceiling, buy it (one transaction), change the price, share
   as a gift list, finished-lately → buy again.
 - **Taste a flight**, **Pick my pour**, **Shelf walk** (`ReInventory`).
@@ -172,6 +182,6 @@ price feed, beer. See `docs/00-positioning.md`.
 
 ## Waiting on something outside the code
 
-Hosted menu and community price/drip standing (Supabase live); COLA
-verification of the catalogue; the app's name, Pro price, terms and privacy
-pages.
+Applying `shared/schema/README.md` to the live project and deploying the
+menu function; COLA verification of the catalogue; the app's name, Pro
+price, terms and privacy pages.

@@ -61,6 +61,10 @@ final class SyncController {
     private let database: AppDatabase
     private let auth: SupabaseAuth?
     private let engine: SyncEngine?
+    /// The same transport, for the community views. Nil without a project.
+    let communityTransport: SupabaseTransport?
+    /// Where a published menu is served: the project's functions host.
+    let menuBase: URL?
 
     init(database: AppDatabase, configuration: SyncConfiguration?) {
         self.database = database
@@ -68,6 +72,8 @@ final class SyncController {
         guard let configuration else {
             self.auth = nil
             self.engine = nil
+            self.communityTransport = nil
+            self.menuBase = nil
             self.state = .unavailable
             return
         }
@@ -89,7 +95,14 @@ final class SyncController {
             db: database,
             transport: transport,
             cursors: UserDefaultsCursorStore())
+        self.communityTransport = transport
+        self.menuBase = URL(string: "https://\(configuration.host)/functions/v1/menu/")
         self.state = .signedOut
+    }
+
+    var isSignedIn: Bool {
+        if case .signedIn = state { return true }
+        return false
     }
 
     // MARK: - Account

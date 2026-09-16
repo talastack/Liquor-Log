@@ -93,6 +93,40 @@ public enum WaxDrip: Sendable {
         }
     }
 
+    /// Everyone's measured drips of a product, reduced on the server to a
+    /// count and quartiles. Where yours falls among them is a fact about
+    /// the sample, said in quarters, never a word for the drip itself.
+    public struct CommunityStanding: Hashable, Sendable, Decodable {
+        public let catalogProductId: String
+        public let reports: Int
+        public let p25: Double
+        public let p50: Double
+        public let p75: Double
+
+        enum CodingKeys: String, CodingKey {
+            case catalogProductId = "catalog_product_id", reports, p25, p50, p75
+        }
+
+        public init(catalogProductId: String, reports: Int, p25: Double, p50: Double, p75: Double) {
+            self.catalogProductId = catalogProductId
+            self.reports = reports; self.p25 = p25; self.p50 = p50; self.p75 = p75
+        }
+
+        /// Fewer than this and the quartiles are one person's bottles.
+        public static let minimumReports = 4
+
+        /// "Longer than three quarters of the 40 drips people have measured."
+        /// Nil until there are enough.
+        public func text(for fraction: Double) -> String? {
+            guard reports >= Self.minimumReports else { return nil }
+            let tail = " of the \(reports) drips people have measured."
+            if fraction > p75 { return "Longer than three quarters" + tail }
+            if fraction > p50 { return "Longer than half" + tail }
+            if fraction > p25 { return "Longer than a quarter" + tail }
+            return "Among the shortest quarter" + tail
+        }
+    }
+
     public static func standing(of fraction: Double, among fractions: [Double]) -> Standing {
         let others = fractions
         guard !others.isEmpty else { return Standing(rank: 1, count: 1, longerThan: nil) }

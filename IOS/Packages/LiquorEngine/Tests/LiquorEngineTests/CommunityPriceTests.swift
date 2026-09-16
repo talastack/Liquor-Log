@@ -123,4 +123,42 @@ final class CommunityPriceTests: XCTestCase {
         let reports = [report(50, region: "TX"), report(52, region: "TX"), report(54, region: "TX")]
         XCTAssertNotNil(CommunityPrice.best(from: reports, preferring: nil, now: now))
     }
+
+    // MARK: - From the server's rows
+
+    private func row(_ region: String?, isAll: Bool = false, reports: Int, median: Int) -> CommunityPrice.Aggregate {
+        CommunityPrice.Aggregate(
+            catalogProductId: "w12", region: region, isAll: isAll, reports: reports,
+            medianCents: median, lowestCents: median - 500, highestCents: median + 500,
+            oldestSeenAt: 1_700_000_000_000, latestSeenAt: 1_750_000_000_000)
+    }
+
+    func testTheRegionWinsWhenItHasEnoughReports() {
+        let rows = [row("KY", reports: 5, median: 2999), row(nil, isAll: true, reports: 40, median: 3499)]
+        let best = CommunityPrice.best(from: rows, preferring: "KY")
+        XCTAssertEqual(best?.cents, 2999)
+        XCTAssertEqual(best?.region, "KY")
+        XCTAssertEqual(best?.source, "5 shelf prices reported in KY")
+    }
+
+    func testTooFewLocalReportsFallBackToEverywhere() {
+        let rows = [row("KY", reports: 2, median: 2999), row(nil, isAll: true, reports: 40, median: 3499)]
+        let best = CommunityPrice.best(from: rows, preferring: "KY")
+        XCTAssertEqual(best?.cents, 3499)
+        XCTAssertNil(best?.region)
+    }
+
+    func testTooFewEverywhereIsNothing() {
+        XCTAssertNil(CommunityPrice.best(from: [row(nil, isAll: true, reports: 2, median: 3499)], preferring: nil))
+    }
+
+    func testTheViewRowDecodes() throws {
+        let json = """
+        [{"catalog_product_id":"w12","region":null,"is_all":true,"reports":7,"median_cents":3499,
+          "lowest_cents":2999,"highest_cents":4299,"oldest_seen_at":1700000000000,"latest_seen_at":1750000000000}]
+        """
+        let rows = try JSONDecoder().decode([CommunityPrice.Aggregate].self, from: Data(json.utf8))
+        XCTAssertEqual(rows.first?.reports, 7)
+        XCTAssertTrue(rows.first?.isAll ?? false)
+    }
 }

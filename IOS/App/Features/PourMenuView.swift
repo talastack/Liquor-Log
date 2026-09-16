@@ -22,9 +22,14 @@ import LiquorEngine
 /// it will actually be sent.
 struct PourMenuView: View {
     @Environment(AppEnvironment.self) private var env
+    @Environment(SyncController.self) private var sync
+    @Environment(ProStore.self) private var store
 
     @State private var items: [PourMenu.Item] = []
     @State private var title = "Open tonight"
+    /// The published copy, when there is one.
+    @State private var hosted: HostedMenu?
+    @State private var publishError: String?
 
     private var text: String { PourMenu.text(title: title, items: items) }
 
@@ -104,17 +109,116 @@ struct PourMenuView: View {
                     .textCase(nil)
                     .foregroundStyle(Palette.textMuted)
                     .fixedSize(horizontal: false, vertical: true)
+
+                if sync.menuBase != nil {
+                    hostedSection
+                }
             }
             .padding(.horizontal, Space.xl)
             .padding(.top, Space.l)
             .padding(.bottom, 96)
         }
+        .alert("Could not publish", isPresented: .constant(publishError != nil)) {
+            Button("OK") { publishError = nil }
+        } message: { Text(publishError ?? "") }
         .background(Palette.background)
         .navigationTitle("What's open")
         .navigationBarTitleDisplayMode(.inline)
         .task { reload() }
         .sheet(item: $rendered) { card in
             ShareSheet(items: [card.image])
+        }
+    }
+
+    // MARK: - A link
+
+    /// The menu as a page anybody can open, under a link that stays the
+    /// same when it is republished. Pro, and it needs the account sync
+    /// uses: the page is served from the same project.
+    @ViewBuilder
+    private var hostedSection: some View {
+        VStack(alignment: .leading, spacing: Space.m) {
+            SectionLabel("As a link")
+            if !store.allows(.hostedMenu) {
+                ProLockedCard(feature: .hostedMenu)
+            } else if !sync.isSignedIn {
+                Text("Sign in under Sync to publish a link. The page is served from the same account.")
+                    .font(TypeScale.secondary())
+                    .foregroundStyle(Palette.textMuted)
+                    .fixedSize(horizontal: false, vertical: true)
+            } else {
+                if let hosted, let link = link(for: hosted) {
+                    VStack(alignment: .leading, spacing: Space.s) {
+                        Text(link.absoluteString)
+                            .font(TypeScale.code(13))
+                            .foregroundStyle(Palette.gold)
+                            .textSelection(.enabled)
+                        Text("Published \(Date(timeIntervalSince1970: Double(hosted.publishedAt) / 1000).formatted(date: .abbreviated, time: .shortened)). Publish again after a change; the link stays.")
+                            .font(TypeScale.caption())
+                            .textCase(nil)
+                            .foregroundStyle(Palette.textMuted)
+                            .fixedSize(horizontal: false, vertical: true)
+                        HStack(spacing: Space.m) {
+                            ShareLink(item: link) {
+                                Label("Share the link", systemImage: "link")
+                                    .font(TypeScale.secondary().weight(.semibold))
+                                    .foregroundStyle(Palette.onGold)
+                                    .frame(maxWidth: .infinity, minHeight: Space.tapTarget)
+                                    .background(RoundedRectangle(cornerRadius: 10).fill(Palette.gold))
+                            }
+                            Button { publish() } label: {
+                                Text("Publish again")
+                                    .font(TypeScale.secondary().weight(.semibold))
+                                    .foregroundStyle(Palette.gold)
+                                    .frame(maxWidth: .infinity, minHeight: Space.tapTarget)
+                                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(Palette.gold, lineWidth: 1))
+                            }
+                        }
+                        Button(role: .destructive) { unpublish() } label: {
+                            Text("Take it down")
+                                .font(TypeScale.secondary())
+                                .foregroundStyle(Palette.bad)
+                                .frame(maxWidth: .infinity, minHeight: Space.tapTarget)
+                        }
+                    }
+                } else {
+                    Button { publish() } label: {
+                        Label("Publish as a link", systemImage: "link")
+                            .font(TypeScale.headline())
+                            .foregroundStyle(Palette.onGold)
+                            .frame(maxWidth: .infinity, minHeight: 50)
+                            .background(RoundedRectangle(cornerRadius: 11).fill(Palette.gold))
+                    }
+                    Text("A page with this menu on it, at an address nobody can guess. It goes up with the next sync.")
+                        .font(TypeScale.caption())
+                        .textCase(nil)
+                        .foregroundStyle(Palette.textMuted)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        }
+    }
+
+    private func link(for menu: HostedMenu) -> URL? {
+        sync.menuBase?.appendingPathComponent(menu.slug)
+    }
+
+    private func publish() {
+        do {
+            hosted = try env.reports.publishMenu(title: title, body: text)
+            Task { await sync.sync() }
+        } catch {
+            publishError = error.localizedDescription
+        }
+    }
+
+    private func unpublish() {
+        do {
+            try env.reports.unpublishMenu()
+            hosted = nil
+            Task { await sync.sync() }
+        } catch {
+            publishError = error.localizedDescription
         }
     }
 
@@ -139,6 +243,7 @@ struct PourMenuView: View {
     }
 
     private func reload() {
+        hosted = try? env.reports.currentMenu()
         let bottles = (try? env.bottles.summaries()) ?? []
         items = bottles
             // A sample is not on offer: there is one pour in it, and it was
@@ -220,7 +325,10 @@ struct ShareSheet: UIViewControllerRepresentable {
 }
 
 #Preview {
-    NavigationStack { PourMenuView() }
-        .environment(AppEnvironment.preview())
+    let env = AppEnvironment.preview()
+    return NavigationStack { PourMenuView() }
+        .environment(env)
+        .environment(SyncController(database: env.database, configuration: nil))
+        .environment(ProStore())
         .preferredColorScheme(.dark)
 }

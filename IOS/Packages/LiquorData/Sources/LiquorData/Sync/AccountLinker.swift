@@ -23,6 +23,7 @@ public struct AccountLinker: Sendable {
     private var tables: [String] {
         [
             "custom_catalog_entries", "bottles", "pours", "fill_readings",
+            "blend_additions", "price_reports", "drip_reports", "menus",
             "tastings", "tasting_notes", "wishlist_items", "knowledge_notes",
         ]
     }

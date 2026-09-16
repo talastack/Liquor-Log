@@ -660,6 +660,76 @@ create table subscriptions (
 );
 
 -- ---------------------------------------------------------------------------
+-- price_reports
+-- ---------------------------------------------------------------------------
+--
+-- One person's sighting of a shelf price: what it cost, where, when. The only
+-- price data the app can honestly own -- an observation is the observer's to
+-- contribute, carries no licence and gets better with use. Never a valuation.
+-- Pushed only when the person has switched sharing on; read back by everyone
+-- through the community_prices view, which carries no user id.
+
+create table price_reports (
+  id                  text primary key,
+  user_id             uuid not null references auth.users (id) on delete cascade,
+  catalog_product_id  text not null,
+  cents               integer not null,
+  -- Coarse: a US state or a country code. Prices differ more between
+  -- states than between shops, so a national figure is one nobody recognises.
+  region              text,
+  seen_at             bigint not null,
+  created_at          bigint not null,
+  updated_at          bigint not null,
+  deleted_at          bigint,
+  server_updated_at   bigint not null default 0,
+
+  constraint price_report_is_positive check (cents > 0)
+);
+
+-- ---------------------------------------------------------------------------
+-- drip_reports
+-- ---------------------------------------------------------------------------
+--
+-- A wax drip measured from a photo, as a fraction of the bottle's height,
+-- for the Maker's Mark question "is mine long". Read back as quartiles.
+
+create table drip_reports (
+  id                  text primary key,
+  user_id             uuid not null references auth.users (id) on delete cascade,
+  catalog_product_id  text not null,
+  fraction            double precision not null,
+  created_at          bigint not null,
+  updated_at          bigint not null,
+  deleted_at          bigint,
+  server_updated_at   bigint not null default 0,
+
+  constraint drip_report_is_a_fraction check (fraction >= 0 and fraction <= 1)
+);
+
+-- ---------------------------------------------------------------------------
+-- menus
+-- ---------------------------------------------------------------------------
+--
+-- A published "what's open": the menu as rendered text, under a slug that
+-- the menu Edge Function serves as a page. Owner-only to write; the
+-- function reads it with the service role, so no read policy is opened.
+
+create table menus (
+  id                  text primary key,
+  user_id             uuid not null references auth.users (id) on delete cascade,
+  slug                text not null unique,
+  title               text not null,
+  body                text not null,
+  published_at        bigint not null,
+  created_at          bigint not null,
+  updated_at          bigint not null,
+  deleted_at          bigint,
+  server_updated_at   bigint not null default 0,
+
+  constraint slug_is_short check (char_length(slug) between 6 and 64)
+);
+
+-- ---------------------------------------------------------------------------
 -- Triggers
 -- ---------------------------------------------------------------------------
 
@@ -679,6 +749,15 @@ create trigger a_fill_readings_reject_stale
   for each row execute function reject_stale_writes();
 create trigger a_blend_additions_reject_stale
   before update on blend_additions
+  for each row execute function reject_stale_writes();
+create trigger a_price_reports_reject_stale
+  before update on price_reports
+  for each row execute function reject_stale_writes();
+create trigger a_drip_reports_reject_stale
+  before update on drip_reports
+  for each row execute function reject_stale_writes();
+create trigger a_menus_reject_stale
+  before update on menus
   for each row execute function reject_stale_writes();
 create trigger a_tastings_reject_stale
   before update on tastings
@@ -708,6 +787,15 @@ create trigger fill_readings_server_clock
 create trigger blend_additions_server_clock
   before insert or update on blend_additions
   for each row execute function set_server_updated_at();
+create trigger price_reports_server_clock
+  before insert or update on price_reports
+  for each row execute function set_server_updated_at();
+create trigger drip_reports_server_clock
+  before insert or update on drip_reports
+  for each row execute function set_server_updated_at();
+create trigger menus_server_clock
+  before insert or update on menus
+  for each row execute function set_server_updated_at();
 create trigger tastings_server_clock
   before insert or update on tastings
   for each row execute function set_server_updated_at();
@@ -736,6 +824,9 @@ create index bottles_pull on bottles (user_id, server_updated_at);
 create index pours_pull on pours (user_id, server_updated_at);
 create index fill_readings_pull on fill_readings (user_id, server_updated_at);
 create index blend_additions_pull on blend_additions (user_id, server_updated_at);
+create index price_reports_pull on price_reports (user_id, server_updated_at);
+create index drip_reports_pull on drip_reports (user_id, server_updated_at);
+create index menus_pull on menus (user_id, server_updated_at);
 create index tastings_pull on tastings (user_id, server_updated_at);
 create index tasting_notes_pull on tasting_notes (user_id, server_updated_at);
 create index wishlist_items_pull on wishlist_items (user_id, server_updated_at);
@@ -748,9 +839,67 @@ create index pours_by_bottle on pours (bottle_id, poured_at);
 -- pours after it, so both halves of that read are indexed.
 create index fill_readings_by_bottle on fill_readings (bottle_id, read_at);
 create index blend_additions_by_blend on blend_additions (blend_bottle_id, added_at);
+-- The community views group by product, and the function finds a menu by slug.
+create index price_reports_by_product on price_reports (catalog_product_id, region);
+create index drip_reports_by_product on drip_reports (catalog_product_id);
 create index tastings_by_bottle on tastings (bottle_id, tasted_at);
 create index tastings_by_product on tastings (catalog_product_id, tasted_at);
 create index tasting_notes_by_tasting on tasting_notes (tasting_id);
 create index bottles_by_product on bottles (user_id, catalog_product_id);
 
 commit;
+
+-- ---------------------------------------------------------------------------
+-- Community views
+-- ---------------------------------------------------------------------------
+--
+-- Aggregates over everyone's reports, readable by anyone with the anon key.
+-- They expose counts and medians and never a user id. Deleted reports are
+-- left out; a report a person withdraws stops counting.
+
+-- One row per product and region, plus one per product across every
+-- region (is_all). Only sightings from the last 540 days count: a shelf
+-- price three years old presented as current is worse than none.
+create or replace view community_prices
+with (security_invoker = false) as
+  select
+    catalog_product_id,
+    case when grouping(region) = 1 then null else region end            as region,
+    grouping(region) = 1                                                as is_all,
+    count(*)::integer                                                   as reports,
+    (percentile_cont(0.5) within group (order by cents))::integer       as median_cents,
+    min(cents)                                                          as lowest_cents,
+    max(cents)                                                          as highest_cents,
+    min(seen_at)                                                        as oldest_seen_at,
+    max(seen_at)                                                        as latest_seen_at
+  from price_reports
+  where deleted_at is null
+    and seen_at > (extract(epoch from now()) * 1000)::bigint - 540::bigint * 86400000
+  group by grouping sets ((catalog_product_id, region), (catalog_product_id));
+
+create or replace view community_drips
+with (security_invoker = false) as
+  select
+    catalog_product_id,
+    count(*)::integer                                                   as reports,
+    percentile_cont(0.25) within group (order by fraction)              as p25,
+    percentile_cont(0.5)  within group (order by fraction)              as p50,
+    percentile_cont(0.75) within group (order by fraction)              as p75
+  from drip_reports
+  where deleted_at is null
+  group by catalog_product_id;
+
+-- The Supabase roles; guarded so the file also applies to a plain Postgres
+-- in CI, which has neither.
+do $$
+begin
+  if exists (select 1 from pg_roles where rolname = 'anon') then
+    grant select on community_prices to anon;
+    grant select on community_drips  to anon;
+  end if;
+  if exists (select 1 from pg_roles where rolname = 'authenticated') then
+    grant select on community_prices to authenticated;
+    grant select on community_drips  to authenticated;
+  end if;
+end $$;
+

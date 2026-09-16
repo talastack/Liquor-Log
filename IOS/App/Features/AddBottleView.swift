@@ -774,9 +774,12 @@ struct AddBottleView: View {
             openedAt: isAlreadyOpen ? Int64(openedOn.timeIntervalSince1970 * 1000) : nil)
 
         do {
-            if chosen != nil {
+            if let chosen {
                 try env.bottles.add(bottle)
                 try recordOpeningLevel(bottle)
+                // The shelf price if one was typed, else what was paid: a
+                // sighting either way, when sharing is on.
+                env.sawPrice(productId: chosen.id, cents: bottle.shelfPriceCents ?? bottle.purchasePriceCents)
             } else {
                 let product = CustomCatalogEntry(
                     distillery: customDistillery.isEmpty ? customBrand : customDistillery,

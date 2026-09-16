@@ -153,6 +153,46 @@ public enum Migrations {
                 t.column("dirty", .boolean).notNull().defaults(to: true)
             }
 
+            // A shelf price somebody saw, shared when they chose to. Kept
+            // locally so it syncs like everything else and can be withdrawn.
+            try db.create(table: "price_reports") { t in
+                t.primaryKey("id", .text).notNull()
+                t.column("user_id", .text)
+                t.column("catalog_product_id", .text).notNull()
+                t.column("cents", .integer).notNull()
+                t.column("region", .text)
+                t.column("seen_at", .integer).notNull()
+                t.column("created_at", .integer).notNull()
+                t.column("updated_at", .integer).notNull()
+                t.column("deleted_at", .integer)
+                t.column("dirty", .boolean).notNull().defaults(to: true)
+            }
+
+            try db.create(table: "drip_reports") { t in
+                t.primaryKey("id", .text).notNull()
+                t.column("user_id", .text)
+                t.column("catalog_product_id", .text).notNull()
+                t.column("fraction", .double).notNull()
+                t.column("created_at", .integer).notNull()
+                t.column("updated_at", .integer).notNull()
+                t.column("deleted_at", .integer)
+                t.column("dirty", .boolean).notNull().defaults(to: true)
+            }
+
+            // A published "what's open", by slug.
+            try db.create(table: "menus") { t in
+                t.primaryKey("id", .text).notNull()
+                t.column("user_id", .text)
+                t.column("slug", .text).notNull()
+                t.column("title", .text).notNull()
+                t.column("body", .text).notNull()
+                t.column("published_at", .integer).notNull()
+                t.column("created_at", .integer).notNull()
+                t.column("updated_at", .integer).notNull()
+                t.column("deleted_at", .integer)
+                t.column("dirty", .boolean).notNull().defaults(to: true)
+            }
+
             try db.create(table: "fill_readings") { t in
                 t.primaryKey("id", .text).notNull()
                 t.column("user_id", .text)

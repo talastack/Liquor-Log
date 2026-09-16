@@ -133,4 +133,66 @@ public enum CommunityPrice: Sendable {
         }
         return estimate(from: reports, region: nil, now: now)
     }
+
+    // MARK: - From the server's aggregates
+
+    /// One row of the `community_prices` view: everyone's fresh sightings
+    /// of a product, already reduced to a count, a median and a range,
+    /// either for one region or across all of them. Nobody's individual
+    /// report ever leaves the server.
+    public struct Aggregate: Hashable, Sendable, Decodable {
+        public let catalogProductId: String
+        public let region: String?
+        public let isAll: Bool
+        public let reports: Int
+        public let medianCents: Int
+        public let lowestCents: Int
+        public let highestCents: Int
+        public let oldestSeenAt: Int64
+        public let latestSeenAt: Int64
+
+        enum CodingKeys: String, CodingKey {
+            case catalogProductId = "catalog_product_id", region, isAll = "is_all", reports
+            case medianCents = "median_cents", lowestCents = "lowest_cents", highestCents = "highest_cents"
+            case oldestSeenAt = "oldest_seen_at", latestSeenAt = "latest_seen_at"
+        }
+
+        public init(
+            catalogProductId: String, region: String?, isAll: Bool, reports: Int,
+            medianCents: Int, lowestCents: Int, highestCents: Int,
+            oldestSeenAt: Int64, latestSeenAt: Int64
+        ) {
+            self.catalogProductId = catalogProductId; self.region = region; self.isAll = isAll
+            self.reports = reports; self.medianCents = medianCents
+            self.lowestCents = lowestCents; self.highestCents = highestCents
+            self.oldestSeenAt = oldestSeenAt; self.latestSeenAt = latestSeenAt
+        }
+
+        var estimate: Estimate {
+            Estimate(
+                cents: medianCents, reportCount: reports,
+                lowestCents: lowestCents, highestCents: highestCents,
+                newest: Date(timeIntervalSince1970: Double(latestSeenAt) / 1000),
+                oldest: Date(timeIntervalSince1970: Double(oldestSeenAt) / 1000),
+                region: isAll ? nil : region)
+        }
+    }
+
+    /// The same rule as `best(from:preferring:)`, over the server's rows:
+    /// the region's figure when it rests on enough reports, otherwise the
+    /// figure across everywhere, otherwise nothing.
+    public static func best(
+        from aggregates: [Aggregate],
+        preferring region: String?
+    ) -> Estimate? {
+        if let region,
+           let local = aggregates.first(where: { !$0.isAll && $0.region == region }),
+           local.reports >= minimumReports {
+            return local.estimate
+        }
+        if let all = aggregates.first(where: \.isAll), all.reports >= minimumReports {
+            return all.estimate
+        }
+        return nil
+    }
 }

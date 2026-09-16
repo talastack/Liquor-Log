@@ -74,6 +74,9 @@ struct BottleDetailView: View {
     /// False until the first read, so a bottle that is not there reads as
     /// gone rather than as loading forever.
     @State private var hasLoaded = false
+    /// Everyone's measured drips of this product, when the build has a
+    /// project and enough people have measured one.
+    @State private var communityDrip: WaxDrip.CommunityStanding?
 
     /// The rendered bottle card, while its share sheet is up.
     @State private var shareCard: RenderedBottleCard?
@@ -697,7 +700,17 @@ struct BottleDetailView: View {
                         .font(TypeScale.body())
                         .foregroundStyle(Palette.text)
                         .fixedSize(horizontal: false, vertical: true)
-                    Text("Share of the bottle's height, from your photo. Ranked among your own bottles only.")
+                    // Among everyone's, when enough people have measured
+                    // one and the build has a project to ask.
+                    if let line = communityDrip?.text(for: fraction) {
+                        Text(line)
+                            .font(TypeScale.secondary())
+                            .foregroundStyle(Palette.textSecondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    Text(communityDrip?.text(for: fraction) == nil
+                         ? "Share of the bottle's height, from your photo. Ranked among your own bottles only."
+                         : "Share of the bottle's height, from your photo.")
                         .font(TypeScale.caption())
                         .textCase(nil)
                         .foregroundStyle(Palette.textMuted)
@@ -707,6 +720,10 @@ struct BottleDetailView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
                 .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.line, lineWidth: 1))
+                .task(id: bottle.dripFraction) {
+                    guard let service = env.community, let productId = bottle.catalogProductId else { return }
+                    communityDrip = await service.drips(for: productId)
+                }
             } else {
             }
         }

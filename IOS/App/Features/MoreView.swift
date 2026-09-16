@@ -17,6 +17,8 @@ struct MoreView: View {
     @AppStorage(VolumeDisplay.key) private var ounces = false
 
     @AppStorage(Palette.Look.key, store: Palette.Look.defaults) private var look = Palette.Look.standard.rawValue
+    @AppStorage(AppEnvironment.sharingKey) private var isSharing = false
+    @AppStorage(AppEnvironment.regionKey) private var region = ""
     @Environment(\.colorScheme) private var colorScheme
 
     @State private var exportURL: URL?
@@ -42,6 +44,9 @@ struct MoreView: View {
                 tools
                 appearance
                 money
+                if env.community != nil {
+                    sharing
+                }
                 units
                 exportSection
                 pro
@@ -167,6 +172,59 @@ struct MoreView: View {
                         : "Walk your shelves and bring the list back in line",
                     symbol: "checklist",
                     highlighted: isWalkDue)
+            }
+        }
+    }
+
+    // MARK: - Sharing what you see
+
+    /// Off until switched on. Shelf prices and wax drips are the only
+    /// things shared, as anonymous reports; switching it off withdraws
+    /// every report already sent.
+    private var sharing: some View {
+        VStack(alignment: .leading, spacing: Space.m) {
+            SectionLabel("Sharing")
+
+            Toggle(isOn: $isSharing) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Share what you see")
+                        .font(TypeScale.body())
+                        .foregroundStyle(Palette.text)
+                    Text("Shelf prices and wax drips, anonymously. Off: everything you sent is withdrawn.")
+                        .font(TypeScale.caption())
+                        .textCase(nil)
+                        .foregroundStyle(Palette.textMuted)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .tint(Palette.gold)
+            .onChange(of: isSharing) { _, on in
+                if !on { try? env.reports.withdrawAll() }
+            }
+            .padding(Space.l)
+            .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.line, lineWidth: 1))
+
+            if isSharing {
+                HStack(spacing: Space.m) {
+                    Text("Your state")
+                        .font(TypeScale.secondary())
+                        .foregroundStyle(Palette.textSecondary)
+                    TextField("KY", text: $region)
+                        .textInputAutocapitalization(.characters)
+                        .autocorrectionDisabled()
+                        .font(TypeScale.code(14))
+                        .foregroundStyle(Palette.text)
+                        .padding(.horizontal, Space.m)
+                        .frame(width: 90, height: Space.tapTarget - 8)
+                        .background(RoundedRectangle(cornerRadius: 8).fill(Palette.surfaceRaised))
+                    Spacer()
+                }
+                Text("Prices differ more between states than between shops, so a sighting carries the state and nothing else about you.")
+                    .font(TypeScale.caption())
+                    .textCase(nil)
+                    .foregroundStyle(Palette.textMuted)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
     }

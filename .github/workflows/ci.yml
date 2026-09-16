@@ -113,6 +113,17 @@ jobs:
           docker exec -i pg psql -U postgres -v ON_ERROR_STOP=1 \
             < shared/schema/rls/policies.sql
 
+      # The live project takes the difference as patches. Applying every
+      # patch over a fully initialised schema proves each is re-runnable,
+      # which is what the person pasting them into the SQL editor needs.
+      - name: Apply patches over the init schema, then RLS again
+        run: |
+          for f in shared/schema/postgres/patches/*.sql; do
+            echo "== $f"
+            docker exec -i pg psql -U postgres -v ON_ERROR_STOP=1 < "$f"
+          done
+          docker exec -i pg psql -U postgres -v ON_ERROR_STOP=1 < shared/schema/rls/policies.sql
+
       # Proves the server clock trigger actually fires, rather than trusting
       # that a CREATE TRIGGER statement did something.
       - name: Verify the server clock stamps every write
