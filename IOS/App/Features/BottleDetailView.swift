@@ -74,6 +74,7 @@ struct BottleDetailView: View {
     /// False until the first read, so a bottle that is not there reads as
     /// gone rather than as loading forever.
     @State private var hasLoaded = false
+    @State private var isReadingStory = false
     /// Everyone's measured drips of this product, when the build has a
     /// project and enough people have measured one.
     @State private var communityDrip: WaxDrip.CommunityStanding?
@@ -153,6 +154,7 @@ struct BottleDetailView: View {
                     if !siblings.isEmpty {
                         alsoOnTheShelf
                     }
+                    storyButton
                     actions(summary)
                 }
                 .padding(.horizontal, Space.xl)
@@ -256,6 +258,9 @@ struct BottleDetailView: View {
             NavigationStack {
                 EditBottleView(bottleId: bottleId, onSave: { changed() })
             }
+        }
+        .sheet(isPresented: $isReadingStory) {
+            NavigationStack { StoryView(bottleId: bottleId) }
         }
         .sheet(isPresented: $isSettingLevel) {
             NavigationStack {
@@ -1015,6 +1020,28 @@ struct BottleDetailView: View {
         guard let verified = bottle.lastVerifiedAt else { return "Never" }
         return Date(timeIntervalSince1970: Double(verified) / 1000)
             .formatted(date: .abbreviated, time: .omitted)
+    }
+
+    /// The bottle's record in order, on its own screen, with a card to
+    /// share. Every other section is the bottle as it is now.
+    private var storyButton: some View {
+        Button { isReadingStory = true } label: {
+            HStack(spacing: Space.s) {
+                Image(systemName: "book")
+                Text("The story of this bottle")
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(Palette.textMuted)
+            }
+            .font(TypeScale.body())
+            .foregroundStyle(Palette.text)
+            .padding(Space.l)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.line, lineWidth: 1))
+        }
+        .buttonStyle(.plain)
     }
 
     private func actions(_ summary: BottleSummary) -> some View {

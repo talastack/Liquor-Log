@@ -87,6 +87,12 @@ The aisle question, offline: *do I already own this?*
   mark opened, mark finished, remove, share as an image. Photo:
   take/choose/remove.
 - Nearly-gone → wishlist offer, asked once (`Replenish`).
+- **The story of this bottle** — the record in order with the gaps in
+  days: bottled (from the label year), bought where and for what, opened
+  after N months on the shelf, each pour and who it went to, each tasting
+  and how the rating moved, each level set by eye or by weight, finished N
+  weeks later; a one-line summary and a card to share (`BottleStory`).
+  Nothing inferred: an event with no date is not an event.
 
 ## Adding
 
