@@ -127,6 +127,15 @@ struct MoreView: View {
             }
 
             NavigationLink {
+                PalateView()
+            } label: {
+                row(
+                    "Your palate",
+                    detail: "What your tastings say: the words you reach for, what rates highest",
+                    symbol: "mouth")
+            }
+
+            NavigationLink {
                 SyncView()
             } label: {
                 row(

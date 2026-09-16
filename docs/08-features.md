@@ -134,6 +134,11 @@ The aisle question, offline: *do I already own this?*
   Pro with an account, **as a link**: a page served by the `menu` Edge
   Function at an address nobody can guess, republished under the same
   link, taken down on request (`HostedMenu`).
+- **Your palate** — from your tastings: the words you reach for (counted
+  once per tasting), average rating by class, by strength band, wheated
+  against other bourbon, when it drank hot against easy, your typical
+  finish, how often you'd buy again. Three ratings a side before anything
+  is said; sentences only where the numbers clear that (`Palate`).
 - **Tonight** — the IBA's official cocktails (29 of them, the IBA's own
   measures) against your open bottles: ready ones with the bottle chosen
   for each slot (highest rated, then fullest), then those one bottle
