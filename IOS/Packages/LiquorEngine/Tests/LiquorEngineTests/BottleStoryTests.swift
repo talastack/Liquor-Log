@@ -28,8 +28,8 @@ final class BottleStoryTests: XCTestCase {
         XCTAssertEqual(story.events[2].detail, "After 13 months on the shelf")
         XCTAssertEqual(story.events[5].title, "60 ml to Mike")
         XCTAssertEqual(story.events[8].title, "Tasted · 9/10")
-        XCTAssertEqual(story.events.last?.detail, "12 weeks after opening")
-        XCTAssertEqual(story.summary, "Opened after 13 months on the shelf. Finished 12 weeks later: 2 pours, 1 given away, 2 tastings, the rating up from 7 to 9.")
+        XCTAssertEqual(story.events.last?.detail, "3 months after opening")
+        XCTAssertEqual(story.summary, "Opened after 13 months on the shelf. Finished 3 months later: 2 pours, 1 given away, 2 tastings, the rating up from 7 to 9.")
     }
 
     func testAnOpenBottleHasARunningSummary() {
