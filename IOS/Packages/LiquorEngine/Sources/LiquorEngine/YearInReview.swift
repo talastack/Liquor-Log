@@ -113,7 +113,9 @@ public enum YearInReview: Sendable {
                 lines.append("First of the year: \(first.name), \(dayAndMonth(first.at, calendar: calendar)).")
             }
         }
-        if opened > 0 { lines.append("\(opened) \(opened == 1 ? "bottle" : "bottles") opened.") }
+        // Bottles opened is counted, for the screen's own use, but not said:
+        // on a card that gets shared it reads as a tally of drinking, and
+        // that is the one thing this must never be.
         if !tastings.isEmpty {
             var line = "\(tastings.count) \(tastings.count == 1 ? "tasting" : "tastings") written"
             if let best { line += ". Highest: \(best.name), \(best.rating)/10" }

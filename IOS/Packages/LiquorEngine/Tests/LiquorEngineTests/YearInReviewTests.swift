@@ -41,7 +41,6 @@ final class YearInReviewTests: XCTestCase {
             "4 bottles added, from 3 distilleries. Buffalo Trace most, 2 times.",
             "Mostly kentucky straight bourbon: 3 of them.",
             "First of the year: Weller 12, 3 January.",
-            "2 bottles opened.",
             "3 tastings written. Highest: Stagg, 9/10.",
             "The word you reached for most: Caramel, 2 times.",
             "3 samples from Sarah, Mike.",
@@ -50,6 +49,7 @@ final class YearInReviewTests: XCTestCase {
         ])
         XCTAssertEqual(review.moneyLine, "$102.97 across the 3 with a price.")
         XCTAssertEqual(review.bottlesAdded, 4, "last year's bottle is last year's")
+        XCTAssertEqual(review.opened, 2, "counted, and deliberately not among the sentences")
         XCTAssertEqual(review.wordOfTheYear, YearInReview.Count(name: "Caramel", count: 2), "once per tasting, not three")
         XCTAssertEqual(review.sampleSenders, ["Sarah", "Mike"], "newest first, one Mike")
     }
