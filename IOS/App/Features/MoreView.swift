@@ -21,7 +21,9 @@ struct MoreView: View {
     @AppStorage(AppEnvironment.regionKey) private var region = ""
     @Environment(\.colorScheme) private var colorScheme
 
-    @State private var exportURL: URL?
+    /// The bottles file first; tastings, pours and the hunt log follow
+    /// when there are any.
+    @State private var exportURLs: [URL] = []
     /// Your Blanton's with a dump date, in the registry's shape. Nil until
     /// there is at least one, so nobody without a Blanton's sees the word.
     @State private var registryURL: URL?
@@ -397,11 +399,13 @@ struct MoreView: View {
         VStack(alignment: .leading, spacing: Space.m) {
             SectionLabel("Your data")
 
-            if let exportURL {
-                ShareLink(item: exportURL) {
+            if !exportURLs.isEmpty {
+                ShareLink(items: exportURLs) {
                     row(
                         "Share your collection",
-                        detail: exportURL.lastPathComponent,
+                        detail: exportURLs.count == 1
+                            ? exportURLs[0].lastPathComponent
+                            : "\(exportURLs.count) files: bottles, then tastings, pours and the hunt log",
                         symbol: "square.and.arrow.up",
                         highlighted: true)
                 }
@@ -418,8 +422,8 @@ struct MoreView: View {
 
             Button { buildExport() } label: {
                 row(
-                    exportURL == nil ? "Export everything as CSV" : "Rebuild the export",
-                    detail: "Every bottle, every barrel field, free and complete",
+                    exportURLs.isEmpty ? "Export everything as CSV" : "Rebuild the export",
+                    detail: "Every bottle and barrel field, every tasting with its wheel picks, every pour, the hunt log. Free and complete.",
                     symbol: "tablecells")
             }
 
@@ -621,10 +625,11 @@ struct MoreView: View {
 
     private func buildExport() {
         do {
-            exportURL = try env.export.write(
+            exportURLs = try env.export.writeAll(
                 to: FileManager.default.temporaryDirectory,
                 resolveName: { env.name(for: $0) },
-                resolveIdentity: { env.identity($0) })
+                resolveIdentity: { env.identity($0) },
+                word: { env.wheel.descriptor($0)?.label ?? $0 })
         } catch {
             self.error = error.localizedDescription
         }

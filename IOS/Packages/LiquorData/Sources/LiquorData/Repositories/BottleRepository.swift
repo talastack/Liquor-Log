@@ -307,6 +307,13 @@ public struct BottleRepository: Sendable {
 
     // MARK: - Pours
 
+    /// Every live pour on every bottle, newest first. For the export.
+    public func pours() throws -> [Pour] {
+        try db.queue.read { db in
+            try Pour.live().order(Column("poured_at").desc).fetchAll(db)
+        }
+    }
+
     /// Every live pour of a bottle, newest first.
     public func pours(bottleId: String) throws -> [Pour] {
         try db.queue.read { db in

@@ -125,6 +125,125 @@ public struct CollectionExport: Sendable {
         return CSVWriter.document(header: Self.header, rows: rows)
     }
 
+    // MARK: - The rest of the record
+
+    /// Every tasting, one row each, with the wheel picks per stage. The
+    /// bottle export carries only the latest tasting; a person with three
+    /// years of notes on one bottle needs all three.
+    public static let tastingsHeader = [
+        "date", "bottle", "product", "distillery", "rating", "blind",
+        "would_rebuy", "worth_the_price", "heat", "finish_seconds",
+        "source", "source_note", "liked", "disliked",
+        "nose", "entry", "mid", "finish",
+    ]
+
+    public func tastingsCSV(
+        resolveName: (Bottle) -> String,
+        resolveIdentity: (String) -> ProductIdentity?,
+        word: (String) -> String = { $0 }
+    ) throws -> String {
+        let bottles = BottleRepository(db)
+        let names = Dictionary(
+            try bottles.summaries(includeFinished: true).map { ($0.id, resolveName($0.bottle)) },
+            uniquingKeysWith: { a, _ in a })
+        let rows: [[String]] = try TastingRepository(db).allDetails().map { detail in
+            let t = detail.tasting
+            let identity = t.catalogProductId.flatMap(resolveIdentity)
+            func stage(_ s: TastingStage) -> String {
+                detail.descriptors(on: s).map(word).joined(separator: "; ")
+            }
+            return [
+                CSVWriter.date(millis: t.tastedAt),
+                CSVWriter.text(t.bottleId.flatMap { names[$0] }),
+                CSVWriter.text(identity?.displayName),
+                CSVWriter.text(identity?.distillery),
+                CSVWriter.number(t.rating),
+                CSVWriter.flag(t.blind),
+                CSVWriter.text(t.wouldRebuy?.rawValue),
+                t.worthThePrice.map { $0 ? "yes" : "no" } ?? "",
+                CSVWriter.number(t.perceivedHeat),
+                CSVWriter.number(t.finishSeconds),
+                CSVWriter.text(t.source?.rawValue),
+                CSVWriter.text(t.sourceNote),
+                CSVWriter.text(t.liked),
+                CSVWriter.text(t.disliked),
+                stage(.nose), stage(.entry), stage(.mid), stage(.finish),
+            ]
+        }
+        return CSVWriter.document(header: Self.tastingsHeader, rows: rows)
+    }
+
+    /// Every pour, one row each: the record the fill levels are derived
+    /// from, and who a pour went to.
+    public static let poursHeader = ["date", "bottle", "ml", "given_to", "into", "note"]
+
+    public func poursCSV(resolveName: (Bottle) -> String) throws -> String {
+        let bottles = BottleRepository(db)
+        let names = Dictionary(
+            try bottles.summaries(includeFinished: true).map { ($0.id, resolveName($0.bottle)) },
+            uniquingKeysWith: { a, _ in a })
+        let rows: [[String]] = try bottles.pours().map { pour in
+            [
+                CSVWriter.date(millis: pour.pouredAt),
+                CSVWriter.text(names[pour.bottleId]),
+                CSVWriter.decimal(pour.volumeMl, places: 1),
+                CSVWriter.text(pour.givenTo),
+                CSVWriter.text(pour.intoBottleId.flatMap { names[$0] }),
+                CSVWriter.text(pour.note),
+            ]
+        }
+        return CSVWriter.document(header: Self.poursHeader, rows: rows)
+    }
+
+    /// The hunt log, one row per sighting or lottery entry.
+    public static let huntLogHeader = [
+        "date", "kind", "product", "store", "region", "price", "count", "outcome", "bought", "note",
+    ]
+
+    public func huntLogCSV(
+        resolveIdentity: (String) -> ProductIdentity?
+    ) throws -> String {
+        let rows: [[String]] = try SightingRepository(db).all().map { row in
+            [
+                CSVWriter.date(millis: row.seenAt),
+                row.kind.rawValue,
+                CSVWriter.text(row.catalogProductId.flatMap(resolveIdentity)?.displayName ?? row.customName),
+                row.store,
+                CSVWriter.text(row.region),
+                CSVWriter.money(cents: row.cents),
+                CSVWriter.number(row.count),
+                CSVWriter.text(row.outcome?.rawValue),
+                CSVWriter.flag(row.bottleId != nil),
+                CSVWriter.text(row.note),
+            ]
+        }
+        return CSVWriter.document(header: Self.huntLogHeader, rows: rows)
+    }
+
+    /// Everything, as files: the bottles always, and the tastings, pours
+    /// and hunt log when there are any. Returns the URLs for a share sheet.
+    public func writeAll(
+        to directory: URL,
+        resolveName: (Bottle) -> String,
+        resolveIdentity: (String) -> ProductIdentity?,
+        word: (String) -> String = { $0 }
+    ) throws -> [URL] {
+        let stamp = ISO8601DateFormatter().string(from: Date()).prefix(10)
+        var urls = [try write(to: directory, resolveName: resolveName, resolveIdentity: resolveIdentity)]
+        let extras: [(String, String)] = [
+            ("tastings", try tastingsCSV(resolveName: resolveName, resolveIdentity: resolveIdentity, word: word)),
+            ("pours", try poursCSV(resolveName: resolveName)),
+            ("hunt-log", try huntLogCSV(resolveIdentity: resolveIdentity)),
+        ]
+        // A header alone is one line; anything recorded makes two.
+        for (name, contents) in extras where contents.split(separator: "\n").count > 1 {
+            let url = directory.appendingPathComponent("liquor-log-\(name)-\(stamp).csv")
+            try contents.write(to: url, atomically: true, encoding: .utf8)
+            urls.append(url)
+        }
+        return urls
+    }
+
     /// Writes the export to a file and returns its URL, for a share sheet.
     public func write(
         to directory: URL,

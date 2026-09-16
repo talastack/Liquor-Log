@@ -217,7 +217,10 @@ The aisle question, offline: *do I already own this?*
 - **Taste a flight**, **Pick my pour**, **Shelf walk** (`ReInventory`).
 - **Look** — Cellar (default), Label, Bond, Amber.
 - Money switch; ounces switch.
-- **Your data** — CSV export (47+ columns, always free), **back up and
+- **Your data** — CSV export, always free: the bottles (57 columns), and
+  alongside it every tasting with its wheel picks per stage, every pour
+  with who it went to, and the hunt log, each as its own file when there
+  is anything in it; **back up and
   restore** everything including photos (`CollectionBackup`), Blanton's
   registry CSV (`DumpDateRegistry`), **insurance report** PDF (Pro),
   **shelf labels** — a PDF of stickers (30 a sheet, the 2⅝ × 1 inch
