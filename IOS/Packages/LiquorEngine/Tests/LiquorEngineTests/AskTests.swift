@@ -166,4 +166,45 @@ final class AskTests: XCTestCase {
         guard case .pour(let subject, _)? = command("log a pour of weller") else { return XCTFail() }
         XCTAssertTrue(subject.isAmbiguous, "two Wellers score alike; the screen must ask which")
     }
+
+    // MARK: - The hunt log and the people
+
+    func testASightingCarriesStorePriceAndCount() throws {
+        guard case .saw(let subject, let cents, let store, let count)? =
+                command("saw Blanton's at Total Wine for $74.99, 3 on the shelf") else { return XCTFail() }
+        XCTAssertEqual(subject.best?.productId, "blantons")
+        XCTAssertEqual(cents, 7499)
+        XCTAssertEqual(store, "Total Wine")
+        XCTAssertEqual(count, 3)
+    }
+
+    func testACountCanLeadAndANameKeepsItsNumber() throws {
+        guard case .saw(let subject, let cents, let store, let count)? =
+                command("spotted 2 bottles of eagle rare 10 at Liquor Barn") else { return XCTFail() }
+        XCTAssertEqual(subject.best?.productId, "eagle-rare-10")
+        XCTAssertNil(cents)
+        XCTAssertEqual(store, "Liquor Barn")
+        XCTAssertEqual(count, 2)
+    }
+
+    func testALotteryEntryNamesWhoRunsIt() throws {
+        guard case .entered(let subject, let runner)? = command("entered the stagg lottery at Virginia ABC") else { return XCTFail() }
+        XCTAssertEqual(subject.best?.productId, "stagg")
+        XCTAssertEqual(runner, "Virginia ABC")
+        guard case .entered(_, let none)? = command("put in for the stagg drawing") else { return XCTFail() }
+        XCTAssertNil(none)
+    }
+
+    func testWhereDidISeeIsAQuestionAboutTheLog() {
+        guard case .whereDidISee(let subject)? = question("where did I see the blanton's?") else { return XCTFail() }
+        XCTAssertEqual(subject.best?.productId, "blantons")
+        guard case .whereDidISee? = question("who has stagg in stock") else { return XCTFail() }
+    }
+
+    func testWhatSomebodySentIsAQuestionAboutThem() {
+        guard case .whatCameFrom(let person)? = question("what did Mike send me?") else { return XCTFail() }
+        XCTAssertEqual(person, "mike")
+        guard case .whatCameFrom(let other)? = question("samples from sarah") else { return XCTFail() }
+        XCTAssertEqual(other, "sarah")
+    }
 }

@@ -56,6 +56,10 @@ enum AskModel {
                 add a bottle of <bottle>, paid <dollars> at <store>
                 add <bottle> to my wishlist under $<dollars>
                 note on <bottle>: <text>
+                saw <bottle> at <store> for $<dollars>, <N> on the shelf
+                entered the <bottle> lottery at <who runs it>
+                where did I see <bottle>
+                what did <person> send me
                 what's open
                 how many bottles do I have
                 how many <brand> do I have

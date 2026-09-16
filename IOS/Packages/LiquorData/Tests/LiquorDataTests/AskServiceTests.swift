@@ -136,4 +136,44 @@ final class AskServiceTests: XCTestCase {
         guard case .question(let q) = asked else { return XCTFail("expected a question") }
         XCTAssertEqual(service.answer(q), "Not that one, but you have the line: W L Weller 12 Year.")
     }
+
+    // MARK: - The hunt log and the people
+
+    func testASightingIsLoggedAndAskedBack() throws {
+        let saw = try command("saw stagg at Total Wine for $99, 2 on the shelf")
+        XCTAssertEqual(service.describe(saw).text, "Log that you saw Stagg at Total Wine for $99.00, 2 on the shelf?")
+        XCTAssertEqual(try service.execute(saw), "Logged: Stagg at Total Wine. It is in the hunt log.")
+
+        let asked = Ask.understand("where did I see stagg", catalog: catalog)
+        guard case .question(let q) = asked else { return XCTFail("expected a question") }
+        XCTAssertEqual(service.answer(q), "At Total Wine today · $99.00 · 2 on the shelf.")
+    }
+
+    func testASightingWithNoStoreCannotRun() throws {
+        let saw = try command("saw stagg for $99")
+        XCTAssertFalse(service.describe(saw).canRun)
+    }
+
+    func testALotteryEntryIsLogged() throws {
+        let entered = try command("entered the stagg lottery at Virginia ABC")
+        XCTAssertEqual(service.describe(entered).text, "Log a lottery entry for Stagg at Virginia ABC?")
+        _ = try service.execute(entered)
+        let rows = try SightingRepository(db).all()
+        XCTAssertEqual(rows.first?.kind, .entered)
+        XCTAssertEqual(rows.first?.store, "Virginia ABC")
+    }
+
+    func testWhatSomebodySentIsAnsweredFromSamplesAndPours() throws {
+        _ = try bottles.add(Bottle(catalogProductId: "weller-12", volumeMl: 50, isSample: true, sampleFrom: "Mike", sampleSource: .swap))
+        let stagg = try bottles.add(Bottle(catalogProductId: "stagg"))
+        try bottles.open(bottleId: stagg.id)
+        _ = try bottles.logPour(bottleId: stagg.id, volumeMl: 30, givenTo: "Mike")
+
+        let asked = Ask.understand("what did Mike send me", catalog: catalog)
+        guard case .question(let q) = asked else { return XCTFail("expected a question") }
+        XCTAssertEqual(service.answer(q), "From Mike: W L Weller 12 Year (50 ml). To Mike: Stagg (30 ml). About even.")
+
+        guard case .question(let nobody) = Ask.understand("what did Joe send me", catalog: catalog) else { return XCTFail() }
+        XCTAssertTrue(service.answer(nobody).hasPrefix("Nothing logged from Joe."))
+    }
 }

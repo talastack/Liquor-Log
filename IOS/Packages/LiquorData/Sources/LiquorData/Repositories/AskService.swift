@@ -17,6 +17,7 @@ public struct AskService {
     private let tastings: TastingRepository
     private let wishlist: WishlistRepository
     private let notes: KnowledgeNoteRepository
+    private let sightings: SightingRepository
     private let identity: (String) -> ProductIdentity?
     private let name: (Bottle) -> String
 
@@ -29,6 +30,7 @@ public struct AskService {
         tastings = TastingRepository(db)
         wishlist = WishlistRepository(db)
         notes = KnowledgeNoteRepository(db)
+        sightings = SightingRepository(db)
         self.identity = identity
         self.name = name
     }
@@ -135,6 +137,20 @@ public struct AskService {
         case .note(let subject, let body):
             let product = try resolved(subject)
             return Description(text: "Save this note on \(product.displayName): \"\(body)\"?", canRun: true)
+        case .saw(let subject, let cents, let store, let count):
+            let product = try resolved(subject)
+            guard let store, !store.isEmpty else {
+                return Description(text: "Where did you see \(product.displayName)? Say \"at\" and the store.", canRun: false)
+            }
+            var line = "Log that you saw \(product.displayName) at \(store)"
+            if let cents { line += " for \(Money.short(cents))" }
+            if let count { line += count == 0 ? ", sold out" : ", \(count) on the shelf" }
+            return Description(text: line + "?", canRun: true)
+        case .entered(let subject, let runner):
+            let product = try resolved(subject)
+            return Description(
+                text: "Log a lottery entry for \(product.displayName)\(runner.map { " at \($0)" } ?? "")?",
+                canRun: true)
         }
     }
 
@@ -201,6 +217,16 @@ public struct AskService {
             let product = try resolve(subject)
             try notes.set(productId: product.productId, title: product.displayName, body: body)
             return "Noted on \(product.displayName)."
+        case .saw(let subject, let cents, let store, let count):
+            let product = try resolve(subject)
+            guard let store, !store.isEmpty else { throw AskError.unresolved }
+            try sightings.record(catalogProductId: product.productId, store: store, cents: cents, count: count)
+            return "Logged: \(product.displayName) at \(store). It is in the hunt log."
+        case .entered(let subject, let runner):
+            let product = try resolve(subject)
+            try sightings.record(
+                catalogProductId: product.productId, kind: .entered, store: runner ?? "A lottery")
+            return "Logged the entry for \(product.displayName). Mark it won or lost in the hunt log when you hear."
         }
     }
 
@@ -287,6 +313,53 @@ public struct AskService {
             let low = shelf.filter { $0.bottle.isOpen && $0.status.remainingPours <= Replenish.lastPoursThreshold }
             guard !low.isEmpty else { return "Nothing is down to its last pours." }
             return low.map { "• \(name($0.bottle)) — \($0.status.remainingPours) left" }.joined(separator: "\n")
+        case .whereDidISee(let subject):
+            guard let product = subject.best else { return "I do not know \"\(subject.text)\"." }
+            let seen = ((try? sightings.sightings(catalogProductId: product.productId)) ?? [])
+                .filter { $0.kind == .seen }
+                .map { row in
+                    Hunt.Sighting(
+                        id: row.id, productId: row.catalogProductId, name: product.displayName, store: row.store,
+                        kind: row.kind, outcome: row.outcome, cents: row.cents, count: row.count,
+                        at: Date(timeIntervalSince1970: Double(row.seenAt) / 1000), boughtBottleId: row.bottleId)
+                }
+            guard let latest = seen.first else { return "No sighting of \(product.displayName) in the hunt log." }
+            var answer = Hunt.line(latest, now: now) + "."
+            let elsewhere = seen.dropFirst()
+                .filter { Hunt.storeKey($0.store) != Hunt.storeKey(latest.store) }
+                .map { "\($0.store.trimmingCharacters(in: .whitespaces)), \(Hunt.ago(AgeMath.days(from: $0.at, to: now)))" }
+            var named = Set<String>()
+            let others = elsewhere.filter { named.insert($0.lowercased()).inserted }.prefix(3)
+            if !others.isEmpty { answer += " Also " + others.joined(separator: "; ") + "." }
+            return answer
+        case .whatCameFrom(let person):
+            let everything = (try? bottles.summaries(includeFinished: true)) ?? []
+            let names = Dictionary(everything.map { ($0.id, name($0.bottle)) }, uniquingKeysWith: { a, _ in a })
+            func date(_ millis: Int64) -> Date { Date(timeIntervalSince1970: Double(millis) / 1000) }
+            let received = everything.compactMap { summary -> (from: String, bottle: String, milliliters: Double, how: String?, at: Date, rating: Int?)? in
+                guard summary.bottle.isSample, let from = summary.bottle.sampleFrom else { return nil }
+                return (from: from, bottle: names[summary.id] ?? "A sample", milliliters: summary.bottle.volumeMl,
+                        how: summary.bottle.sampleSource?.label, at: date(summary.bottle.purchaseDate ?? summary.bottle.createdAt), rating: nil)
+            }
+            let given = ((try? bottles.poursGivenAway()) ?? []).compactMap { pour -> (to: String, bottle: String, milliliters: Double, at: Date)? in
+                guard let to = pour.givenTo else { return nil }
+                return (to: to, bottle: names[pour.bottleId] ?? "A bottle", milliliters: pour.volumeMl, at: date(pour.pouredAt))
+            }
+            let ledger = People.ledger(received: received, given: given)
+            let key = Hunt.storeKey(person)
+            guard let match = ledger.first(where: { $0.key == key })
+                ?? ledger.first(where: { $0.key.hasPrefix(key) || key.hasPrefix($0.key) }) else {
+                return "Nothing logged from \(person). A sample that names who it came from, or a pour marked as theirs, would show here."
+            }
+            var lines: [String] = []
+            if !match.received.isEmpty {
+                lines.append("From \(match.name): " + match.received.map { "\($0.bottle) (\(Int($0.milliliters.rounded())) ml)" }.joined(separator: ", ") + ".")
+            }
+            if !match.given.isEmpty {
+                lines.append("To \(match.name): " + match.given.map { "\($0.bottle) (\(Int($0.milliliters.rounded())) ml)" }.joined(separator: ", ") + ".")
+            }
+            if let balance = People.balance(match) { lines.append(balance + ".") }
+            return lines.joined(separator: " ")
         }
     }
 

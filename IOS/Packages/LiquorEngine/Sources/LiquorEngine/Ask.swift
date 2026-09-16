@@ -44,6 +44,11 @@ public enum Ask: Sendable {
         case addBottle(Subject, paidCents: Int?, store: String?)
         case wishlist(Subject, ceilingCents: Int?)
         case note(Subject, body: String)
+        /// "saw blanton's at total wine for $75, 3 on the shelf" -- a
+        /// sighting for the hunt log.
+        case saw(Subject, cents: Int?, store: String?, count: Int?)
+        /// "entered the stagg lottery at virginia abc".
+        case entered(Subject, runner: String?)
     }
 
     public enum Question: Hashable, Sendable {
@@ -56,6 +61,10 @@ public enum Ask: Sendable {
         case whereIs(Subject)
         case whatIsOnMyWishlist
         case nearlyGone
+        /// "where did i see blanton's" -- from the hunt log.
+        case whereDidISee(Subject)
+        /// "what did mike send me" -- from the samples and pours.
+        case whatCameFrom(person: String)
     }
 
     public enum Understanding: Hashable, Sendable {
@@ -113,8 +122,16 @@ public enum Ask: Sendable {
         if let rest = after(s, ["what did i think of", "what did i say about", "how did i rate", "my rating for", "what did i rate"]) {
             return .whatDidIThink(subject(strip(rest, ["the", "my"]), catalog: catalog))
         }
+        if let rest = after(s, ["where did i see", "where have i seen", "where did i last see", "where can i find", "who has", "who had", "who sells"]) {
+            return .whereDidISee(subject(strip(rest, ["the", "my", "a", "any", "in stock", "for sale"]), catalog: catalog))
+        }
         if let rest = after(s, ["where is", "where's", "where did i put", "where do i keep"]) {
             return .whereIs(subject(strip(rest, ["the", "my"]), catalog: catalog))
+        }
+        // "what did mike send me", "what has sarah sent", "samples from mike".
+        if let person = capture(in: s, pattern: #"^what (?:did|has|have) (.+?) (?:send|sent|give|given|pour)(?: me)?\??$"#)
+            ?? capture(in: s, pattern: #"^(?:samples|what came|what did i get) from (.+?)\??$"#) {
+            return .whatCameFrom(person: person.trimmingCharacters(in: .whitespaces))
         }
         return nil
     }
@@ -138,6 +155,27 @@ public enum Ask: Sendable {
                 }
                 return .note(subject(strip(parts[0], ["the", "my"]), catalog: catalog), body: body)
             }
+        }
+
+        // "saw blanton's at total wine for $75, 3 on the shelf": the hunt
+        // log. Before the pour verbs, none of which start this way.
+        if let rest = after(s, ["saw a", "saw the", "saw", "spotted a", "spotted the", "spotted", "seen", "found a", "found the", "found"]) {
+            let count = capture(in: rest, pattern: #"\b(\d+)\s+(?:on the shelf|on the shelves|left|bottles?|of them)\b"#).flatMap(Int.init)
+            let withoutCount = rest.replacingOccurrences(
+                of: #"\b\d+\s+(?:on the shelf|on the shelves|left|bottles?|of them)\b"#, with: " ", options: .regularExpression)
+            let words = strip(
+                removeStore(removeQuantities(withoutCount)),
+                ["the", "my", "a", "bottle of", "bottle", "bottles", "some", "for", "at", "from", "of", "them", "on", "shelf", "in stock", "it"])
+            guard !words.isEmpty else { return nil }
+            return .saw(subject(words, catalog: catalog), cents: money(in: rest), store: storeName(in: original), count: count)
+        }
+
+        if let rest = after(s, ["entered the", "entered a", "entered", "put in for the", "put in for", "put my name in for the", "put my name in for"]) {
+            let words = strip(
+                removeStore(removeQuantities(rest)),
+                ["the", "my", "a", "lottery", "raffle", "drawing", "draw", "for", "at", "from", "of", "it"])
+            guard !words.isEmpty else { return nil }
+            return .entered(subject(words, catalog: catalog), runner: storeName(in: original))
         }
 
         if let rest = after(s, ["log a pour of", "log a pour from", "pour of", "poured", "pour", "log", "had a pour of", "had a glass of", "drank", "had some"]) {
