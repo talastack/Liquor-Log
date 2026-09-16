@@ -213,6 +213,11 @@ final class AskTests: XCTestCase {
         XCTAssertEqual(place, "buffalo trace")
     }
 
+    func testWhatIPouredIsNotAboutAPersonCalledI() {
+        if case .unknown = Ask.understand("what did I pour", catalog: catalog) { return }
+        XCTFail("\"I\" is not a friend who sent samples")
+    }
+
     func testWhatSomebodySentIsAQuestionAboutThem() {
         guard case .whatCameFrom(let person)? = question("what did Mike send me?") else { return XCTFail() }
         XCTAssertEqual(person, "mike")

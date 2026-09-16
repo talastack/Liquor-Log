@@ -140,7 +140,12 @@ public enum Ask: Sendable {
         // "what did mike send me", "what has sarah sent", "samples from mike".
         if let person = capture(in: s, pattern: #"^what (?:did|has|have) (.+?) (?:send|sent|give|given|pour)(?: me)?\??$"#)
             ?? capture(in: s, pattern: #"^(?:samples|what came|what did i get) from (.+?)\??$"#) {
-            return .whatCameFrom(person: person.trimmingCharacters(in: .whitespaces))
+            let name = person.trimmingCharacters(in: .whitespaces)
+            // "what did i pour" is not about a person; leave it unknown so
+            // nothing answers as if "I" were a friend.
+            if !["i", "you", "we", "they"].contains(name) {
+                return .whatCameFrom(person: name)
+            }
         }
         return nil
     }
