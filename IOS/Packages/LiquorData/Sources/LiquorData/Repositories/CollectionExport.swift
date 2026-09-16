@@ -235,8 +235,9 @@ public struct CollectionExport: Sendable {
             ("pours", try poursCSV(resolveName: resolveName)),
             ("hunt-log", try huntLogCSV(resolveIdentity: resolveIdentity)),
         ]
-        // A header alone is one line; anything recorded makes two.
-        for (name, contents) in extras where contents.split(separator: "\n").count > 1 {
+        // A header alone is one line; anything recorded makes two. (CRLF is
+        // one Character in Swift, so this is a string split, not a Character one.)
+        for (name, contents) in extras where contents.components(separatedBy: "\r\n").filter({ !$0.isEmpty }).count > 1 {
             let url = directory.appendingPathComponent("liquor-log-\(name)-\(stamp).csv")
             try contents.write(to: url, atomically: true, encoding: .utf8)
             urls.append(url)
