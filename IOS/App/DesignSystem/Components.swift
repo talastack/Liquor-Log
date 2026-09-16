@@ -143,6 +143,8 @@ struct FillBar: View {
                 }
             }
             .frame(height: 9)
+            // The line above already says it; the bar is for the eye.
+            .accessibilityHidden(true)
 
             if status.hasPartialPourOnly {
                 // Never render this state as "0 pours", which reads as empty.

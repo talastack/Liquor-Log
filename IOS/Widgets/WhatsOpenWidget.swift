@@ -232,6 +232,7 @@ struct WhatsOpenView: View {
                     .font(.system(size: family == .systemSmall ? 12 : 13, weight: .medium))
                     .foregroundStyle(WidgetPalette.text)
                     .lineLimit(1)
+                    .accessibilityLabel("\(bottle.name), \(bottle.remainingText)")
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
                         Capsule().fill(WidgetPalette.surface)
@@ -256,6 +257,7 @@ struct WhatsOpenView: View {
                 }
                 .buttonStyle(.plain)
                 .disabled(bottle.isEmpty)
+                .accessibilityLabel("Log a pour of \(bottle.name)")
             }
         }
     }

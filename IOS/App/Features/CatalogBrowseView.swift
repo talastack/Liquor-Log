@@ -136,6 +136,7 @@ struct CatalogBrowseView: View {
                     .foregroundStyle(Palette.gold)
                     .frame(width: Space.tapTarget, height: Space.tapTarget)
             }
+            .accessibilityLabel("More for \(row.product.identity.displayName)")
         }
         .frame(minHeight: Space.tapTarget)
     }

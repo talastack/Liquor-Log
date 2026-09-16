@@ -588,6 +588,9 @@ struct BottleCard: View {
         .padding(Space.l)
         .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.line, lineWidth: 1))
+        // One element to VoiceOver: name, release, fill and rating in a
+        // breath, rather than six stops per bottle.
+        .accessibilityElement(children: .combine)
     }
 
     /// Nil for a bottle that has never been poured from — "never poured" on a

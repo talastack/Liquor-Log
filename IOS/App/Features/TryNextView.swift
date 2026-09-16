@@ -95,6 +95,7 @@ struct TryNextView: View {
                     .foregroundStyle(Palette.gold)
                     .frame(width: Space.tapTarget, height: Space.tapTarget)
             }
+            .accessibilityLabel("More for \(suggestion.product.displayName)")
         }
         .padding(Space.l)
         .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
