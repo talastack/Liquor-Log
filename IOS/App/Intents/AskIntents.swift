@@ -13,9 +13,8 @@ import LiquorData
 /// database; nothing is sent anywhere.
 struct AskIntent: AppIntent {
     static let title: LocalizedStringResource = "Ask my shelf"
-    static let description = IntentDescription(
-        "Ask a question about your bottles, or tell it something to log: \"what's open\", "
-        + "\"how many Wellers do I have\", \"log a pour of Weller 12\", \"saw Blanton's at Total Wine for $75\".")
+    // One literal: the description is a localisable resource, not a String.
+    static let description = IntentDescription("Ask a question about your bottles, or tell it something to log: \"what's open\", \"how many Wellers do I have\", \"log a pour of Weller 12\", \"saw Blanton's at Total Wine for $75\".")
     static let openAppWhenRun = false
 
     @Parameter(title: "Sentence", requestValueDialog: "What would you like to ask?")
