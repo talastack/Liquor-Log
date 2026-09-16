@@ -41,10 +41,12 @@ struct AskIntent: AppIntent {
                 return .result(value: described.text, dialog: IntentDialog(stringLiteral: described.text))
             }
             // Shown back before it is written, like the app's own Ask.
-            try await requestConfirmation(
-                conditions: [],
-                actionName: .go,
-                dialog: IntentDialog(stringLiteral: described.text))
+            let dialog = IntentDialog(stringLiteral: described.text)
+            if #available(iOS 18, *) {
+                try await requestConfirmation(conditions: [], actionName: .go, dialog: dialog)
+            } else {
+                try await confirmOnIOS17(dialog)
+            }
             let done = try shelf.service.execute(command)
             WidgetCenter.shared.reloadAllTimelines()
             return .result(value: done, dialog: IntentDialog(stringLiteral: done))
@@ -54,6 +56,14 @@ struct AskIntent: AppIntent {
                 + "\"log a pour of Weller 12\" or \"what did I think of the Stagg\"."
             return .result(value: text, dialog: IntentDialog(stringLiteral: text))
         }
+    }
+
+    /// The iOS 17 confirmation call. Deprecated in the iOS 18 SDK, and the
+    /// warning is quiet inside a declaration marked the same way.
+    @available(iOS, deprecated: 18.0)
+    @MainActor
+    private func confirmOnIOS17(_ dialog: IntentDialog) async throws {
+        try await requestConfirmation(result: .result(dialog: dialog), confirmationActionName: .go)
     }
 }
 
