@@ -68,4 +68,11 @@ final class ProofingTests: XCTestCase {
         XCTAssertEqual(Proofing.describe(waterMilliliters: 0.5), "0.5 ml — a few drops")
         XCTAssertEqual(Proofing.describe(waterMilliliters: 11.0), "11.0 ml — about 2¼ teaspoons")
     }
+
+    /// An absurd pour size stored by a typo must not trap the conversion.
+    func testAnAbsurdVolumeDoesNotTrap() {
+        XCTAssertFalse(Proofing.describe(waterMilliliters: 7e21).isEmpty)
+        XCTAssertEqual(Proofing.describe(waterMilliliters: .infinity), "—")
+        XCTAssertEqual(Proofing.describe(waterMilliliters: .nan), "—")
+    }
 }

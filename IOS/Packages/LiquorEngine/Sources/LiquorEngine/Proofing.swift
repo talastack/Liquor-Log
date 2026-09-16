@@ -101,8 +101,12 @@ public enum Proofing: Sendable {
     /// "6.2 ml — about 1¼ teaspoons". A kitchen measure beside the number,
     /// because nobody owns a 6 ml pipette. A US teaspoon is 4.93 ml.
     public static func describe(waterMilliliters ml: Double) -> String {
+        // A pour size typed as a wall of digits reaches here as a volume
+        // no spoon measures; the count is capped so the conversion to an
+        // integer cannot trap, and the sentence stays true.
+        guard ml.isFinite, ml >= 0 else { return "—" }
         let teaspoons = ml / 4.92892
-        let quarters = (teaspoons * 4).rounded()
+        let quarters = min((teaspoons * 4).rounded(), 4_000_000)
         let spoons: String
         switch quarters {
         case ..<1: spoons = "a few drops"
