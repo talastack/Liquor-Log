@@ -193,6 +193,12 @@ enum Palette {
 
     static var glass: Color { dynamic(current.glass) }
 
+    // MARK: - Fixed
+
+    /// The one colour no look changes: the white behind a QR code, which
+    /// a camera has to read whatever the theme.
+    static var paper: Color { Color(uiColor: .white) }
+
     // MARK: - Swatches, for the picker
 
     /// The accent and the ground of a look, for a swatch that shows what

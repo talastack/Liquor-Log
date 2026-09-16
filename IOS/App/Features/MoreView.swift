@@ -434,6 +434,15 @@ struct MoreView: View {
                     symbol: "doc.text")
             }
 
+            NavigationLink {
+                ShelfLabelsView()
+            } label: {
+                row(
+                    "Shelf labels",
+                    detail: "Stickers with your number and a code that opens the bottle",
+                    symbol: "qrcode")
+            }
+
             Text("Every bottle and every field, finished bottles included.")
                 .font(TypeScale.caption())
                 .textCase(nil)

@@ -165,7 +165,11 @@ The aisle question, offline: *do I already own this?*
 - Money switch; ounces switch.
 - **Your data** — CSV export (47+ columns, always free), **back up and
   restore** everything including photos (`CollectionBackup`), Blanton's
-  registry CSV (`DumpDateRegistry`), **insurance report** PDF (Pro).
+  registry CSV (`DumpDateRegistry`), **insurance report** PDF (Pro),
+  **shelf labels** — a PDF of stickers (30 a sheet, the 2⅝ × 1 inch
+  address-label grid) with your number, the name and a QR the camera
+  reads to open the bottle in the app (`ShelfLabelsPDF`). A published
+  menu also shows its link as a QR to prop on the bar.
 - **Pro** — StoreKit 2, yearly/monthly; paywall leads with what stays free.
 
 ## Outside the app

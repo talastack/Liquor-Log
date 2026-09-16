@@ -174,6 +174,18 @@ struct PourMenuView: View {
                                     .overlay(RoundedRectangle(cornerRadius: 10).stroke(Palette.gold, lineWidth: 1))
                             }
                         }
+                        // The link as a code, to prop on the bar: a guest
+                        // points a camera at it and the menu opens.
+                        if let qr = QRCode.image(for: link.absoluteString, side: 480) {
+                            Image(uiImage: qr)
+                                .resizable()
+                                .interpolation(.none)
+                                .scaledToFit()
+                                .frame(width: 160, height: 160)
+                                .padding(Space.s)
+                                .background(RoundedRectangle(cornerRadius: 8).fill(Palette.paper))
+                                .frame(maxWidth: .infinity)
+                        }
                         Button(role: .destructive) { unpublish() } label: {
                             Text("Take it down")
                                 .font(TypeScale.secondary())
