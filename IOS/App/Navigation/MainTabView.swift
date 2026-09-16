@@ -33,6 +33,7 @@ enum Tab: Hashable, CaseIterable {
 struct MainTabView: View {
     @Environment(AppEnvironment.self) private var env
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.horizontalSizeClass) private var sizeClass
     @State private var tab: Tab = .shelfCheck
     @State private var isAddingBottle = false
     @State private var isAddingShelf = false
@@ -43,13 +44,7 @@ struct MainTabView: View {
     @State private var infinitySize = "750"
 
     var body: some View {
-        TabView(selection: $tab) {
-            ForEach(Tab.allCases, id: \.self) { item in
-                NavigationStack { screen(for: item) }
-                    .tabItem { Label(item.title, systemImage: item.symbol) }
-                    .tag(item)
-            }
-        }
+        chrome
         .overlay(alignment: .bottom) {
             // The canvas puts a gold "+" in the middle of the bar. A true centre
             // tab button needs a custom bar, which has real safe-area and
@@ -124,6 +119,39 @@ struct MainTabView: View {
             guard let id = Spotlight.bottleId(from: activity) else { return }
             tab = .collection
             env.requestedBottleId = id
+        }
+    }
+
+    /// A tab bar on a phone; on an iPad, the same four as a sidebar with
+    /// the screen in the wide column -- the shape iPad apps take, and the
+    /// one that stops a phone layout being stretched across a tablet.
+    /// Every screen is the same view either way.
+    @ViewBuilder
+    private var chrome: some View {
+        if sizeClass == .regular {
+            NavigationSplitView {
+                List(Tab.allCases, id: \.self, selection: Binding(
+                    get: { Optional(tab) },
+                    set: { if let picked = $0 { tab = picked } })
+                ) { item in
+                    Label(item.title, systemImage: item.symbol)
+                        .font(TypeScale.body())
+                }
+                .listStyle(.sidebar)
+                .navigationTitle("Liquor-Log")
+            } detail: {
+                NavigationStack { screen(for: tab) }
+                    .id(tab)
+            }
+            .navigationSplitViewStyle(.balanced)
+        } else {
+            TabView(selection: $tab) {
+                ForEach(Tab.allCases, id: \.self) { item in
+                    NavigationStack { screen(for: item) }
+                        .tabItem { Label(item.title, systemImage: item.symbol) }
+                        .tag(item)
+                }
+            }
         }
     }
 

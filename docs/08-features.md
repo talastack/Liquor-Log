@@ -172,6 +172,12 @@ The aisle question, offline: *do I already own this?*
   menu also shows its link as a QR to prop on the bar.
 - **Pro** — StoreKit 2, yearly/monthly; paywall leads with what stays free.
 
+## On an iPad
+
+The same four screens as a sidebar with the screen in the wide column
+(`NavigationSplitView`), instead of a phone tab bar stretched across a
+tablet; the photo grid runs six across. Everything else is the same view.
+
 ## Outside the app
 
 - **What's open widget** — small, medium, large: your open bottles with a

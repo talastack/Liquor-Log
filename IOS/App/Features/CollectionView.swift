@@ -39,6 +39,7 @@ struct CollectionView: View {
     /// The shelf as photos rather than cards. Per device; a preference,
     /// not data.
     @AppStorage("collection.photoGrid") private var showsPhotos = false
+    @Environment(\.horizontalSizeClass) private var sizeClass
 
     var body: some View {
         ScrollView {
@@ -113,7 +114,8 @@ struct CollectionView: View {
     /// The shelf as photos, three across. A bottle with no photo shows
     /// the mark and its name, so the grid is still the whole shelf.
     private var photoGrid: some View {
-        LazyVGrid(columns: [GridItem(.flexible(), spacing: Space.s), GridItem(.flexible(), spacing: Space.s), GridItem(.flexible(), spacing: Space.s)],
+        // Three across on a phone, six on an iPad.
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: Space.s), count: sizeClass == .regular ? 6 : 3),
                   spacing: Space.s) {
             ForEach(shown) { summary in
                 NavigationLink {
