@@ -193,6 +193,15 @@ The aisle question, offline: *do I already own this?*
   into the community reports when sharing is on. Synced, backed up, in
   the household. Your own record only; nothing says where a bottle is
   now (`Hunt`, `SightingRepository`, `sightings`, patch 0011).
+- **People** — the swap ledger, read rather than kept: every sample that
+  names who it came from and every pour marked as somebody else's,
+  grouped by person (spellings merged). Per person: "2 samples from them
+  · 1 pour to them · last 3 days ago", whose turn it is in millilitres
+  ("They have sent 60 ml more than you have", "About even" inside one
+  pour), and, over two or more rated samples, "Their samples average 8.5
+  with you". Tap through to both lists with dates, sizes and your
+  ratings. Nothing about how much anyone drank; what changed hands
+  (`People`). No schema change.
 - **Taste a flight**, **Pick my pour**, **Shelf walk** (`ReInventory`).
 - **Look** — Cellar (default), Label, Bond, Amber.
 - Money switch; ounces switch.

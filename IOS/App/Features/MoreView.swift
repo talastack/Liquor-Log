@@ -172,6 +172,15 @@ struct MoreView: View {
             }
 
             NavigationLink {
+                PeopleView()
+            } label: {
+                row(
+                    "People",
+                    detail: "Who sent you samples, who you poured for, whose turn it is",
+                    symbol: "person.2")
+            }
+
+            NavigationLink {
                 FlightView()
             } label: {
                 row(
