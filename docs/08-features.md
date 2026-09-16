@@ -139,6 +139,11 @@ The aisle question, offline: *do I already own this?*
   against other bourbon, when it drank hot against easy, your typical
   finish, how often you'd buy again. Three ratings a side before anything
   is said; sentences only where the numbers clear that (`Palate`).
+- **Try next** — catalogue products related to the bottles you rated 7 or
+  better — same line, same recipe code, same mashbill, same distillery —
+  minus everything you have had, each row saying which bottle of yours put
+  it there and why. Structural, no taste model; add or wishlist from the
+  row (`TryNext`).
 - **Tonight** — the IBA's official cocktails (29 of them, the IBA's own
   measures) against your open bottles: ready ones with the bottle chosen
   for each slot (highest rated, then fullest), then those one bottle

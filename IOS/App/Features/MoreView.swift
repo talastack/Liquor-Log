@@ -136,6 +136,15 @@ struct MoreView: View {
             }
 
             NavigationLink {
+                TryNextView()
+            } label: {
+                row(
+                    "Try next",
+                    detail: "Related to what you rated well, and not yet had — each with its reason",
+                    symbol: "arrow.turn.down.right")
+            }
+
+            NavigationLink {
                 SyncView()
             } label: {
                 row(
