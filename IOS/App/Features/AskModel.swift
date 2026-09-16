@@ -58,6 +58,8 @@ enum AskModel {
                 note on <bottle>: <text>
                 saw <bottle> at <store> for $<dollars>, <N> on the shelf
                 entered the <bottle> lottery at <who runs it>
+                visited <distillery>
+                have I been to <distillery>
                 where did I see <bottle>
                 what did <person> send me
                 what's open

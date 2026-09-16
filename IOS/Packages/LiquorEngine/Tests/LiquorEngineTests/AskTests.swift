@@ -201,6 +201,18 @@ final class AskTests: XCTestCase {
         guard case .whereDidISee? = question("who has stagg in stock") else { return XCTFail() }
     }
 
+    func testAVisitKeepsThePlaceAsTyped() {
+        guard case .visited(let place)? = command("visited Buffalo Trace today") else { return XCTFail() }
+        XCTAssertEqual(place, "Buffalo Trace")
+        guard case .visited(let other)? = command("I went to the Four Roses distillery") else { return XCTFail() }
+        XCTAssertEqual(other, "Four Roses")
+    }
+
+    func testHaveIBeenToIsAQuestionAboutThePassport() {
+        guard case .haveIBeenTo(let place)? = question("have I been to Buffalo Trace?") else { return XCTFail() }
+        XCTAssertEqual(place, "buffalo trace")
+    }
+
     func testWhatSomebodySentIsAQuestionAboutThem() {
         guard case .whatCameFrom(let person)? = question("what did Mike send me?") else { return XCTFail() }
         XCTAssertEqual(person, "mike")

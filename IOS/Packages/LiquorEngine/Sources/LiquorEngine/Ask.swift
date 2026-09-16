@@ -49,6 +49,9 @@ public enum Ask: Sendable {
         case saw(Subject, cents: Int?, store: String?, count: Int?)
         /// "entered the stagg lottery at virginia abc".
         case entered(Subject, runner: String?)
+        /// "visited buffalo trace" -- a stamp in the passport. The place is
+        /// a name, not a product, so it is carried as typed.
+        case visited(place: String)
     }
 
     public enum Question: Hashable, Sendable {
@@ -65,6 +68,8 @@ public enum Ask: Sendable {
         case whereDidISee(Subject)
         /// "what did mike send me" -- from the samples and pours.
         case whatCameFrom(person: String)
+        /// "have i been to buffalo trace" -- from the passport.
+        case haveIBeenTo(place: String)
     }
 
     public enum Understanding: Hashable, Sendable {
@@ -122,6 +127,10 @@ public enum Ask: Sendable {
         if let rest = after(s, ["what did i think of", "what did i say about", "how did i rate", "my rating for", "what did i rate"]) {
             return .whatDidIThink(subject(strip(rest, ["the", "my"]), catalog: catalog))
         }
+        if let rest = after(s, ["have i been to", "have i visited", "when did i visit", "when was i at", "have i ever been to"]) {
+            let place = strip(rest, ["the", "distillery"]).trimmingCharacters(in: CharacterSet(charactersIn: "?.! "))
+            if !place.isEmpty { return .haveIBeenTo(place: place) }
+        }
         if let rest = after(s, ["where did i see", "where have i seen", "where did i last see", "where can i find", "who has", "who had", "who sells"]) {
             return .whereDidISee(subject(strip(rest, ["the", "my", "a", "any", "in stock", "for sale"]), catalog: catalog))
         }
@@ -159,6 +168,16 @@ public enum Ask: Sendable {
 
         // "saw blanton's at total wine for $75, 3 on the shelf": the hunt
         // log. Before the pour verbs, none of which start this way.
+        // "visited buffalo trace", "went to four roses today": the passport.
+        // The place keeps the casing it was typed with.
+        if let rest = after(s, ["visited the", "visited", "went to the", "went to", "toured the", "toured", "was at the", "was at"]) {
+            let lowerPlace = strip(rest, ["distillery", "today", "yesterday", "this weekend", "last week"])
+                .trimmingCharacters(in: CharacterSet(charactersIn: ".!, "))
+            guard !lowerPlace.isEmpty else { return nil }
+            let place = original.range(of: lowerPlace, options: .caseInsensitive).map { String(original[$0]) } ?? lowerPlace
+            return .visited(place: place)
+        }
+
         if let rest = after(s, ["saw a", "saw the", "saw", "spotted a", "spotted the", "spotted", "seen", "found a", "found the", "found"]) {
             let count = capture(in: rest, pattern: #"\b(\d+)\s+(?:on the shelf|on the shelves|left|bottles?|of them)\b"#).flatMap(Int.init)
             let withoutCount = rest.replacingOccurrences(

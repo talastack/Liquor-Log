@@ -163,6 +163,18 @@ final class AskServiceTests: XCTestCase {
         XCTAssertEqual(rows.first?.store, "Virginia ABC")
     }
 
+    func testAVisitIsStampedAndAskedBack() throws {
+        guard case .question(let before) = Ask.understand("have I been to Buffalo Trace", catalog: catalog) else { return XCTFail() }
+        XCTAssertEqual(service.answer(before), "No visit to Buffalo Trace in the passport.")
+
+        let visited = try command("visited Buffalo Trace")
+        XCTAssertEqual(service.describe(visited).text, "Stamp the passport: Buffalo Trace, today?")
+        XCTAssertEqual(try service.execute(visited), "Stamped: Buffalo Trace. It is in the passport.")
+        XCTAssertEqual(try VisitRepository(db).all().map(\.distillery), ["Buffalo Trace"])
+
+        XCTAssertEqual(service.answer(before), "Buffalo Trace: once, today.")
+    }
+
     func testWhatSomebodySentIsAnsweredFromSamplesAndPours() throws {
         _ = try bottles.add(Bottle(catalogProductId: "weller-12", volumeMl: 50, isSample: true, sampleFrom: "Mike", sampleSource: .swap))
         let stagg = try bottles.add(Bottle(catalogProductId: "stagg"))

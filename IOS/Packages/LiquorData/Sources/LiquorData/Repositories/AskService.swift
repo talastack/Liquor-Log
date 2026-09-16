@@ -18,6 +18,7 @@ public struct AskService {
     private let wishlist: WishlistRepository
     private let notes: KnowledgeNoteRepository
     private let sightings: SightingRepository
+    private let visits: VisitRepository
     private let identity: (String) -> ProductIdentity?
     private let name: (Bottle) -> String
 
@@ -31,6 +32,7 @@ public struct AskService {
         wishlist = WishlistRepository(db)
         notes = KnowledgeNoteRepository(db)
         sightings = SightingRepository(db)
+        visits = VisitRepository(db)
         self.identity = identity
         self.name = name
     }
@@ -151,6 +153,8 @@ public struct AskService {
             return Description(
                 text: "Log a lottery entry for \(product.displayName)\(runner.map { " at \($0)" } ?? "")?",
                 canRun: true)
+        case .visited(let place):
+            return Description(text: "Stamp the passport: \(place), today?", canRun: true)
         }
     }
 
@@ -227,6 +231,9 @@ public struct AskService {
             try sightings.record(
                 catalogProductId: product.productId, kind: .entered, store: runner ?? "A lottery")
             return "Logged the entry for \(product.displayName). Mark it won or lost in the hunt log when you hear."
+        case .visited(let place):
+            try visits.record(distillery: place)
+            return "Stamped: \(place). It is in the passport."
         }
     }
 
@@ -332,6 +339,15 @@ public struct AskService {
             let others = elsewhere.filter { named.insert($0.lowercased()).inserted }.prefix(3)
             if !others.isEmpty { answer += " Also " + others.joined(separator: "; ") + "." }
             return answer
+        case .haveIBeenTo(let place):
+            let stamps = Passport.summarise(visits: (try? visits.facts()) ?? [], shelf: []).stamps
+            let key = Passport.normalise(place)
+            guard let stamp = stamps.first(where: { $0.key == key })
+                ?? stamps.first(where: { $0.key.contains(key) || key.contains($0.key) }) else {
+                return "No visit to \(place.capitalized) in the passport."
+            }
+            let line = Passport.line(stamp, now: now)
+            return "\(stamp.name): \(line.prefix(1).lowercased() + line.dropFirst())."
         case .whatCameFrom(let person):
             let everything = (try? bottles.summaries(includeFinished: true)) ?? []
             let names = Dictionary(everything.map { ($0.id, name($0.bottle)) }, uniquingKeysWith: { a, _ in a })

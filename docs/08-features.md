@@ -128,7 +128,8 @@ The aisle question, offline: *do I already own this?*
   optional rephraser on iOS 26 (`AskModel`). Nothing leaves the phone; no
   "AI" on screen. Also the hunt log and the people: "saw Blanton's at
   Total Wine for $74.99, 3 on the shelf", "entered the Stagg lottery at
-  Virginia ABC", "where did I see Blanton's", "what did Mike send me".
+  Virginia ABC", "where did I see Blanton's", "what did Mike send me",
+  "visited Buffalo Trace", "have I been to Four Roses".
 - **Decode a code** — Four Roses recipe, Heaven Hill batch, Buffalo Trace
   laser code, Wild Turkey bottling code (four formats, 1992 on), DSP
   permit, tequila NOM or brand against the CRT's registry of 201 producers
