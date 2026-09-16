@@ -43,7 +43,7 @@ struct AskIntent: AppIntent {
             // Shown back before it is written, like the app's own Ask.
             try await requestConfirmation(
                 result: .result(dialog: IntentDialog(stringLiteral: described.text)),
-                confirmationActionName: .confirm)
+                confirmationActionName: .go)
             let done = try shelf.service.execute(command)
             WidgetCenter.shared.reloadAllTimelines()
             return .result(value: done, dialog: IntentDialog(stringLiteral: done))
