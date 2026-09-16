@@ -66,6 +66,20 @@ struct VerdictBadge: View {
     }
 }
 
+// MARK: - Numbers people type
+
+/// A number from a text field, whichever separator the keyboard gave.
+///
+/// `.decimalPad` inserts the region's separator, so in Germany or Brazil
+/// "2,5" arrives and `Double("2,5")` is nil. This reads both.
+enum LocalNumber {
+    static func parse(_ text: String) -> Double? {
+        let trimmed = text.trimmingCharacters(in: .whitespaces)
+        if let value = Double(trimmed) { return value }
+        return Double(trimmed.replacingOccurrences(of: ",", with: "."))
+    }
+}
+
 // MARK: - Fill bar
 
 /// How much is left, from the engine's own `PourStatus`.

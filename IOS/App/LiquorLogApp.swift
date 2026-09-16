@@ -1,4 +1,5 @@
 import SwiftUI
+import WidgetKit
 
 @main
 struct LiquorLogApp: App {
@@ -17,7 +18,7 @@ struct LiquorLogApp: App {
 
     /// The chosen look. Changing it rebuilds the root view, which is how
     /// every `Palette` read picks up the new values.
-    @AppStorage(Palette.Look.key) private var look = Palette.Look.standard.rawValue
+    @AppStorage(Palette.Look.key, store: Palette.Look.defaults) private var look = Palette.Look.standard.rawValue
 
     init() {
         let env = AppEnvironment.live()
@@ -31,6 +32,12 @@ struct LiquorLogApp: App {
         WindowGroup {
             MainTabView()
                 .id(look)
+                // The widget is the same look; it is told when that changes.
+                .onChange(of: look) { _, _ in WidgetCenter.shared.reloadAllTimelines() }
+                // Search index and widget are brought up to date once at
+                // launch, so an updated install has its shelf in search
+                // before any sheet is used.
+                .task { environment.noteChange() }
                 .environment(environment)
                 .environment(sync)
                 .environment(store)

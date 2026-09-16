@@ -352,8 +352,7 @@ struct StatsView: View {
         let bottles = (try? env.bottles.summaries(includeFinished: true)) ?? []
         lines = LineView.completions(
             catalogue: env.catalog.products.map(\.identity),
-            holdings: (try? env.bottles.holdings { env.identity($0) }) ?? [],
-            tastings: (try? env.tastings.records { env.identity($0) }) ?? [])
+            holdings: (try? env.bottles.holdings { env.identity($0) }) ?? [])
         let names = Dictionary(uniqueKeysWithValues: bottles.map { ($0.id, env.name(for: $0.bottle)) })
         given = ((try? env.bottles.poursGivenAway()) ?? []).compactMap { pour in
             guard let who = pour.givenTo, let name = names[pour.bottleId] else { return nil }

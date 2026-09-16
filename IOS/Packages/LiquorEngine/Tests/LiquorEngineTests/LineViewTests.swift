@@ -72,9 +72,9 @@ final class LineViewTests: XCTestCase {
             classType: .kentuckyStraightBourbon, productionType: .unspecified)
     }
 
-    /// A count of what the catalogue lists, never a goal. Owned, sampled,
-    /// finished and tasted all count as "had".
-    func testTheLineCountsWhatYouHaveHadAgainstTheCatalogue() {
+    /// A count of bottles against what the catalogue lists, never a goal.
+    /// Owned, sampled and finished count; a tasting at a bar does not.
+    func testTheLineCountsBottlesAgainstTheCatalogue() {
         let sr = expression("sr", "Special Reserve")
         let antique = expression("antique", "Antique 107")
         let twelve = expression("12", "12 Year")
@@ -86,10 +86,10 @@ final class LineViewTests: XCTestCase {
                 Holding(bottleId: "s", product: antique, isSample: true),
                 Holding(bottleId: "f", product: twelve, isFinished: true),
             ],
-            tastings: [])
-        XCTAssertEqual(line.hadCount, 3)
-        XCTAssertEqual(line.completionLine, "3 of the 4 releases the catalogue lists.")
-        XCTAssertEqual(line.notYet.map(\.productId), ["full"])
+            tastings: [TastingRecord(tastingId: "t", product: full, tastedAt: Date(), rating: 8)])
+        XCTAssertEqual(line.hadCount, 3, "the tasting of Full Proof is a drink, not a bottle")
+        XCTAssertEqual(line.completionLine, "3 of the 4 releases the catalogue lists have been on your shelf.")
+        XCTAssertEqual(line.notYet.map(\.productId), [])
     }
 
     func testAllAndNoneReadAsSuch() {
@@ -97,9 +97,9 @@ final class LineViewTests: XCTestCase {
         let all = LineView.line(of: a, catalogue: [a, b],
                                 holdings: [Holding(bottleId: "1", product: a), Holding(bottleId: "2", product: b)],
                                 tastings: [])
-        XCTAssertEqual(all.completionLine, "All 2 releases the catalogue lists.")
+        XCTAssertEqual(all.completionLine, "All 2 releases the catalogue lists have been on your shelf.")
         let none = LineView.line(of: a, catalogue: [a, b], holdings: [], tastings: [])
-        XCTAssertEqual(none.completionLine, "None of the 2 releases the catalogue lists yet.")
+        XCTAssertEqual(none.completionLine, "None of the 2 releases the catalogue lists has been on your shelf yet.")
     }
 
     func testALineOfOneSaysNothingAboutCompletion() {
@@ -117,8 +117,7 @@ final class LineViewTests: XCTestCase {
             catalogue: [w1, w2, w3, s1, s2, lone, e1, e2],
             holdings: [Holding(bottleId: "a", product: w1), Holding(bottleId: "b", product: w2),
                        Holding(bottleId: "c", product: s1), Holding(bottleId: "d", product: s2),
-                       Holding(bottleId: "e", product: lone)],
-            tastings: [])
+                       Holding(bottleId: "e", product: lone)])
         XCTAssertEqual(completions.map(\.brand), ["Stagg", "W. L. Weller"])
         XCTAssertEqual(completions.map(\.had), [2, 2])
         XCTAssertEqual(completions.map(\.total), [2, 3])

@@ -5,10 +5,14 @@ import Foundation
 /// "Which Wellers do I have" is the aisle question one level up from the
 /// shelf check: not this bottle, but this family. The catalogue knows the
 /// expressions; the holdings and tastings know which you have, had, or have
-/// only tasted. Laid side by side it reads as a fact about the collection,
-/// and it is deliberately NOT a progress bar -- there is no "3 of 6" and no
-/// percentage, because the research is clear that collection-as-score gets
-/// an app rated 1, 1, 1. Somebody who wants to complete a line can count.
+/// only tasted. Laid side by side it reads as a fact about the collection.
+///
+/// It is deliberately not a progress bar: no percentage, no bar, nothing
+/// that treats a tasting as a step. The one count it carries -- "3 of the
+/// 7 releases the catalogue lists have been on your shelf" -- is a count of
+/// BOTTLES, which is what a collection is measured in; a drink at a bar
+/// never moves it. The research is clear that collection-as-score gets an
+/// app rated 1, 1, 1, and that is the line this stays on.
 public enum LineView: Sendable {
 
     public enum Standing: String, Sendable, Hashable {
@@ -42,19 +46,23 @@ public enum LineView: Sendable {
         public let rows: [Row]
         public var isEmpty: Bool { rows.isEmpty }
 
-        /// Expressions you have any standing on: owned, sampled, finished
-        /// or tasted. "Had" in the sense collectors use it.
-        public var hadCount: Int { rows.filter { $0.standing != .never }.count }
+        /// Expressions a bottle of which has been on your shelf: owned,
+        /// a sample, or finished. Tastings do not count -- a collection is
+        /// counted in bottles, never in drinks had (docs/00-positioning.md).
+        public var hadCount: Int {
+            rows.filter { $0.standing == .onShelf || $0.standing == .sample || $0.standing == .hadItBefore }.count
+        }
 
-        /// "You have had 4 of the 7 releases the catalogue lists." A count,
-        /// not a goal: the catalogue is what the app knows, not a checklist
-        /// anybody set. Nil for a line of one, where it says nothing.
+        /// "3 of the 7 releases the catalogue lists have been on your
+        /// shelf." A count of bottles against what the app happens to
+        /// list; not a goal, not a checklist anybody set. Nil for a line
+        /// of one, where it says nothing.
         public var completionLine: String? {
             guard rows.count > 1 else { return nil }
             let had = hadCount
-            if had == 0 { return "None of the \(rows.count) releases the catalogue lists yet." }
-            if had == rows.count { return "All \(rows.count) releases the catalogue lists." }
-            return "\(had) of the \(rows.count) releases the catalogue lists."
+            if had == 0 { return "None of the \(rows.count) releases the catalogue lists has been on your shelf yet." }
+            if had == rows.count { return "All \(rows.count) releases the catalogue lists have been on your shelf." }
+            return "\(had) of the \(rows.count) releases the catalogue lists have been on your shelf."
         }
 
         /// What is left, in catalogue order.
@@ -73,17 +81,18 @@ public enum LineView: Sendable {
         public var fraction: Double { total > 0 ? Double(had) / Double(total) : 0 }
     }
 
-    /// Every line you have a standing on, against what the catalogue lists
-    /// of it. Lines of one expression are left out -- "1 of 1" is not a
-    /// fact about a collection -- and so are lines you have nothing of.
+    /// Every line you have had a bottle of, against what the catalogue
+    /// lists of it. Bottles only -- owned, sampled or finished; a tasting
+    /// at a bar is a drink, not a bottle, and the collection screen counts
+    /// bottles. Lines of one expression are left out ("1 of 1" is not a
+    /// fact about a collection) and so are lines you have nothing of.
     /// Most complete first, then biggest, then by name, so the list holds
     /// still between launches.
     public static func completions(
         catalogue: [ProductIdentity],
-        holdings: [Holding],
-        tastings: [TastingRecord]
+        holdings: [Holding]
     ) -> [Completion] {
-        let had = Set(holdings.map(\.product.productId) + tastings.map(\.product.productId))
+        let had = Set(holdings.map(\.product.productId))
         let byLine = Dictionary(grouping: catalogue, by: \.lineKey)
         return byLine.values.compactMap { members -> Completion? in
             guard members.count > 1, let first = members.first else { return nil }

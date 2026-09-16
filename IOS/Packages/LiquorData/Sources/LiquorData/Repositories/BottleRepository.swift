@@ -72,9 +72,12 @@ public struct BottleRepository: Sendable {
         }
     }
 
+    /// A live bottle. A removed one is a tombstone kept for sync, and a
+    /// screen reached from outside -- a stale search result, a widget --
+    /// must not find it.
     public func summary(id: String) throws -> BottleSummary? {
         try db.queue.read { db in
-            guard let bottle = try Bottle.filter(key: id).fetchOne(db) else { return nil }
+            guard let bottle = try Bottle.live().filter(key: id).fetchOne(db) else { return nil }
             return try Self.summary(for: bottle, in: db)
         }
     }
@@ -540,7 +543,7 @@ public struct BottleRepository: Sendable {
         bottleId: String, volumeMl: Double?, note: String?, givenTo: String?, in db: Database
     ) throws -> Pour {
         do {
-            guard let bottle = try Bottle.filter(key: bottleId).fetchOne(db) else {
+            guard let bottle = try Bottle.live().filter(key: bottleId).fetchOne(db) else {
                 throw DataError.bottleNotFound(bottleId)
             }
             let reading = try Self.latestReading(bottleId: bottleId, in: db)

@@ -8,9 +8,10 @@ import Foundation
 /// its own worked examples as the tests. Three formats are readable
 /// without guessing:
 ///
-/// - **2013–2021:** `LL/YMDDHHMM` -- year letter (A is 2012, so D is
+/// - **2013–2023:** `LL/YMDDHHMM` -- year letter (A is 2012, so D is
 ///   2015), month letter (A is January), day, 24-hour time.
-///   `LL/DF021000` is 10:00 on 2 June 2015.
+///   `LL/DF021000` is 10:00 on 2 June 2015. Rare Bird lists 2022–2024
+///   bottles with the same shape and a printed date on a second line.
 /// - **2024 on:** `LA YMDD?HHMM` -- the same letters, then one letter
 ///   whose meaning is not documented, then the time. `LA MI26E0719` is
 ///   07:19 on 26 September 2024.
@@ -45,8 +46,8 @@ public struct WildTurkeyCode: Hashable, Sendable {
         let text = raw.uppercased().replacingOccurrences(of: " ", with: "")
         let calendar = Self.utc
 
-        // LL/YMDDHHMM, 2013-2021; the slash is optional.
-        if let m = Self.match(#"^LL/?([B-J])([A-L])(\d{2})(\d{4})?$"#, text) {
+        // LL/YMDDHHMM, 2013-2023; the slash is optional.
+        if let m = Self.match(#"^LL/?([B-L])([A-L])([0-9]{2})([0-9]{4})?$"#, text) {
             guard let date = Self.assemble(
                 year: Self.base + Self.index(m[1]), month: Self.index(m[2]) + 1,
                 day: Int(m[3])!, time: m[4], calendar: calendar) else { return nil }
@@ -54,7 +55,7 @@ public struct WildTurkeyCode: Hashable, Sendable {
             return
         }
         // LA YMDD ? HHMM, 2024 on.
-        if let m = Self.match(#"^LA([M-Z])([A-L])(\d{2})[A-Z]?(\d{4})?$"#, text) {
+        if let m = Self.match(#"^LA([M-Z])([A-L])([0-9]{2})[A-Z]?([0-9]{4})?$"#, text) {
             guard let date = Self.assemble(
                 year: Self.base + Self.index(m[1]), month: Self.index(m[2]) + 1,
                 day: Int(m[3])!, time: m[4], calendar: calendar) else { return nil }
@@ -65,7 +66,7 @@ public struct WildTurkeyCode: Hashable, Sendable {
         // one to three letters, an optional time, and on the 2006 bottles
         // a couple more characters after. A 5 is refused: the format is
         // documented for 2006 to 2014, so no year ends in one.
-        if let m = Self.match(#"^L(\d)(\d{3})[A-Z]{1,3}(\d{4})?[A-Z0-9]{0,2}$"#, text) {
+        if let m = Self.match(#"^L([0-9])([0-9]{3})[A-Z]{1,3}([0-9]{4})?[A-Z0-9]{0,2}$"#, text) {
             let digit = Int(m[1])!
             guard digit != 5 else { return nil }
             let year = digit >= 6 ? 2000 + digit : 2010 + digit
@@ -75,7 +76,7 @@ public struct WildTurkeyCode: Hashable, Sendable {
             return
         }
         // L-1Y-DDD, 1992-1998: the 1 is fixed, Y the last digit of the year.
-        if let m = Self.match(#"^L-1(\d)-(\d{3})$"#, text) {
+        if let m = Self.match(#"^L-1([0-9])-([0-9]{3})$"#, text) {
             let year = 1990 + Int(m[1])!
             guard let date = Self.dayOfYear(Int(m[2])!, year: year, time: nil, calendar: calendar)
             else { return nil }
@@ -120,6 +121,9 @@ public struct WildTurkeyCode: Hashable, Sendable {
         Int(letter.unicodeScalars.first!.value) - Int(("A" as Unicode.Scalar).value)
     }
 
+    /// Patterns use `[0-9]`, never `\d`: ICU's `\d` matches every Unicode
+    /// digit and `Int()` reads only ASCII, so a fullwidth digit typed from
+    /// a Japanese keyboard would match and then trap on the unwrap.
     private static func match(_ pattern: String, _ text: String) -> [String]? {
         guard let regex = try? NSRegularExpression(pattern: pattern),
               let m = regex.firstMatch(in: text, range: NSRange(text.startIndex..., in: text))

@@ -42,9 +42,12 @@ struct CodeDecoderView: View {
     private var nomProducer: TequilaRegistry.Producer? {
         permit == nil ? env.tequila.producer(nom: typed) : nil
     }
+    /// Brand matches, only when nothing else claimed the text. Four digits
+    /// that are a NOM show that first; a brand of the same four digits is
+    /// still listed underneath rather than hidden.
     private var brandHits: [(producer: TequilaRegistry.Producer, brand: String)] {
-        guard code == nil, batch == nil, laser == nil, permit == nil, turkey == nil, nomProducer == nil
-        else { return [] }
+        guard code == nil, batch == nil, laser == nil, permit == nil, turkey == nil else { return [] }
+        if nomProducer != nil { return env.tequila.exact(brand: typed) }
         return env.tequila.find(brand: typed, limit: 6)
     }
 
@@ -88,6 +91,9 @@ struct CodeDecoderView: View {
                     decodedTurkey(turkey)
                 } else if let nomProducer {
                     decodedNOM(nomProducer)
+                    if !brandHits.isEmpty {
+                        decodedBrands(brandHits)
+                    }
                 } else if !brandHits.isEmpty {
                     decodedBrands(brandHits)
                 } else if typed.trimmingCharacters(in: .whitespaces).count >= 4 {

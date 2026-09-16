@@ -158,11 +158,11 @@ struct InfinityCard: View {
     }
 
     private func addByName() {
-        guard let ml = Double(byMilliliters), ml > 0 else {
+        guard let ml = LocalNumber.parse(byMilliliters), ml > 0 else {
             error = "Say how many millilitres went in."
             return
         }
-        let abv = Double(byProof).map { $0 / 2 }
+        let abv = LocalNumber.parse(byProof).map { $0 / 2 }
         do {
             try env.bottles.addToBlend(blendId: bottle.id, sourceName: byName, abv: abv, volumeMl: ml)
             onChange()
@@ -357,7 +357,7 @@ struct AddToBlendView: View {
     }
 
     private func add(_ source: BottleSummary) {
-        guard let ml = Double(milliliters), ml > 0 else {
+        guard let ml = LocalNumber.parse(milliliters), ml > 0 else {
             error = "Say how many millilitres."
             return
         }

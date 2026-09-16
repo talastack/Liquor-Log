@@ -55,6 +55,12 @@ def main(argv):
             entry["brands"].append(brand)
 
     entries = sorted(by_nom.values(), key=lambda e: e["nom"])
+    if len(entries) < 100:
+        # The registry has two hundred producers. A page that yields fewer
+        # is not the registry (a redirect, a block page) and must not
+        # overwrite the shipped file.
+        print("only %d producers parsed; not writing" % len(entries), file=sys.stderr)
+        return 1
     for e in entries:
         e["brands"].sort()
     doc = {

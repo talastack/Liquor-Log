@@ -15,20 +15,36 @@ public struct AppDatabase: Sendable {
         try Migrations.migrator().migrate(queue)
     }
 
-    /// The real one.
     /// The app group the app and its widgets share. The database lives in
     /// the group container so a widget can read what is open without the
     /// app running; the value is also in both targets' entitlements.
     public static let appGroup = "group.com.talastack.liquorlog"
 
+    public enum OpenError: Error, Sendable, Equatable {
+        /// The shared database does not exist yet: the app has not run
+        /// since it moved there. A widget shows a line saying so rather
+        /// than creating an empty shelf the app would then adopt.
+        case notCreatedYet
+    }
+
     /// The on-disk database. In the app group container when the group is
     /// available (a widget can then read it), otherwise in Application
-    /// Support as before. A database left in Application Support by an
-    /// earlier build is moved across the first time the container exists,
-    /// WAL and shm files with it, so nobody's shelf disappears on update.
+    /// Support as before.
+    ///
+    /// A database left in Application Support by an earlier build is moved
+    /// across once, the first time the app opens with the container
+    /// present -- with its journal, WAL and shm files, since a hot journal
+    /// is the crash recovery SQLite performs on the next open. The move is
+    /// recorded by a marker file, not by the group file's absence: the
+    /// widget cannot be the one to create the group database (see
+    /// `createIfMissing`), but a failed or partial move must not be
+    /// retried forever either. If a group database somehow exists before
+    /// the move and holds bottles, it is kept and the old file left where
+    /// it is; an empty one is replaced.
     public static func onDisk(
         at url: URL? = nil,
         appGroup: String? = appGroup,
+        createIfMissing: Bool = true,
         fileManager: FileManager = .default
     ) throws -> AppDatabase {
         let location: URL
@@ -48,18 +64,24 @@ public struct AppDatabase: Sendable {
                let container = fileManager.containerURL(forSecurityApplicationGroupIdentifier: appGroup) {
                 let folder = container.appendingPathComponent("LiquorLog", isDirectory: true)
                 try fileManager.createDirectory(at: folder, withIntermediateDirectories: true)
-                location = folder.appendingPathComponent("liquorlog.sqlite")
-                if !fileManager.fileExists(atPath: location.path),
-                   fileManager.fileExists(atPath: legacy.path) {
-                    for suffix in ["", "-wal", "-shm"] {
-                        let source = URL(fileURLWithPath: legacy.path + suffix)
-                        let target = URL(fileURLWithPath: location.path + suffix)
-                        if fileManager.fileExists(atPath: source.path) {
-                            try? fileManager.moveItem(at: source, to: target)
-                        }
+                let shared = folder.appendingPathComponent("liquorlog.sqlite")
+                let marker = folder.appendingPathComponent("moved-from-application-support")
+
+                if createIfMissing {
+                    if !fileManager.fileExists(atPath: marker.path),
+                       fileManager.fileExists(atPath: legacy.path) {
+                        try migrate(from: legacy, to: shared, fileManager: fileManager)
+                        fileManager.createFile(atPath: marker.path, contents: Data())
                     }
+                    location = shared
+                } else {
+                    guard fileManager.fileExists(atPath: shared.path) else { throw OpenError.notCreatedYet }
+                    location = shared
                 }
             } else {
+                guard createIfMissing || fileManager.fileExists(atPath: legacy.path) else {
+                    throw OpenError.notCreatedYet
+                }
                 try fileManager.createDirectory(at: legacyFolder, withIntermediateDirectories: true)
                 location = legacy
             }
@@ -69,7 +91,51 @@ public struct AppDatabase: Sendable {
         // Foreign keys are ON by default in GRDB; stated here because the
         // cascade from bottles to pours is load-bearing for the fixtures.
         config.foreignKeysEnabled = true
+        // Two processes open this file -- the app and the widget -- so it
+        // runs in WAL mode, waits out the other side's transaction instead
+        // of failing on the spot, and takes the write lock up front rather
+        // than upgrading a read into one, which is the deadlock case.
+        config.busyMode = .timeout(5)
+        config.defaultTransactionKind = .immediate
+        config.prepareDatabase { db in
+            try db.execute(sql: "PRAGMA journal_mode = WAL")
+        }
         return try AppDatabase(try DatabaseQueue(path: location.path, configuration: config))
+    }
+
+    /// The sidecar files SQLite keeps beside a database, in either journal
+    /// mode. A hot "-journal" is the rollback of an interrupted write and
+    /// must travel with the file it belongs to.
+    static let sidecars = ["", "-journal", "-wal", "-shm"]
+
+    /// Moves a database and its sidecars. A group database that already
+    /// holds bottles wins and the move is skipped; an empty one (a build
+    /// that created it before this rule) is replaced.
+    static func migrate(from legacy: URL, to shared: URL, fileManager: FileManager) throws {
+        if fileManager.fileExists(atPath: shared.path) {
+            if try holdsBottles(at: shared) { return }
+            for suffix in sidecars {
+                let stale = URL(fileURLWithPath: shared.path + suffix)
+                if fileManager.fileExists(atPath: stale.path) { try fileManager.removeItem(at: stale) }
+            }
+        }
+        for suffix in sidecars {
+            let source = URL(fileURLWithPath: legacy.path + suffix)
+            let target = URL(fileURLWithPath: shared.path + suffix)
+            if fileManager.fileExists(atPath: source.path) {
+                try fileManager.moveItem(at: source, to: target)
+            }
+        }
+    }
+
+    static func holdsBottles(at url: URL) throws -> Bool {
+        var config = Configuration()
+        config.readonly = true
+        let queue = try DatabaseQueue(path: url.path, configuration: config)
+        return try queue.read { db in
+            guard try db.tableExists("bottles") else { return false }
+            return try Int.fetchOne(db, sql: "SELECT count(*) FROM bottles") ?? 0 > 0
+        }
     }
 
     /// Tests. Every test gets its own empty database.

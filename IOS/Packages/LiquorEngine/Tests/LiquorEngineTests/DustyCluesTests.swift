@@ -15,6 +15,12 @@ final class DustyCluesTests: XCTestCase {
     func testOneClueIsOneSidedWindow() {
         XCTAssertEqual(DustyClues.window(for: [clue("strip")]).text, "Before 1986.")
         XCTAssertEqual(DustyClues.window(for: [clue("metric")]).text, "1976 or later.")
+        XCTAssertEqual(DustyClues.window(for: [clue("irs")]).text, "Before 1977.")
+    }
+
+    /// One strip cannot say both IRS and ATF.
+    func testIRSAndATFCannotBothBeTrue() {
+        XCTAssertNotNil(DustyClues.window(for: [clue("irs"), clue("atf")]).conflict)
     }
 
     /// ATF strip and a 4/5 quart: 1977 to 1979, the three years both held.

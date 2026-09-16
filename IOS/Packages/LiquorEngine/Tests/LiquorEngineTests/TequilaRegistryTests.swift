@@ -11,6 +11,9 @@ final class TequilaRegistryTests: XCTestCase {
         .init(nom: "1142", company: "LA MADRILEÑA, S.A. DE C.V.",
               brands: ["CORONA", "JARANA", "KIRKLAND SIGNATURE", "MAYORAZGO"]),
         .init(nom: "1609", company: "DIAGEO MEXICO OPERACIONES, S.A. DE C.V.", brands: ["CASAMIGOS"]),
+        .init(nom: "1108", company: "JORGE SALLES CUERVO Y SUCESORES, S.A. DE C.V.", brands: ["EL TEQUILEÑO"]),
+        .init(nom: "1143", company: "DESTILADORA DEL VALLE DE TEQUILA, S.A. DE C.V.", brands: ["TRADER JOE´S"]),
+        .init(nom: "1577", company: "AGAVE CONQUISTA, S.A. DE C.V.", brands: ["1519"]),
     ])
 
     func testANOMReadsHoweverItIsTyped() {
@@ -41,8 +44,22 @@ final class TequilaRegistryTests: XCTestCase {
         XCTAssertEqual(partial.map(\.producer.nom), ["1142"])
     }
 
-    func testTwoLettersAreNotASearch() {
+    func testThreeLettersAreNotASearch() {
         XCTAssertTrue(registry.find(brand: "el").isEmpty)
+        XCTAssertTrue(registry.find(brand: "OES").isEmpty, "the start of a Four Roses code")
+    }
+
+    /// Accents and the CRT's own apostrophe fold away, as everywhere else
+    /// in the app.
+    func testAccentsAndApostrophesFold() {
+        XCTAssertEqual(registry.find(brand: "el tequileno").map(\.producer.nom), ["1108"])
+        XCTAssertEqual(registry.find(brand: "Trader Joe's").map(\.producer.nom), ["1143"])
+        XCTAssertEqual(registry.find(brand: "trader joe").map(\.producer.nom), ["1143"])
+    }
+
+    func testFourDigitsCanBeABrandAsWellAsANOM() {
+        XCTAssertEqual(registry.exact(brand: "1519").map(\.producer.nom), ["1577"])
+        XCTAssertTrue(registry.exact(brand: "1139").isEmpty)
     }
 
     func testDecodesTheShippedShape() throws {

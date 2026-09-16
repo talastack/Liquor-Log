@@ -16,7 +16,7 @@ struct MoreView: View {
     /// Ounces beside the millilitres. Display only; nothing stored changes.
     @AppStorage(VolumeDisplay.key) private var ounces = false
 
-    @AppStorage(Palette.Look.key) private var look = Palette.Look.standard.rawValue
+    @AppStorage(Palette.Look.key, store: Palette.Look.defaults) private var look = Palette.Look.standard.rawValue
     @Environment(\.colorScheme) private var colorScheme
 
     @State private var exportURL: URL?

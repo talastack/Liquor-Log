@@ -1,5 +1,4 @@
 import SwiftUI
-import WidgetKit
 import LiquorData
 import LiquorEngine
 
@@ -72,6 +71,9 @@ struct BottleDetailView: View {
     @State private var customPourText = ""
     @State private var isGivingPour = false
     @State private var giveToText = ""
+    /// False until the first read, so a bottle that is not there reads as
+    /// gone rather than as loading forever.
+    @State private var hasLoaded = false
 
     /// The rendered bottle card, while its share sheet is up.
     @State private var shareCard: RenderedBottleCard?
@@ -103,7 +105,7 @@ struct BottleDetailView: View {
                     if summary.bottle.isInfinity {
                         InfinityCard(
                             bottle: summary.bottle, additions: additions, profile: blend,
-                            onChange: { reload() })
+                            onChange: { changed() })
                     }
                     fill(summary)
                     if let estimate = oxidation(summary) {
@@ -126,6 +128,9 @@ struct BottleDetailView: View {
                        let abv = summary.bottle.abv ?? env.product(for: summary.bottle)?.abv,
                        ABV(percent: abv).proof > 80, ABV(percent: abv).proof <= Proofing.highestProof {
                         WaterCard(proof: ABV(percent: abv).proof, pourMilliliters: summary.bottle.pourSizeMl)
+                            // Rebuilt when the proof is edited, so the
+                            // target never sits above the new strength.
+                            .id(abv)
                     }
                     if showsWax(summary) {
                         wax(summary)
@@ -149,6 +154,17 @@ struct BottleDetailView: View {
                 }
                 .padding(.horizontal, Space.xl)
                 .padding(.bottom, 96)
+            } else if hasLoaded {
+                // Reached from a stale search result or link.
+                VStack(spacing: Space.m) {
+                    BottleMark(height: 84)
+                    Text("This bottle is no longer on your shelf.")
+                        .font(TypeScale.title())
+                        .foregroundStyle(Palette.text)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.top, 64)
             } else {
                 ProgressView().padding(.top, 80)
             }
@@ -156,13 +172,18 @@ struct BottleDetailView: View {
         .background(Palette.background)
         .navigationBarTitleDisplayMode(.inline)
         .task { reload() }
+        // Written to from elsewhere -- the widget, another screen -- while
+        // this one is open.
+        .onChange(of: env.changeCount) { _, _ in reload() }
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Button("Edit") { isEditing = true }
-                    .foregroundStyle(Palette.gold)
-            }
-            ToolbarItem(placement: .primaryAction) {
-                bottleMenu
+            if summary != nil {
+                ToolbarItem(placement: .primaryAction) {
+                    Button("Edit") { isEditing = true }
+                        .foregroundStyle(Palette.gold)
+                }
+                ToolbarItem(placement: .primaryAction) {
+                    bottleMenu
+                }
             }
         }
         .confirmationDialog(
@@ -196,7 +217,7 @@ struct BottleDetailView: View {
             TextField("ml", text: $customPourText)
                 .keyboardType(.decimalPad)
             Button("Pour it in") {
-                if let target = pourIntoTarget, let ml = Double(customPourText), ml > 0 {
+                if let target = pourIntoTarget, let ml = LocalNumber.parse(customPourText), ml > 0 {
                     pourInto(target, milliliters: ml)
                 }
                 pourIntoTarget = nil
@@ -210,7 +231,7 @@ struct BottleDetailView: View {
             TextField("ml", text: $customPourText)
                 .keyboardType(.decimalPad)
             Button("Log it") {
-                if let ml = Double(customPourText), ml > 0 {
+                if let ml = LocalNumber.parse(customPourText), ml > 0 {
                     logPour(milliliters: ml, givenTo: giveToText)
                 }
             }
@@ -222,7 +243,7 @@ struct BottleDetailView: View {
             TextField("ml", text: $customPourText)
                 .keyboardType(.decimalPad)
             Button("Log it") {
-                if let ml = Double(customPourText), ml > 0 { logPour(milliliters: ml) }
+                if let ml = LocalNumber.parse(customPourText), ml > 0 { logPour(milliliters: ml) }
             }
             Button("Cancel", role: .cancel) {}
         } message: {
@@ -230,12 +251,12 @@ struct BottleDetailView: View {
         }
         .sheet(isPresented: $isEditing) {
             NavigationStack {
-                EditBottleView(bottleId: bottleId, onSave: { reload() })
+                EditBottleView(bottleId: bottleId, onSave: { changed() })
             }
         }
         .sheet(isPresented: $isSettingLevel) {
             NavigationStack {
-                SetLevelView(bottleId: bottleId, onSave: { reload() })
+                SetLevelView(bottleId: bottleId, onSave: { changed() })
             }
         }
         .sheet(isPresented: $isMeasuringDrip) {
@@ -245,7 +266,7 @@ struct BottleDetailView: View {
                         bottleId: bottleId,
                         bottleName: env.name(for: summary.bottle),
                         existingColor: summary.bottle.waxColor,
-                        onSave: { reload() })
+                        onSave: { changed() })
                 }
             }
         }
@@ -255,7 +276,7 @@ struct BottleDetailView: View {
                     ProductNoteView(
                         productId: productId,
                         productName: env.name(for: bottle),
-                        onSave: { reload() })
+                        onSave: { changed() })
                 }
             }
         }
@@ -369,7 +390,7 @@ struct BottleDetailView: View {
                 BottlePhotoMenu(
                     bottleId: summary.id,
                     current: summary.bottle.photoFile,
-                    onChange: { reload() })
+                    onChange: { changed() })
             }
             if let distillery = env.distillery(for: summary.bottle) {
                 SectionLabel(distillery)
@@ -1144,9 +1165,7 @@ struct BottleDetailView: View {
             }
             pours = try env.bottles.pours(bottleId: bottleId)
             readings = try env.bottles.fillHistory(bottleId: bottleId)
-            // This screen writes pours and levels itself; the widget and
-            // the search index learn of them here.
-            WidgetCenter.shared.reloadAllTimelines()
+            hasLoaded = true
             if summary?.bottle.isInfinity == true {
                 additions = try env.bottles.additions(blendId: bottleId)
                 blend = Blend.profile(try env.bottles.blendParts(blendId: bottleId) { id in
@@ -1270,11 +1289,18 @@ struct BottleDetailView: View {
         }
     }
 
+    /// After a write of this screen's own: everything else -- the shelf,
+    /// the widget, the search index -- is told, then this reloads.
+    private func changed() {
+        env.noteChange()
+        reload()
+    }
+
     private func undoPour(_ id: String) {
         do {
             try env.bottles.removePour(id: id)
             if justPouredId == id { justPouredId = nil }
-            reload()
+            changed()
         } catch {
             self.error = error.localizedDescription
         }
@@ -1283,7 +1309,7 @@ struct BottleDetailView: View {
     private func openBottle() {
         do {
             try env.bottles.open(bottleId: bottleId)
-            reload()
+            changed()
         } catch {
             self.error = error.localizedDescription
         }
@@ -1292,7 +1318,7 @@ struct BottleDetailView: View {
     private func finishBottle() {
         do {
             try env.bottles.finish(bottleId: bottleId)
-            reload()
+            changed()
         } catch {
             self.error = error.localizedDescription
         }
@@ -1301,6 +1327,7 @@ struct BottleDetailView: View {
     private func removeBottle() {
         do {
             try env.bottles.remove(bottleId: bottleId)
+            env.noteChange()
             dismiss()
         } catch {
             self.error = error.localizedDescription
@@ -1310,7 +1337,7 @@ struct BottleDetailView: View {
     private func removeTasting(_ id: String) {
         do {
             try env.tastings.remove(tastingId: id)
-            reload()
+            changed()
         } catch {
             self.error = error.localizedDescription
         }
@@ -1326,7 +1353,7 @@ struct BottleDetailView: View {
             try env.bottles.addToBlend(
                 blendId: target.id, fromBottleId: summary.id, volumeMl: milliliters,
                 catalogABV: env.product(for: summary.bottle)?.abv)
-            reload()
+            changed()
         } catch DataError.bottleIsFull {
             error = "\(env.name(for: target)) is full."
         } catch DataError.bottleIsEmpty {
@@ -1351,7 +1378,7 @@ struct BottleDetailView: View {
             let before = summary.status.remainingPours
             justPouredId = try env.bottles.logPour(
                 bottleId: summary.id, volumeMl: milliliters, givenTo: givenTo).id
-            reload()
+            changed()
             offerReplacement(before: before)
         } catch DataError.bottleIsEmpty {
             error = "That bottle is empty."

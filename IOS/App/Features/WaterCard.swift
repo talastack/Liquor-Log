@@ -48,7 +48,12 @@ struct WaterCard: View {
                     .frame(width: 76, height: Space.tapTarget - 8)
                     .background(RoundedRectangle(cornerRadius: 8).fill(Palette.surfaceRaised))
                     .onChange(of: customTarget) { _, text in
-                        if let typed = Double(text), typed > 0 { target = typed }
+                        if let typed = LocalNumber.parse(text), typed > 0 {
+                            target = typed
+                        } else if text.isEmpty, let first = Self.targets.first(where: { $0 < proof }) {
+                            // Cleared: back to the first preset, lit again.
+                            target = first
+                        }
                     }
             }
 
@@ -79,7 +84,7 @@ struct WaterCard: View {
                     .padding(.horizontal, Space.m)
                     .frame(width: 110, height: Space.tapTarget - 8)
                     .background(RoundedRectangle(cornerRadius: 8).fill(Palette.surfaceRaised))
-                if let ml = Double(splash), ml > 0,
+                if let ml = LocalNumber.parse(splash), ml > 0,
                    let landed = Proofing.proofAfterAdding(waterMilliliters: ml, to: proof, spiritMilliliters: pourMilliliters) {
                     Text("→ about \(Self.proofText(landed)) proof")
                         .font(TypeScale.secondary())

@@ -32,6 +32,7 @@ enum Tab: Hashable, CaseIterable {
 
 struct MainTabView: View {
     @Environment(AppEnvironment.self) private var env
+    @Environment(\.scenePhase) private var scenePhase
     @State private var tab: Tab = .shelfCheck
     @State private var isAddingBottle = false
     @State private var isAddingShelf = false
@@ -113,6 +114,11 @@ struct MainTabView: View {
                 env.requestedBottleId = id
             }
         }
+        // A pour logged from the widget happened in another process. On
+        // coming back to the foreground every screen re-reads.
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { env.noteChange() }
+        }
         // A bottle picked from the phone's search.
         .onContinueUserActivity(CSSearchableItemActionType) { activity in
             guard let id = Spotlight.bottleId(from: activity) else { return }
@@ -122,7 +128,7 @@ struct MainTabView: View {
     }
 
     private func startInfinity() {
-        let size = Double(infinitySize).flatMap { $0 > 0 ? $0 : nil } ?? 750
+        let size = LocalNumber.parse(infinitySize).flatMap { $0 > 0 ? $0 : nil } ?? 750
         _ = try? env.bottles.startInfinityBottle(name: infinityName, volumeMl: size)
         env.noteChange()
     }

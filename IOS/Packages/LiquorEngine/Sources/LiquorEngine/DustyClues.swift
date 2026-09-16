@@ -41,7 +41,7 @@ public enum DustyClues: Sendable {
         public static let allCases: [Clue] = [
             Clue(id: "strip", text: "A paper strip over the cap", from: nil, to: 1985,
                  why: "Strip stamps were required until 1 July 1985."),
-            Clue(id: "irs", text: "The strip says IRS or Internal Revenue", from: nil, to: 1977,
+            Clue(id: "irs", text: "The strip says IRS or Internal Revenue", from: nil, to: 1976,
                  why: "The IRS wording was replaced by ATF's on strips from 1977."),
             Clue(id: "atf", text: "The strip says ATF", from: 1977, to: 1985,
                  why: "ATF wording on strips from 1977; strips ended 1 July 1985."),

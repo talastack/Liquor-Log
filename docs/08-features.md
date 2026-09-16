@@ -19,9 +19,9 @@ The aisle question, offline: *do I already own this?*
   no bottle · have the line, not this release · tasted, never owned · had it
   before · never had it.
 - **Tap the brand** on a card → every expression of that line with your
-  standing on each, and "4 of the 7 releases the catalogue lists" — a
-  count, not a checklist (`LineView`). Your collection lists every line
-  the same way.
+  standing on each, and "3 of the 7 releases the catalogue lists have
+  been on your shelf" — a count of bottles, never of tastings, and not a
+  checklist (`LineView`). Your collection lists every line the same way.
 - **Price on the shelf?** — type it, get it against what you usually pay,
   the shelf reference, and your wishlist ceiling (`PriceHistory`,
   `PriceCheck`).
@@ -152,8 +152,11 @@ The aisle question, offline: *do I already own this?*
   (Spotlight): name, distillery, "Open · 13 of 17 pours" or "Sample from
   Mike", where it is kept. A result opens the bottle.
 - The database now lives in the app group container
-  (`group.com.talastack.liquorlog`); an existing one is moved there on
-  first launch, WAL and all.
+  (`group.com.talastack.liquorlog`), in WAL mode with a busy timeout so
+  the two processes share it; an existing one is moved there by the app
+  on first launch, journal and all, and recorded by a marker so the move
+  happens once. The widget never creates the database: before the app has
+  run it says so.
 
 ## Not built, on purpose
 

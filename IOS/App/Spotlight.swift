@@ -27,7 +27,9 @@ enum Spotlight {
 
     static func reindex(_ env: AppEnvironment) {
         guard CSSearchableIndex.isIndexingAvailable() else { return }
-        let summaries = (try? env.bottles.summaries()) ?? []
+        // A shelf that could not be read is not an empty shelf. The index
+        // keeps what it had rather than being wiped by a transient error.
+        guard let summaries = try? env.bottles.summaries() else { return }
         let items = summaries.map { summary -> CSSearchableItem in
             let bottle = summary.bottle
             let attributes = CSSearchableItemAttributeSet(contentType: .text)

@@ -19,6 +19,16 @@ final class WildTurkeyCodeTests: XCTestCase {
         XCTAssertEqual(WildTurkeyCode("LL/IA01")?.year, 2020)
         XCTAssertEqual(WildTurkeyCode("LL/JL31")?.year, 2021)
         XCTAssertEqual(WildTurkeyCode("LL/JL31")?.month, 12)
+        XCTAssertEqual(WildTurkeyCode("LL/KA150900")?.year, 2022)
+        XCTAssertEqual(WildTurkeyCode("LL/LC011200")?.year, 2023)
+        XCTAssertNil(WildTurkeyCode("LL/MA01"), "2024 bottles start with LA")
+    }
+
+    /// A fullwidth or Arabic-Indic digit is not a code; it must not be a
+    /// crash either.
+    func testNonASCIIDigitsAreRefusedNotTrapped() {
+        XCTAssertNil(WildTurkeyCode("LL/DF０２"))
+        XCTAssertNil(WildTurkeyCode("L٩١٣٢FH"))
     }
 
     func testTheFormatFrom2024() throws {

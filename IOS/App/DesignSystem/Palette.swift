@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import LiquorData
 
 /// Every colour in the app, in both modes, in four looks.
 ///
@@ -53,8 +54,15 @@ enum Palette {
         static let key = "theme.look"
         static let standard: Look = .cellar
 
+        /// The app group's defaults, so the widget -- a separate process
+        /// with defaults of its own -- renders the look the app chose.
+        /// Falls back to the app's standard defaults, where a choice made
+        /// before the group existed still lives.
+        static let defaults: UserDefaults = UserDefaults(suiteName: AppDatabase.appGroup) ?? .standard
+
         static var current: Look {
-            Look(rawValue: UserDefaults.standard.string(forKey: key) ?? "") ?? standard
+            let stored = defaults.string(forKey: key) ?? UserDefaults.standard.string(forKey: key)
+            return Look(rawValue: stored ?? "") ?? standard
         }
     }
 

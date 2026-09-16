@@ -31,10 +31,17 @@ public struct TequilaRegistry: Sendable {
 
     public let producers: [Producer]
     private let byNOM: [String: Producer]
+    /// Every brand, folded the way the rest of the app matches text --
+    /// lowercase, accents stripped, punctuation dropped -- so "el tequileno"
+    /// finds EL TEQUILEÑO and "trader joes" finds TRADER JOE´S.
+    private let brands: [(folded: String, brand: String, producer: Producer)]
 
     public init(producers: [Producer]) {
         self.producers = producers
         self.byNOM = Dictionary(producers.map { ($0.nom, $0) }, uniquingKeysWith: { a, _ in a })
+        self.brands = producers.flatMap { producer in
+            producer.brands.map { (folded: $0.normalizedForMatching(), brand: $0, producer: producer) }
+        }
     }
 
     public static let empty = TequilaRegistry(producers: [])
@@ -67,21 +74,27 @@ public struct TequilaRegistry: Sendable {
 
     /// Producers with a brand matching the words typed. A brand that IS the
     /// query comes first, then brands that start with it, then brands that
-    /// contain it; at most `limit`.
+    /// contain it; at most `limit`. Four characters before anything is
+    /// searched: three is the start of a Four Roses code, not a brand.
     public func find(brand raw: String, limit: Int = 8) -> [(producer: Producer, brand: String)] {
-        let query = raw.trimmingCharacters(in: .whitespaces).uppercased()
-        guard query.count >= 3 else { return [] }
+        let query = raw.normalizedForMatching()
+        guard query.count >= 4 else { return [] }
         var exact: [(Producer, String)] = []
         var prefix: [(Producer, String)] = []
         var contains: [(Producer, String)] = []
-        for producer in producers {
-            for brand in producer.brands {
-                let name = brand.uppercased()
-                if name == query { exact.append((producer, brand)) }
-                else if name.hasPrefix(query) { prefix.append((producer, brand)) }
-                else if name.contains(query) { contains.append((producer, brand)) }
-            }
+        for entry in brands {
+            if entry.folded == query { exact.append((entry.producer, entry.brand)) }
+            else if entry.folded.hasPrefix(query) { prefix.append((entry.producer, entry.brand)) }
+            else if entry.folded.contains(query) { contains.append((entry.producer, entry.brand)) }
         }
         return Array((exact + prefix + contains).prefix(limit)).map { (producer: $0.0, brand: $0.1) }
+    }
+
+    /// Only brands that are exactly the words typed -- for the case where
+    /// four digits are both a NOM and a registered brand name.
+    public func exact(brand raw: String) -> [(producer: Producer, brand: String)] {
+        let query = raw.normalizedForMatching()
+        guard !query.isEmpty else { return [] }
+        return brands.filter { $0.folded == query }.map { (producer: $0.producer, brand: $0.brand) }
     }
 }

@@ -48,6 +48,9 @@ struct OpenEntry: TimelineEntry {
     let date: Date
     let bottles: [OpenBottle]
     let openCount: Int
+    /// Set when there is no shared database yet: the app has to run once
+    /// after the update that moved it. The widget must not create one.
+    var needsTheApp = false
 }
 
 struct OpenBottlesProvider: TimelineProvider {
@@ -76,7 +79,12 @@ enum WidgetData {
     /// bottles included -- they are open and pourable; samples left out,
     /// there is one pour in them and it was given to you.
     static func entry(now: Date = Date()) -> OpenEntry {
-        guard let db = try? AppDatabase.onDisk() else {
+        let db: AppDatabase
+        do {
+            db = try AppDatabase.onDisk(createIfMissing: false)
+        } catch AppDatabase.OpenError.notCreatedYet {
+            return OpenEntry(date: now, bottles: [], openCount: 0, needsTheApp: true)
+        } catch {
             return OpenEntry(date: now, bottles: [], openCount: 0)
         }
         let bottles = BottleRepository(db)
@@ -131,6 +139,9 @@ enum WidgetData {
 struct LogPourIntent: AppIntent {
     static let title: LocalizedStringResource = "Log a pour"
     static let description = IntentDescription("Logs one pour of a bottle at its usual pour size.")
+    /// Not offered in Shortcuts: its parameter is a database id nobody can
+    /// type. It exists for the button.
+    static let isDiscoverable = false
 
     @Parameter(title: "Bottle")
     var bottleId: String
@@ -142,11 +153,14 @@ struct LogPourIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult {
-        let db = try AppDatabase.onDisk()
+        // Never creates the database; a widget tap before the app has run
+        // does nothing rather than starting an empty shelf.
+        let db = try AppDatabase.onDisk(createIfMissing: false)
         do {
             try BottleRepository(db).logPour(bottleId: bottleId)
-        } catch DataError.bottleIsEmpty {
-            // Nothing to pour; the widget already shows it empty.
+        } catch DataError.bottleIsEmpty, DataError.bottleNotFound {
+            // Nothing to pour, or the bottle was removed since the timeline
+            // was built; the reload below shows the truth.
         }
         WidgetCenter.shared.reloadAllTimelines()
         return .result()
@@ -189,7 +203,12 @@ struct WhatsOpenView: View {
                     .font(.system(size: 13, weight: .semibold, design: .rounded))
                     .foregroundStyle(WidgetPalette.text)
             }
-            if entry.bottles.isEmpty {
+            if entry.needsTheApp {
+                Text("Open the app once to set this up.")
+                    .font(.system(size: 13))
+                    .foregroundStyle(WidgetPalette.muted)
+                Spacer(minLength: 0)
+            } else if entry.bottles.isEmpty {
                 Text("Nothing open.")
                     .font(.system(size: 13))
                     .foregroundStyle(WidgetPalette.muted)
