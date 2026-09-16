@@ -215,5 +215,6 @@ public struct CollectionBackup: Sendable {
         Table(WishlistItem.self),
         Table(KnowledgeNote.self),
         Table(Sighting.self),
+        Table(Visit.self),
     ]
 }

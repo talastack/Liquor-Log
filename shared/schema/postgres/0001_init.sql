@@ -689,6 +689,28 @@ create table sightings (
 );
 
 -- ---------------------------------------------------------------------------
+-- visits
+-- ---------------------------------------------------------------------------
+--
+-- The passport: a distillery stood in, on a date, with a note. Read back
+-- as stamps against the shelf -- which bottles came from a place you have
+-- been, which distilleries on the shelf you have not been to.
+
+create table visits (
+  id                  text primary key,
+  user_id             uuid not null references auth.users (id) on delete cascade,
+  distillery          text not null,
+  visited_at          bigint not null,
+  note                text,
+  created_at          bigint not null,
+  updated_at          bigint not null,
+  deleted_at          bigint,
+  server_updated_at   bigint not null default 0,
+
+  constraint visit_names_a_place check (char_length(distillery) > 0)
+);
+
+-- ---------------------------------------------------------------------------
 -- subscriptions
 -- ---------------------------------------------------------------------------
 --
@@ -823,6 +845,9 @@ create trigger a_knowledge_notes_reject_stale
 create trigger a_sightings_reject_stale
   before update on sightings
   for each row execute function reject_stale_writes();
+create trigger a_visits_reject_stale
+  before update on visits
+  for each row execute function reject_stale_writes();
 
 create trigger custom_catalog_entries_server_clock
   before insert or update on custom_catalog_entries
@@ -863,6 +888,9 @@ create trigger knowledge_notes_server_clock
 create trigger sightings_server_clock
   before insert or update on sightings
   for each row execute function set_server_updated_at();
+create trigger visits_server_clock
+  before insert or update on visits
+  for each row execute function set_server_updated_at();
 create trigger subscriptions_server_clock
   before insert or update on subscriptions
   for each row execute function set_server_updated_at();
@@ -887,6 +915,7 @@ create index tasting_notes_pull on tasting_notes (user_id, server_updated_at);
 create index wishlist_items_pull on wishlist_items (user_id, server_updated_at);
 create index knowledge_notes_pull on knowledge_notes (user_id, server_updated_at);
 create index sightings_pull on sightings (user_id, server_updated_at);
+create index visits_pull on visits (user_id, server_updated_at);
 create index subscriptions_pull on subscriptions (user_id, server_updated_at);
 
 -- Reads the app actually makes.
@@ -976,7 +1005,7 @@ begin
   foreach t in array array[
     'custom_catalog_entries', 'bottles', 'pours', 'fill_readings', 'blend_additions',
     'price_reports', 'drip_reports', 'menus', 'tastings', 'tasting_notes',
-    'wishlist_items', 'knowledge_notes', 'sightings'
+    'wishlist_items', 'knowledge_notes', 'sightings', 'visits'
   ] loop
     execute format(
       'update %I set server_updated_at = (extract(epoch from clock_timestamp()) * 1000)::bigint '

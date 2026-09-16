@@ -183,6 +183,15 @@ struct MoreView: View {
             }
 
             NavigationLink {
+                PassportView()
+            } label: {
+                row(
+                    "Passport",
+                    detail: "The distilleries you have stood in, against your shelf",
+                    symbol: "stamp")
+            }
+
+            NavigationLink {
                 YearView()
             } label: {
                 row(

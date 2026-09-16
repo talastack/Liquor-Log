@@ -294,6 +294,19 @@ public enum Migrations {
                 t.column("dirty", .boolean).notNull().defaults(to: true)
             }
 
+            // The passport: a distillery stood in, on a date.
+            try db.create(table: "visits") { t in
+                t.primaryKey("id", .text).notNull()
+                t.column("user_id", .text)
+                t.column("distillery", .text).notNull()
+                t.column("visited_at", .integer).notNull()
+                t.column("note", .text)
+                t.column("created_at", .integer).notNull()
+                t.column("updated_at", .integer).notNull()
+                t.column("deleted_at", .integer)
+                t.column("dirty", .boolean).notNull().defaults(to: true)
+            }
+
             try db.create(table: "subscriptions") { t in
                 t.primaryKey("id", .text).notNull()
                 t.column("user_id", .text)

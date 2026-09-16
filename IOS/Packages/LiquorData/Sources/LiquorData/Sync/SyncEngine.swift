@@ -64,6 +64,7 @@ public actor SyncEngine {
             AnySyncTable(WishlistItem.self),
             AnySyncTable(KnowledgeNote.self),
             AnySyncTable(Sighting.self),
+            AnySyncTable(Visit.self),
             // subscriptions is server-owned: pulled, never pushed. It has no
             // insert or update policy, so an attempt is refused by RLS rather
             // than by anything here.

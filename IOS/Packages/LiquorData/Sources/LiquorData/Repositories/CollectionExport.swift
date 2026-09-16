@@ -220,8 +220,18 @@ public struct CollectionExport: Sendable {
         return CSVWriter.document(header: Self.huntLogHeader, rows: rows)
     }
 
-    /// Everything, as files: the bottles always, and the tastings, pours
-    /// and hunt log when there are any. Returns the URLs for a share sheet.
+    /// The passport, one row per visit.
+    public static let visitsHeader = ["date", "distillery", "note"]
+
+    public func visitsCSV() throws -> String {
+        let rows: [[String]] = try VisitRepository(db).all().map { row in
+            [CSVWriter.date(millis: row.visitedAt), row.distillery, CSVWriter.text(row.note)]
+        }
+        return CSVWriter.document(header: Self.visitsHeader, rows: rows)
+    }
+
+    /// Everything, as files: the bottles always, and the tastings, pours,
+    /// hunt log and visits when there are any. Returns the URLs for a share sheet.
     public func writeAll(
         to directory: URL,
         resolveName: (Bottle) -> String,
@@ -234,6 +244,7 @@ public struct CollectionExport: Sendable {
             ("tastings", try tastingsCSV(resolveName: resolveName, resolveIdentity: resolveIdentity, word: word)),
             ("pours", try poursCSV(resolveName: resolveName)),
             ("hunt-log", try huntLogCSV(resolveIdentity: resolveIdentity)),
+            ("visits", try visitsCSV()),
         ]
         // A header alone is one line; anything recorded makes two. (CRLF is
         // one Character in Swift, so this is a string split, not a Character one.)

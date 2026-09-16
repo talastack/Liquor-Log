@@ -24,6 +24,7 @@ alter table tasting_notes         enable row level security;
 alter table wishlist_items        enable row level security;
 alter table knowledge_notes       enable row level security;
 alter table sightings             enable row level security;
+alter table visits                enable row level security;
 alter table subscriptions         enable row level security;
 
 -- Owner-only, for everything the client writes.
@@ -38,7 +39,7 @@ begin
   foreach t in array array[
     'custom_catalog_entries', 'bottles', 'pours', 'fill_readings', 'tastings',
     'tasting_notes', 'wishlist_items', 'knowledge_notes', 'blend_additions',
-    'price_reports', 'drip_reports', 'menus', 'sightings'
+    'price_reports', 'drip_reports', 'menus', 'sightings', 'visits'
   ]
   loop
     -- Dropped first because CREATE POLICY has no IF NOT EXISTS, and this file

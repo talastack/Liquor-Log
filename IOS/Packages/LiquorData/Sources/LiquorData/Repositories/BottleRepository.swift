@@ -862,4 +862,6 @@ public enum DataError: Error, Sendable, Equatable {
     /// A sighting with nowhere, or nothing, in it.
     case sightingNeedsAStore
     case sightingNeedsAName
+    case visitNotFound(String)
+    case visitNeedsAPlace
 }

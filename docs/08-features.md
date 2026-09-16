@@ -214,6 +214,14 @@ The aisle question, offline: *do I already own this?*
   1 won." What it cost appears only behind the money switch, and never on
   the share card. Nothing about pours or bottles emptied, no comparison
   with last year, no streak (`YearInReview`).
+- **Passport** — the distilleries you have stood in: a visit is a place
+  (from the catalogue's list, or typed) and a day. Read back as a stamp
+  per distillery ("2 visits · first March 2024 · last 3 weeks ago") with
+  what the shelf says about it — "2 bottles from there on the shelf, 1
+  bought there" — and the list that is actually useful: the distilleries
+  whose bottles you own and have never visited, most bottles first. Not
+  a checklist of the catalogue. New table `visits` (patch 0012), synced,
+  backed up, exported (`Passport`, `VisitRepository`).
 - **Taste a flight**, **Pick my pour**, **Shelf walk** (`ReInventory`).
 - **Look** — Cellar (default), Label, Bond, Amber.
 - Money switch; ounces switch.

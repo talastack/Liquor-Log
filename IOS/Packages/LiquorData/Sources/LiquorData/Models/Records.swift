@@ -709,6 +709,41 @@ public struct Sighting: SyncableRecord {
     }
 }
 
+// MARK: - visits
+
+/// The passport: a distillery stood in, on a date, with a note.
+public struct Visit: SyncableRecord {
+    public static let databaseTableName = "visits"
+
+    public var id: String
+    public var userId: String?
+    public var distillery: String
+    public var visitedAt: Int64
+    public var note: String?
+    public var createdAt: Int64
+    public var updatedAt: Int64
+    public var deletedAt: Int64?
+    public var dirty: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case id, userId = "user_id", distillery, visitedAt = "visited_at", note
+        case createdAt = "created_at", updatedAt = "updated_at"
+        case deletedAt = "deleted_at", dirty
+    }
+
+    public init(
+        id: String = UUID().uuidString, userId: String? = nil,
+        distillery: String, visitedAt: Int64 = Self.nowMilliseconds(), note: String? = nil,
+        createdAt: Int64 = Self.nowMilliseconds(), updatedAt: Int64 = Self.nowMilliseconds(),
+        deletedAt: Int64? = nil, dirty: Bool = true
+    ) {
+        self.id = id; self.userId = userId
+        self.distillery = distillery; self.visitedAt = visitedAt; self.note = note
+        self.createdAt = createdAt; self.updatedAt = updatedAt
+        self.deletedAt = deletedAt; self.dirty = dirty
+    }
+}
+
 // MARK: - price_reports, drip_reports, menus
 
 /// A shelf price somebody saw, contributed when they chose to. The only

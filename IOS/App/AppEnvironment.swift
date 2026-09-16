@@ -53,6 +53,7 @@ final class AppEnvironment {
     var notes: KnowledgeNoteRepository { KnowledgeNoteRepository(database) }
     var reports: ReportRepository { ReportRepository(database) }
     var sightings: SightingRepository { SightingRepository(database) }
+    var visits: VisitRepository { VisitRepository(database) }
 
     /// Everyone's reports, reduced, from the Supabase project. Nil when
     /// the build has no project; every community line then stays hidden.
