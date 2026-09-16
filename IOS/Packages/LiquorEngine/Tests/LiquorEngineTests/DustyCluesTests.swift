@@ -18,9 +18,12 @@ final class DustyCluesTests: XCTestCase {
         XCTAssertEqual(DustyClues.window(for: [clue("irs")]).text, "Before 1977.")
     }
 
-    /// One strip cannot say both IRS and ATF.
-    func testIRSAndATFCannotBothBeTrue() {
+    /// One strip cannot say both IRS and ATF; a bottle cannot both have
+    /// and lack a strip, even in 1985 when either was possible.
+    func testMutuallyExclusiveCluesConflictWhateverTheYear() {
         XCTAssertNotNil(DustyClues.window(for: [clue("irs"), clue("atf")]).conflict)
+        XCTAssertNotNil(DustyClues.window(for: [clue("strip"), clue("no-strip")]).conflict)
+        XCTAssertNotNil(DustyClues.window(for: [clue("quart"), clue("metric")]).conflict)
     }
 
     /// ATF strip and a 4/5 quart: 1977 to 1979, the three years both held.

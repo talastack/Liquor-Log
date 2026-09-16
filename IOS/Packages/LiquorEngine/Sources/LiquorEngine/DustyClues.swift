@@ -87,8 +87,20 @@ public enum DustyClues: Sendable {
         }
     }
 
+    /// Pairs one bottle cannot show at once, whatever the year: a strip
+    /// and no strip, IRS and ATF wording on the same strip, a quart size
+    /// and a metric one on the same glass.
+    static let exclusive: [(String, String)] = [
+        ("strip", "no-strip"), ("irs", "atf"), ("quart", "metric"),
+    ]
+
     /// The overlap of the chosen clues' windows.
     public static func window(for chosen: [Clue]) -> Window {
+        for (a, b) in exclusive {
+            if let first = chosen.first(where: { $0.id == a }), let second = chosen.first(where: { $0.id == b }) {
+                return Window(from: nil, to: nil, conflict: (first, second))
+            }
+        }
         var from: Int?
         var to: Int?
         var fromClue: Clue?
