@@ -191,7 +191,7 @@ final class SyncController {
         householdError = nil
         do {
             _ = try await communityTransport.rpc(function, arguments: arguments)
-            engine?.forgetCursors()
+            await engine?.forgetCursors()
             await refreshHousehold()
             await sync()
         } catch SyncError.http(_, let body) {
