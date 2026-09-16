@@ -58,6 +58,32 @@ public struct AccountLinker: Sendable {
         }
     }
 
+    /// The reverse of `adopt`, after the account was deleted on the server.
+    ///
+    /// Rows that were the account's become nobody's again, and dirty, so a
+    /// new account made later adopts and pushes them exactly like a first
+    /// sign-in. Rows that were somebody else's -- a household partner's,
+    /// pulled while the household stood -- are removed: there is no account
+    /// left that may hold them. One transaction, for the same reason as
+    /// `adopt`.
+    @discardableResult
+    public func disown(userId: String) throws -> Int {
+        try db.queue.write { db in
+            var changed = 0
+            for table in tables {
+                try db.execute(
+                    sql: "delete from \(quoted(table)) where user_id is not null and user_id <> ?",
+                    arguments: [userId])
+                changed += db.changesCount
+                try db.execute(
+                    sql: "update \(quoted(table)) set user_id = null, dirty = 1 where user_id = ?",
+                    arguments: [userId])
+                changed += db.changesCount
+            }
+            return changed
+        }
+    }
+
     /// Rows that belong to nobody. Zero after a successful `adopt`, and a
     /// non-zero result afterwards means the stamp did not finish.
     public func unownedCount() throws -> Int {

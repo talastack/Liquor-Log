@@ -167,6 +167,10 @@ The aisle question, offline: *do I already own this?*
   Slots match by class — sweet vs dry vermouth, white vs dark rum and the
   named liqueurs by name (`Cocktails`).
 - **Sync** — optional, Supabase, two-clock LWW (`SyncEngine`); Pro.
+  **Delete my account** under it: the server account and everything
+  synced under it go (a definer function, patch 0013); the collection on
+  the phone stays and is unlinked, ready for a new account. App Store
+  5.1.1(v).
 - **Share with a partner** (under Sync, signed in) — a household: create
   one and pass on its six-character code, or enter a partner's. Both
   shelves show on both phones from the next sync; what each of you logs

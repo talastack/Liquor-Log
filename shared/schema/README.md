@@ -26,7 +26,9 @@ tables):
 5. `postgres/patches/0011_sightings.sql` — the hunt log: sightings and
    lottery entries, and the household touch told about the table.
 6. `postgres/patches/0012_visits.sql` — the passport: distillery visits.
-7. `rls/policies.sql` — now "yours, or a household member's" on every
+7. `postgres/patches/0013_delete_account.sql` — the function behind
+   "Delete my account" (App Store guideline 5.1.1(v)).
+8. `rls/policies.sql` — now "yours, or a household member's" on every
    data table, the hunt log and the passport included.
 
 Paste each file whole into the SQL editor (Database → SQL) and run it.

@@ -159,4 +159,35 @@ final class SupabaseAuthParsingTests: XCTestCase {
             session.isFresh,
             "30 seconds left must not count as usable")
     }
+
+    // MARK: - Deleting the account
+
+    /// After the server account is gone: the rows that were its are nobody's
+    /// again and queued, a partner's rows are removed, and a later account
+    /// adopts what is left like a first sign-in.
+    func testDisownReversesAdoptAndDropsAPartnersRows() throws {
+        let db = try AppDatabase.inMemory()
+        let bottles = BottleRepository(db)
+        let mine = try bottles.add(Bottle(customName: "Mine", volumeMl: 750))
+        var theirs = Bottle(customName: "Partner's", volumeMl: 750)
+        theirs.userId = "partner"
+        theirs.dirty = false
+        try db.queue.write { db in try theirs.save(db) }
+
+        let linker = AccountLinker(db)
+        try linker.adopt(userId: "me")
+        XCTAssertEqual(try bottles.summaries().count, 2)
+
+        let changed = try linker.disown(userId: "me")
+        XCTAssertEqual(changed, 2, "one row disowned, one removed")
+        let left = try bottles.summaries()
+        XCTAssertEqual(left.map(\.id), [mine.id], "the partner's row is gone")
+        XCTAssertNil(left[0].bottle.userId)
+        XCTAssertTrue(left[0].bottle.dirty, "queued for the next account")
+        XCTAssertEqual(try linker.unownedCount(), 1)
+
+        try linker.adopt(userId: "new-me")
+        XCTAssertEqual(try bottles.summaries().first?.bottle.userId, "new-me")
+    }
 }
+

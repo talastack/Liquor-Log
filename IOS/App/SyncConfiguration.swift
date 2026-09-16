@@ -220,6 +220,28 @@ final class SyncController {
         // not a request to lose a collection.
     }
 
+    /// Deletes the account on the server -- the auth row and, by cascade,
+    /// every row synced under it -- then unlinks the collection on this
+    /// phone so it is nobody's again. The collection itself stays here.
+    /// App Store guideline 5.1.1(v).
+    func deleteAccount() async {
+        guard let communityTransport, let auth, let userId = auth.userId,
+              case .signedIn(let email) = state else { return }
+        state = .working
+        lastError = nil
+        do {
+            _ = try await communityTransport.rpc("delete_my_account")
+            try AccountLinker(database).disown(userId: userId)
+            await engine?.forgetCursors()
+            await auth.signOut()
+            household = nil
+            state = .signedOut
+        } catch {
+            state = .signedIn(email: email)
+            lastError = Self.describe(error)
+        }
+    }
+
     // MARK: - Sync
 
     func sync() async {

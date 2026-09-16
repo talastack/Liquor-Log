@@ -114,6 +114,7 @@ struct SyncView: View {
     // MARK: - A shelf shared with a partner
 
     @State private var householdName = ""
+    @State private var isConfirmingDeletion = false
     @State private var inviteCode = ""
     @State private var isLeaving = false
 
@@ -259,6 +260,34 @@ struct SyncView: View {
                     .overlay(RoundedRectangle(cornerRadius: 11)
                         .stroke(Palette.line, lineWidth: 1))
             }
+
+            // Required of any app with account creation (App Store 5.1.1(v)),
+            // and the right thing regardless: the account is theirs to end.
+            VStack(alignment: .leading, spacing: Space.s) {
+                Button(role: .destructive) { isConfirmingDeletion = true } label: {
+                    Text("Delete my account")
+                        .font(TypeScale.secondary().weight(.semibold))
+                        .foregroundStyle(Palette.bad)
+                        .frame(maxWidth: .infinity, minHeight: Space.tapTarget)
+                }
+                Text("Removes your account and everything synced under it from the server. The collection on this phone stays. A Pro subscription is Apple's to cancel, in Settings › Apple ID › Subscriptions.")
+                    .font(TypeScale.caption())
+                    .textCase(nil)
+                    .foregroundStyle(Palette.textMuted)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .confirmationDialog(
+            "Delete your account?",
+            isPresented: $isConfirmingDeletion,
+            titleVisibility: .visible
+        ) {
+            Button("Delete account", role: .destructive) {
+                Task { await sync.deleteAccount() }
+            }
+            Button("Keep it", role: .cancel) {}
+        } message: {
+            Text("Everything synced under this account is deleted from the server. This cannot be undone. Your bottles stay on this phone.")
         }
     }
 
