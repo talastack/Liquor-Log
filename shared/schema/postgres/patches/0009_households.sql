@@ -198,17 +198,6 @@ begin
   end if;
 end $$;
 
-alter table households        enable row level security;
-alter table household_members enable row level security;
-
--- Members see their own household and its membership; every change goes
--- through the functions above, so no insert, update or delete policy. The
--- membership policy goes through household_user_ids(), which runs as the
--- definer: a policy on household_members that queried household_members
--- would recurse into itself.
-drop policy if exists household_members_member_select on household_members;
-create policy household_members_member_select on household_members
-  for select using (user_id in (select household_user_ids()));
-drop policy if exists households_member_select on households;
-create policy households_member_select on households
-  for select using (id in (select m.household_id from household_members m where m.user_id = auth.uid()));
+-- Row-level security for these two tables is in shared/schema/rls/policies.sql
+-- with everything else's: a policy is checked as it is created, and auth.uid()
+-- is not there yet when CI applies this file to a bare Postgres.

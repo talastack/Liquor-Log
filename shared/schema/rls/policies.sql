@@ -68,6 +68,20 @@ begin
   end loop;
 end $$;
 
+-- Households (patch 0009). Members see their own household and its
+-- membership; every change goes through the definer functions, so no insert,
+-- update or delete policy. The membership policy goes through
+-- household_user_ids(), which runs as the definer: a policy on
+-- household_members that queried household_members would recurse.
+alter table households        enable row level security;
+alter table household_members enable row level security;
+drop policy if exists household_members_member_select on household_members;
+create policy household_members_member_select on household_members
+  for select using (user_id in (select household_user_ids()));
+drop policy if exists households_member_select on households;
+create policy households_member_select on households
+  for select using (id in (select m.household_id from household_members m where m.user_id = auth.uid()));
+
 -- Server-owned. Pulled, never pushed: no insert or update policy exists, so a
 -- client attempting either is refused by RLS rather than by client-side code.
 drop policy if exists subscriptions_owner_select on subscriptions;
