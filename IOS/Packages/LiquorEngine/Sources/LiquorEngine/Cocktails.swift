@@ -184,8 +184,11 @@ public enum Cocktails: Sendable {
     }
 
     /// Every recipe against the shelf: ready ones first, then those one
-    /// bottle short, each group alphabetical. Two or more short are left
-    /// out -- that is a shopping list, not tonight.
+    /// bottle short, each group alphabetical. "One short" means the shelf
+    /// is already part of the way there -- another slot is filled from an
+    /// open bottle, or the missing one is on the shelf unopened. A recipe
+    /// nothing on the shelf touches, and two or more short, are left out:
+    /// that is a shopping list, not tonight.
     public static func matches(shelf: [Candidate], recipes: [Recipe] = all) -> [Match] {
         let open = shelf.filter(\.isOpen)
         let sealed = shelf.filter { !$0.isOpen }
@@ -202,7 +205,11 @@ public enum Cocktails: Sendable {
                 }
             }
             let match = Match(recipe: recipe, picks: picks, missing: missing)
-            if missing.isEmpty { ready.append(match) } else if missing.count == 1 { nearly.append(match) }
+            if missing.isEmpty {
+                ready.append(match)
+            } else if missing.count == 1, !picks.isEmpty || missing[0].sealed != nil {
+                nearly.append(match)
+            }
         }
         let byName: (Match, Match) -> Bool = { $0.recipe.name.localizedCaseInsensitiveCompare($1.recipe.name) == .orderedAscending }
         return ready.sorted(by: byName) + nearly.sorted(by: byName)

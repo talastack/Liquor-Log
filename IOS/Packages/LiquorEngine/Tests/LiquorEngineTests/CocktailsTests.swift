@@ -37,6 +37,17 @@ final class CocktailsTests: XCTestCase {
         XCTAssertTrue(matches.contains { $0.recipe.id == "john-collins" && $0.isReady })
     }
 
+    /// A recipe the shelf has nothing for is not "one short"; a sealed
+    /// bottle of the one thing it needs makes it so.
+    func testOneShortMeansTheShelfIsPartOfTheWayThere() {
+        let gin = Cocktails.matches(shelf: [bottle("g", "Tanqueray", .londonDryGin)])
+        XCTAssertNil(gin.first { $0.recipe.id == "old-fashioned" }, "no whiskey of any kind")
+        let sealed = Cocktails.matches(shelf: [bottle("s", "Stagg Jr", .kentuckyStraightBourbon, open: false)])
+        let oldFashioned = sealed.first { $0.recipe.id == "old-fashioned" }
+        XCTAssertNotNil(oldFashioned)
+        XCTAssertEqual(oldFashioned?.missing.first?.sealed?.id, "s")
+    }
+
     /// Sweet and dry vermouth are one class; the name settles it.
     func testVermouthIsSweetUnlessItSaysDry() {
         let shelf = [
