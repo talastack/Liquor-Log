@@ -237,6 +237,14 @@ tablet; the photo grid runs six across. Everything else is the same view.
 
 ## Outside the app
 
+- **Siri and Shortcuts** — "What's open in <the app>", "What's nearly gone
+  in <the app>", and "Ask <the app>", which takes any sentence the Ask
+  grammar knows: a question is answered, a command is read back and
+  confirmed before it is written, as in the app. Each returns its answer
+  as text for a Shortcut to use. Runs in the app's own process against
+  its own database (`AskIntent`, `WhatsOpenIntent`, `NearlyGoneIntent`,
+  `LiquorLogShortcuts`).
+
 - **What's open widget** — small, medium, large: your open bottles with a
   fill bar each and, from medium up, a pour button per bottle that logs one
   pour of its usual size without opening the app (an App Intent running
