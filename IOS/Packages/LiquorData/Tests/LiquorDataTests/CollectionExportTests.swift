@@ -181,8 +181,7 @@ final class ReInventoryRepositoryTests: XCTestCase {
     // MARK: - The rest of the record
 
     private func rows(_ text: String) -> [[String]] {
-        text.components(separatedBy: "
-").filter { !$0.isEmpty }.map { $0.components(separatedBy: ",") }
+        text.components(separatedBy: "\r\n").filter { !$0.isEmpty }.map { $0.components(separatedBy: ",") }
     }
 
     func testEveryTastingIsARowWithItsWheelPicks() throws {
