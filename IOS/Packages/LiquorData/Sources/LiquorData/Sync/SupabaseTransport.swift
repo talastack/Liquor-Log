@@ -78,6 +78,20 @@ public struct SupabaseTransport: SyncTransport, CommunityTransport {
         return try await send(request)
     }
 
+    // MARK: - Functions
+
+    /// Calls a Postgres function through PostgREST, signed in. The
+    /// household functions live behind this; each returns a JSON array.
+    public func rpc(_ name: String, arguments: [String: Any] = [:]) async throws -> Data {
+        guard let token = await accessToken() else { throw SyncError.notAuthenticated }
+        var request = URLRequest(url: baseURL.appendingPathComponent("rest/v1/rpc").appendingPathComponent(name))
+        request.httpMethod = "POST"
+        request.httpBody = try JSONSerialization.data(withJSONObject: arguments)
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        sign(&request, token: token)
+        return try await send(request)
+    }
+
     // MARK: - Public views
 
     /// The community views are granted to the anon role, so this signs

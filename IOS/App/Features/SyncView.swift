@@ -111,6 +111,103 @@ struct SyncView: View {
         }
     }
 
+    // MARK: - A shelf shared with a partner
+
+    @State private var householdName = ""
+    @State private var inviteCode = ""
+    @State private var isLeaving = false
+
+    /// One shelf for two accounts. Create one and pass on the code, or
+    /// enter a partner's. Everything on both shelves shows on both phones
+    /// from the next sync; whoever poured is still who poured.
+    private var household: some View {
+        VStack(alignment: .leading, spacing: Space.m) {
+            SectionLabel("Share with a partner")
+
+            if let home = sync.household {
+                VStack(alignment: .leading, spacing: 0) {
+                    FactRow(label: "Household", value: home.name)
+                    FactRow(label: "Members", value: "\(home.members)")
+                    FactRow(label: "Invite code", value: home.inviteCode, isLast: true)
+                }
+                Text(home.members == 1
+                     ? "Give the code to your partner. When they enter it under Sync on their phone, both shelves show on both phones from the next sync."
+                     : "Both shelves show on both phones. What each of you logs stays yours; the shelf is one.")
+                    .font(TypeScale.caption())
+                    .textCase(nil)
+                    .foregroundStyle(Palette.textMuted)
+                    .fixedSize(horizontal: false, vertical: true)
+                Button(role: .destructive) { isLeaving = true } label: {
+                    Text("Leave the household")
+                        .font(TypeScale.secondary())
+                        .foregroundStyle(Palette.bad)
+                        .frame(maxWidth: .infinity, minHeight: Space.tapTarget)
+                }
+                .confirmationDialog("Leave the household?", isPresented: $isLeaving, titleVisibility: .visible) {
+                    Button("Leave", role: .destructive) { Task { await sync.leaveHousehold() } }
+                    Button("Cancel", role: .cancel) {}
+                } message: {
+                    Text("Bottles already on this phone stay. Nothing new of theirs arrives, and nothing new of yours reaches them.")
+                }
+            } else {
+                HStack(spacing: Space.m) {
+                    TextField("A name for the shelf", text: $householdName)
+                        .textFieldStyle(.plain)
+                        .font(TypeScale.body())
+                        .foregroundStyle(Palette.text)
+                        .padding(Space.m)
+                        .background(RoundedRectangle(cornerRadius: 10).fill(Palette.surface))
+                        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Palette.line, lineWidth: 1))
+                    Button {
+                        Task { await sync.createHousehold(named: householdName) }
+                    } label: {
+                        Text("Create")
+                            .font(TypeScale.secondary().weight(.semibold))
+                            .foregroundStyle(Palette.onGold)
+                            .padding(.horizontal, Space.l)
+                            .frame(minHeight: Space.tapTarget)
+                            .background(RoundedRectangle(cornerRadius: 10).fill(Palette.gold))
+                    }
+                }
+                HStack(spacing: Space.m) {
+                    TextField("Partner's code", text: $inviteCode)
+                        .textInputAutocapitalization(.characters)
+                        .autocorrectionDisabled()
+                        .textFieldStyle(.plain)
+                        .font(TypeScale.code(16))
+                        .foregroundStyle(Palette.text)
+                        .padding(Space.m)
+                        .background(RoundedRectangle(cornerRadius: 10).fill(Palette.surface))
+                        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Palette.line, lineWidth: 1))
+                    Button {
+                        Task { await sync.joinHousehold(code: inviteCode) }
+                    } label: {
+                        Text("Join")
+                            .font(TypeScale.secondary().weight(.semibold))
+                            .foregroundStyle(Palette.gold)
+                            .padding(.horizontal, Space.l)
+                            .frame(minHeight: Space.tapTarget)
+                            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Palette.gold, lineWidth: 1))
+                    }
+                    .disabled(inviteCode.trimmingCharacters(in: .whitespaces).count < 6)
+                }
+                Text("Two accounts, one shelf. Create a household and pass on its code, or enter your partner's.")
+                    .font(TypeScale.caption())
+                    .textCase(nil)
+                    .foregroundStyle(Palette.textMuted)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            if let error = sync.householdError {
+                Text(error)
+                    .font(TypeScale.secondary())
+                    .foregroundStyle(Palette.bad)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .task { await sync.refreshHousehold() }
+    }
+
     private func signedIn(_ email: String?) -> some View {
         VStack(alignment: .leading, spacing: Space.l) {
             VStack(alignment: .leading, spacing: 0) {
@@ -149,6 +246,8 @@ struct SyncView: View {
                     .frame(maxWidth: .infinity, minHeight: 50)
                     .background(RoundedRectangle(cornerRadius: 11).fill(Palette.gold))
             }
+
+            household
 
             Button {
                 Task { await sync.signOut() }

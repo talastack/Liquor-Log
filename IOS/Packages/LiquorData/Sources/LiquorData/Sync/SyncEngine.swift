@@ -26,6 +26,15 @@ public actor SyncEngine {
     /// without holding a whole collection in memory twice.
     private let pageSize = 500
 
+    /// Forgets where every pull got to, so the next sync re-fetches
+    /// everything. Safe because every write is an idempotent upsert; used
+    /// when what the server will show this account changes -- joining or
+    /// leaving a household -- and the old cursor would skip rows that are
+    /// now, or no longer, ours to see.
+    public func forgetCursors() {
+        for table in tables { cursors.setCursor(0, for: table.name) }
+    }
+
     public init(db: AppDatabase, transport: SyncTransport, cursors: SyncCursorStore) {
         self.db = db
         self.transport = transport

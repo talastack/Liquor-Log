@@ -151,6 +151,12 @@ The aisle question, offline: *do I already own this?*
   Slots match by class — sweet vs dry vermouth, white vs dark rum and the
   named liqueurs by name (`Cocktails`).
 - **Sync** — optional, Supabase, two-clock LWW (`SyncEngine`); Pro.
+- **Share with a partner** (under Sync, signed in) — a household: create
+  one and pass on its six-character code, or enter a partner's. Both
+  shelves show on both phones from the next sync; what each of you logs
+  stays attributed to you. Leave at any time. Server-side: households,
+  definer functions, and every data table's policy reading "yours, or a
+  household member's" (patch 0009).
 - **Sharing** (off by default) — shelf prices you type and wax drips you
   measure go up as anonymous reports carrying only your state; switching
   it off withdraws them. In return the aisle price check shows "N shelf

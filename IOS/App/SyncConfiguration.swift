@@ -63,6 +63,21 @@ final class SyncController {
     private let engine: SyncEngine?
     /// The same transport, for the community views. Nil without a project.
     let communityTransport: SupabaseTransport?
+
+    /// The household this account is in, if any. Asked of the server after
+    /// sign-in and after every change; nil while signed out.
+    struct Household: Decodable, Equatable {
+        let id: String
+        let name: String
+        let inviteCode: String
+        let members: Int
+
+        enum CodingKeys: String, CodingKey {
+            case id, name, inviteCode = "invite_code", members
+        }
+    }
+    private(set) var household: Household?
+    private(set) var householdError: String?
     /// Where a published menu is served: the project's functions host.
     let menuBase: URL?
 
@@ -132,15 +147,75 @@ final class SyncController {
 
             state = .signedIn(email: email)
             await sync()
+            await refreshHousehold()
         } catch {
             state = .signedOut
             lastError = Self.describe(error)
         }
     }
 
+    // MARK: - A shelf shared with a partner
+
+    func refreshHousehold() async {
+        guard let communityTransport, isSignedIn else { household = nil; return }
+        do {
+            let data = try await communityTransport.rpc("my_household")
+            household = try JSONDecoder().decode([Household].self, from: data).first
+        } catch {
+            // Not an error worth a banner: the server may not have the
+            // patch yet, and the section simply stays absent.
+            household = nil
+        }
+    }
+
+    /// Creates the household and gets its invite code back.
+    func createHousehold(named name: String) async {
+        await changeHousehold("create_household", ["household_name": name])
+    }
+
+    /// Joins with a partner's code. The server touches both shelves so the
+    /// next pull brings theirs across; the cursors are forgotten so the
+    /// pull starts from the beginning.
+    func joinHousehold(code: String) async {
+        await changeHousehold("join_household", ["code": code.uppercased().trimmingCharacters(in: .whitespaces)])
+    }
+
+    /// Leaves. Rows already pulled stay on this phone -- nothing that was
+    /// read is destroyed -- and the next pull brings nothing new of theirs.
+    func leaveHousehold() async {
+        await changeHousehold("leave_household", [:])
+    }
+
+    private func changeHousehold(_ function: String, _ arguments: [String: Any]) async {
+        guard let communityTransport, isSignedIn else { return }
+        householdError = nil
+        do {
+            _ = try await communityTransport.rpc(function, arguments: arguments)
+            engine?.forgetCursors()
+            await refreshHousehold()
+            await sync()
+        } catch SyncError.http(_, let body) {
+            householdError = Self.describeHousehold(body)
+        } catch {
+            householdError = Self.describe(error)
+        }
+    }
+
+    /// The function's own words, when it raised them.
+    private static func describeHousehold(_ body: String) -> String {
+        if body.contains("no household with that code") { return "No household has that code." }
+        if body.contains("already in a household") { return "This account is already in a household. Leave it first." }
+        if body.contains("not signed in") { return "Signed out. Sign in again." }
+        if body.contains("function") && body.contains("does not exist") {
+            return "The server does not have households yet; run patch 0009."
+        }
+        return "Could not change the household."
+    }
+
     func signOut() async {
         await auth?.signOut()
         state = .signedOut
+        household = nil
         // Local data is deliberately untouched. Signing out on a shared iPad is
         // not a request to lose a collection.
     }
