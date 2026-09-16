@@ -153,9 +153,11 @@ public struct AppDatabase: Sendable {
         }
     }
 
+    /// Opened read-write: a read-only connection to a WAL database cannot
+    /// create the shared-memory file it needs, and fails to open at all.
     static func holdsBottles(at url: URL) throws -> Bool {
         var config = Configuration()
-        config.readonly = true
+        config.busyMode = .timeout(5)
         let queue = try DatabaseQueue(path: url.path, configuration: config)
         return try queue.read { db in
             guard try db.tableExists("bottles") else { return false }

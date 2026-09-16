@@ -46,18 +46,21 @@ final class DatabaseMigrationTests: XCTestCase {
         }
     }
 
-    /// Rows still in the old file's WAL -- a database closed without a
-    /// checkpoint -- arrive too. The connection stays open here so the WAL
-    /// is real when the move happens.
-    func testUncheckpointedRowsArrive() throws {
+    /// Settling puts rows still in the WAL into the main file, so the main
+    /// file alone is the whole database. Checked while a connection is
+    /// open, which is when a WAL is real: the main file is copied on its
+    /// own and read back.
+    func testSettlingPutsTheWALIntoTheMainFile() throws {
         let legacy = folder.appendingPathComponent("legacy.sqlite")
         let db = try AppDatabase.onDisk(at: legacy)
         for _ in 0..<4 { try BottleRepository(db).add(Bottle(catalogProductId: "weller-12")) }
         XCTAssertTrue(FileManager.default.fileExists(atPath: legacy.path + "-wal"))
 
-        let shared = folder.appendingPathComponent("shared.sqlite")
-        try AppDatabase.migrate(from: legacy, to: shared, fileManager: .default)
-        XCTAssertEqual(try BottleRepository(try AppDatabase.onDisk(at: shared)).summaries().count, 4)
+        try AppDatabase.settle(legacy)
+
+        let copy = folder.appendingPathComponent("copy.sqlite")
+        try FileManager.default.copyItem(at: legacy, to: copy)
+        XCTAssertEqual(try BottleRepository(try AppDatabase.onDisk(at: copy)).summaries().count, 4)
         _ = db
     }
 
