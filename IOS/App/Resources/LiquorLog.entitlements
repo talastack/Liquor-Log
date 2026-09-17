@@ -5,6 +5,14 @@
   <!-- The database lives in this group's container so the widget can read
        what is open. The same group is in the widget's entitlements, and
        AppDatabase.appGroup names it in code; the three must agree. -->
+  <!-- Sign in with Apple. Required by App Store guideline 4.8 wherever a
+       third-party login is offered, which Google's is. "Default" is the
+       primary app; there is no grouping with another team's app. -->
+  <key>com.apple.developer.applesignin</key>
+  <array>
+    <string>Default</string>
+  </array>
+
   <key>com.apple.security.application-groups</key>
   <array>
     <string>group.com.talastack.liquorlog</string>

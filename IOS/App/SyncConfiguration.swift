@@ -130,8 +130,53 @@ final class SyncController {
         await authenticate(email: email) { try await $0.signUp(email: email, password: password) }
     }
 
+    /// Where the browser sends the person back. Registered as a URL scheme
+    /// in Info.plist, and it must also be on the project's redirect
+    /// allow-list or GoTrue refuses to redirect to it.
+    static let redirect = URL(string: "liquorlog://auth-callback")!
+
+    /// A sign-in that failed in the sheet rather than on the wire.
+    func report(signInError message: String) {
+        state = .signedOut
+        lastError = message
+    }
+
+    /// Sign in with Apple. The token is Apple's, already signed; the nonce
+    /// is the raw one whose hash the token carries.
+    func signIn(appleIdentityToken token: String, nonce: String) async {
+        await authenticate(email: nil) {
+            try await $0.signIn(provider: .apple, idToken: token, nonce: nonce)
+        }
+    }
+
+    /// Google, through the system's sign-in browser. Cancelling is not an
+    /// error: the state goes back to signed out with nothing said.
+    func signInWithGoogle() async {
+        guard let auth else { return }
+        let pkce = PKCE()
+        let url = auth.authorizationURL(provider: .google, redirectTo: Self.redirect, pkce: pkce)
+        state = .working
+        lastError = nil
+        do {
+            let code = try await BrowserSignIn.authorizationCode(
+                at: url, scheme: Self.redirect.scheme ?? "liquorlog")
+            await authenticate(email: nil) { try await $0.exchange(authCode: code, pkce: pkce) }
+        } catch BrowserSignIn.Failure.cancelled {
+            state = .signedOut
+        } catch BrowserSignIn.Failure.noCode(let why) {
+            state = .signedOut
+            lastError = why ?? "Google did not complete the sign-in."
+        } catch {
+            state = .signedOut
+            lastError = Self.describe(error)
+        }
+    }
+
+    /// `email` is what the screen should show. Nil where the provider
+    /// decides it -- Apple's relay address, or whatever Google hands back --
+    /// and then the session's own answer is used.
     private func authenticate(
-        email: String,
+        email: String?,
         _ body: (SupabaseAuth) async throws -> SupabaseAuth.Session
     ) async {
         guard let auth else { return }
@@ -145,7 +190,7 @@ final class SyncController {
             // through RLS.
             try AccountLinker(database).adopt(userId: session.userId)
 
-            state = .signedIn(email: email)
+            state = .signedIn(email: email ?? session.email)
             await sync()
             await refreshHousehold()
         } catch {

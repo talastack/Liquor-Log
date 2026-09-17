@@ -1,4 +1,5 @@
 import Foundation
+import CryptoKit
 
 /// Supabase GoTrue: sign up, sign in, refresh, sign out.
 ///
@@ -17,6 +18,10 @@ public actor SupabaseAuth {
         public let accessToken: String
         public let refreshToken: String
         public let userId: String
+        /// From the provider, when it gave one. Apple's Hide My Email
+        /// returns a relay address, which is the account's address as far
+        /// as anything here is concerned.
+        public let email: String?
         /// Absolute, not a duration. A duration decided at login is wrong by
         /// however long the phone spent in a pocket.
         public let expiresAt: Date
@@ -45,6 +50,7 @@ public actor SupabaseAuth {
         self.session = session
     }
     public var userId: String? { current?.userId }
+    public var email: String? { current?.email }
 
     // MARK: - The token everything else asks for
 
@@ -76,6 +82,53 @@ public actor SupabaseAuth {
             path: "token",
             query: [URLQueryItem(name: "grant_type", value: "password")],
             body: ["email": email, "password": password])
+    }
+
+    // MARK: - Apple and Google
+
+    /// Signs in with a provider's own identity token.
+    ///
+    /// The native path: the phone asks Apple, Apple hands back a signed JWT,
+    /// and the server verifies it against Apple's public keys. No browser,
+    /// no redirect, no SDK.
+    ///
+    /// `nonce` is the RAW nonce. The request sent to Apple carried its
+    /// SHA-256, which Apple copied into the token; the server hashes this one
+    /// and compares. That is what stops a token captured elsewhere being
+    /// replayed here, so it is not optional.
+    @discardableResult
+    public func signIn(provider: OAuthProvider, idToken: String, nonce: String) async throws -> Session {
+        try await authenticate(
+            path: "token",
+            query: [URLQueryItem(name: "grant_type", value: "id_token")],
+            body: ["provider": provider.rawValue, "id_token": idToken, "nonce": nonce])
+    }
+
+    /// Where to send the browser for a provider with no native sheet.
+    ///
+    /// PKCE, not the implicit flow: the authorisation code comes back in the
+    /// redirect and is worthless without the verifier, which never leaves the
+    /// device. An implicit flow would put the tokens themselves in a URL, and
+    /// a URL is logged, shoulder-read, and handed to whatever claims the
+    /// scheme.
+    public nonisolated func authorizationURL(
+        provider: OAuthProvider, redirectTo: URL, pkce: PKCE
+    ) -> URL {
+        endpoint("authorize", query: [
+            URLQueryItem(name: "provider", value: provider.rawValue),
+            URLQueryItem(name: "redirect_to", value: redirectTo.absoluteString),
+            URLQueryItem(name: "code_challenge", value: pkce.challenge),
+            URLQueryItem(name: "code_challenge_method", value: "s256"),
+        ])
+    }
+
+    /// Trades the code from the redirect for a session.
+    @discardableResult
+    public func exchange(authCode: String, pkce: PKCE) async throws -> Session {
+        try await authenticate(
+            path: "token",
+            query: [URLQueryItem(name: "grant_type", value: "pkce")],
+            body: ["auth_code": authCode, "code_verifier": pkce.verifier])
     }
 
     @discardableResult
@@ -119,7 +172,7 @@ public actor SupabaseAuth {
 
     // MARK: - Plumbing
 
-    private func endpoint(_ path: String, query: [URLQueryItem]) -> URL {
+    private nonisolated func endpoint(_ path: String, query: [URLQueryItem]) -> URL {
         var components = URLComponents()
         components.scheme = "https"
         components.host = host
@@ -167,6 +220,7 @@ public actor SupabaseAuth {
         guard let userId = user?["id"] as? String else {
             throw SyncError.malformedResponse(table: "auth")
         }
+        let email = (user?["email"] as? String).flatMap { $0.isEmpty ? nil : $0 }
 
         let seconds = (json["expires_in"] as? Double)
             ?? (json["expires_in"] as? NSNumber)?.doubleValue
@@ -175,7 +229,80 @@ public actor SupabaseAuth {
             accessToken: access,
             refreshToken: refresh,
             userId: userId,
+            email: email,
             expiresAt: now.addingTimeInterval(seconds))
+    }
+}
+
+// MARK: - Providers, nonces and PKCE
+
+/// The providers the app offers besides email.
+///
+/// Apple is not optional once Google is here: App Store guideline 4.8
+/// requires Sign in with Apple wherever a third-party login is offered.
+public enum OAuthProvider: String, Sendable, CaseIterable {
+    case apple
+    case google
+
+    public var label: String {
+        switch self {
+        case .apple: return "Apple"
+        case .google: return "Google"
+        }
+    }
+}
+
+/// A one-time value that ties a provider's reply to the request that asked
+/// for it.
+///
+/// Apple is sent the SHA-256 and copies it into the token it signs; the raw
+/// string goes to the server, which hashes it and compares. A token lifted
+/// from somewhere else carries somebody else's hash and is refused.
+public struct SignInNonce: Sendable, Equatable {
+    /// Goes to the server, with the token.
+    public let raw: String
+    /// Goes to Apple, in the authorization request.
+    public let hashed: String
+
+    public init(raw: String = SignInNonce.randomString()) {
+        self.raw = raw
+        self.hashed = SHA256.hash(data: Data(raw.utf8))
+            .map { String(format: "%02x", $0) }
+            .joined()
+    }
+
+    /// Random bytes in the unreserved characters that survive a URL and a
+    /// JWT claim unchanged.
+    public static func randomString(byteCount: Int = 32) -> String {
+        var generator = SystemRandomNumberGenerator()
+        var bytes = [UInt8](repeating: 0, count: byteCount)
+        for index in bytes.indices { bytes[index] = UInt8.random(in: 0...255, using: &generator) }
+        return Data(bytes).base64URLEncodedString()
+    }
+}
+
+/// Proof Key for Code Exchange (RFC 7636).
+///
+/// The verifier stays on the device and only the challenge goes out. An app
+/// that intercepts the redirect gets a code it cannot spend.
+public struct PKCE: Sendable, Equatable {
+    public let verifier: String
+    public let challenge: String
+
+    public init(verifier: String = SignInNonce.randomString()) {
+        self.verifier = verifier
+        self.challenge = Data(SHA256.hash(data: Data(verifier.utf8))).base64URLEncodedString()
+    }
+}
+
+extension Data {
+    /// base64url, unpadded: RFC 4648 section 5, which is what both RFC 7636
+    /// and GoTrue expect. Plain base64 would carry +, / and = into a URL.
+    func base64URLEncodedString() -> String {
+        base64EncodedString()
+            .replacingOccurrences(of: "+", with: "-")
+            .replacingOccurrences(of: "/", with: "_")
+            .replacingOccurrences(of: "=", with: "")
     }
 }
 

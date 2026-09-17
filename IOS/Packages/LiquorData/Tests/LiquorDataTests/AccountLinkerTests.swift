@@ -191,3 +191,78 @@ final class SupabaseAuthParsingTests: XCTestCase {
     }
 }
 
+/// A credential store that forgets when the test does.
+private final class MemoryCredentialStore: CredentialStore, @unchecked Sendable {
+    private var token: String?
+    var refreshToken: String? {
+        get { token }
+        nonmutating set { token = newValue }
+    }
+}
+
+/// Apple and Google. The nonce and the verifier are the whole security
+/// story of both flows, so they are pinned against the published vectors
+/// rather than against themselves.
+final class ProviderSignInTests: XCTestCase {
+
+    func testTheNonceHashIsWhatAppleWillCarry() {
+        let nonce = SignInNonce(raw: "abc")
+        XCTAssertEqual(
+            nonce.hashed,
+            "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+            "SHA-256 of the raw nonce, lowercase hex, as Apple expects in the request")
+        XCTAssertEqual(nonce.raw, "abc", "the raw one is what the server is given")
+    }
+
+    func testAFreshNonceIsRandomAndUrlSafe() {
+        let a = SignInNonce(), b = SignInNonce()
+        XCTAssertNotEqual(a.raw, b.raw)
+        for character in a.raw {
+            XCTAssertTrue(
+                character.isLetter || character.isNumber || character == "-" || character == "_",
+                "a nonce travels in a URL and a JWT claim: \(character) does not")
+        }
+    }
+
+    func testThePkceChallengeIsBase64UrlOfTheVerifiersHash() {
+        let pkce = PKCE(verifier: "abc")
+        XCTAssertEqual(pkce.challenge, "ungWv48Bz-pBQUDeXa4iI7ADYaOWF3qctBD_YfIAFa0",
+                       "RFC 7636 S256: base64url, unpadded")
+        XCTAssertFalse(pkce.challenge.contains("="))
+        XCTAssertFalse(pkce.challenge.contains("+"))
+        XCTAssertFalse(pkce.challenge.contains("/"))
+    }
+
+    func testTheAuthorizationUrlCarriesTheChallengeAndTheRedirect() throws {
+        let auth = SupabaseAuth(
+            host: "example.supabase.co", anonKey: "anon", store: MemoryCredentialStore())
+        let pkce = PKCE(verifier: "abc")
+        let url = auth.authorizationURL(
+            provider: .google,
+            redirectTo: URL(string: "liquorlog://auth-callback")!,
+            pkce: pkce)
+
+        let parts = try XCTUnwrap(URLComponents(url: url, resolvingAgainstBaseURL: false))
+        func value(_ name: String) -> String? { parts.queryItems?.first { $0.name == name }?.value }
+        XCTAssertEqual(parts.host, "example.supabase.co")
+        XCTAssertEqual(parts.path, "/auth/v1/authorize")
+        XCTAssertEqual(value("provider"), "google")
+        XCTAssertEqual(value("redirect_to"), "liquorlog://auth-callback")
+        XCTAssertEqual(value("code_challenge"), pkce.challenge)
+        XCTAssertEqual(value("code_challenge_method"), "s256")
+        XCTAssertNil(value("code_verifier"), "the verifier never leaves the device")
+    }
+
+    func testTheSessionKeepsTheProvidersAddress() throws {
+        let data = Data("""
+        {
+          "access_token": "a", "refresh_token": "r", "expires_in": 3600,
+          "user": { "id": "u-1", "email": "abc123@privaterelay.appleid.com" }
+        }
+        """.utf8)
+        XCTAssertEqual(try SupabaseAuth.parse(data).email, "abc123@privaterelay.appleid.com")
+
+        let noEmail = Data(#"{"access_token":"a","refresh_token":"r","user":{"id":"u-1"}}"#.utf8)
+        XCTAssertNil(try SupabaseAuth.parse(noEmail).email)
+    }
+}
