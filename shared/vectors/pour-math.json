@@ -1,0 +1,102 @@
+{
+  "_comment": [
+    "Golden vectors for PourMath. Neither engine owns this truth; this file does.",
+    "",
+    "The Swift engine (IOS/Packages/LiquorEngine) and the Kotlin engine",
+    "(Android/engine) are separate implementations of the same rules -- see",
+    "docs/10-android-architecture.md for why there is no Kotlin Multiplatform",
+    "here. Separate implementations drift, and the drift is invisible: a",
+    "rounding rule changes on one side and a 750 ml bottle reads 17 pours on a",
+    "phone and 16 on a tablet.",
+    "",
+    "So both test suites read these cases and assert against them. A change to",
+    "the rounding rule fails on whichever platform did not follow, in CI, on",
+    "the next push.",
+    "",
+    "EDITING THIS FILE IS A DELIBERATE ACT. If a case here is wrong, the fix is",
+    "to change the case AND both engines in the same commit, never to loosen",
+    "one engine's test."
+  ],
+
+  "pourSizeMilliliters": 44.36029434375,
+  "_pourSizeNote": "1.5 US fl oz exactly: 1.5 * 29.5735295625.",
+
+  "cases": [
+    {
+      "_why": "The number the whole design is pinned to. A full bottle must not read 16 of 17.",
+      "capacity": 750, "poured": 0, "startingFrom": null,
+      "remainingMilliliters": 750.0, "totalPours": 17, "remainingPours": 17
+    },
+    {
+      "_why": "The second pinned number. Only a 1.5 oz pour rounded to nearest gives both 17 and 16.",
+      "capacity": 700, "poured": 0, "startingFrom": null,
+      "remainingMilliliters": 700.0, "totalPours": 16, "remainingPours": 16
+    },
+    {
+      "_why": "Four pours from a 750: the acceptance case. The denominator stays capacity.",
+      "capacity": 750, "poured": 177.441177375, "startingFrom": null,
+      "remainingMilliliters": 572.558822625, "totalPours": 17, "remainingPours": 13
+    },
+    {
+      "_why": "30 ml left rounds up to one pour, so it is not reported as empty.",
+      "capacity": 750, "poured": 720, "startingFrom": null,
+      "remainingMilliliters": 30.0, "totalPours": 17, "remainingPours": 1
+    },
+    {
+      "_why": "10 ml left rounds to no pours but is not empty: the UI says 'less than a pour'.",
+      "capacity": 750, "poured": 740, "startingFrom": null,
+      "remainingMilliliters": 10.0, "totalPours": 17, "remainingPours": 0
+    },
+    {
+      "_why": "Over-pouring past empty is a logging mistake, not a bottle that owes you whiskey.",
+      "capacity": 750, "poured": 900, "startingFrom": null,
+      "remainingMilliliters": 0.0, "totalPours": 17, "remainingPours": 0
+    },
+
+    {
+      "_why": "Every other standard of fill, so a size change cannot pass unnoticed.",
+      "capacity": 50, "poured": 0, "startingFrom": null,
+      "remainingMilliliters": 50.0, "totalPours": 1, "remainingPours": 1
+    },
+    {
+      "capacity": 100, "poured": 0, "startingFrom": null,
+      "remainingMilliliters": 100.0, "totalPours": 2, "remainingPours": 2
+    },
+    {
+      "capacity": 200, "poured": 0, "startingFrom": null,
+      "remainingMilliliters": 200.0, "totalPours": 5, "remainingPours": 5
+    },
+    {
+      "capacity": 375, "poured": 0, "startingFrom": null,
+      "remainingMilliliters": 375.0, "totalPours": 8, "remainingPours": 8
+    },
+    {
+      "capacity": 1000, "poured": 0, "startingFrom": null,
+      "remainingMilliliters": 1000.0, "totalPours": 23, "remainingPours": 23
+    },
+    {
+      "capacity": 1750, "poured": 0, "startingFrom": null,
+      "remainingMilliliters": 1750.0, "totalPours": 39, "remainingPours": 39
+    },
+    {
+      "capacity": 1800, "poured": 0, "startingFrom": null,
+      "remainingMilliliters": 1800.0, "totalPours": 41, "remainingPours": 41
+    },
+
+    {
+      "_why": "A reading above the bottle's capacity is clamped; a fill bar at 120% is visibly wrong.",
+      "capacity": 750, "poured": 0, "startingFrom": 900,
+      "remainingMilliliters": 750.0, "totalPours": 17, "remainingPours": 17
+    },
+    {
+      "_why": "Pours count down from the reading, not from full.",
+      "capacity": 750, "poured": 100, "startingFrom": 300,
+      "remainingMilliliters": 200.0, "totalPours": 17, "remainingPours": 5
+    },
+    {
+      "_why": "A negative reading is clamped to empty rather than going through zero.",
+      "capacity": 750, "poured": 0, "startingFrom": -50,
+      "remainingMilliliters": 0.0, "totalPours": 17, "remainingPours": 0
+    }
+  ]
+}
