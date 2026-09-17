@@ -166,6 +166,13 @@ The aisle question, offline: *do I already own this?*
   short with what would fill it, sealed bottle named if you have one.
   Slots match by class — sweet vs dry vermouth, white vs dark rum and the
   named liqueurs by name (`Cocktails`).
+- **Signing in** — a page, not a gate. Sign in with Apple (native, no
+  browser), Continue with Google (the system's sign-in browser, PKCE, no
+  Google SDK), or an email address; and **Continue without an account**,
+  weighted like the others, because every screen works without one. The
+  page says what an account does and what stays true either way: nothing
+  leaves the phone until you sign in, the bottles stay here regardless,
+  export and backup are free either way (`SignInView`, `SupabaseAuth`).
 - **Sync** — optional, Supabase, two-clock LWW (`SyncEngine`); Pro.
   **Delete my account** under it: the server account and everything
   synced under it go (a definer function, patch 0013); the collection on

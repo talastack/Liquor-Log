@@ -57,6 +57,54 @@ Still to do:
       is what `SUPABASE_ANON_KEY` takes; the secret one never leaves the
       dashboard.
 
+## 2b. Sign in with Apple and with Google
+
+Neither provider is on yet; the app's code for both is done and tested.
+Apple is required by guideline 4.8 once Google is offered, so they go on
+together or not at all.
+
+**Supabase dashboard** (project `fppntlzyorvfnncgpvmo`):
+
+- [ ] Authentication -> URL Configuration -> Redirect URLs: add
+      `liquorlog://auth-callback`. Without it GoTrue refuses to send the
+      browser back and Google sign-in ends in an error.
+- [ ] Authentication -> Sign In / Providers -> **Apple**: enable, and put
+      the app's bundle id (`com.talastack.liquorlog`, or whatever it
+      becomes) in **Client IDs**. The Team ID / Key ID / secret fields
+      below it are for the web flow only; the app uses the native one, so
+      they stay empty.
+- [ ] Authentication -> Sign In / Providers -> **Google**: enable, and
+      paste the client ID and secret from the Google Cloud step below.
+
+**Google Cloud console** (console.cloud.google.com, free):
+
+- [ ] Create a project, then APIs & Services -> OAuth consent screen:
+      External, app name, support email, and the app's privacy policy and
+      terms URLs (the same ones from section 3 -- Google asks for them
+      before it will let the screen out of testing).
+- [ ] Credentials -> Create credentials -> OAuth client ID -> **Web
+      application** (not iOS: the redirect goes to Supabase, not to the
+      app). Authorised redirect URI:
+      `https://fppntlzyorvfnncgpvmo.supabase.co/auth/v1/callback`.
+- [ ] Copy the client ID and secret into Supabase's Google provider.
+
+**Apple Developer** (developer.apple.com):
+
+- [ ] The App ID needs the Sign In with Apple capability. Xcode adds it
+      from the entitlement when the app is signed, so this usually happens
+      by itself on the first run; check Certificates, Identifiers &
+      Profiles if the button errors.
+- [ ] **Before submitting with Sign in with Apple**: Apple requires that
+      deleting an account also revokes the Apple token
+      (`appleid.apple.com/auth/revoke`). "Delete my account" removes the
+      Supabase account today but does not yet call Apple's revoke
+      endpoint; that needs an Edge Function holding the team's .p8 key,
+      and the key cannot be made until the App ID exists.
+
+**Then, to verify:** sign in with Apple on a device, check a row appears
+under Authentication -> Users, sign out, sign in again and confirm the
+same user id comes back (not a second account).
+
 ## 3. Decisions
 
 - [ ] **The app's name.** Today it is "Liquor-Log" under the icon
