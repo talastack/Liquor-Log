@@ -40,7 +40,15 @@ and expected outputs in `shared/vectors/`, read by *both* test suites.
 Neither engine owns the truth; the file does. A change to the rounding rule
 fails on whichever platform did not follow, in CI, on the next push. This
 is the one piece of shared infrastructure that must exist before the port
-gets large, and it belongs in the same commit as the second ported module.
+gets large.
+
+**Status:** `shared/vectors/pour-math.json` exists, with sixteen cases, and
+the Kotlin suite reads it (`GoldenVectorsTest`). **The Swift side is not
+wired to it yet** — that means editing the iOS test target, which is out of
+scope on this branch. Until it is, the vectors pin Kotlin against a file
+computed from Swift's constants rather than against Swift itself. Wiring
+`LiquorEngineTests` to read the same file is the first iOS-side task
+whenever that branch is open again.
 
 What is already shared and needs no port at all:
 
