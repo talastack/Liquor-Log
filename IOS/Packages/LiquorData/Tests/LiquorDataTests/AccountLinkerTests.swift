@@ -191,12 +191,16 @@ final class SupabaseAuthParsingTests: XCTestCase {
     }
 }
 
-/// A credential store that forgets when the test does.
-private final class MemoryCredentialStore: CredentialStore, @unchecked Sendable {
-    private var token: String?
+/// A credential store that forgets when the test does. The protocol's
+/// setter is nonmutating because the Keychain one writes through a struct;
+/// a class satisfies that by holding the value in a reference box.
+private struct MemoryCredentialStore: CredentialStore {
+    private final class Box: @unchecked Sendable { var token: String? }
+    private let box = Box()
+
     var refreshToken: String? {
-        get { token }
-        nonmutating set { token = newValue }
+        get { box.token }
+        nonmutating set { box.token = newValue }
     }
 }
 
