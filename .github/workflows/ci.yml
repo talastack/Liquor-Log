@@ -25,6 +25,27 @@ jobs:
         working-directory: IOS/Packages/LiquorEngine
         run: swift test
 
+  # The Android engine, held to the same assertions as the Swift one. Plain
+  # Kotlin with no Android dependency, so this is a JVM test run on a free
+  # Linux runner in seconds rather than an emulator boot. No Gradle wrapper
+  # is committed: the action installs the version named here, which keeps a
+  # binary jar none of us can read out of the repository.
+  android-engine:
+    name: Android engine (JVM)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10'
+      - name: Test
+        working-directory: Android
+        run: gradle --no-daemon test
+
   # Validates the shared layer without needing either platform toolchain.
   # Runs before the macOS job so a schema typo fails in seconds rather than
   # after an Xcode build.
