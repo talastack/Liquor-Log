@@ -1,5 +1,4 @@
 import SwiftUI
-import AuthenticationServices
 import LiquorData
 import LiquorEngine
 
@@ -13,14 +12,7 @@ struct SyncView: View {
     @Environment(SyncController.self) private var sync
     @Environment(ProStore.self) private var store
 
-    @Environment(\.colorScheme) private var colorScheme
-
-    @State private var email = ""
-    @State private var password = ""
-    @State private var isRegistering = false
-    /// Held between the request and the reply: the hash went to Apple, the
-    /// raw string goes to the server.
-    @State private var appleNonce: SignInNonce?
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         ScrollView {
@@ -37,14 +29,14 @@ struct SyncView: View {
                 case .signedIn(let email): signedIn(email)
                 }
 
-                if let error = sync.lastError {
+                if case .signedOut = sync.state {} else if let error = sync.lastError {
                     Text(error)
                         .font(TypeScale.secondary())
                         .foregroundStyle(Palette.bad)
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
-                reassurance
+                if case .signedOut = sync.state {} else { reassurance }
             }
             .padding(.horizontal, Space.xl)
             .padding(.top, Space.l)
@@ -70,124 +62,10 @@ struct SyncView: View {
     /// third-party login is offered, and requires it not be the lesser
     /// option. The official button is Apple's own, as their terms require;
     /// only its light/dark variant is ours to choose.
-    private var providers: some View {
-        VStack(spacing: Space.m) {
-            SignInWithAppleButton(.signIn) { request in
-                let nonce = SignInNonce()
-                appleNonce = nonce
-                // The address only. The app never shows a name, and asking
-                // for one it would not use is data it should not hold.
-                request.requestedScopes = [.email]
-                request.nonce = nonce.hashed
-            } onCompletion: { result in
-                handleApple(result)
-            }
-            .signInWithAppleButtonStyle(colorScheme == .dark ? .white : .black)
-            .frame(height: 50)
-            .clipShape(RoundedRectangle(cornerRadius: 11))
-
-            Button {
-                Task { await sync.signInWithGoogle() }
-            } label: {
-                HStack(spacing: Space.s) {
-                    Image(systemName: "globe")
-                        .font(.system(size: 17, weight: .medium))
-                    Text("Continue with Google")
-                        .font(TypeScale.headline())
-                }
-                .foregroundStyle(Palette.text)
-                .frame(maxWidth: .infinity, minHeight: 50)
-                .background(RoundedRectangle(cornerRadius: 11).fill(Palette.surface))
-                .overlay(RoundedRectangle(cornerRadius: 11).stroke(Palette.line, lineWidth: 1))
-            }
-        }
-    }
-
-    private var line: some View {
-        Rectangle().fill(Palette.line).frame(height: 1)
-    }
-
-    private func handleApple(_ result: Result<ASAuthorization, Error>) {
-        switch result {
-        case .success(let authorization):
-            guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential,
-                  let data = credential.identityToken,
-                  let token = String(data: data, encoding: .utf8),
-                  let nonce = appleNonce
-            else { return }
-            appleNonce = nil
-            Task { await sync.signIn(appleIdentityToken: token, nonce: nonce.raw) }
-        case .failure(let error):
-            appleNonce = nil
-            // Closing the sheet is not a failure worth a banner.
-            guard (error as? ASAuthorizationError)?.code != .canceled else { return }
-            sync.report(signInError: error.localizedDescription)
-        }
-    }
-
+    /// The page, with the error line and the reassurance it already
+    /// carries left to this screen so nothing is said twice.
     private var signIn: some View {
-        VStack(alignment: .leading, spacing: Space.m) {
-            Text(isRegistering ? "Create an account" : "Sign in")
-                .font(TypeScale.largeTitle())
-                .foregroundStyle(Palette.text)
-
-            Text("Only for a second device.")
-                .font(TypeScale.secondary())
-                .foregroundStyle(Palette.textSecondary)
-                .fixedSize(horizontal: false, vertical: true)
-
-            providers
-
-            HStack(spacing: Space.m) {
-                line
-                Text("or an email address")
-                    .font(TypeScale.caption())
-                    .textCase(nil)
-                    .foregroundStyle(Palette.textMuted)
-                    .layoutPriority(1)
-                line
-            }
-            .padding(.vertical, Space.xs)
-
-            TextField("Email", text: $email)
-                .textContentType(.emailAddress)
-                .keyboardType(.emailAddress)
-                .textInputAutocapitalization(.never)
-                .autocorrectionDisabled()
-                .modifier(FieldStyle())
-
-            SecureField("Password", text: $password)
-                .textContentType(isRegistering ? .newPassword : .password)
-                .modifier(FieldStyle())
-
-            Button {
-                Task {
-                    if isRegistering {
-                        await sync.signUp(email: email, password: password)
-                    } else {
-                        await sync.signIn(email: email, password: password)
-                    }
-                }
-            } label: {
-                Text(isRegistering ? "Create account" : "Sign in")
-                    .font(TypeScale.headline())
-                    .foregroundStyle(Palette.onGold)
-                    .frame(maxWidth: .infinity, minHeight: 50)
-                    .background(RoundedRectangle(cornerRadius: 11).fill(Palette.gold))
-            }
-            .disabled(email.isEmpty || password.isEmpty)
-
-            Button {
-                isRegistering.toggle()
-            } label: {
-                Text(isRegistering
-                     ? "I already have an account"
-                     : "I need an account")
-                    .font(TypeScale.secondary())
-                    .foregroundStyle(Palette.gold)
-                    .frame(maxWidth: .infinity, minHeight: Space.tapTarget)
-            }
-        }
+        SignInView(onContinueWithout: { dismiss() })
     }
 
     // MARK: - A shelf shared with a partner
@@ -379,7 +257,8 @@ struct SyncView: View {
     }
 }
 
-private struct FieldStyle: ViewModifier {
+/// Used by this screen and by the sign-in page, so not file-private.
+struct FieldStyle: ViewModifier {
     func body(content: Content) -> some View {
         content
             .font(TypeScale.body())
