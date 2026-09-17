@@ -101,6 +101,17 @@ together or not at all.
       endpoint; that needs an Edge Function holding the team's .p8 key,
       and the key cannot be made until the App ID exists.
 
+**Proving an account's data is saved** -- run this after the providers are
+on, and after any schema change:
+
+- [ ] Two users in Authentication -> Users -> Add user, **Auto Confirm**
+      ticked, then
+      `python scripts/verify_sync.py --host fppntlzyorvfnncgpvmo.supabase.co
+      --key sb_publishable_... --a a@x:pw --b b@x:pw`. It pushes and pulls
+      over the same REST calls the app makes and checks the row lands, the
+      server stamps its clock, the cursor advances, an edit wins, a stale
+      write is refused, and the other account can neither read nor forge it.
+
 **Then, to verify:** sign in with Apple on a device, check a row appears
 under Authentication -> Users, sign out, sign in again and confirm the
 same user id comes back (not a second account).

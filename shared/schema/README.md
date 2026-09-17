@@ -33,6 +33,21 @@ tables):
 
 Paste each file whole into the SQL editor (Database → SQL) and run it.
 
+## Proving an account's data is actually saved
+
+CI applies this schema to a bare Postgres with no auth and no RLS, so the
+one thing it cannot answer is whether a signed-in person's rows land, come
+back, stay theirs and survive an edit. `scripts/verify_sync.py` asks the
+live project directly, over the same REST calls the app makes:
+
+    python scripts/verify_sync.py --host <ref>.supabase.co         --key sb_publishable_...         --a a@yours.com:password --b b@yours.com:password
+
+Make the two users first in Authentication -> Users -> Add user, with
+**Auto Confirm User** ticked (otherwise they cannot sign in until they
+click a link). The script writes and removes its own rows, uses no
+service-role key, and is bound by exactly the policies the app is bound
+by. Run it after any schema change.
+
 ## The menu page
 
 The hosted menu is served by an Edge Function. From the repo root, with
