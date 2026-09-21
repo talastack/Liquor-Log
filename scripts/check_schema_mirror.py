@@ -29,6 +29,20 @@ SWIFT = (ROOT / "IOS" / "Packages" / "LiquorData" / "Sources" / "LiquorData"
 SQLDELIGHT = (ROOT / "Android" / "data" / "src" / "main" / "sqldelight"
               / "com" / "talastack" / "liquorlog" / "data" / "Schema.sq")
 
+# The two account linkers. Each stamps `user_id` onto every row the client
+# writes at sign-in, and each keeps its own hard-coded list of which tables
+# those are. A table on one list and not the other is a table whose rows are
+# never adopted on that platform -- and an unstamped row can never be pushed
+# and could never be read back if it were.
+SWIFT_LINKER = (ROOT / "IOS" / "Packages" / "LiquorData" / "Sources" / "LiquorData"
+                / "Sync" / "AccountLinker.swift")
+KOTLIN_LINKER = (ROOT / "Android" / "data" / "src" / "main" / "kotlin" / "com"
+                 / "talastack" / "liquorlog" / "data" / "AccountLinker.kt")
+
+# Server-owned: its rows arrive by pull already carrying their owner, so no
+# client ever stamps them.
+NEVER_ADOPTED = {"subscriptions"}
+
 LOCAL_ONLY = {"dirty"}
 SERVER_ONLY = {"server_updated_at"}
 
@@ -163,6 +177,47 @@ def compare(pg, local, label, problems):
                     % (label, table, c))
 
 
+def linker_tables(path, anchor):
+    """The table list an AccountLinker stamps, read from either language.
+
+    Both declare it the same way -- an identifier, then a bracketed list of
+    quoted lowercase names -- so one reader does for both. Returns an empty
+    set when the file or the anchor is absent, which the caller reports.
+    """
+    if not path.exists():
+        return set()
+    text = path.read_text(encoding="utf-8")
+    at = text.find(anchor)
+    if at < 0:
+        return set()
+    # Long enough for the list and nothing after it.
+    window = text[at:at + 900]
+    return set(re.findall(r'"([a-z][a-z0-9_]*)"', window))
+
+
+def check_linkers(pg, problems):
+    """Both linkers must stamp exactly the tables the schema says they own."""
+    expected = {t for t, cols in pg.items() if "user_id" in cols} - NEVER_ADOPTED
+    for path, anchor, label in (
+        (SWIFT_LINKER, "private var tables", "swift"),
+        (KOTLIN_LINKER, "val TABLES", "kotlin"),
+    ):
+        found = linker_tables(path, anchor)
+        if not found:
+            problems.append(
+                "[%s] could not read the account linker's table list from %s"
+                % (label, path.name))
+            continue
+        for t in sorted(expected - found):
+            problems.append(
+                "[%s] the account linker never stamps %s -- rows in it can never "
+                "be pushed and could never be read back" % (label, t))
+        for t in sorted(found - expected):
+            problems.append(
+                "[%s] the account linker stamps %s, which is not a table the "
+                "client owns" % (label, t))
+
+
 def main():
     for path in (POSTGRES, SWIFT, SQLDELIGHT):
         if not path.exists():
@@ -188,6 +243,7 @@ def main():
 
     compare(pg, sw, "swift", problems)
     compare(pg, sq, "sqldelight", problems)
+    check_linkers(pg, problems)
 
     if problems:
         print("schema mirror FAILED\n", file=sys.stderr)
