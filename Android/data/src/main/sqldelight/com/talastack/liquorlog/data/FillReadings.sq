@@ -1,0 +1,52 @@
+-- Levels somebody set by eye.
+--
+-- A reading REBASES the fill: from that moment the bottle holds what the
+-- reading says, and only pours logged after it count against that. The pour
+-- log cannot know about the bottle opened two years before the app was
+-- installed, or the four pours poured at a party and never recorded. This
+-- is how somebody tells it.
+
+insertReading:
+INSERT INTO fill_readings (
+    id, user_id, bottle_id, read_at, remaining_ml, note,
+    created_at, updated_at, dirty
+) VALUES (?, NULL, ?, ?, ?, ?, ?, ?, 1);
+
+-- The newest reading for one bottle, which is the only one that counts.
+-- The older ones stay so the detail screen can show how the level has been
+-- corrected over time.
+latestReadingFor:
+SELECT * FROM fill_readings
+ WHERE bottle_id = ? AND deleted_at IS NULL
+ ORDER BY read_at DESC
+ LIMIT 1;
+
+readingsFor:
+SELECT * FROM fill_readings
+ WHERE bottle_id = ? AND deleted_at IS NULL
+ ORDER BY read_at DESC;
+
+-- The newest reading per bottle, for the collection screen. max(read_at)
+-- with the row's other columns is the one place SQLite's bare-column
+-- behaviour is relied on: with a plain max() aggregate it returns the
+-- columns from the row that produced the maximum.
+latestReadings:
+SELECT bottle_id, max(read_at) AS read_at, remaining_ml
+  FROM fill_readings
+ WHERE deleted_at IS NULL
+ GROUP BY bottle_id;
+
+-- Only what was poured after the reading. A pour from before it was already
+-- accounted for by the person who looked at the bottle.
+pouredSince:
+SELECT bottle_id, sum(volume_ml) AS poured_ml
+  FROM pours
+ WHERE deleted_at IS NULL
+   AND poured_at > coalesce(
+         (SELECT max(read_at) FROM fill_readings f
+           WHERE f.bottle_id = pours.bottle_id AND f.deleted_at IS NULL),
+         0)
+ GROUP BY bottle_id;
+
+softDeleteReading:
+UPDATE fill_readings SET deleted_at = ?, updated_at = ?, dirty = 1 WHERE id = ?;

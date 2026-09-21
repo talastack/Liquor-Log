@@ -238,6 +238,84 @@ class RepositoryTest {
         assertEquals(200, assertNotNull(bottles.byId(id)).costPerPourCents)
     }
 
+    // Fill readings
+
+    @Test
+    fun `a reading rebases the fill and earlier pours stop counting`() {
+        val id = bottles.add(name = "Weller 12", volumeMl = 750.0, now = 1_000)
+        bottles.logPour(id, milliliters = 100.0, now = 2_000)
+        bottles.logPour(id, milliliters = 100.0, now = 3_000)
+        assertEquals(550.0, assertNotNull(bottles.byId(id)).status.remainingMilliliters)
+
+        // Somebody looks at the bottle: it is actually down to 300.
+        bottles.setLevel(id, remainingMilliliters = 300.0, now = 4_000)
+        assertEquals(300.0, assertNotNull(bottles.byId(id)).status.remainingMilliliters)
+
+        // A pour after the reading counts against the reading, not against
+        // the capacity, and the two pours before it are gone for good.
+        bottles.logPour(id, milliliters = 50.0, now = 5_000)
+        assertEquals(250.0, assertNotNull(bottles.byId(id)).status.remainingMilliliters)
+    }
+
+    @Test
+    fun `the newest reading is the one that counts`() {
+        val id = bottles.add(name = "Weller 12", volumeMl = 750.0, now = 1_000)
+        bottles.setLevel(id, remainingMilliliters = 500.0, now = 2_000)
+        bottles.setLevel(id, remainingMilliliters = 200.0, now = 3_000)
+
+        assertEquals(200.0, assertNotNull(bottles.byId(id)).status.remainingMilliliters)
+        // The older one stays, so the screen can show how the level was
+        // corrected rather than silently replacing the history.
+        assertEquals(2, bottles.readingsFor(id).size)
+    }
+
+    @Test
+    fun `a reading cannot put more in the bottle than it holds`() {
+        val id = bottles.add(name = "Weller 12", volumeMl = 750.0, now = 1_000)
+        bottles.setLevel(id, remainingMilliliters = 9_000.0, now = 2_000)
+        // A fill bar showing 1200% is the app being visibly wrong.
+        assertEquals(750.0, assertNotNull(bottles.byId(id)).status.remainingMilliliters)
+
+        bottles.setLevel(id, remainingMilliliters = -50.0, now = 3_000)
+        assertEquals(0.0, assertNotNull(bottles.byId(id)).status.remainingMilliliters)
+    }
+
+    @Test
+    fun `setting a level below full opens a sealed bottle`() {
+        val id = bottles.add(name = "Weller 12", volumeMl = 750.0, now = 1_000)
+        assertFalse(assertNotNull(bottles.byId(id)).isOpen)
+
+        bottles.setLevel(id, remainingMilliliters = 400.0, now = 2_000)
+
+        // A bottle visibly part-empty and still marked sealed is a state
+        // nothing can explain, and it leaves the oxidation clock unstarted.
+        val summary = assertNotNull(bottles.byId(id))
+        assertTrue(summary.isOpen)
+        assertEquals(2_000L, summary.bottle.opened_at)
+    }
+
+    @Test
+    fun `a reading of a full bottle leaves it sealed`() {
+        val id = bottles.add(name = "Weller 12", volumeMl = 750.0, now = 1_000)
+        bottles.setLevel(id, remainingMilliliters = 750.0, now = 2_000)
+        // Confirming a sealed bottle is still full is not opening it.
+        assertFalse(assertNotNull(bottles.byId(id)).isOpen)
+    }
+
+    @Test
+    fun `one bottle's reading does not touch another's fill`() {
+        val a = bottles.add(name = "Weller 12", volumeMl = 750.0, now = 1_000)
+        val b = bottles.add(name = "Elijah Craig", volumeMl = 750.0, now = 1_000)
+        bottles.logPour(a, milliliters = 100.0, now = 2_000)
+        bottles.logPour(b, milliliters = 100.0, now = 2_000)
+        bottles.setLevel(a, remainingMilliliters = 300.0, now = 3_000)
+
+        val shelf = bottles.onShelf().associateBy { it.name }
+        assertEquals(300.0, assertNotNull(shelf["Weller 12"]).status.remainingMilliliters)
+        // b has no reading, so its pour still counts from a full bottle.
+        assertEquals(650.0, assertNotNull(shelf["Elijah Craig"]).status.remainingMilliliters)
+    }
+
     // Tastings
 
     @Test

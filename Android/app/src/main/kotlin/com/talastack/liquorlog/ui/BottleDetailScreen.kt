@@ -17,10 +17,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +40,7 @@ import com.talastack.liquorlog.engine.ABV
 import com.talastack.liquorlog.engine.FillLevel
 import com.talastack.liquorlog.engine.Money
 import com.talastack.liquorlog.engine.OxidationBand
+import com.talastack.liquorlog.engine.PourMath
 import com.talastack.liquorlog.engine.PourSize
 import com.talastack.liquorlog.engine.Replenish
 import com.talastack.liquorlog.engine.RecipeCode
@@ -47,6 +50,7 @@ import com.talastack.liquorlog.ui.theme.TypeScale
 import com.talastack.liquorlog.ui.theme.palette
 import java.time.Instant
 import java.util.Locale
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 /**
@@ -74,10 +78,12 @@ fun BottleDetailScreen(
     val summary = remember(bottleId, state.changeCount) { state.bottles.byId(bottleId) }
     val pours = remember(bottleId, state.changeCount) { state.bottles.poursFor(bottleId) }
     val tastings = remember(bottleId, state.changeCount) { state.tastings.forBottle(bottleId) }
+    val readings = remember(bottleId, state.changeCount) { state.bottles.readingsFor(bottleId) }
     var confirmingFinish by remember { mutableStateOf(false) }
     var confirmingRemove by remember { mutableStateOf(false) }
     var customPour by remember { mutableStateOf<String?>(null) }
     var showsAllPours by remember { mutableStateOf(false) }
+    var settingLevel by remember { mutableStateOf(false) }
     var replenish by remember { mutableStateOf<Replenish.Offer?>(null) }
 
     /**
@@ -162,7 +168,16 @@ fun BottleDetailScreen(
             verticalArrangement = Arrangement.spacedBy(Space.xl),
         ) {
             item { Hero(summary) }
-            item { FillSection(summary, pours, showsAllPours) { showsAllPours = !showsAllPours } }
+            item {
+                FillSection(
+                    summary = summary,
+                    pours = pours,
+                    readings = readings,
+                    showsAll = showsAllPours,
+                    onToggleAll = { showsAllPours = !showsAllPours },
+                    onSetLevel = { settingLevel = true },
+                )
+            }
 
             oxidation(summary)?.let { estimate ->
                 item { OxidationCard(estimate) }
@@ -218,6 +233,22 @@ fun BottleDetailScreen(
                 onBack()
             },
             onDismiss = { confirmingRemove = false },
+        )
+    }
+
+    // `summary` is nullable again out here: the smart cast only holds inside
+    // the column that returned early on null.
+    if (settingLevel && summary != null) {
+        SetLevelDialog(
+            capacityMl = summary.volumeMl,
+            currentMl = summary.status.remainingMilliliters,
+            ounces = state.ounces,
+            onConfirm = { ml ->
+                state.bottles.setLevel(bottleId, remainingMilliliters = ml)
+                state.noteChange()
+                settingLevel = false
+            },
+            onDismiss = { settingLevel = false },
         )
     }
 
@@ -293,13 +324,30 @@ private fun Hero(summary: BottleRepository.Summary) {
 private fun FillSection(
     summary: BottleRepository.Summary,
     pours: List<com.talastack.liquorlog.data.Pours>,
+    readings: List<com.talastack.liquorlog.data.Fill_readings>,
     showsAll: Boolean,
     onToggleAll: () -> Unit,
+    onSetLevel: () -> Unit,
 ) {
     val state = LocalAppState.current
     val colors = palette
     Column(verticalArrangement = Arrangement.spacedBy(Space.m)) {
-        SectionLabel("Fill level")
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            SectionLabel("Fill level")
+            // The pour log cannot know about the bottle opened two years
+            // before the app was installed, or the pours pulled at a party.
+            // This is the way to tell it.
+            Text(
+                "Set level",
+                style = TypeScale.secondary,
+                color = colors.accent,
+                modifier = Modifier.clickable(onClick = onSetLevel).padding(Space.s),
+            )
+        }
         FillBar(summary.status, ounces = state.ounces)
 
         Row(
@@ -364,6 +412,30 @@ private fun FillSection(
                     color = colors.accent,
                     modifier = Modifier.clickable(onClick = onToggleAll).padding(vertical = Space.s),
                 )
+            }
+        }
+
+        // So that "why does it say 375 ml" has an answer on the screen:
+        // because somebody set it to that, on that date.
+        if (readings.isNotEmpty()) {
+            Text("LEVELS SET BY EYE", style = TypeScale.caption, color = colors.textMuted)
+            for (reading in readings.take(3)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().height(26.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        shortDate(reading.read_at),
+                        style = TypeScale.caption,
+                        color = colors.textMuted,
+                    )
+                    Text(
+                        VolumeDisplay.text(reading.remaining_ml, state.ounces),
+                        style = TypeScale.code,
+                        color = colors.textMuted,
+                    )
+                }
             }
         }
     }
@@ -784,4 +856,89 @@ private fun oxidation(summary: BottleRepository.Summary): OxidationBand.Estimate
         ),
         daysOpen = days,
     )
+}
+
+/**
+ * How much is actually left, by eye.
+ *
+ * Offered as fractions first and millilitres second, because that is how
+ * somebody looking at a bottle thinks: "about a third". The millilitres are
+ * what gets stored -- a fraction kept against a bottle whose size is later
+ * corrected would silently change how much whiskey the app believes is in it.
+ */
+@Composable
+private fun SetLevelDialog(
+    capacityMl: Double,
+    currentMl: Double,
+    ounces: Boolean,
+    onConfirm: (Double) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val colors = palette
+    var typed by remember { mutableStateOf(currentMl.roundToInt().toString()) }
+    val parsed = LocalNumber.parse(typed)
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = colors.surface,
+        title = { Text("How much is left?", style = TypeScale.title, color = colors.text) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(Space.m)) {
+                Text(
+                    "The pour log cannot know about a bottle opened before you " +
+                        "had this app, or the pours you pulled at a party. From " +
+                        "here the fill starts at this number.",
+                    style = TypeScale.secondary,
+                    color = colors.textSecondary,
+                )
+                ChipRow {
+                    for (fraction in levelFractions) {
+                        val ml = PourMath.milliliters(fraction * 100, capacityMl)
+                        Chip(
+                            fractionLabel(fraction),
+                            isOn = parsed != null && abs(parsed - ml) < 1.0,
+                        ) {
+                            typed = ml.roundToInt().toString()
+                        }
+                    }
+                }
+                Field(typed, { typed = it }, label = "Millilitres left", numeric = true)
+                Text(
+                    "of " + VolumeDisplay.both(capacityMl, ounces),
+                    style = TypeScale.caption,
+                    color = colors.textMuted,
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { parsed?.let(onConfirm) },
+                enabled = parsed != null,
+            ) {
+                Text(
+                    "Set it",
+                    style = TypeScale.headline,
+                    color = colors.accent.copy(alpha = if (parsed != null) 1f else 0.4f),
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel", style = TypeScale.body, color = colors.textMuted)
+            }
+        },
+    )
+}
+
+/** The fractions people actually say out loud about a bottle. */
+private val levelFractions = listOf(1.0, 0.75, 0.5, 0.33, 0.25, 0.1, 0.0)
+
+private fun fractionLabel(fraction: Double): String = when (fraction) {
+    1.0 -> "Full"
+    0.75 -> "Three quarters"
+    0.5 -> "Half"
+    0.33 -> "A third"
+    0.25 -> "A quarter"
+    0.1 -> "The heel"
+    else -> "Empty"
 }

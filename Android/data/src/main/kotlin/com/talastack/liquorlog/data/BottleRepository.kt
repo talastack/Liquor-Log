@@ -24,6 +24,7 @@ class BottleRepository(private val database: LiquorDatabase) {
 
     private val q = database.bottlesQueries
     private val t = database.tastingsQueries
+    private val f = database.fillReadingsQueries
 
     /**
      * One bottle as a screen needs it: the row, the fill worked out, and the
@@ -114,6 +115,9 @@ class BottleRepository(private val database: LiquorDatabase) {
 
     fun poursFor(bottleId: String): List<Pours> = q.poursFor(bottleId).executeAsList()
 
+    fun readingsFor(bottleId: String): List<Fill_readings> =
+        f.readingsFor(bottleId).executeAsList()
+
     fun customEntries(): List<Custom_catalog_entries> =
         q.selectCustomEntries().executeAsList()
 
@@ -122,8 +126,14 @@ class BottleRepository(private val database: LiquorDatabase) {
 
     private fun summarise(rows: List<Bottles>): List<Summary> {
         if (rows.isEmpty()) return emptyList()
-        val poured = q.pouredTotals().executeAsList()
+        // Only what was poured SINCE the latest reading. A pour from before
+        // it was already accounted for by whoever looked at the bottle; the
+        // whole point of a reading is that the log before it was wrong.
+        val poured = f.pouredSince().executeAsList()
             .associate { it.bottle_id to (it.poured_ml ?: 0.0) }
+        val readings = f.latestReadings().executeAsList()
+            .mapNotNull { row -> row.read_at?.let { row.bottle_id to row.remaining_ml } }
+            .toMap()
         val lastPour = q.lastPouredAts().executeAsList()
             .mapNotNull { row -> row.last_poured_at?.let { row.bottle_id to it } }
             .toMap()
@@ -144,6 +154,9 @@ class BottleRepository(private val database: LiquorDatabase) {
                 status = PourMath.status(
                     capacityMilliliters = bottle.volume_ml,
                     pouredMilliliters = poured[bottle.id] ?: 0.0,
+                    // Null means "assume it was full", which is only true of
+                    // a bottle opened after it was added to the app.
+                    startingMilliliters = readings[bottle.id],
                     // NOT NULL with a default in the schema, so there is no
                     // absent case to fall back from.
                     pourSize = PourSize(bottle.pour_size_ml),
@@ -382,6 +395,43 @@ class BottleRepository(private val database: LiquorDatabase) {
             created_at = now,
             updated_at = now,
         )
+        id
+    }
+
+    /**
+     * Records what is actually left, by eye.
+     *
+     * This is how somebody corrects a bottle the pour log could never have
+     * been right about: one opened years before the app existed, or one
+     * poured from four times at a party. From here the fill starts at this
+     * number and only later pours count against it.
+     *
+     * Setting a level below full on a sealed bottle opens it, in the same
+     * transaction. A bottle that is visibly part-empty and still marked
+     * sealed is a state nothing can explain, and it would leave the
+     * oxidation clock unstarted.
+     */
+    fun setLevel(
+        bottleId: String,
+        remainingMilliliters: Double,
+        note: String? = null,
+        now: Long = System.currentTimeMillis(),
+    ): String = database.transactionWithResult {
+        val bottle = q.selectById(bottleId).executeAsOneOrNull()
+        val clamped = minOf(bottle?.volume_ml ?: remainingMilliliters, maxOf(0.0, remainingMilliliters))
+        val id = UUID.randomUUID().toString()
+        f.insertReading(
+            id = id,
+            bottle_id = bottleId,
+            read_at = now,
+            remaining_ml = clamped,
+            note = note?.takeIf { it.isNotBlank() },
+            created_at = now,
+            updated_at = now,
+        )
+        if (bottle != null && bottle.opened_at == null && clamped < bottle.volume_ml) {
+            q.open(opened_at = now, updated_at = now, id = bottleId)
+        }
         id
     }
 

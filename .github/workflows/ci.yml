@@ -46,6 +46,14 @@ jobs:
         working-directory: Android
         run: gradle --no-daemon test
 
+      # `test` builds :engine and :data but :app has no unit tests, so every
+      # line of Compose was previously compiled only on the author's machine
+      # -- which is exactly the gap CI exists to close. ubuntu-latest ships
+      # the Android SDK, so this costs a couple of minutes and no setup.
+      - name: Build the app
+        working-directory: Android
+        run: gradle --no-daemon :app:assembleDebug
+
   # Validates the shared layer without needing either platform toolchain.
   # Runs before the macOS job so a schema typo fails in seconds rather than
   # after an Xcode build.
