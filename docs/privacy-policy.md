@@ -26,7 +26,7 @@ Sync is optional and exists only so the same collection can be on a second devic
 
 With this switched on, two things you record are sent as anonymous reports: the shelf prices you type and the wax-drip measurements you make. Each report carries the product, the figure, the date and — only if you entered it — your state. It does not carry your name, email, account id or location. Other users see only totals: how many reports, and a median. Switching sharing off withdraws every report you sent.
 
-## If you publish a menu (Pro)
+## If you publish a menu
 
 "What's open" can be published as a web page at an address the app generates. Anyone with the link can see the menu — bottle names only, no prices — until you take it down.
 
@@ -40,7 +40,8 @@ With this switched on, two things you record are sent as anonymous reports: the 
 
 ## Purchases
 
-Pro is a subscription handled entirely by Apple through the App Store. We do not see your payment details. Manage or cancel it in your Apple ID settings.
+There are none. The app is free, there is no subscription and no in-app
+purchase, so there is no payment information for anyone to hold.
 
 ## Children
 

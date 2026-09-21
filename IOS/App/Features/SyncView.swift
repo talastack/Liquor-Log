@@ -221,7 +221,7 @@ struct SyncView: View {
                         .foregroundStyle(Palette.bad)
                         .frame(maxWidth: .infinity, minHeight: Space.tapTarget)
                 }
-                Text("Removes your account and everything synced under it from the server. The collection on this phone stays. A Pro subscription is Apple's to cancel, in Settings › Apple ID › Subscriptions.")
+                Text("Removes your account and everything synced under it from the server. The collection on this phone stays.")
                     .font(TypeScale.caption())
                     .textCase(nil)
                     .foregroundStyle(Palette.textMuted)

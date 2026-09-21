@@ -7,9 +7,9 @@ import LiquorEngine
 ///
 /// Every line is what the owner recorded -- what was paid, when, where, and
 /// a photo when there is one -- and the caveat that it is not an appraisal
-/// sits on every page. The research lists this as one of the three things
-/// people will pay for; the paywall does not exist yet, so for now it is
-/// simply here.
+/// sits on every page. The research listed this as one of the three things
+/// people would pay for. Nothing in this app is paid for, so it is simply
+/// here.
 struct InsuranceReportView: View {
     @Environment(AppEnvironment.self) private var env
 

@@ -22,9 +22,11 @@ You must be of legal drinking age where you live to use the app.
 
 The app records bottles, not drinks, and nothing in it is a measure of intoxication or a guide to how much to drink. Please drink responsibly.
 
-## Pro
+## Money
 
-Pro is an auto-renewing subscription sold through Apple's App Store under Apple's terms. Prices are shown in the app before purchase. Cancel any time in your Apple ID settings; the subscription runs to the end of the period already paid for. Features that are free stay free: unlimited bottles, every field, export and backup.
+The app is free. There is no subscription, no in-app purchase and no paid
+tier: every feature is available to everybody, including sync, export,
+backup and the insurance report.
 
 ## Accounts
 
