@@ -13,10 +13,6 @@ struct LiquorLogApp: App {
     /// absent rather than broken.
     @State private var sync: SyncController
 
-    /// Pro, from the App Store's own record. Reads entitlement at launch and
-    /// on every transaction; sells nothing until asked.
-    @State private var store = ProStore()
-
     /// The chosen look. Changing it rebuilds the root view, which is how
     /// every `Palette` read picks up the new values.
     @AppStorage(Palette.Look.key, store: Palette.Look.defaults) private var look = Palette.Look.standard.rawValue
@@ -44,7 +40,6 @@ struct LiquorLogApp: App {
                 .task { environment.noteChange() }
                 .environment(environment)
                 .environment(sync)
-                .environment(store)
                 // Both palettes ship and the system setting decides. Nothing
                 // here pins a mode -- see the note in project.yml about the
                 // deliberately absent UIUserInterfaceStyle key.
