@@ -65,10 +65,10 @@ public actor SyncEngine {
             AnySyncTable(KnowledgeNote.self),
             AnySyncTable(Sighting.self),
             AnySyncTable(Visit.self),
-            // subscriptions is server-owned: pulled, never pushed. It has no
-            // insert or update policy, so an attempt is refused by RLS rather
-            // than by anything here.
-            AnySyncTable(Subscription.self, isPushable: false),
+            // `subscriptions` is deliberately absent. The table still exists
+            // server-side -- dropping it is a destructive migration -- but
+            // the app has no paid tier, so there is nothing in it to read and
+            // no reason to spend a round trip pulling it.
         ]
     }
 
