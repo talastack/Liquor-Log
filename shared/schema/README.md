@@ -28,7 +28,10 @@ tables):
 6. `postgres/patches/0012_visits.sql` — the passport: distillery visits.
 7. `postgres/patches/0013_delete_account.sql` — the function behind
    "Delete my account" (App Store guideline 5.1.1(v)).
-8. `rls/policies.sql` — now "yours, or a household member's" on every
+8. `postgres/patches/0014_community_thresholds.sql` — the "three people
+   before a figure is shown" rule moves from the app into the views, where
+   the publishable key cannot go round it.
+9. `rls/policies.sql` — now "yours, or a household member's" on every
    data table, the hunt log and the passport included.
 
 Paste each file whole into the SQL editor (Database → SQL) and run it.

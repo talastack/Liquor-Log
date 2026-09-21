@@ -1184,7 +1184,11 @@ with (security_invoker = false) as
   from price_reports
   where deleted_at is null
     and seen_at > (extract(epoch from now()) * 1000)::bigint - 540::bigint * 86400000
-  group by grouping sets ((catalog_product_id, region), (catalog_product_id));
+  group by grouping sets ((catalog_product_id, region), (catalog_product_id))
+  -- Three, matching CommunityPrice.minimumReports. Applies to the regional
+  -- groups and to the national rollup alike: a product only one person has
+  -- ever reported must not appear even with the region rolled away.
+  having count(*) >= 3;
 
 create or replace view community_drips
 with (security_invoker = false) as
@@ -1196,7 +1200,10 @@ with (security_invoker = false) as
     percentile_cont(0.75) within group (order by fraction)              as p75
   from drip_reports
   where deleted_at is null
-  group by catalog_product_id;
+  group by catalog_product_id
+  -- Four, matching WaxDrip.Standing.minimumReports. A quartile drawn from
+  -- three measurements is not a quartile.
+  having count(*) >= 4;
 
 -- The Supabase roles; guarded so the file also applies to a plain Postgres
 -- in CI, which has neither.
