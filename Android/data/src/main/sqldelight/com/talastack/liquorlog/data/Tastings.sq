@@ -1,0 +1,72 @@
+-- Tastings and the descriptors picked on the flavour wheel.
+--
+-- A tasting can hang off a bottle you own, off a catalogue product you do
+-- not, or off neither -- a pour at a bar with nothing but a name and a
+-- rating. All three are real, so `bottle_id` and `catalog_product_id` are
+-- both nullable and neither is required.
+
+insertTasting:
+INSERT INTO tastings (
+    id, user_id, bottle_id, catalog_product_id, pour_id, tasted_at,
+    rating, would_rebuy, worth_the_price, perceived_heat, finish_seconds,
+    source, source_note, blind, liked, disliked,
+    created_at, updated_at, dirty
+) VALUES (?, NULL, ?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1);
+
+updateTasting:
+UPDATE tastings
+   SET rating = ?, would_rebuy = ?, worth_the_price = ?, perceived_heat = ?,
+       finish_seconds = ?, source = ?, source_note = ?, blind = ?,
+       liked = ?, disliked = ?, tasted_at = ?, updated_at = ?, dirty = 1
+ WHERE id = ?;
+
+selectAllTastings:
+SELECT * FROM tastings WHERE deleted_at IS NULL ORDER BY tasted_at DESC;
+
+selectTastingsForBottle:
+SELECT * FROM tastings
+ WHERE bottle_id = ? AND deleted_at IS NULL
+ ORDER BY tasted_at DESC;
+
+selectTastingById:
+SELECT * FROM tastings WHERE id = ? AND deleted_at IS NULL;
+
+-- The newest rating per bottle, which is what a collection row shows. An
+-- opinion that changed is the newer one; the older ones stay in the history.
+latestRatings:
+SELECT bottle_id, rating, max(tasted_at) AS tasted_at
+  FROM tastings
+ WHERE deleted_at IS NULL AND bottle_id IS NOT NULL AND rating IS NOT NULL
+ GROUP BY bottle_id;
+
+tastingCounts:
+SELECT bottle_id, count(*) AS n
+  FROM tastings
+ WHERE deleted_at IS NULL AND bottle_id IS NOT NULL
+ GROUP BY bottle_id;
+
+softDeleteTasting:
+UPDATE tastings SET deleted_at = ?, updated_at = ?, dirty = 1 WHERE id = ?;
+
+-- Descriptors, one row per pick. Stage is 'nose', 'entry', 'mid' or
+-- 'finish'; the engine's FlavorWheel owns the keys.
+insertNote:
+INSERT INTO tasting_notes (
+    id, user_id, tasting_id, stage, descriptor_key, intensity,
+    created_at, updated_at, dirty
+) VALUES (?, NULL, ?, ?, ?, ?, ?, ?, 1);
+
+selectNotesFor:
+SELECT * FROM tasting_notes
+ WHERE tasting_id = ? AND deleted_at IS NULL;
+
+selectAllNotes:
+SELECT * FROM tasting_notes WHERE deleted_at IS NULL;
+
+-- Replacing the picks on a tasting is a delete of everything then an
+-- insert of what is left, in one transaction. Diffing them row by row is
+-- more code for the same result.
+clearNotes:
+UPDATE tasting_notes
+   SET deleted_at = ?, updated_at = ?, dirty = 1
+ WHERE tasting_id = ? AND deleted_at IS NULL;
