@@ -22,13 +22,20 @@ class AccountLinkerTest {
     @AfterTest
     fun close() = driver.close()
 
-    /** A bottle already stamped for [owner], as a pull would have left it. */
+    /**
+     * A bottle already stamped for [owner], as a pull would have left it.
+     *
+     * Every NOT NULL column without a default has to be here. The schema is
+     * generated from the one GRDB uses, so this list is not a guess: id,
+     * volume_ml, created_at, updated_at.
+     */
     private fun bottle(name: String, owner: String?) {
         driver.execute(
             identifier = null,
             sql = """
-                insert into bottles (id, user_id, custom_name, created_at, updated_at, dirty)
-                values (?, ?, ?, 0, 0, 0)
+                insert into bottles
+                    (id, user_id, custom_name, volume_ml, created_at, updated_at, dirty)
+                values (?, ?, ?, 750, 0, 0, 0)
             """.trimIndent(),
             parameters = 3,
         ) {
@@ -42,8 +49,9 @@ class AccountLinkerTest {
         driver.execute(
             identifier = null,
             sql = """
-                insert into pours (id, user_id, bottle_id, poured_at, created_at, updated_at, dirty)
-                values (?, ?, ?, 0, 0, 0, 0)
+                insert into pours
+                    (id, user_id, bottle_id, poured_at, volume_ml, created_at, updated_at, dirty)
+                values (?, ?, ?, 0, 44, 0, 0, 0)
             """.trimIndent(),
             parameters = 3,
         ) {
