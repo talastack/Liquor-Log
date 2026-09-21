@@ -256,7 +256,7 @@ object CollectionFilter {
         Sort.NAME -> rows.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.name })
 
         Sort.DISTILLERY -> rows.sortedWith(
-            compareBy(String.CASE_INSENSITIVE_ORDER) { it.distillery ?: it.name }
+            compareBy<Row>(String.CASE_INSENSITIVE_ORDER) { it.distillery ?: it.name }
                 .thenBy(String.CASE_INSENSITIVE_ORDER) { it.name }
         )
 
