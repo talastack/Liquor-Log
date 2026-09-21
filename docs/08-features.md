@@ -144,7 +144,7 @@ The aisle question, offline: *do I already own this?*
   samples on hand, **given away** (every pour marked as somebody else's);
   money behind the switch; share as a card (`CollectionStats`).
 - **What's open** — a guest menu as text or image (`PourMenu`), and, for
-  Pro with an account, **as a link**: a page served by the `menu` Edge
+  With an account, **as a link**: a page served by the `menu` Edge
   Function at an address nobody can guess, republished under the same
   link, taken down on request (`HostedMenu`).
 - **Your palate** — from your tastings: the words you reach for (counted
@@ -173,7 +173,7 @@ The aisle question, offline: *do I already own this?*
   page says what an account does and what stays true either way: nothing
   leaves the phone until you sign in, the bottles stay here regardless,
   export and backup are free either way (`SignInView`, `SupabaseAuth`).
-- **Sync** — optional, Supabase, two-clock LWW (`SyncEngine`); Pro.
+- **Sync** — optional, Supabase, two-clock LWW (`SyncEngine`).
   **Delete my account** under it: the server account and everything
   synced under it go (a definer function, patch 0013); the collection on
   the phone stays and is unlinked, ready for a new account. App Store
@@ -242,12 +242,15 @@ The aisle question, offline: *do I already own this?*
   with who it went to, and the hunt log, each as its own file when there
   is anything in it; **back up and
   restore** everything including photos (`CollectionBackup`), Blanton's
-  registry CSV (`DumpDateRegistry`), **insurance report** PDF (Pro),
+  registry CSV (`DumpDateRegistry`), **insurance report** PDF,
   **shelf labels** — a PDF of stickers (30 a sheet, the 2⅝ × 1 inch
   address-label grid) with your number, the name and a QR the camera
   reads to open the bottle in the app (`ShelfLabelsPDF`). A published
   menu also shows its link as a QR to prop on the bar.
-- **Pro** — StoreKit 2, yearly/monthly; paywall leads with what stays free.
+- **Money** — there is none. No purchases, no subscription, no tier and
+  no billing code in the app. Every feature is available to everybody,
+  which is also why nothing may be built on a service with a per-user
+  bill without that decision being taken again, explicitly.
 
 ## On an iPad
 
@@ -290,5 +293,5 @@ price feed, beer. See `docs/00-positioning.md`.
 ## Waiting on something outside the code
 
 Applying `shared/schema/README.md` to the live project and deploying the
-menu function; COLA verification of the catalogue; the app's name, Pro
+menu function; COLA verification of the catalogue; the app's name
 price, terms and privacy pages.

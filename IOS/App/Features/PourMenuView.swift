@@ -23,7 +23,6 @@ import LiquorEngine
 struct PourMenuView: View {
     @Environment(AppEnvironment.self) private var env
     @Environment(SyncController.self) private var sync
-    @Environment(ProStore.self) private var store
 
     @State private var items: [PourMenu.Item] = []
     @State private var title = "Open tonight"
@@ -133,15 +132,13 @@ struct PourMenuView: View {
     // MARK: - A link
 
     /// The menu as a page anybody can open, under a link that stays the
-    /// same when it is republished. Pro, and it needs the account sync
-    /// uses: the page is served from the same project.
+    /// same when it is republished. It needs the account sync uses, because
+    /// the page is served from the same project.
     @ViewBuilder
     private var hostedSection: some View {
         VStack(alignment: .leading, spacing: Space.m) {
             SectionLabel("As a link")
-            if !store.allows(.hostedMenu) {
-                ProLockedCard(feature: .hostedMenu)
-            } else if !sync.isSignedIn {
+            if !sync.isSignedIn {
                 Text("Sign in under Sync to publish a link. The page is served from the same account.")
                     .font(TypeScale.secondary())
                     .foregroundStyle(Palette.textMuted)
@@ -341,6 +338,5 @@ struct ShareSheet: UIViewControllerRepresentable {
     return NavigationStack { PourMenuView() }
         .environment(env)
         .environment(SyncController(database: env.database, configuration: nil))
-        .environment(ProStore())
         .preferredColorScheme(.dark)
 }

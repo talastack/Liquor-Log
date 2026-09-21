@@ -12,7 +12,6 @@ import LiquorEngine
 /// simply here.
 struct InsuranceReportView: View {
     @Environment(AppEnvironment.self) private var env
-    @Environment(ProStore.self) private var store
 
     @State private var document: InsuranceReport.Document?
     @State private var pdfURL: URL?
@@ -25,9 +24,7 @@ struct InsuranceReportView: View {
                     summary(document)
                 }
 
-                if !store.allows(.insuranceReport) {
-                    ProLockedCard(feature: .insuranceReport)
-                } else if let pdfURL {
+                if let pdfURL {
                     ShareLink(item: pdfURL) {
                         HStack(spacing: Space.s) {
                             Image(systemName: "square.and.arrow.up")
