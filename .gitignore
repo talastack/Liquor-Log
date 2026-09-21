@@ -16,6 +16,11 @@ Package.resolved
 .gradle/
 local.properties
 
+# The Kotlin compiler's own scratch directory, including the error logs it
+# writes when a daemon fails to start. Machine state, and the second build
+# artefact to get committed by a `git add -A` -- hence the entry.
+.kotlin/
+
 # Secrets are injected at build time, never committed.
 IOS/Secrets.xcconfig
 
