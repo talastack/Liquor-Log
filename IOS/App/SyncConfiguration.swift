@@ -81,6 +81,18 @@ final class SyncController {
     /// Where a published menu is served: the project's functions host.
     let menuBase: URL?
 
+    /// Which account this device's rows were last stamped for.
+    ///
+    /// Device state, like the sync cursors, and kept in the same place for the
+    /// same reasons: it must not sync, and losing it is safe -- an absent
+    /// value only means the switch check asks the database instead.
+    private static let lastUserKey = "sync.lastUserId"
+
+    private var lastSignedInUserId: String? {
+        get { UserDefaults.standard.string(forKey: Self.lastUserKey) }
+        set { UserDefaults.standard.set(newValue, forKey: Self.lastUserKey) }
+    }
+
     init(database: AppDatabase, configuration: SyncConfiguration?) {
         self.database = database
 
@@ -113,11 +125,40 @@ final class SyncController {
         self.communityTransport = transport
         self.menuBase = URL(string: "https://\(configuration.host)/functions/v1/menu/")
         self.state = .signedOut
+
+        // Started here rather than from a view's .task so the restore happens
+        // once per launch whichever screen opens first -- and so a tab nobody
+        // visits is not the reason sync never runs.
+        Task { await restore() }
     }
 
     var isSignedIn: Bool {
         if case .signedIn = state { return true }
         return false
+    }
+
+    /// Signs back in from the refresh token already in the keychain.
+    ///
+    /// Without this the app starts signed out on every launch even though the
+    /// credential is still good. The transport would refresh happily on its
+    /// next request, but nothing tells the screens, so the Sync tab offers a
+    /// sign-in form to somebody who is already signed in and no sync runs
+    /// until they use it.
+    ///
+    /// A dead token is not an error worth a banner. Signed out is a normal
+    /// state this app is built to work in.
+    func restore() async {
+        guard let auth, case .signedOut = state else { return }
+        guard await auth.hasStoredCredentials else { return }
+        state = .working
+        guard let session = await auth.restoredSession() else {
+            state = .signedOut
+            return
+        }
+        state = .signedIn(email: session.email)
+        lastSignedInUserId = session.userId
+        await sync()
+        await refreshHousehold()
     }
 
     // MARK: - Account
@@ -185,10 +226,21 @@ final class SyncController {
         do {
             let session = try await body(auth)
 
+            // A DIFFERENT person on a device that already holds a collection.
+            // Their rows go, and the cursors go with them -- the cursor is a
+            // per-table high-water mark with no account in its key, so the new
+            // account's first pull would otherwise start from the previous
+            // account's mark and silently skip every row older than it.
+            if isAccountSwitch(to: session.userId) {
+                try AccountLinker(database).evict(keeping: session.userId)
+                await engine?.forgetCursors()
+            }
+
             // BEFORE any push. A row pushed without an owner is rejected by a
             // NOT NULL and, if it somehow landed, could never be read back
             // through RLS.
             try AccountLinker(database).adopt(userId: session.userId)
+            lastSignedInUserId = session.userId
 
             state = .signedIn(email: email ?? session.email)
             await sync()
@@ -197,6 +249,22 @@ final class SyncController {
             state = .signedOut
             lastError = Self.describe(error)
         }
+    }
+
+    /// Whether the account signing in is not the one this device's rows
+    /// belong to.
+    ///
+    /// The stored id answers it outright. When there is none -- a fresh
+    /// install, or a build from before this check existed -- the database
+    /// answers instead, which also repairs a device that already merged two
+    /// collections before the check was written.
+    ///
+    /// Signing the SAME account back in is not a switch, which is what keeps
+    /// a household partner's rows from being thrown away and re-downloaded on
+    /// every sign-in.
+    private func isAccountSwitch(to userId: String) -> Bool {
+        if let previous = lastSignedInUserId { return previous != userId }
+        return ((try? AccountLinker(database).foreignCount(excluding: userId)) ?? 0) > 0
     }
 
     // MARK: - A shelf shared with a partner
@@ -279,6 +347,9 @@ final class SyncController {
             try AccountLinker(database).disown(userId: userId)
             await engine?.forgetCursors()
             await auth.signOut()
+            // The rows are nobody's again, so there is no previous account for
+            // the next sign-in to be a switch away from.
+            lastSignedInUserId = nil
             household = nil
             state = .signedOut
         } catch {
