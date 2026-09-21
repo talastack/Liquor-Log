@@ -135,6 +135,32 @@ and because the engine is where the product actually lives.
 
 ---
 
+## 5a. Where step 1 got to
+
+**The engine is across.** All 57 files of `LiquorEngine` have a Kotlin
+counterpart in `Android/engine`, with 31 test files behind them, and the
+`Android engine (JVM)` job is green. Steps 2 to 4 are untouched.
+
+Three things came across deliberately changed, and they are the only places
+the two engines are not the same shape:
+
+| What | Why |
+|---|---|
+| **No JSON decoding.** `Catalog`, `FlavorWheel`, `TequilaRegistry`, `CommunityPrice.Aggregate` and `WaxDrip.CommunityStanding` decode themselves on the Swift side. Here they take their rows through a constructor. | Foundation gives Swift `JSONDecoder` for free; the JVM does not, and this module keeps LiquorEngine's zero-dependency rule. The parsing belongs to the `data` module. The column names are pinned in `storageKeys` lists so the two sides cannot drift on the file's shape. |
+| **Two renames forced by the language.** `TastingRecall.when()` is `whenItWas()`, and `CommunityPrice.best(from: [Aggregate])` is `bestOfAggregates()`. | `when` is a hard keyword; the two `best` overloads erase to the same JVM signature. |
+| **`FlavorOrigin.fromStorageKey` returns null** where Swift fails the decode. | Same refusal, moved to where the decoding now happens. Silently defaulting an origin would file a descriptor under the wrong part of the wheel. |
+
+Everything else -- every threshold, every band, every refusal to guess, and
+every sentence the engine prints -- is the same on both sides, and the tests
+that pin them were translated with them.
+
+One thing still outstanding from step 1: **the Swift side is not wired to the
+golden vectors yet.** The Kotlin suite reads `shared/vectors/pour-math.json`;
+LiquorEngine does not. Until it does, the vectors are a test of one engine
+rather than a comparison of two.
+
+---
+
 ## 6. How it is proven
 
 The same rule as the rest of this repository: **CI is the proof.** There is
