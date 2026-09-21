@@ -97,6 +97,14 @@ jobs:
       - name: Check plists
         run: python3 scripts/check_plist.py
 
+      # The app is free on every platform, and the removal of the paid tier
+      # was easy to get almost right: deleting StoreKit left the sync
+      # screen, the terms and the privacy policy still describing a
+      # subscription, and none of them named a symbol. So this checks the
+      # strings a person reads as well as the code.
+      - name: Check nothing sells anything
+        run: python3 scripts/check_no_paywall.py
+
       - name: Validate shipped JSON
         run: |
           for file in shared/data/*.json; do
