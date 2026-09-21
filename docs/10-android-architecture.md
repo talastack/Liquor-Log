@@ -105,7 +105,6 @@ most likely to be underestimated, so they are listed early.
 | WidgetKit "What's open" | **Glance** | Same idea, different API. Glance also has no App Intents, so the pour button posts to a broadcast receiver. |
 | Spotlight (`CSSearchableIndex`) | **AppSearch** | Comparable; indexes bottles for system search. |
 | Siri + App Intents | **App Actions** (`shortcuts.xml`) + assistant integration | Less capable. The Ask grammar is engine code and ports fine; the assistant surface is thinner. |
-| StoreKit 2 | **Play Billing 7** | Different entitlement model: Play has no `currentEntitlements` stream, so Pro state is fetched on connect and after each purchase. |
 | Apple Vision OCR | **ML Kit Text Recognition** | On-device, free, no account. The `LabelReader` parsing rules are engine code and port unchanged — only the text extraction differs. |
 | Keychain | **EncryptedSharedPreferences** (Android Keystore) | Holds the Supabase refresh token. |
 | App Group container | not needed | The Glance widget runs in the app's own process and opens the same database file. This removes an entire class of problem the iOS side had to solve. |
@@ -131,7 +130,8 @@ and because the engine is where the product actually lives.
    policies and the functions are already live.
 3. **`app`**: the four tabs, in the order the iOS app was built — Shelf
    check first, because it is the home tab and the reason to open the app.
-4. **The surfaces**: Glance widget, AppSearch, Play Billing, ML Kit.
+4. **The surfaces**: Glance widget, AppSearch, ML Kit. No billing: the
+   app is free on both platforms and there is nothing to sell.
 
 ---
 
