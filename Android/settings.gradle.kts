@@ -1,3 +1,11 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+
 // The Android side of Liquor-Log.
 //
 // `engine` is plain Kotlin with no Android dependency, mirroring
@@ -24,3 +32,8 @@ include(":engine")
 // injected, so the whole thing is testable on the free Linux runner and only
 // the driver differs on a device.
 include(":data")
+
+// The Android app itself: the only module that needs the Android SDK, and the
+// only one an emulator ever sees. Everything it shows is computed in :engine
+// and stored by :data, both of which are tested without it.
+include(":app")

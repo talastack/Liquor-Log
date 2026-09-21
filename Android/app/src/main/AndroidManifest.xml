@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- No permissions. The app works entirely offline and the database is
+         private to the app's own storage; the camera and the network come
+         later, with the features that need them and not before.
+
+         The theme is the platform's own, not a Material Components one: that
+         theme lives in com.google.android.material, which a Compose app has
+         no other reason to depend on. Compose draws every pixel above it
+         anyway; all the Android theme has to do is stay out of the way. -->
+
+    <application
+        android:label="Liquor Log"
+        android:supportsRtl="true"
+        android:theme="@android:style/Theme.Material.Light.NoActionBar">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
