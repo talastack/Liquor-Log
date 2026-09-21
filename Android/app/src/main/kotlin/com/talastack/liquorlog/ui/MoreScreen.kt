@@ -18,6 +18,8 @@ import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Insights
+import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.LibraryBooks
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.StarBorder
@@ -123,6 +125,20 @@ fun MoreScreen(onOpen: (String) -> Unit) {
                 "Bottles you want, and what you would pay",
                 Icons.Filled.StarBorder,
             ) { onOpen(Route.WISHLIST) }
+        }
+        item {
+            ToolRow(
+                "Hunt log",
+                "Where you looked, what was on the shelf, the lotteries you entered",
+                Icons.Filled.Search,
+            ) { onOpen(Route.HUNT_LOG) }
+        }
+        item {
+            ToolRow(
+                "Passport",
+                "The distilleries you have stood in, against your shelf",
+                Icons.Filled.Place,
+            ) { onOpen(Route.PASSPORT) }
         }
         item {
             ToolRow(
@@ -233,7 +249,7 @@ fun MoreScreen(onOpen: (String) -> Unit) {
 private val NOT_YET = listOf(
     "Sync, sign-in and a shared shelf",
     "Label scanning and bulk shelf entry",
-    "The hunt log, the passport and people",
+    "People -- who sent you samples, who you poured for",
     "Price history and the community price check",
     "Import a spreadsheet, and backup",
     "Flights, the shelf walk and infinity-bottle blending",

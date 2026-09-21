@@ -1,0 +1,54 @@
+-- Where you looked, what was on the shelf, the lotteries you entered.
+--
+-- A sighting names a catalogue product or a string somebody typed, like a
+-- wishlist row: the bottle you saw on a back shelf and could not place is
+-- exactly the thing worth writing down.
+--
+-- `store` is NOT NULL because a sighting with no store answers none of the
+-- questions this log exists for -- where to go back to, and which shop gets
+-- the allocations.
+
+insertSighting:
+INSERT INTO sightings (
+    id, user_id, catalog_product_id, custom_name, kind, outcome,
+    store, region, cents, count, bottle_id, note, seen_at,
+    created_at, updated_at, dirty
+) VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1);
+
+selectAllSightings:
+SELECT * FROM sightings
+ WHERE deleted_at IS NULL
+ ORDER BY seen_at DESC;
+
+selectSightingById:
+SELECT * FROM sightings WHERE id = ? AND deleted_at IS NULL;
+
+-- A lottery entry whose result came in later.
+setOutcome:
+UPDATE sightings
+   SET outcome = ?, updated_at = ?, dirty = 1
+ WHERE id = ?;
+
+-- The sighting became a bottle on the shelf. Recorded so the log can show
+-- which hunts ended in a purchase rather than losing that thread.
+setBought:
+UPDATE sightings
+   SET bottle_id = ?, updated_at = ?, dirty = 1
+ WHERE id = ?;
+
+softDeleteSighting:
+UPDATE sightings SET deleted_at = ?, updated_at = ?, dirty = 1 WHERE id = ?;
+
+-- Distilleries you have stood in.
+insertVisit:
+INSERT INTO visits (
+    id, user_id, distillery, visited_at, note, created_at, updated_at, dirty
+) VALUES (?, NULL, ?, ?, ?, ?, ?, 1);
+
+selectAllVisits:
+SELECT * FROM visits
+ WHERE deleted_at IS NULL
+ ORDER BY visited_at DESC;
+
+softDeleteVisit:
+UPDATE visits SET deleted_at = ?, updated_at = ?, dirty = 1 WHERE id = ?;

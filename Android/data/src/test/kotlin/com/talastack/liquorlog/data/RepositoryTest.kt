@@ -4,6 +4,7 @@ import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.talastack.liquorlog.engine.ClassType
+import com.talastack.liquorlog.engine.Hunt
 import com.talastack.liquorlog.engine.ProductionType
 import kotlin.test.AfterTest
 import kotlin.test.Test
@@ -28,6 +29,7 @@ class RepositoryTest {
     private val bottles = BottleRepository(database)
     private val tastings = TastingRepository(database)
     private val wishlist = WishlistRepository(database)
+    private val sightings = SightingRepository(database)
 
     @AfterTest
     fun close() = driver.close()
@@ -236,6 +238,86 @@ class RepositoryTest {
         )
         // 750 ml is 17 pours; $34.00 over 17 is $2.00.
         assertEquals(200, assertNotNull(bottles.byId(id)).costPerPourCents)
+    }
+
+    // The hunt log
+
+    @Test
+    fun `a sighting and a lottery entry live in the same log`() {
+        sightings.record(
+            customName = "Weller 12", store = "Total Wine",
+            cents = 3_500, count = 2, seenAt = 1_000, now = 1_000,
+        )
+        val lottery = sightings.record(
+            customName = "Blanton's", store = "Virginia ABC",
+            kind = Hunt.Kind.ENTERED, seenAt = 2_000, now = 2_000,
+        )
+
+        val all = sightings.all()
+        assertEquals(2, all.size)
+        // Newest first.
+        assertEquals(Hunt.Kind.ENTERED, all[0].kind)
+        assertEquals(Hunt.Kind.SEEN, all[1].kind)
+        assertNull(assertNotNull(sightings.byId(lottery)).outcome)
+    }
+
+    @Test
+    fun `a lottery result can arrive later`() {
+        val id = sightings.record(
+            customName = "Blanton's", store = "Virginia ABC",
+            kind = Hunt.Kind.ENTERED, seenAt = 1_000, now = 1_000,
+        )
+        sightings.setOutcome(id, Hunt.Outcome.WON, now = 2_000)
+        assertEquals(Hunt.Outcome.WON, assertNotNull(sightings.byId(id)).outcome)
+
+        // And can go back to unknown, for a result entered by mistake.
+        sightings.setOutcome(id, null, now = 3_000)
+        assertNull(assertNotNull(sightings.byId(id)).outcome)
+    }
+
+    @Test
+    fun `the engine reads the log this repository writes`() {
+        sightings.record(customName = "Weller 12", store = "Total Wine", seenAt = 1_000, now = 1_000)
+        sightings.record(customName = "Weller 12", store = "total wine ", seenAt = 2_000, now = 2_000)
+        sightings.record(customName = "Blanton's", store = "Virginia ABC", seenAt = 3_000, now = 3_000)
+        sightings.record(
+            customName = "Pappy", store = "Virginia ABC",
+            kind = Hunt.Kind.ENTERED, outcome = Hunt.Outcome.LOST,
+            seenAt = 4_000, now = 4_000,
+        )
+
+        val summary = Hunt.summarise(sightings.huntSightings())
+        assertEquals(3, summary.seen)
+        // "Total Wine" and "total wine " are one store, which is the engine's
+        // rule and the reason the raw string is stored rather than a key.
+        assertEquals(2, summary.stores.size)
+        assertEquals(1, summary.lotteries.entered)
+        assertEquals(1, summary.lotteries.lost)
+        assertNotNull(summary.headline)
+    }
+
+    @Test
+    fun `a removed sighting leaves the log and leaves a tombstone`() {
+        val id = sightings.record(customName = "Weller 12", store = "Total Wine", now = 1_000)
+        sightings.remove(id, now = 2_000)
+
+        assertNull(sightings.byId(id))
+        assertTrue(sightings.all().isEmpty())
+        assertEquals(1, rawCount("select count(*) from sightings"))
+    }
+
+    @Test
+    fun `a visit is a date and a place`() {
+        sightings.recordVisit(
+            distillery = "Buffalo Trace",
+            note = "Hard hat tour",
+            visitedAt = 1_000,
+            now = 1_000,
+        )
+        val visits = sightings.visits()
+        assertEquals(1, visits.size)
+        assertEquals("Buffalo Trace", visits[0].distillery)
+        assertEquals("Hard hat tour", visits[0].note)
     }
 
     // Fill readings
