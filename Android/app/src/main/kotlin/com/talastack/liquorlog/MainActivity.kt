@@ -13,6 +13,7 @@ import com.talastack.liquorlog.data.BundledData
 import com.talastack.liquorlog.data.Database
 import com.talastack.liquorlog.data.LiquorDatabase
 import com.talastack.liquorlog.data.TastingRepository
+import com.talastack.liquorlog.data.WishlistRepository
 import com.talastack.liquorlog.ui.AppState
 import com.talastack.liquorlog.ui.MainScreen
 import com.talastack.liquorlog.ui.VolumeDisplay
@@ -51,6 +52,7 @@ class MainActivity : ComponentActivity() {
                 AppState(
                     bottles = BottleRepository(database),
                     tastings = TastingRepository(database),
+                    wishlist = WishlistRepository(database),
                     catalog = catalog,
                     wheel = wheel,
                     look = Look.fromKey(preferences.getString(Look.KEY, null)),

@@ -164,14 +164,23 @@ class BottleRepository(private val database: LiquorDatabase) {
      * upsert keyed on it: a device offline for a week still has to produce ids
      * that will not collide with another device's.
      *
-     * A bottle typed in by hand also gets a custom catalogue entry, when a
-     * class type is given, because that entry is where the collection filter
-     * reads its kind from. Both rows go in one transaction: a bottle pointing
-     * at an entry that was never written filters as nothing.
+     * [catalogProductId] is the bundled catalogue's own id, for a bottle
+     * matched to it. When it is given, nothing else is written: the
+     * catalogue already holds the distillery, class, production type and
+     * strength, and a custom entry beside it would be a second answer to the
+     * same question. **It is also what makes the shelf check right** -- a
+     * matched bottle has to carry the catalogue's id or the aisle gets told
+     * "never had it" about a bottle standing at home.
+     *
+     * Without it, a bottle typed in by hand gets a custom catalogue entry
+     * when a class type is given, because that entry is where the collection
+     * filter reads its kind from. Both rows go in one transaction: a bottle
+     * pointing at an entry that was never written filters as nothing.
      */
     fun add(
         name: String,
         volumeMl: Double,
+        catalogProductId: String? = null,
         abv: Double? = null,
         category: String = "spirit",
         classType: ClassType? = null,
@@ -198,8 +207,13 @@ class BottleRepository(private val database: LiquorDatabase) {
         now: Long = System.currentTimeMillis(),
     ): String = database.transactionWithResult {
         val id = UUID.randomUUID().toString()
-        val entryId = if (classType != null) UUID.randomUUID().toString() else null
-        if (entryId != null && classType != null) {
+        // A catalogue match needs no entry of its own.
+        val entryId = when {
+            catalogProductId != null -> catalogProductId
+            classType != null -> UUID.randomUUID().toString()
+            else -> null
+        }
+        if (catalogProductId == null && entryId != null && classType != null) {
             q.insertCustomEntry(
                 id = entryId,
                 distillery = distillery?.takeIf { it.isNotBlank() } ?: name,
@@ -301,7 +315,11 @@ class BottleRepository(private val database: LiquorDatabase) {
             updated_at = now,
             id = id,
         )
+        // Only a custom entry is edited. A bottle matched to the bundled
+        // catalogue points at a row this app does not own and must not
+        // rewrite, so its facts stay the catalogue's.
         val entryId = q.selectById(id).executeAsOneOrNull()?.catalog_product_id
+            ?.takeIf { q.selectCustomEntryById(it).executeAsOneOrNull() != null }
         if (entryId != null && classType != null) {
             q.updateCustomEntry(
                 distillery = distillery?.takeIf { it.isNotBlank() } ?: name,

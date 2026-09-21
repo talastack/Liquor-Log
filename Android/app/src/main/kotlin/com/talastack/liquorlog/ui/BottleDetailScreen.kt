@@ -39,6 +39,7 @@ import com.talastack.liquorlog.engine.FillLevel
 import com.talastack.liquorlog.engine.Money
 import com.talastack.liquorlog.engine.OxidationBand
 import com.talastack.liquorlog.engine.PourSize
+import com.talastack.liquorlog.engine.Replenish
 import com.talastack.liquorlog.engine.RecipeCode
 import com.talastack.liquorlog.engine.TastingTrend
 import com.talastack.liquorlog.ui.theme.Space
@@ -77,6 +78,31 @@ fun BottleDetailScreen(
     var confirmingRemove by remember { mutableStateOf(false) }
     var customPour by remember { mutableStateOf<String?>(null) }
     var showsAllPours by remember { mutableStateOf(false) }
+    var replenish by remember { mutableStateOf<Replenish.Offer?>(null) }
+
+    /**
+     * Pours, and asks about the wishlist on the pour that crosses the line.
+     *
+     * The crossing pour only. A bottle already down to its last two is not
+     * asked about again on every pour after that, which would turn a useful
+     * question into nagging.
+     */
+    fun pour(milliliters: Double) {
+        val before = summary?.status?.remainingPours ?: return
+        state.bottles.logPour(bottleId, milliliters = milliliters)
+        state.noteChange()
+        val after = state.bottles.byId(bottleId)?.status?.remainingPours ?: return
+        replenish = Replenish.offer(
+            remainingBefore = before,
+            remainingAfter = after,
+            isOnWishlist = state.wishlist.isWished(summary.bottle.catalog_product_id),
+            wouldRebuy = when (tastings.firstNotNullOfOrNull { it.rebuy }) {
+                TastingRepository.Rebuy.YES -> true
+                TastingRepository.Rebuy.NO -> false
+                TastingRepository.Rebuy.MAYBE, null -> null
+            },
+        )
+    }
 
     Column(Modifier.fillMaxWidth()) {
         DetailBar(
@@ -94,10 +120,7 @@ fun BottleDetailScreen(
                     )
                     BottleMenu(
                         summary = summary,
-                        onPour = { ml ->
-                            state.bottles.logPour(bottleId, milliliters = ml)
-                            state.noteChange()
-                        },
+                        onPour = { ml -> pour(ml) },
                         onCustomPour = { customPour = "" },
                         onOpen = {
                             state.bottles.open(bottleId)
@@ -161,10 +184,7 @@ fun BottleDetailScreen(
                 Actions(
                     summary = summary,
                     onRecordTasting = { onRecordTasting(bottleId) },
-                    onPour = {
-                        state.bottles.logPour(bottleId)
-                        state.noteChange()
-                    },
+                    onPour = { pour(PourSize.standard.milliliters) },
                 )
             }
         }
@@ -201,6 +221,26 @@ fun BottleDetailScreen(
         )
     }
 
+    replenish?.let { offer ->
+        ConfirmDialog(
+            title = "Nearly gone",
+            message = offer.text + " Want it on your wishlist?",
+            confirmLabel = "Add to wishlist",
+            onConfirm = {
+                val product = summary?.bottle?.catalog_product_id
+                state.wishlist.add(
+                    catalogProductId = product,
+                    // A typed-in bottle has no catalogue row, so the name is
+                    // all the wishlist can carry for it.
+                    customName = if (product == null) summary?.let { state.name(it) } else null,
+                )
+                state.noteChange()
+                replenish = null
+            },
+            onDismiss = { replenish = null },
+        )
+    }
+
     customPour?.let { text ->
         TextEntryDialog(
             title = "Pour how much?",
@@ -209,10 +249,7 @@ fun BottleDetailScreen(
             confirmLabel = "Log it",
             numeric = true,
             onConfirm = { typed ->
-                LocalNumber.parse(typed)?.takeIf { it > 0 }?.let {
-                    state.bottles.logPour(bottleId, milliliters = it)
-                    state.noteChange()
-                }
+                LocalNumber.parse(typed)?.takeIf { it > 0 }?.let { pour(it) }
                 customPour = null
             },
             onDismiss = { customPour = null },

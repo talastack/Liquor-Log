@@ -108,6 +108,11 @@ fun ShelfCheckScreen(onOpenBottle: (String) -> Unit) {
         }
     }
 
+    // What the person is already looking for. The engine folds it into the
+    // result rather than this screen drawing a second badge: "on your
+    // wishlist" is part of the answer to "do I have this", not a decoration.
+    val wished = remember(state.changeCount) { state.wishlist.wishedProductIds() }
+
     val hits = remember(query, candidates) {
         if (query.isBlank()) emptyList() else BottleSearch.search(query, candidates, limit = 12)
     }
@@ -208,6 +213,7 @@ fun ShelfCheckScreen(onOpenBottle: (String) -> Unit) {
                         product = hit.product,
                         holdings = holdings,
                         tastings = tasted,
+                        wishlistProductIds = wished,
                     )
                     val owned = byProduct[hit.product.productId]
                     VerdictCard(
@@ -235,6 +241,13 @@ private fun VerdictCard(
         Text(product.displayName, style = TypeScale.headline, color = colors.text)
         VerdictBadge(verdict.headline)
 
+        if (verdict.isOnWishlist) {
+            Text(
+                "On your wishlist",
+                style = TypeScale.caption,
+                color = colors.accent,
+            )
+        }
         if (verdict.onShelf.isNotEmpty()) {
             Text(
                 "${verdict.onShelf.size} on the shelf, ${verdict.openBottleCount} open",

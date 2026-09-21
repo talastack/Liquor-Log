@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import com.talastack.liquorlog.data.BottleRepository
 import com.talastack.liquorlog.data.TastingRepository
+import com.talastack.liquorlog.data.WishlistRepository
 import com.talastack.liquorlog.engine.Catalog
 import com.talastack.liquorlog.engine.CatalogProduct
 import com.talastack.liquorlog.engine.FlavorWheel
@@ -28,6 +29,7 @@ import com.talastack.liquorlog.ui.theme.Look
 class AppState(
     val bottles: BottleRepository,
     val tastings: TastingRepository,
+    val wishlist: WishlistRepository,
     /** The bundled catalogue. Empty when the asset could not be read. */
     val catalog: Catalog,
     /** The bundled flavour wheel. Null when the asset could not be read. */

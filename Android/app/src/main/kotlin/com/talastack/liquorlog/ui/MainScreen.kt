@@ -81,6 +81,9 @@ object Route {
     const val INSURANCE = "insurance"
     const val COCKTAILS = "cocktails"
     const val YEAR = "year"
+    const val PALATE = "palate"
+    const val TRY_NEXT = "tryNext"
+    const val WISHLIST = "wishlist"
 
     fun bottle(id: String) = BOTTLE + "/" + id
     fun editBottle(id: String) = EDIT_BOTTLE + "/" + id
@@ -347,6 +350,21 @@ private fun AppNavHost(navController: NavHostController, state: AppState) {
         }
         composable(Route.YEAR) {
             YearScreen(onBack = { navController.popBackStack() })
+        }
+        composable(Route.PALATE) {
+            PalateScreen(onBack = { navController.popBackStack() })
+        }
+        composable(Route.TRY_NEXT) {
+            TryNextScreen(
+                onBack = { navController.popBackStack() },
+                onWish = { productId ->
+                    state.wishlist.add(catalogProductId = productId)
+                    state.noteChange()
+                },
+            )
+        }
+        composable(Route.WISHLIST) {
+            WishlistScreen(onBack = { navController.popBackStack() })
         }
     }
 }

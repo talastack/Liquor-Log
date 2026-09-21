@@ -122,6 +122,11 @@ fun AddBottleScreen(bottleId: String?, onDone: () -> Unit) {
                                 state.bottles.add(
                                     name = name.trim(),
                                     volumeMl = volume,
+                                    // The catalogue's own id when one was
+                                    // picked. Without it the shelf check
+                                    // would not recognise this bottle as
+                                    // the catalogue product it is.
+                                    catalogProductId = matched?.id,
                                     abv = abv,
                                     classType = classType,
                                     productionType = production,

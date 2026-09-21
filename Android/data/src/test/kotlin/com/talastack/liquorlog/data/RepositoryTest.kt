@@ -27,6 +27,7 @@ class RepositoryTest {
     private val database = Database.open(driver)
     private val bottles = BottleRepository(database)
     private val tastings = TastingRepository(database)
+    private val wishlist = WishlistRepository(database)
 
     @AfterTest
     fun close() = driver.close()
@@ -79,6 +80,52 @@ class RepositoryTest {
         val id = bottles.add(name = "Something a friend poured", volumeMl = 750.0)
         assertNull(assertNotNull(bottles.byId(id)).bottle.catalog_product_id)
         assertEquals(0, bottles.customEntries().size)
+    }
+
+    @Test
+    fun `a bottle matched to the catalogue carries the catalogue id`() {
+        val id = bottles.add(
+            name = "W L Weller 12 Year",
+            volumeMl = 750.0,
+            catalogProductId = "weller-12",
+            classType = ClassType.KENTUCKY_STRAIGHT_BOURBON,
+            now = 1_000,
+        )
+
+        val summary = assertNotNull(bottles.byId(id))
+        // The catalogue's id, verbatim. Anything else and the shelf check
+        // tells somebody in the aisle "never had it" about a bottle on
+        // their own shelf.
+        assertEquals("weller-12", summary.bottle.catalog_product_id)
+        // And no custom entry beside it: the catalogue already answers all
+        // of this, and two answers is how they come to disagree.
+        assertTrue(bottles.customEntries().isEmpty())
+    }
+
+    @Test
+    fun `editing a catalogue bottle does not rewrite the catalogue`() {
+        val id = bottles.add(
+            name = "W L Weller 12 Year",
+            volumeMl = 750.0,
+            catalogProductId = "weller-12",
+            classType = ClassType.KENTUCKY_STRAIGHT_BOURBON,
+            now = 1_000,
+        )
+        bottles.update(
+            id = id,
+            name = "W L Weller 12 Year",
+            volumeMl = 750.0,
+            classType = ClassType.STRAIGHT_RYE,
+            storageLocation = "Top shelf",
+            now = 2_000,
+        )
+
+        val summary = assertNotNull(bottles.byId(id))
+        assertEquals("Top shelf", summary.storageLocation)
+        assertEquals("weller-12", summary.bottle.catalog_product_id)
+        // The bundled catalogue is not this app's to rewrite, so an edit
+        // must not have invented a row shadowing it.
+        assertTrue(bottles.customEntries().isEmpty())
     }
 
     @Test
@@ -300,6 +347,55 @@ class RepositoryTest {
         assertEquals(16, assertNotNull(shelf["Elijah Craig"]).status.remainingPours)
         assertEquals(8, assertNotNull(shelf["Weller 12"]).latestRating)
         assertNull(assertNotNull(shelf["Elijah Craig"]).latestRating)
+    }
+
+    // Wishlist
+
+    @Test
+    fun `a wishlist item can name a product or just a string`() {
+        val fromCatalogue = wishlist.add(
+            catalogProductId = "ec-small-batch",
+            targetPriceCents = 3_000,
+            now = 1_000,
+        )
+        val typed = wishlist.add(
+            customName = "That rye from the back shelf",
+            note = "No label I could read",
+            now = 2_000,
+        )
+
+        assertEquals(2, wishlist.all().size)
+        assertEquals(setOf("ec-small-batch"), wishlist.wishedProductIds())
+        // A typed row is on the list but is not a product, so the shelf
+        // check cannot and must not match it.
+        assertNull(assertNotNull(wishlist.byId(typed)).catalogProductId)
+        assertEquals(3_000, assertNotNull(wishlist.byId(fromCatalogue)).targetPriceCents)
+        assertEquals(
+            "No label I could read",
+            assertNotNull(wishlist.byId(typed)).note,
+        )
+    }
+
+    @Test
+    fun `a blank name or note is stored as absent rather than empty`() {
+        val id = wishlist.add(customName = "   ", note = "", now = 1_000)
+        val item = assertNotNull(wishlist.byId(id))
+        assertNull(item.customName)
+        assertNull(item.note)
+    }
+
+    @Test
+    fun `taking an item off leaves a tombstone and clears the shelf check`() {
+        val id = wishlist.add(catalogProductId = "ec-small-batch", now = 1_000)
+        assertTrue(wishlist.isWished("ec-small-batch"))
+
+        wishlist.remove(id, now = 2_000)
+
+        assertNull(wishlist.byId(id))
+        assertTrue(wishlist.all().isEmpty())
+        assertFalse(wishlist.isWished("ec-small-batch"))
+        // The row survives so the other devices learn it went.
+        assertEquals(1, rawCount("select count(*) from wishlist_items"))
     }
 
     /**

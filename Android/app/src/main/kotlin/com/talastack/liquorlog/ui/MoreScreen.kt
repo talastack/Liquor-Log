@@ -12,11 +12,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ListAlt
 import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.automirrored.filled.TrendingFlat
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.LibraryBooks
 import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material.icons.filled.WineBar
 import androidx.compose.material3.Icon
@@ -98,6 +101,27 @@ fun MoreScreen(onOpen: (String) -> Unit) {
                 "Something open you have not had in a while",
                 Icons.Filled.Casino,
             ) { onOpen(Route.PICK_MY_POUR) }
+        }
+        item {
+            ToolRow(
+                "Your palate",
+                "What your tastings say: the words you reach for, what rates highest",
+                Icons.Filled.Insights,
+            ) { onOpen(Route.PALATE) }
+        }
+        item {
+            ToolRow(
+                "Try next",
+                "Related to what you rated well, and not yet had -- each with its reason",
+                Icons.AutoMirrored.Filled.TrendingFlat,
+            ) { onOpen(Route.TRY_NEXT) }
+        }
+        item {
+            ToolRow(
+                "Wishlist",
+                "Bottles you want, and what you would pay",
+                Icons.Filled.StarBorder,
+            ) { onOpen(Route.WISHLIST) }
         }
         item {
             ToolRow(
@@ -201,7 +225,7 @@ private val NOT_YET = listOf(
     "Sync, sign-in and a shared shelf",
     "Label scanning and bulk shelf entry",
     "The hunt log, the passport and people",
-    "The wishlist and price history",
+    "Price history and the community price check",
     "Export, import and backup",
     "Flights, the shelf walk and infinity-bottle blending",
 )
