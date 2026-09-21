@@ -270,3 +270,121 @@ final class ProviderSignInTests: XCTestCase {
         XCTAssertNil(try SupabaseAuth.parse(noEmail).email)
     }
 }
+
+/// Two people, one phone.
+///
+/// Nothing reads by `user_id` -- the local database is "this device's
+/// collection" -- so a second account signing in on a device that already
+/// holds a first one's rows would see them as its own, and any edit would be
+/// pushed carrying the wrong owner and rejected by RLS forever.
+final class AccountSwitchTests: XCTestCase {
+
+    private func database() throws -> AppDatabase { try AppDatabase.inMemory() }
+
+    /// A bottle already stamped for `owner`, as a pull would have left it.
+    @discardableResult
+    private func bottle(_ db: AppDatabase, _ name: String, owner: String?) throws -> Bottle {
+        let added = try BottleRepository(db).add(Bottle(customName: name, volumeMl: 750))
+        try db.queue.write { db in
+            try db.execute(
+                sql: "update bottles set user_id = ?, dirty = 0 where id = ?",
+                arguments: [owner, added.id])
+        }
+        return added
+    }
+
+    private func names(_ db: AppDatabase) throws -> [String] {
+        try db.queue.read { db in
+            try String.fetchAll(db, sql: "select custom_name from bottles order by custom_name")
+        }
+    }
+
+    func testForeignCountSeesOnlyOtherAccountsRows() throws {
+        let db = try database()
+        try bottle(db, "Mine", owner: "user-b")
+        try bottle(db, "Theirs", owner: "user-a")
+        try bottle(db, "Nobodys", owner: nil)
+
+        XCTAssertEqual(try AccountLinker(db).foreignCount(excluding: "user-b"), 1)
+        XCTAssertEqual(
+            try AccountLinker(db).foreignCount(excluding: "user-a"), 1,
+            "it is symmetric: whoever is asking, the other one's row is foreign")
+    }
+
+    /// An unowned row is the local-only collection, which the signing-in
+    /// account is about to adopt. It must survive.
+    func testEvictRemovesTheOtherAccountAndNothingElse() throws {
+        let db = try database()
+        try bottle(db, "Mine", owner: "user-b")
+        try bottle(db, "Theirs", owner: "user-a")
+        try bottle(db, "Nobodys", owner: nil)
+
+        let removed = try AccountLinker(db).evict(keeping: "user-b")
+
+        XCTAssertEqual(removed, 1)
+        XCTAssertEqual(try names(db), ["Mine", "Nobodys"])
+    }
+
+    /// The whole sequence a sign-in performs, in order.
+    func testASecondAccountInheritsOnlyTheUnownedCollection() throws {
+        let db = try database()
+        try bottle(db, "Theirs", owner: "user-a")
+        try bottle(db, "Nobodys", owner: nil)
+        let linker = AccountLinker(db)
+
+        try linker.evict(keeping: "user-b")
+        try linker.adopt(userId: "user-b")
+
+        XCTAssertEqual(try names(db), ["Nobodys"])
+        XCTAssertEqual(try linker.unownedCount(), 0)
+        XCTAssertEqual(
+            try db.queue.read { db in
+                try String.fetchAll(db, sql: "select distinct user_id from bottles")
+            },
+            ["user-b"],
+            "the first account's bottle is not quietly re-owned by the second")
+    }
+
+    /// Signing the same account back in is not a switch, and a household
+    /// partner's rows must not be thrown away and re-downloaded every time.
+    func testTheSameAccountEvictsNothing() throws {
+        let db = try database()
+        try bottle(db, "Mine", owner: "user-b")
+        try bottle(db, "Partners", owner: "user-a")
+
+        XCTAssertEqual(try AccountLinker(db).foreignCount(excluding: "user-b"), 1)
+        // The controller only evicts when the stored last user differs, so
+        // this path is never reached for a repeat sign-in. Pinned here so the
+        // cost of getting that wrong stays visible: it would be this.
+        XCTAssertEqual(try AccountLinker(db).evict(keeping: "user-b"), 1)
+        XCTAssertEqual(try names(db), ["Mine"])
+    }
+
+    func testEvictIsAcrossEveryTableNotJustBottles() throws {
+        let db = try database()
+        let mine = try BottleRepository(db).add(Bottle(customName: "Mine", volumeMl: 750))
+        try BottleRepository(db).logPour(bottleId: mine.id)
+        try TastingRepository(db).save(Tasting(bottleId: mine.id, rating: 8), descriptors: [:])
+        try WishlistRepository(db).add(customName: "Pappy 15", targetPriceCents: 12_000)
+        try db.queue.write { db in
+            for table in ["bottles", "pours", "tastings", "wishlist_items"] {
+                try db.execute(sql: "update \(table) set user_id = 'user-a'")
+            }
+        }
+
+        let removed = try AccountLinker(db).evict(keeping: "user-b")
+
+        // The count is of DIRECT deletes only -- pours and tastings cascade
+        // from their bottle, and sqlite3_changes does not count those -- so
+        // the end state is what this asserts, not the number.
+        XCTAssertGreaterThan(removed, 0)
+        for table in ["bottles", "pours", "tastings", "wishlist_items"] {
+            XCTAssertEqual(
+                try db.queue.read { db in
+                    try Int.fetchOne(db, sql: "select count(*) from \(table)") ?? -1
+                },
+                0,
+                table)
+        }
+    }
+}

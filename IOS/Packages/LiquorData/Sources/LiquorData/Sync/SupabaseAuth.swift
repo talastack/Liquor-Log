@@ -65,6 +65,25 @@ public actor SupabaseAuth {
         return nil
     }
 
+    /// Whether this device holds a credential worth trying.
+    ///
+    /// Reads the keychain and makes no request, so the launch path can decide
+    /// whether a restore is worth attempting without a signed-out app showing
+    /// a spinner for a session that does not exist.
+    public var hasStoredCredentials: Bool { store.refreshToken != nil }
+
+    /// The session this device can use right now, for restoring one at launch.
+    ///
+    /// Nil when there is nothing stored, or when what is stored is dead. It
+    /// goes through the actor like everything else here, which is what keeps
+    /// it from racing a transport request that refreshes at the same moment
+    /// and rotates the token out from under it.
+    public func restoredSession() async -> Session? {
+        if let current, current.isFresh { return current }
+        guard store.refreshToken != nil else { return nil }
+        return try? await refresh()
+    }
+
     // MARK: - Account
 
     @discardableResult
