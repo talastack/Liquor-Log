@@ -5,7 +5,6 @@ import LiquorEngine
 /// Settings, and the tools that are not a tab of their own.
 struct MoreView: View {
     @Environment(AppEnvironment.self) private var env
-    @Environment(ProStore.self) private var store
 
     /// **Off by default, and it stays off until somebody asks.** The number is
     /// wanted for insurance and for recall, and it is also actively avoided:
@@ -29,7 +28,6 @@ struct MoreView: View {
     @State private var registryURL: URL?
     @State private var registryCount = 0
     @State private var isWalkDue = false
-    @State private var isShowingPaywall = false
     /// Ask is a sheet, not a push: its typing bar is pinned to the bottom,
     /// and a pushed screen keeps the tab bar and the floating + under it.
     @State private var isAsking = false
@@ -51,7 +49,6 @@ struct MoreView: View {
                 }
                 units
                 exportSection
-                pro
                 aboutTheData
             }
             .padding(.horizontal, Space.xl)
@@ -491,39 +488,6 @@ struct MoreView: View {
         }
     }
 
-    // MARK: - Pro
-
-    private var pro: some View {
-        VStack(alignment: .leading, spacing: Space.m) {
-            SectionLabel("Pro")
-            Button { isShowingPaywall = true } label: {
-                row(
-                    store.isPro ? "You have Pro" : "Pro",
-                    detail: store.isPro
-                        ? "Sync, the insurance report and a shareable menu"
-                        : "Services only. Your own data is never behind it.",
-                    symbol: store.isPro ? "checkmark.seal" : "seal",
-                    highlighted: store.isPro)
-            }
-            #if DEBUG
-            // Simulator testing without an App Store account. Not in release.
-            Toggle(isOn: Binding(
-                get: { store.debugOverride },
-                set: { store.debugOverride = $0 })
-            ) {
-                Text("Pretend to be Pro (debug build only)")
-                    .font(TypeScale.caption())
-                    .textCase(nil)
-                    .foregroundStyle(Palette.textMuted)
-            }
-            .tint(Palette.gold)
-            #endif
-        }
-        .sheet(isPresented: $isShowingPaywall) {
-            NavigationStack { PaywallView() }
-        }
-    }
-
     // MARK: - About
 
     private var aboutTheData: some View {
@@ -648,6 +612,5 @@ struct MoreView: View {
 #Preview {
     NavigationStack { MoreView() }
         .environment(AppEnvironment.preview())
-        .environment(ProStore())
         .preferredColorScheme(.dark)
 }

@@ -97,6 +97,62 @@ public struct AccountLinker: Sendable {
         }
     }
 
+    /// Rows owned by some OTHER account.
+    ///
+    /// Non-zero means this device is holding a collection that is not the
+    /// signing-in user's: the account that was signed in before, or a
+    /// household partner's rows pulled while that household stood.
+    public func foreignCount(excluding userId: String) throws -> Int {
+        try db.queue.read { db in
+            var total = 0
+            for table in tables {
+                total += try Int.fetchOne(
+                    db,
+                    sql: """
+                        select count(*) from \(quoted(table))
+                         where user_id is not null and user_id <> ?
+                        """,
+                    arguments: [userId]) ?? 0
+            }
+            return total
+        }
+    }
+
+    /// Removes every row owned by another account, for when a DIFFERENT
+    /// person signs in on a device that already holds a collection.
+    ///
+    /// Without this the rows simply stay. Nothing reads by `user_id` -- the
+    /// local database is "this device's collection" -- so the new account
+    /// would see the previous one's bottles as their own, and any edit to one
+    /// would be pushed carrying the wrong owner, rejected by RLS, and retried
+    /// forever.
+    ///
+    /// **What this costs, stated plainly.** These rows are not lost: they are
+    /// on the server under the account that owns them, and that account pulls
+    /// them again at its next sign-in. What IS lost is a change made under the
+    /// previous account that never reached the server -- an edit made offline,
+    /// then signed out of, then a different account signed in. That is a real
+    /// loss and there is no better terminal state for such a row: it can never
+    /// be pushed as the new user, and it must not be shown to them.
+    ///
+    /// One transaction, for the same reason as `adopt`.
+    @discardableResult
+    public func evict(keeping userId: String) throws -> Int {
+        try db.queue.write { db in
+            var removed = 0
+            for table in tables {
+                try db.execute(
+                    sql: """
+                        delete from \(quoted(table))
+                         where user_id is not null and user_id <> ?
+                        """,
+                    arguments: [userId])
+                removed += db.changesCount
+            }
+            return removed
+        }
+    }
+
     /// Table names are from the constant list above and never from input, but
     /// quoting them keeps the string interpolation from ever being the reason
     /// this file needs reviewing.

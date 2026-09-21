@@ -123,25 +123,15 @@ same user id comes back (not a second account).
       `com.talastack.liquorlog` as the bundle id (`IOS/project.yml`). The
       bundle id cannot change after the first upload; the display name
       can. The Siri phrases use whatever the display name is.
-- [ ] **The Pro price.** Set in App Store Connect on the two products
-      `com.talastack.liquorlog.pro.yearly` and
-      `com.talastack.liquorlog.pro.monthly` (`IOS/App/Store/ProStore.swift`).
-      The app reads the price from the product; nothing in the code needs
-      changing when it moves. The research's rule: it never scales with
-      the size of the collection.
-- [ ] **Privacy policy and terms.** Drafts are `docs/privacy-policy.md`
-      and `docs/terms.md`. Host them at public URLs (GitHub Pages of this
-      repo is enough), then put the URLs in
-      `ProStore.termsURL` and `ProStore.privacyURL`; the paywall shows the
-      links once they are non-nil. Apple requires both beside an
-      auto-renewable subscription, and the privacy URL again in App Store
-      Connect.
+- [ ] **Privacy policy.** A draft is `docs/privacy-policy.md`. Host it at
+      a public URL (GitHub Pages of this repo is enough) and give that URL
+      to App Store Connect. Apple requires one for every app. `docs/terms.md`
+      is no longer required by the store -- there is nothing to sell -- but
+      it costs nothing to host beside it.
 
 ## 4. App Store Connect
 
 - [ ] Create the app record with the bundle id from step 3.
-- [ ] Create the two subscription products with the ids above, in one
-      subscription group; set the prices.
 - [ ] App privacy questionnaire. What the app collects, all optional and
       all off by default: account email (sign-in, for sync); the
       collection, tastings, hunt log and visits (synced to the user's own
@@ -157,10 +147,10 @@ same user id comes back (not a second account).
 - [ ] Screenshots from the device: Shelf check with a verdict, a bottle
       with its fill bar, the tasting sheet, the Collection, the hunt log,
       the story card.
-- [ ] Review notes: mention that Sync and Pro are optional and the app is
-      fully usable offline with no account; give the reviewer a
-      Pro-testing note (StoreKit sandbox) and, if households are to be
-      reviewed, a second sandbox account.
+- [ ] Review notes: mention that the app is free with no purchases of any
+      kind, that Sync is optional and the app is fully usable offline with
+      no account, and -- if households are to be reviewed -- supply a
+      second sandbox account.
 
 ## 5. Archive and upload
 
