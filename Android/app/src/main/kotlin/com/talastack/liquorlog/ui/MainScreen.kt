@@ -84,6 +84,7 @@ object Route {
     const val PALATE = "palate"
     const val TRY_NEXT = "tryNext"
     const val WISHLIST = "wishlist"
+    const val EXPORT = "export"
 
     fun bottle(id: String) = BOTTLE + "/" + id
     fun editBottle(id: String) = EDIT_BOTTLE + "/" + id
@@ -365,6 +366,9 @@ private fun AppNavHost(navController: NavHostController, state: AppState) {
         }
         composable(Route.WISHLIST) {
             WishlistScreen(onBack = { navController.popBackStack() })
+        }
+        composable(Route.EXPORT) {
+            ExportScreen(onBack = { navController.popBackStack() })
         }
     }
 }

@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.automirrored.filled.TrendingFlat
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Casino
+import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.LibraryBooks
@@ -130,6 +131,14 @@ fun MoreScreen(onOpen: (String) -> Unit) {
                 Icons.Filled.CalendarMonth,
             ) { onOpen(Route.YEAR) }
         }
+        item { SectionLabel("Your data") }
+        item {
+            ToolRow(
+                "Export",
+                "Every bottle, tasting and pour as CSV. Never charged for.",
+                Icons.Filled.FileDownload,
+            ) { onOpen(Route.EXPORT) }
+        }
         item {
             ToolRow(
                 "Insurance report",
@@ -226,7 +235,7 @@ private val NOT_YET = listOf(
     "Label scanning and bulk shelf entry",
     "The hunt log, the passport and people",
     "Price history and the community price check",
-    "Export, import and backup",
+    "Import a spreadsheet, and backup",
     "Flights, the shelf walk and infinity-bottle blending",
 )
 

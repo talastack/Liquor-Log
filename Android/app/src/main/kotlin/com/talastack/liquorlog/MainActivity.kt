@@ -10,6 +10,7 @@ import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import com.talastack.liquorlog.data.BottleRepository
 import com.talastack.liquorlog.data.BundledData
+import com.talastack.liquorlog.data.CollectionExport
 import com.talastack.liquorlog.data.Database
 import com.talastack.liquorlog.data.LiquorDatabase
 import com.talastack.liquorlog.data.TastingRepository
@@ -53,6 +54,7 @@ class MainActivity : ComponentActivity() {
                     bottles = BottleRepository(database),
                     tastings = TastingRepository(database),
                     wishlist = WishlistRepository(database),
+                    export = CollectionExport(database),
                     catalog = catalog,
                     wheel = wheel,
                     look = Look.fromKey(preferences.getString(Look.KEY, null)),

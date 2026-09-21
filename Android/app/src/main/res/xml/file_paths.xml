@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  What the FileProvider is allowed to hand out.
+
+  One directory, inside the app's own cache: the export folder. Nothing else
+  is shareable, so a bug in an intent cannot hand another app the database.
+  The database itself is deliberately not here.
+-->
+<paths>
+    <cache-path name="export" path="export/" />
+</paths>
