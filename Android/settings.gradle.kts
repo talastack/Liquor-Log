@@ -18,3 +18,9 @@ dependencyResolutionManagement {
 rootProject.name = "liquorlog"
 
 include(":engine")
+
+// The local database, sync and auth. A plain JVM module, not an Android
+// library: SQLDelight's generated code is platform-agnostic and the driver is
+// injected, so the whole thing is testable on the free Linux runner and only
+// the driver differs on a device.
+include(":data")

@@ -1,0 +1,291 @@
+-- The local database, generated from the GRDB schema it mirrors.
+--
+-- THIS IS A PAIRED EDIT with shared/schema/postgres/0001_init.sql and
+-- IOS/.../Schema/Migrations.swift. Nothing at runtime notices when the
+-- three drift: a column present in one and absent from another syncs
+-- into a void with no error. scripts/check_schema_mirror.py compares all
+-- three on every push, which is the only reason this can be trusted.
+--
+-- Two differences from Postgres are expected and are the only ones
+-- allowed: `dirty` is local only (a push queue, never sent) and
+-- `server_updated_at` is server only (the pull cursor comes from the
+-- response, not from a client's copy of the server clock).
+
+CREATE TABLE custom_catalog_entries (
+  id TEXT NOT NULL PRIMARY KEY,
+  user_id TEXT,
+  distillery TEXT NOT NULL,
+  brand TEXT NOT NULL,
+  expression TEXT NOT NULL DEFAULT '',
+  class_type TEXT NOT NULL,
+  production_type TEXT NOT NULL DEFAULT 'unspecified',
+  is_barrel_proof INTEGER NOT NULL DEFAULT 0,
+  is_bottled_in_bond INTEGER NOT NULL DEFAULT 0,
+  abv REAL,
+  stated_age_years INTEGER,
+  recipe_code TEXT,
+  msrp_cents INTEGER,
+  msrp_source TEXT,
+  msrp_as_of_year INTEGER,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  deleted_at INTEGER,
+  dirty INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE TABLE bottles (
+  id TEXT NOT NULL PRIMARY KEY,
+  user_id TEXT,
+  catalog_product_id TEXT,
+  category TEXT NOT NULL DEFAULT 'spirit',
+  custom_name TEXT,
+  is_store_pick INTEGER NOT NULL DEFAULT 0,
+  pick_store TEXT,
+  pick_name TEXT,
+  barrel_number TEXT,
+  batch_number TEXT,
+  pick_group TEXT,
+  warehouse TEXT,
+  rick TEXT,
+  floor TEXT,
+  recipe_code TEXT,
+  age_months INTEGER,
+  entry_proof REAL,
+  char_level INTEGER,
+  finish TEXT,
+  bottle_number INTEGER,
+  bottles_in_batch INTEGER,
+  dumped_at INTEGER,
+  abv REAL,
+  chill_filtered INTEGER,
+  distilled_year INTEGER,
+  bottled_year INTEGER,
+  vintage_year INTEGER,
+  volume_ml REAL NOT NULL,
+  pour_size_ml REAL NOT NULL DEFAULT 44.36029434375,
+  purchase_date INTEGER,
+  purchase_price_cents INTEGER,
+  purchase_store TEXT,
+  shelf_price_cents INTEGER,
+  barcode TEXT,
+  topper_letter TEXT,
+  photo_file TEXT,
+  wax_color TEXT,
+  drip_fraction REAL,
+  drip_length_mm REAL,
+  stave_recipe TEXT,
+  dsp TEXT,
+  storage_location TEXT,
+  shelf_number INTEGER,
+  is_sample INTEGER NOT NULL DEFAULT 0,
+  sample_from TEXT,
+  sample_source TEXT,
+  is_infinity INTEGER NOT NULL DEFAULT 0,
+  tare_grams REAL,
+  opened_at INTEGER,
+  finished_at INTEGER,
+  last_verified_at INTEGER,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  deleted_at INTEGER,
+  dirty INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE TABLE pours (
+  id TEXT NOT NULL PRIMARY KEY,
+  user_id TEXT,
+  bottle_id TEXT NOT NULL,
+  poured_at INTEGER NOT NULL,
+  volume_ml REAL NOT NULL,
+  note TEXT,
+  given_to TEXT,
+  into_bottle_id TEXT,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  deleted_at INTEGER,
+  dirty INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE TABLE blend_additions (
+  id TEXT NOT NULL PRIMARY KEY,
+  user_id TEXT,
+  blend_bottle_id TEXT NOT NULL,
+  source_bottle_id TEXT,
+  source_name TEXT,
+  abv REAL,
+  volume_ml REAL NOT NULL,
+  pour_id TEXT,
+  added_at INTEGER NOT NULL,
+  note TEXT,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  deleted_at INTEGER,
+  dirty INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE TABLE price_reports (
+  id TEXT NOT NULL PRIMARY KEY,
+  user_id TEXT,
+  catalog_product_id TEXT NOT NULL,
+  cents INTEGER NOT NULL,
+  region TEXT,
+  seen_at INTEGER NOT NULL,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  deleted_at INTEGER,
+  dirty INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE TABLE drip_reports (
+  id TEXT NOT NULL PRIMARY KEY,
+  user_id TEXT,
+  catalog_product_id TEXT NOT NULL,
+  fraction REAL NOT NULL,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  deleted_at INTEGER,
+  dirty INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE TABLE menus (
+  id TEXT NOT NULL PRIMARY KEY,
+  user_id TEXT,
+  slug TEXT NOT NULL,
+  title TEXT NOT NULL,
+  body TEXT NOT NULL,
+  published_at INTEGER NOT NULL,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  deleted_at INTEGER,
+  dirty INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE TABLE fill_readings (
+  id TEXT NOT NULL PRIMARY KEY,
+  user_id TEXT,
+  bottle_id TEXT NOT NULL,
+  read_at INTEGER NOT NULL,
+  remaining_ml REAL NOT NULL,
+  note TEXT,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  deleted_at INTEGER,
+  dirty INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE TABLE tastings (
+  id TEXT NOT NULL PRIMARY KEY,
+  user_id TEXT,
+  bottle_id TEXT REFERENCES bottles(id) ON DELETE CASCADE,
+  catalog_product_id TEXT,
+  pour_id TEXT REFERENCES pours(id) ON DELETE SET NULL,
+  tasted_at INTEGER NOT NULL,
+  rating INTEGER,
+  would_rebuy TEXT,
+  worth_the_price INTEGER,
+  perceived_heat INTEGER,
+  finish_seconds INTEGER,
+  source TEXT,
+  source_note TEXT,
+  blind INTEGER NOT NULL DEFAULT 0,
+  liked TEXT,
+  disliked TEXT,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  deleted_at INTEGER,
+  dirty INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE TABLE tasting_notes (
+  id TEXT NOT NULL PRIMARY KEY,
+  user_id TEXT,
+  tasting_id TEXT NOT NULL,
+  stage TEXT NOT NULL,
+  descriptor_key TEXT NOT NULL,
+  intensity INTEGER,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  deleted_at INTEGER,
+  dirty INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE TABLE wishlist_items (
+  id TEXT NOT NULL PRIMARY KEY,
+  user_id TEXT,
+  catalog_product_id TEXT,
+  custom_name TEXT,
+  target_price_cents INTEGER,
+  note TEXT,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  deleted_at INTEGER,
+  dirty INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE TABLE knowledge_notes (
+  id TEXT NOT NULL PRIMARY KEY,
+  user_id TEXT,
+  title TEXT NOT NULL,
+  body TEXT NOT NULL DEFAULT '',
+  subject_kind TEXT,
+  subject_id TEXT,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  deleted_at INTEGER,
+  dirty INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE TABLE sightings (
+  id TEXT NOT NULL PRIMARY KEY,
+  user_id TEXT,
+  catalog_product_id TEXT,
+  custom_name TEXT,
+  kind TEXT NOT NULL DEFAULT 'seen',
+  outcome TEXT,
+  store TEXT NOT NULL,
+  region TEXT,
+  cents INTEGER,
+  count INTEGER,
+  bottle_id TEXT,
+  note TEXT,
+  seen_at INTEGER NOT NULL,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  deleted_at INTEGER,
+  dirty INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE TABLE visits (
+  id TEXT NOT NULL PRIMARY KEY,
+  user_id TEXT,
+  distillery TEXT NOT NULL,
+  visited_at INTEGER NOT NULL,
+  note TEXT,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  deleted_at INTEGER,
+  dirty INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE TABLE subscriptions (
+  id TEXT NOT NULL PRIMARY KEY,
+  user_id TEXT,
+  tier TEXT NOT NULL DEFAULT 'free',
+  expires_at INTEGER,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  deleted_at INTEGER,
+  dirty INTEGER NOT NULL DEFAULT 0
+);
+
+-- The indexes the collection screen and the sync cursor rely on.
+CREATE INDEX pours_by_bottle ON pours(bottle_id, poured_at);
+CREATE INDEX tastings_by_bottle ON tastings(bottle_id, tasted_at);
+CREATE INDEX tastings_by_product ON tastings(catalog_product_id, tasted_at);
+CREATE INDEX tasting_notes_by_tasting ON tasting_notes(tasting_id);
+CREATE INDEX bottles_by_product ON bottles(catalog_product_id);
+CREATE INDEX bottles_dirty ON bottles(dirty);
+CREATE INDEX pours_dirty ON pours(dirty);
+CREATE INDEX blend_additions_by_blend ON blend_additions(blend_bottle_id, added_at);
+CREATE INDEX tastings_dirty ON tastings(dirty);
+CREATE INDEX sightings_by_product ON sightings(catalog_product_id, seen_at);
