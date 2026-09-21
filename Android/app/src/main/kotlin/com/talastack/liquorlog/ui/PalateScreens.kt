@@ -172,16 +172,27 @@ fun PalateScreen(onBack: () -> Unit) {
             item {
                 Card {
                     val share = profile.rebuyShare
-                    if (share == null) {
-                        Text(
+                    val answered = profile.rebuyAnswered
+                    // Three states, not two. The engine returns null both
+                    // when nobody answered and when too few did, and telling
+                    // somebody "nothing answered yet" after they answered is
+                    // the app calling them a liar.
+                    when {
+                        answered == 0 -> Text(
                             "Nothing answered yet.",
                             style = TypeScale.secondary,
                             color = colors.textMuted,
                         )
-                    } else {
-                        Text(
-                            "${(share * 100).roundToInt()}% of the " +
-                                "${profile.rebuyAnswered} you answered.",
+
+                        share == null -> Text(
+                            "$answered answered so far. It waits for " +
+                                "${Palate.minimum} before drawing anything from them.",
+                            style = TypeScale.secondary,
+                            color = colors.textMuted,
+                        )
+
+                        else -> Text(
+                            "${(share * 100).roundToInt()}% of the $answered you answered.",
                             style = TypeScale.body,
                             color = colors.text,
                         )
