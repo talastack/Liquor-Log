@@ -85,9 +85,26 @@ rejection restarts it. Nothing in the code is what decides that.
       and Siri only prove themselves on a device).
 - [ ] First launch moves the database into the app group container. Open
       the Collection and confirm every bottle is there.
-- [ ] Walk the new screens under More: Hunt log, People, Passport, Your
-      year, Try next, Tonight, Your palate; Sync → household; Your data →
-      "Export everything as CSV" (four or five files when there is data).
+- [ ] Walk every row under More. The menu is longer than this list used
+      to admit, and a row that opens on an empty screen or a crash is the
+      kind of thing a reviewer finds in the first two minutes.
+
+      **Tools** — Ask, Decode a code, Browse the catalogue, Your
+      collection, What's open, Tonight, Your palate, Try next, Sync,
+      Wishlist, Hunt log, People, Passport, Your year, Taste a flight,
+      Pick my pour, Shelf walk.
+
+      **Your data** — Share your collection, Import a spreadsheet, Your
+      Blanton's for the dump-date registry, Share the registry CSV, Back
+      up and restore, Insurance report, Shelf labels.
+
+      Also the settings sections that have no rows to tap through:
+      Sharing, Money, Look, Units, and Data on this phone.
+- [ ] The two exits, specifically, because they are what the published
+      pages promise: More → Your data → "Export everything as CSV"
+      (four or five files once there is data, named pour-memo-*.csv), and
+      More → Sync → "Delete my account". The second needs patch 0013
+      applied first, or it answers with a 404.
 - [ ] Ask: "what's open", "saw Blanton's at Total Wine for $75, 3 on the
       shelf", "where did I see Blanton's", "what did Mike send me",
       "visited Buffalo Trace", "have I been to Buffalo Trace".
