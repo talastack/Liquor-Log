@@ -205,6 +205,13 @@ same user id comes back (not a second account).
 
 ## 4. App Store Connect
 
+The text for every field is written out in
+`docs/10-app-store-listing.md` -- name, subtitle, promotional text,
+description, keywords, URLs, category, the age-rating answers, the privacy
+questionnaire answers and the review notes. Copy from there rather than
+composing at the keyboard; `scripts/check_listing.py` has already checked
+each field against Apple's character limit.
+
 - [ ] Create the app record with the bundle id from step 3.
 - [ ] App privacy questionnaire. What the app collects, all optional and
       all off by default: account email (sign-in, for sync); the

@@ -133,6 +133,12 @@ jobs:
       - name: Check the published pages
         run: python3 scripts/check_pages.py
 
+      # The store listing is written in the repository and pasted into a form
+      # that counts characters and refuses anything one over. Counting them
+      # here moves that from the upload evening to a pull request.
+      - name: Check the App Store listing fits its fields
+        run: python3 scripts/check_listing.py
+
       - name: Validate shipped JSON
         run: |
           for file in shared/data/*.json; do
