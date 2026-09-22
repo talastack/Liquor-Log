@@ -1,6 +1,6 @@
 # Privacy policy
 
-*Liquor-Log, by TALASTACK LLC. Effective 16 September 2026.*
+*Pour Memo, by TALASTACK LLC. Effective 22 September 2026.*
 
 This is the whole policy. It is short because the app keeps almost nothing about you.
 

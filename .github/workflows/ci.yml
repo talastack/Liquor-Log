@@ -127,6 +127,12 @@ jobs:
       - name: Check the app icon
         run: python3 scripts/check_app_icon.py
 
+      # Apple requires a reachable privacy policy URL, and a reviewer opens
+      # it. The pages are generated from the Markdown so the two cannot
+      # drift; this asserts they have not.
+      - name: Check the published pages
+        run: python3 scripts/check_pages.py
+
       - name: Validate shipped JSON
         run: |
           for file in shared/data/*.json; do

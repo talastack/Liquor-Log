@@ -1,10 +1,10 @@
 # Terms of use
 
-*Liquor-Log, by TALASTACK LLC. Effective 16 September 2026.*
+*Pour Memo, by TALASTACK LLC. Effective 22 September 2026.*
 
 ## The app
 
-Liquor-Log is a record of a spirits collection: what you own, what you have tasted, what you thought. It is offered as is. We work to keep it accurate and running, but we do not promise it will be free of errors or always available, and we are not liable for loss arising from its use — including loss of data, which is why the app gives you export and backup at no charge.
+Pour Memo is a record of a spirits collection: what you own, what you have tasted, what you thought. It is offered as is. We work to keep it accurate and running, but we do not promise it will be free of errors or always available, and we are not liable for loss arising from its use — including loss of data, which is why the app gives you export and backup at no charge.
 
 ## Your data is yours
 

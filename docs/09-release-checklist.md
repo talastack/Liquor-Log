@@ -34,9 +34,17 @@ are the things without which an upload is refused or a review fails.
       app and the widget bundle. Without it an upload is answered with
       ITMS-91053 after the archive, not before.
       `scripts/check_privacy_manifest.py` keeps it honest as the app grows.
-- [ ] **A hosted privacy policy URL.** Apple requires one for every app.
-      `docs/privacy-policy.md` is the draft; GitHub Pages on this repo is
-      enough to host it.
+- [ ] **Turn GitHub Pages on.** The pages themselves are built and in the
+      repository: `docs/privacy.html`, `docs/terms.html` and an index, all
+      generated from the Markdown by `scripts/build_pages.py` and kept in
+      step by `scripts/check_pages.py`. All that is left is the switch:
+      repository Settings -> Pages -> Source: *Deploy from a branch*,
+      branch `main`, folder `/docs`. The privacy URL is then
+      `https://talastack.github.io/Liquor-Log/privacy.html`, which is what
+      goes into App Store Connect.
+- [ ] **Check `privacy@talastack.com` actually receives mail.** It is the
+      contact address on both published pages. A policy naming a mailbox
+      nobody reads is worse than one naming none.
 - [ ] **Screenshots from a real device.** Cannot be faked and cannot be
       taken from the simulator for the App Store sizes you need.
 

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pour Memo &middot; Pour Memo</title>
+<meta name="description" content="Pour Memo for Pour Memo, by TALASTACK LLC.">
+<style>
+:root {
+  color-scheme: light dark;
+  --ground: #faf9f7;
+  --ink: #1b1a18;
+  --quiet: #5d5a54;
+  --rule: #e0ddd6;
+  --accent: #8a5a2b;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ground: #14130f;
+    --ink: #ecead9;
+    --quiet: #a5a091;
+    --rule: #2e2b24;
+    --accent: #d9a05b;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 48px 20px 96px;
+  background: var(--ground);
+  color: var(--ink);
+  font: 17px/1.65 ui-serif, Georgia, "Times New Roman", serif;
+  -webkit-text-size-adjust: 100%;
+}
+main { max-width: 34rem; margin: 0 auto; }
+h1 {
+  font-size: 2rem;
+  line-height: 1.2;
+  margin: 0 0 4px;
+  letter-spacing: -0.01em;
+}
+.meta {
+  color: var(--quiet);
+  font-size: 0.95rem;
+  font-style: italic;
+  margin: 0 0 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--rule);
+}
+h2 {
+  font-size: 1.15rem;
+  margin: 40px 0 12px;
+  letter-spacing: 0.01em;
+}
+p, li { margin: 0 0 14px; }
+ul { padding-left: 1.2rem; }
+strong { font-weight: 600; }
+a { color: var(--accent); }
+.back {
+  display: inline-block;
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--rule);
+  width: 100%;
+  font-size: 0.95rem;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+</style>
+</head>
+<body>
+<main>
+<h1>Pour Memo</h1>
+<p class="meta">A bourbon and spirits collection, by TALASTACK LLC.</p>
+<p>The legal documents for the app.</p><ul><li><a href="privacy.html">Privacy policy</a></li><li><a href="terms.html">Terms of use</a></li></ul>
+<a class="back" href="privacy.html">Privacy policy</a>
+</main>
+</body>
+</html>
