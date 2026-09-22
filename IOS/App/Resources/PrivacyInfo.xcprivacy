@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!--
+    Apple's privacy manifest. Required since May 2024 for any app that
+    touches a "required reason API". An upload without it is answered with
+    ITMS-91053 rather than a build error, so it fails at the worst possible
+    moment and says nothing about the app.
+
+    This app uses exactly one of those APIs: UserDefaults. Nothing here reads
+    disk space, system boot time, file timestamps or active keyboards.
+    scripts/check_privacy_manifest.py asserts that, so a later feature that
+    starts using one cannot ship without declaring it.
+  -->
+
+  <!-- No tracking, and nothing to track with. There is no advertising SDK,
+       no analytics and no third-party network call in the app at all. -->
+  <key>NSPrivacyTracking</key>
+  <false/>
+  <key>NSPrivacyTrackingDomains</key>
+  <array/>
+
+  <!--
+    What leaves the phone, and only with an account. Everything the app does
+    works signed out, and nothing below is collected until somebody signs in
+    for sync.
+  -->
+  <key>NSPrivacyCollectedDataTypes</key>
+  <array>
+    <dict>
+      <!-- The sign-in address. Linked to the person by definition: it is
+           how their own rows are found again on a second device. -->
+      <key>NSPrivacyCollectedDataType</key>
+      <string>NSPrivacyCollectedDataTypeEmailAddress</string>
+      <key>NSPrivacyCollectedDataTypeLinked</key>
+      <true/>
+      <key>NSPrivacyCollectedDataTypeTracking</key>
+      <false/>
+      <key>NSPrivacyCollectedDataTypePurposes</key>
+      <array>
+        <string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+      </array>
+    </dict>
+    <dict>
+      <!-- The collection itself: bottles, tastings, pours, the hunt log,
+           visits. Synced to the person's own rows, which row-level security
+           is what protects. -->
+      <key>NSPrivacyCollectedDataType</key>
+      <string>NSPrivacyCollectedDataTypeOtherUserContent</string>
+      <key>NSPrivacyCollectedDataTypeLinked</key>
+      <true/>
+      <key>NSPrivacyCollectedDataTypeTracking</key>
+      <false/>
+      <key>NSPrivacyCollectedDataTypePurposes</key>
+      <array>
+        <string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+      </array>
+    </dict>
+  </array>
+
+  <key>NSPrivacyAccessedAPITypes</key>
+  <array>
+    <dict>
+      <key>NSPrivacyAccessedAPIType</key>
+      <string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+      <key>NSPrivacyAccessedAPITypeReasons</key>
+      <array>
+        <!-- CA92.1: defaults the app reads and writes only for itself:
+             the chosen look, the units preference, whether the shelf total
+             is shown. -->
+        <string>CA92.1</string>
+        <!-- 1C8F.1: defaults in the App Group suite, which is how the
+             widget reads the same look the app is using. See
+             Palette.Look.defaults. -->
+        <string>1C8F.1</string>
+      </array>
+    </dict>
+  </array>
+</dict>
+</plist>

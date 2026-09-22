@@ -113,6 +113,13 @@ jobs:
       - name: Check nothing sells anything
         run: python3 scripts/check_no_paywall.py
 
+      # Apple has required a privacy manifest since May 2024. A missing or
+      # incomplete one is not a build error: the app compiles, archives,
+      # uploads, and App Store Connect answers with ITMS-91053 at the end of
+      # the slowest loop there is. This finds it in a second instead.
+      - name: Check the privacy manifest
+        run: python3 scripts/check_privacy_manifest.py
+
       - name: Validate shipped JSON
         run: |
           for file in shared/data/*.json; do

@@ -121,6 +121,11 @@ targets:
       - path: App/DesignSystem/Palette.swift
       - path: App/Resources/Data/spirits.v1.json
         buildPhase: resources
+      # The extension needs its own copy at its own bundle root: Apple reads
+      # one manifest per bundle, and this one reaches UserDefaults through
+      # Palette.Look.defaults just as the app does.
+      - path: App/Resources/PrivacyInfo.xcprivacy
+        buildPhase: resources
     dependencies:
       - package: LiquorEngine
       - package: LiquorData
