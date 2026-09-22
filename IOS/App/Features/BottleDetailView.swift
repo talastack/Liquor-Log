@@ -606,87 +606,105 @@ struct BottleDetailView: View {
             SectionLabel("What it is")
                 .padding(.bottom, Space.xs)
 
-            // Class and production are ALWAYS two rows. Kentucky Straight is
-            // one fact; small batch is another. Merging them is what makes an
-            // app unable to answer "do I have this, or do I have this type?"
-            if let product = env.product(for: summary.bottle) {
-                FactRow(label: "Class", value: classLabel(product.classType))
-                FactRow(label: "How it is made", value: productionLabel(product))
-            }
-            if let batch = summary.bottle.batchNumber {
-                // Decoded where the scheme is known. "B523" on its own is a
-                // string; "second release of 2023, bottled in May" is a fact
-                // about the whiskey.
-                FactRow(
-                    label: "Batch",
-                    value: BatchCode(batch).map { "\(batch) · \($0.summary)" } ?? batch)
-            }
-            // Barrel, pick and recipe live in "This barrel" below when the
-            // bottle carries them. Printing them twice reads as a bug.
-            if summary.bottle.code == nil,
-               let code = env.product(for: summary.bottle)?.code {
-                FactRow(label: "Recipe", value: "\(code.code) · \(code.yeast.character)")
-                FactRow(label: "Mashbill", value: code.mashbill.summary)
-            }
-            // Measured allocation, when a board's figures have been imported.
-            // "Not allocated" is deliberately NOT shown: the absence of a
-            // record is not a fact about the bottle, and printing it would
-            // read as "common" to everybody who saw it.
-            if let allocation = env.product(for: summary.bottle)?.allocation {
-                let rarity = Rarity.assess(allocation)
-                FactRow(label: "Allocation", value: rarity.verdict.headline)
-                Text(rarity.summary + " " + rarity.caveat)
-                    .font(TypeScale.caption())
-                    .textCase(nil)
-                    .foregroundStyle(Palette.textMuted)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.vertical, Space.xs)
-            }
-            // Who really made it, from the permit on the back label. A brand
-            // with no distillery of its own carries somebody else's number.
-            if let number = summary.bottle.dsp {
-                if let plant = DistilleryPermit.lookup(number) {
-                    FactRow(label: "Made at", value: "\(plant.distillery) · \(number)")
-                } else {
-                    FactRow(label: "Permit", value: number)
-                }
-            }
-            if let filtered = summary.bottle.chillFiltered {
-                FactRow(
-                    label: "Chill filtration",
-                    value: filtered ? "Chill filtered" : "Non-chill filtered")
-            }
-            if let bought = summary.bottle.purchaseDate {
-                let purchased = Date(timeIntervalSince1970: Double(bought) / 1000)
-                let owned = AgeMath.daysOwned(purchasedAt: purchased) ?? 0
-                FactRow(
-                    label: "Bought",
-                    value: purchased.formatted(date: .abbreviated, time: .omitted)
-                        + (owned > 0 ? " · \(owned) \(owned == 1 ? "day" : "days") ago" : ""))
-            }
-            // The four numbers people call "age", kept apart. Time in the
-            // barrel is the only one that changed the whiskey; time in the
-            // glass since bottling is the one that gets confused with it.
-            if let years = AgeMath.maturationYears(
-                distilledYear: summary.bottle.distilledYear, bottledYear: summary.bottle.bottledYear) {
-                FactRow(label: "In the barrel", value: "\(years) \(years == 1 ? "year" : "years") (\(summary.bottle.distilledYear ?? 0)–\(summary.bottle.bottledYear ?? 0))")
-            }
-            if let bottled = summary.bottle.bottledYear,
-               let inGlass = AgeMath.yearsInGlass(bottledYear: bottled) {
-                FactRow(label: "Bottled", value: inGlass == 0 ? "\(bottled), this year" : "\(bottled) · \(inGlass) \(inGlass == 1 ? "year" : "years") in the glass")
-            }
-            if let store = summary.bottle.purchaseStore {
-                FactRow(label: "Bought at", value: store)
-            }
-            if summary.bottle.isSample {
-                FactRow(label: "Sample", value: sampleLine(summary.bottle))
-            }
-            FactRow(
-                label: "Size",
-                value: VolumeDisplay.both(summary.bottle.volumeMl, ounces: ounces),
-                isLast: true)
+            whatTheLabelSays(summary)
+            whatYouKnowAboutThisOne(summary)
             whereTheseFactsCameFrom(summary)
         }
+    }
+
+    /// What the bottle IS: the regulated class, how it was made, the codes.
+    ///
+    /// Split out with the group below because `facts` grew past ten direct
+    /// children, which is where ViewBuilder stops having a buildBlock and
+    /// the type checker starts inferring a type that grows with every
+    /// branch. This file is the one that hit that wall first.
+    @ViewBuilder
+    private func whatTheLabelSays(_ summary: BottleSummary) -> some View {
+        // Class and production are ALWAYS two rows. Kentucky Straight is
+        // one fact; small batch is another. Merging them is what makes an
+        // app unable to answer "do I have this, or do I have this type?"
+        if let product = env.product(for: summary.bottle) {
+            FactRow(label: "Class", value: classLabel(product.classType))
+            FactRow(label: "How it is made", value: productionLabel(product))
+        }
+        if let batch = summary.bottle.batchNumber {
+            // Decoded where the scheme is known. "B523" on its own is a
+            // string; "second release of 2023, bottled in May" is a fact
+            // about the whiskey.
+            FactRow(
+                label: "Batch",
+                value: BatchCode(batch).map { "\(batch) · \($0.summary)" } ?? batch)
+        }
+        // Barrel, pick and recipe live in "This barrel" below when the
+        // bottle carries them. Printing them twice reads as a bug.
+        if summary.bottle.code == nil,
+           let code = env.product(for: summary.bottle)?.code {
+            FactRow(label: "Recipe", value: "\(code.code) · \(code.yeast.character)")
+            FactRow(label: "Mashbill", value: code.mashbill.summary)
+        }
+        // Measured allocation, when a board's figures have been imported.
+        // "Not allocated" is deliberately NOT shown: the absence of a
+        // record is not a fact about the bottle, and printing it would
+        // read as "common" to everybody who saw it.
+        if let allocation = env.product(for: summary.bottle)?.allocation {
+            let rarity = Rarity.assess(allocation)
+            FactRow(label: "Allocation", value: rarity.verdict.headline)
+            Text(rarity.summary + " " + rarity.caveat)
+                .font(TypeScale.caption())
+                .textCase(nil)
+                .foregroundStyle(Palette.textMuted)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.vertical, Space.xs)
+        }
+        // Who really made it, from the permit on the back label. A brand
+        // with no distillery of its own carries somebody else's number.
+        if let number = summary.bottle.dsp {
+            if let plant = DistilleryPermit.lookup(number) {
+                FactRow(label: "Made at", value: "\(plant.distillery) · \(number)")
+            } else {
+                FactRow(label: "Permit", value: number)
+            }
+        }
+    }
+
+    /// What is true of this particular bottle: when it was bought, how old
+    /// it is, how big it is.
+    @ViewBuilder
+    private func whatYouKnowAboutThisOne(_ summary: BottleSummary) -> some View {
+        if let filtered = summary.bottle.chillFiltered {
+            FactRow(
+                label: "Chill filtration",
+                value: filtered ? "Chill filtered" : "Non-chill filtered")
+        }
+        if let bought = summary.bottle.purchaseDate {
+            let purchased = Date(timeIntervalSince1970: Double(bought) / 1000)
+            let owned = AgeMath.daysOwned(purchasedAt: purchased) ?? 0
+            FactRow(
+                label: "Bought",
+                value: purchased.formatted(date: .abbreviated, time: .omitted)
+                    + (owned > 0 ? " · \(owned) \(owned == 1 ? "day" : "days") ago" : ""))
+        }
+        // The four numbers people call "age", kept apart. Time in the
+        // barrel is the only one that changed the whiskey; time in the
+        // glass since bottling is the one that gets confused with it.
+        if let years = AgeMath.maturationYears(
+            distilledYear: summary.bottle.distilledYear, bottledYear: summary.bottle.bottledYear) {
+            FactRow(label: "In the barrel", value: "\(years) \(years == 1 ? "year" : "years") (\(summary.bottle.distilledYear ?? 0)–\(summary.bottle.bottledYear ?? 0))")
+        }
+        if let bottled = summary.bottle.bottledYear,
+           let inGlass = AgeMath.yearsInGlass(bottledYear: bottled) {
+            FactRow(label: "Bottled", value: inGlass == 0 ? "\(bottled), this year" : "\(bottled) · \(inGlass) \(inGlass == 1 ? "year" : "years") in the glass")
+        }
+        if let store = summary.bottle.purchaseStore {
+            FactRow(label: "Bought at", value: store)
+        }
+        if summary.bottle.isSample {
+            FactRow(label: "Sample", value: sampleLine(summary.bottle))
+        }
+        FactRow(
+            label: "Size",
+            value: VolumeDisplay.both(summary.bottle.volumeMl, ounces: ounces),
+            isLast: true)
     }
 
     /// Where the facts above came from, when they came from the catalogue.
@@ -894,86 +912,121 @@ struct BottleDetailView: View {
             SectionLabel("This barrel")
                 .padding(.bottom, Space.xs)
 
-            if let group = bottle.pickGroup {
-                FactRow(label: "Selected by", value: group)
-            }
-            if let store = bottle.pickStore, bottle.isStorePick {
-                FactRow(label: "Picked at", value: store)
-            }
-            // The barrel number was being captured and never shown anywhere.
-            // On a product built around barrel identity that is the one field
-            // least allowed to go missing.
-            if let barrel = bottle.barrelNumber {
-                FactRow(label: "Barrel", value: barrel)
-            }
-            // Three rows, not one. A Blanton's label prints warehouse, rick and
-            // floor separately, and people follow a specific rick across
-            // releases — which only works if they were never merged.
-            if let warehouse = bottle.warehouse {
-                FactRow(label: "Warehouse", value: warehouse)
-            }
-            if let rick = bottle.rick {
-                FactRow(label: "Rick", value: rick)
-            }
-            if let floor = bottle.floor {
-                FactRow(label: "Floor", value: floor)
-            }
-            // What the distillery says about the building. Producer-sourced
-            // or nothing; see WarehouseLore.
-            if let lore = WarehouseLore.note(
-                distillery: env.distillery(for: bottle) ?? "", warehouse: bottle.warehouse) {
-                Text(lore.text)
-                    .font(TypeScale.caption())
-                    .textCase(nil)
-                    .foregroundStyle(Palette.textMuted)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.vertical, Space.xs)
-            }
-            if let dumped = bottle.dumpedAt {
-                FactRow(
-                    label: "Dumped",
-                    value: Date(timeIntervalSince1970: Double(dumped) / 1000)
-                        .formatted(date: .abbreviated, time: .omitted))
-            }
-            if let code = bottle.code {
-                FactRow(label: "Recipe", value: "\(code.code) · \(code.yeast.character)")
-                FactRow(label: "Mashbill", value: code.mashbill.summary)
-            }
-            if let age = bottle.ageDescription {
-                FactRow(label: "Age at bottling", value: age)
-            }
-            if let entry = bottle.entryProof {
-                FactRow(label: "Entry proof", value: String(format: "%.1f", entry))
-            }
-            if let char = bottle.charLevel {
-                FactRow(label: "Char", value: "#\(char)")
-            }
-            if let finish = bottle.finish {
-                FactRow(label: "Finish", value: finish)
-            }
-            if let numbered = bottle.bottleNumberDescription {
-                FactRow(label: "Bottle", value: numbered, isLast: bottle.topperLetter == nil)
-            }
-            if let letter = bottle.topperLetter {
-                FactRow(label: "Topper", value: letter, isLast: true)
-            }
+            whichBarrelThisIs(bottle)
+            whereInTheRickhouse(bottle)
+            howItWasMade(bottle)
+            whichBottleThisIs(bottle)
+            shareThisPick(summary)
+        }
+    }
 
-            // The registry seed. A pick shared as a fixed-shape record arrives
-            // somewhere as data rather than prose, which is the one thing the
-            // research found no incumbent doing for store picks.
-            let card = pickCard(summary)
-            if card.hasBarrelDetail {
-                ShareLink(item: PickCard.text(card)) {
-                    HStack(spacing: Space.s) {
-                        Image(systemName: "square.and.arrow.up")
-                        Text("Share this pick")
-                    }
-                    .font(TypeScale.secondary())
-                    .foregroundStyle(Palette.gold)
-                    .frame(maxWidth: .infinity, minHeight: Space.tapTarget)
+    /// Who chose it and where it came from.
+    ///
+    /// `pickDetail` and the four groups below are one section split four
+    /// ways, for the ViewBuilder ten-child ceiling -- past ten the compiler
+    /// has no buildBlock and infers a type that grows with every optional
+    /// below it. Nothing here is conditional on anything above it, so the
+    /// split is purely where the rows are grouped.
+    @ViewBuilder
+    private func whichBarrelThisIs(_ bottle: Bottle) -> some View {
+        if let group = bottle.pickGroup {
+            FactRow(label: "Selected by", value: group)
+        }
+        if let store = bottle.pickStore, bottle.isStorePick {
+            FactRow(label: "Picked at", value: store)
+        }
+        // The barrel number was being captured and never shown anywhere.
+        // On a product built around barrel identity that is the one field
+        // least allowed to go missing.
+        if let barrel = bottle.barrelNumber {
+            FactRow(label: "Barrel", value: barrel)
+        }
+    }
+
+    /// Where in the building it aged. Every one of these is a fact somebody
+    /// tracks across releases.
+    @ViewBuilder
+    private func whereInTheRickhouse(_ bottle: Bottle) -> some View {
+        // Three rows, not one. A Blanton's label prints warehouse, rick and
+        // floor separately, and people follow a specific rick across
+        // releases — which only works if they were never merged.
+        if let warehouse = bottle.warehouse {
+            FactRow(label: "Warehouse", value: warehouse)
+        }
+        if let rick = bottle.rick {
+            FactRow(label: "Rick", value: rick)
+        }
+        if let floor = bottle.floor {
+            FactRow(label: "Floor", value: floor)
+        }
+        // What the distillery says about the building. Producer-sourced
+        // or nothing; see WarehouseLore.
+        if let lore = WarehouseLore.note(
+            distillery: env.distillery(for: bottle) ?? "", warehouse: bottle.warehouse) {
+            Text(lore.text)
+                .font(TypeScale.caption())
+                .textCase(nil)
+                .foregroundStyle(Palette.textMuted)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.vertical, Space.xs)
+        }
+    }
+
+    /// How it was made and what it was when it came out.
+    @ViewBuilder
+    private func howItWasMade(_ bottle: Bottle) -> some View {
+        if let dumped = bottle.dumpedAt {
+            FactRow(
+                label: "Dumped",
+                value: Date(timeIntervalSince1970: Double(dumped) / 1000)
+                    .formatted(date: .abbreviated, time: .omitted))
+        }
+        if let code = bottle.code {
+            FactRow(label: "Recipe", value: "\(code.code) · \(code.yeast.character)")
+            FactRow(label: "Mashbill", value: code.mashbill.summary)
+        }
+        if let age = bottle.ageDescription {
+            FactRow(label: "Age at bottling", value: age)
+        }
+        if let entry = bottle.entryProof {
+            FactRow(label: "Entry proof", value: String(format: "%.1f", entry))
+        }
+        if let char = bottle.charLevel {
+            FactRow(label: "Char", value: "#\(char)")
+        }
+        if let finish = bottle.finish {
+            FactRow(label: "Finish", value: finish)
+        }
+    }
+
+    /// Which bottle out of the barrel.
+    @ViewBuilder
+    private func whichBottleThisIs(_ bottle: Bottle) -> some View {
+        if let numbered = bottle.bottleNumberDescription {
+            FactRow(label: "Bottle", value: numbered, isLast: bottle.topperLetter == nil)
+        }
+        if let letter = bottle.topperLetter {
+            FactRow(label: "Topper", value: letter, isLast: true)
+        }
+    }
+
+    @ViewBuilder
+    private func shareThisPick(_ summary: BottleSummary) -> some View {
+        // The registry seed. A pick shared as a fixed-shape record arrives
+        // somewhere as data rather than prose, which is the one thing the
+        // research found no incumbent doing for store picks.
+        let card = pickCard(summary)
+        if card.hasBarrelDetail {
+            ShareLink(item: PickCard.text(card)) {
+                HStack(spacing: Space.s) {
+                    Image(systemName: "square.and.arrow.up")
+                    Text("Share this pick")
                 }
-                .padding(.top, Space.s)
+                .font(TypeScale.secondary())
+                .foregroundStyle(Palette.gold)
+                .frame(maxWidth: .infinity, minHeight: Space.tapTarget)
             }
+            .padding(.top, Space.s)
         }
     }
 
