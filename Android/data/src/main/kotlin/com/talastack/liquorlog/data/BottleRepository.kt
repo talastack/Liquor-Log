@@ -25,6 +25,7 @@ class BottleRepository(private val database: LiquorDatabase) {
     private val q = database.bottlesQueries
     private val t = database.tastingsQueries
     private val f = database.fillReadingsQueries
+    private val bl = database.blendsQueries
 
     /**
      * One bottle as a screen needs it: the row, the fill worked out, and the
@@ -118,6 +119,9 @@ class BottleRepository(private val database: LiquorDatabase) {
     fun readingsFor(bottleId: String): List<Fill_readings> =
         f.readingsFor(bottleId).executeAsList()
 
+    fun additionsFor(blendBottleId: String): List<Blend_additions> =
+        bl.additionsFor(blendBottleId).executeAsList()
+
     fun customEntries(): List<Custom_catalog_entries> =
         q.selectCustomEntries().executeAsList()
 
@@ -154,9 +158,7 @@ class BottleRepository(private val database: LiquorDatabase) {
                 status = PourMath.status(
                     capacityMilliliters = bottle.volume_ml,
                     pouredMilliliters = poured[bottle.id] ?: 0.0,
-                    // Null means "assume it was full", which is only true of
-                    // a bottle opened after it was added to the app.
-                    startingMilliliters = readings[bottle.id],
+                    startingMilliliters = startingFor(bottle, readings[bottle.id]),
                     // NOT NULL with a default in the schema, so there is no
                     // absent case to fall back from.
                     pourSize = PourSize(bottle.pour_size_ml),
@@ -166,6 +168,28 @@ class BottleRepository(private val database: LiquorDatabase) {
                 lastPouredAt = lastPour[bottle.id],
             )
         }
+    }
+
+    /**
+     * Where a bottle's fill counts down from.
+     *
+     * Null means "assume it was full", which is only true of a bottle opened
+     * after it was added to the app.
+     *
+     * **An infinity bottle is the other way round.** It does not start full
+     * and go down; it starts EMPTY and goes up as things are poured in. So
+     * its starting level is what has been added -- from the last reading if
+     * there is one, because a reading of an infinity bottle says how much is
+     * in it now and only what happened afterwards counts.
+     */
+    private fun startingFor(bottle: Bottles, reading: Double?): Double? {
+        if (bottle.is_infinity == 0L) return reading
+        // With no reading this is 0, so every addition ever counts -- which
+        // is what an infinity bottle nobody has measured should read.
+        val readAt = f.latestReadingFor(bottle.id).executeAsOneOrNull()?.read_at ?: 0L
+        val added = bl.addedSince(blend_bottle_id = bottle.id, added_at = readAt)
+            .executeAsOne().added_ml ?: 0.0
+        return (reading ?: 0.0) + added
     }
 
     // Writing
@@ -432,6 +456,67 @@ class BottleRepository(private val database: LiquorDatabase) {
         if (bottle != null && bottle.opened_at == null && clamped < bottle.volume_ml) {
             q.open(opened_at = now, updated_at = now, id = bottleId)
         }
+        id
+    }
+
+    /**
+     * Pours something into an infinity bottle.
+     *
+     * One transaction, always. The whiskey comes OFF the source bottle as a
+     * real pour and goes ON to the blend as an addition, and a half-written
+     * version of that is a volume that left one bottle without arriving in
+     * the other -- a number nothing in the app could explain afterwards.
+     *
+     * [sourceBottleId] is null for something poured in from outside the
+     * collection: a sample, a friend's bottle, a bar pour brought home. It
+     * still counts toward what is in the blend and toward its strength.
+     */
+    fun addToBlend(
+        blendBottleId: String,
+        milliliters: Double,
+        sourceBottleId: String? = null,
+        sourceName: String? = null,
+        abv: Double? = null,
+        note: String? = null,
+        now: Long = System.currentTimeMillis(),
+    ): String = database.transactionWithResult {
+        val source = sourceBottleId?.let { q.selectById(it).executeAsOneOrNull() }
+        val pourId = if (source != null) {
+            val id = UUID.randomUUID().toString()
+            q.open(opened_at = now, updated_at = now, id = source.id)
+            q.insertPour(
+                id = id,
+                bottle_id = source.id,
+                volume_ml = milliliters,
+                poured_at = now,
+                note = note,
+                given_to = null,
+                created_at = now,
+                updated_at = now,
+            )
+            id
+        } else {
+            null
+        }
+
+        val id = UUID.randomUUID().toString()
+        bl.insertAddition(
+            id = id,
+            blend_bottle_id = blendBottleId,
+            source_bottle_id = sourceBottleId,
+            // The name is copied rather than looked up later: a source
+            // bottle removed from the collection must not erase what went
+            // into the blend.
+            source_name = sourceName?.takeIf { it.isNotBlank() }
+                ?: source?.custom_name,
+            abv = abv ?: source?.abv,
+            volume_ml = milliliters,
+            pour_id = pourId,
+            added_at = now,
+            note = note?.takeIf { it.isNotBlank() },
+            created_at = now,
+            updated_at = now,
+        )
         id
     }
 

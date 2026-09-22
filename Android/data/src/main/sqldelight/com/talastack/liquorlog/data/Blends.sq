@@ -1,0 +1,37 @@
+-- What went into an infinity bottle.
+--
+-- An infinity bottle is a vessel you keep topping up from your other
+-- bottles. Its fill is not a pour count down from a capacity: it is what
+-- was added, minus what has been poured out. So an addition is recorded
+-- here AND comes off the source bottle as a real pour -- one transaction,
+-- because whiskey that left one bottle without arriving in the other is a
+-- number nothing can explain.
+
+insertAddition:
+INSERT INTO blend_additions (
+    id, user_id, blend_bottle_id, source_bottle_id, source_name, abv,
+    volume_ml, pour_id, added_at, note, created_at, updated_at, dirty
+) VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1);
+
+additionsFor:
+SELECT * FROM blend_additions
+ WHERE blend_bottle_id = ? AND deleted_at IS NULL
+ ORDER BY added_at DESC;
+
+-- Everything added to a blend since a given moment, which is what a fill
+-- reading rebases against: a reading of an infinity bottle says how much is
+-- in it now, and only additions and pours after it count.
+addedSince:
+SELECT sum(volume_ml) AS added_ml
+  FROM blend_additions
+ WHERE blend_bottle_id = ? AND deleted_at IS NULL AND added_at > ?;
+
+-- Every blend's total, for the collection screen.
+addedTotals:
+SELECT blend_bottle_id, sum(volume_ml) AS added_ml
+  FROM blend_additions
+ WHERE deleted_at IS NULL
+ GROUP BY blend_bottle_id;
+
+softDeleteAddition:
+UPDATE blend_additions SET deleted_at = ?, updated_at = ?, dirty = 1 WHERE id = ?;

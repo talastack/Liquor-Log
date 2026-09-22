@@ -7,12 +7,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -37,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import com.talastack.liquorlog.data.BottleRepository
 import com.talastack.liquorlog.data.TastingRepository
 import com.talastack.liquorlog.engine.ABV
+import com.talastack.liquorlog.engine.Blend
 import com.talastack.liquorlog.engine.FillLevel
 import com.talastack.liquorlog.engine.Money
 import com.talastack.liquorlog.engine.OxidationBand
@@ -79,12 +83,16 @@ fun BottleDetailScreen(
     val pours = remember(bottleId, state.changeCount) { state.bottles.poursFor(bottleId) }
     val tastings = remember(bottleId, state.changeCount) { state.tastings.forBottle(bottleId) }
     val readings = remember(bottleId, state.changeCount) { state.bottles.readingsFor(bottleId) }
+    val additions = remember(bottleId, state.changeCount) {
+        state.bottles.additionsFor(bottleId)
+    }
     var confirmingFinish by remember { mutableStateOf(false) }
     var confirmingRemove by remember { mutableStateOf(false) }
     var customPour by remember { mutableStateOf<String?>(null) }
     var showsAllPours by remember { mutableStateOf(false) }
     var settingLevel by remember { mutableStateOf(false) }
     var givingPour by remember { mutableStateOf(false) }
+    var toppingUp by remember { mutableStateOf(false) }
     var replenish by remember { mutableStateOf<Replenish.Offer?>(null) }
 
     /**
@@ -170,6 +178,9 @@ fun BottleDetailScreen(
             verticalArrangement = Arrangement.spacedBy(Space.xl),
         ) {
             item { Hero(summary) }
+            if (summary.isInfinity) {
+                item { InfinityCard(additions, state.ounces) { toppingUp = true } }
+            }
             item {
                 FillSection(
                     summary = summary,
@@ -240,6 +251,31 @@ fun BottleDetailScreen(
 
     // `summary` is nullable again out here: the smart cast only holds inside
     // the column that returned early on null.
+    if (toppingUp && summary != null) {
+        TopUpDialog(
+            shelf = remember(state.changeCount) {
+                // Anything with something in it, except the blend itself:
+                // a bottle cannot be poured into itself.
+                state.bottles.onShelf().filter {
+                    it.id != bottleId && it.status.remainingMilliliters > 0
+                }
+            },
+            name = { state.name(it) },
+            onConfirm = { source, typed, ml ->
+                state.bottles.addToBlend(
+                    blendBottleId = bottleId,
+                    milliliters = ml,
+                    sourceBottleId = source?.id,
+                    sourceName = typed,
+                    abv = source?.abv,
+                )
+                state.noteChange()
+                toppingUp = false
+            },
+            onDismiss = { toppingUp = false },
+        )
+    }
+
     if (givingPour && summary != null) {
         GivePourDialog(
             defaultMl = summary.bottle.pour_size_ml,
@@ -1008,6 +1044,185 @@ private fun GivePourDialog(
             ) {
                 Text(
                     "Log it",
+                    style = TypeScale.headline,
+                    color = colors.accent.copy(alpha = if (canSave) 1f else 0.4f),
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel", style = TypeScale.body, color = colors.textMuted)
+            }
+        },
+    )
+}
+
+/**
+ * What is in an infinity bottle, and what it is made of.
+ *
+ * The strength is computed from the parts, and it is **null the moment any
+ * part's strength is unknown** -- the engine refuses to average a number it
+ * does not have, and the card says why rather than showing a proof that
+ * quietly ignored half the bottle.
+ */
+@Composable
+private fun InfinityCard(
+    additions: List<com.talastack.liquorlog.data.Blend_additions>,
+    ounces: Boolean,
+    onTopUp: () -> Unit,
+) {
+    val colors = palette
+    val profile = remember(additions) {
+        Blend.profile(
+            additions.map { row ->
+                Blend.Part(
+                    // Grouped by source bottle where there is one, so ten
+                    // top-ups from the same bottle are one share rather than
+                    // ten. A typed name groups by that name.
+                    key = row.source_bottle_id ?: row.source_name ?: row.id,
+                    name = row.source_name ?: "Something unnamed",
+                    milliliters = row.volume_ml,
+                    abv = row.abv,
+                )
+            }
+        )
+    }
+
+    Card {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            SectionLabel("The infinity bottle")
+            Text(
+                "Top it up",
+                style = TypeScale.secondary,
+                color = colors.accent,
+                modifier = Modifier.clickable(onClick = onTopUp).padding(Space.s),
+            )
+        }
+
+        Text(profile.strengthText, style = TypeScale.headline, color = colors.text)
+
+        if (profile.isEmpty) {
+            Text(
+                "Nothing has gone in yet. Pour something from the shelf into it " +
+                    "and it starts keeping track.",
+                style = TypeScale.secondary,
+                color = colors.textMuted,
+            )
+            return@Card
+        }
+
+        Text(
+            VolumeDisplay.text(profile.addedMilliliters, ounces) + " added over " +
+                profile.partCount + (if (profile.partCount == 1) " bottle" else " bottles"),
+            style = TypeScale.secondary,
+            color = colors.textSecondary,
+        )
+
+        for (share in profile.shares) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(Space.s),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    share.name,
+                    style = TypeScale.secondary,
+                    color = colors.text,
+                    modifier = Modifier.weight(1f),
+                )
+                Text(
+                    VolumeDisplay.text(share.milliliters, ounces),
+                    style = TypeScale.code,
+                    color = colors.textMuted,
+                )
+                Text(share.percentText, style = TypeScale.code, color = colors.accent)
+            }
+        }
+    }
+}
+
+/**
+ * Pouring something in.
+ *
+ * A bottle from the shelf carries its own strength across, which is what
+ * makes the blend's proof computable. Something typed in does not, and the
+ * card is honest about the consequence rather than guessing at one.
+ */
+@Composable
+private fun TopUpDialog(
+    shelf: List<BottleRepository.Summary>,
+    name: (BottleRepository.Summary) -> String,
+    onConfirm: (BottleRepository.Summary?, String?, Double) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val colors = palette
+    var picked by remember { mutableStateOf<BottleRepository.Summary?>(null) }
+    var typed by remember { mutableStateOf("") }
+    var amount by remember { mutableStateOf("60") }
+    val ml = LocalNumber.parse(amount)
+    val named = picked != null || typed.isNotBlank()
+    val canSave = named && ml != null && ml > 0
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = colors.surface,
+        title = { Text("Pour something in", style = TypeScale.title, color = colors.text) },
+        text = {
+            Column(
+                modifier = Modifier.heightIn(max = 460.dp).verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(Space.m),
+            ) {
+                Text(
+                    "It comes off that bottle as a real pour and goes on to this " +
+                        "one. Pick from the shelf, or name something that is not " +
+                        "in the app.",
+                    style = TypeScale.secondary,
+                    color = colors.textSecondary,
+                )
+                if (shelf.isNotEmpty()) {
+                    SectionLabel("From the shelf")
+                    ChipRow {
+                        for (bottle in shelf) {
+                            Chip(name(bottle), isOn = picked?.id == bottle.id) {
+                                picked = if (picked?.id == bottle.id) null else bottle
+                                if (picked != null) typed = ""
+                            }
+                        }
+                    }
+                }
+                Field(
+                    typed,
+                    {
+                        typed = it
+                        if (it.isNotBlank()) picked = null
+                    },
+                    label = "Or something else",
+                    placeholder = "A sample from Mike",
+                )
+                Field(amount, { amount = it }, label = "Millilitres", numeric = true)
+                if (picked == null && typed.isNotBlank()) {
+                    Text(
+                        "No strength for this one, so the bottle's proof stops " +
+                            "being computable until you edit it in.",
+                        style = TypeScale.caption,
+                        color = colors.textMuted,
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    if (ml != null) onConfirm(picked, typed.trim().ifBlank { null }, ml)
+                },
+                enabled = canSave,
+            ) {
+                Text(
+                    "Pour it in",
                     style = TypeScale.headline,
                     color = colors.accent.copy(alpha = if (canSave) 1f else 0.4f),
                 )

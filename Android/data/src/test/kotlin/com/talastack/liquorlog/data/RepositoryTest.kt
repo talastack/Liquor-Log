@@ -457,6 +457,96 @@ class RepositoryTest {
         assertEquals("Hard hat tour", visits[0].note)
     }
 
+    // Infinity bottles
+
+    @Test
+    fun `an infinity bottle starts empty and fills from what goes in`() {
+        val blend = bottles.startInfinityBottle(name = "The infinity", volumeMl = 750.0, now = 1_000)
+        // Empty, not full: the whole point is that what is in it arrived
+        // from somewhere else.
+        assertEquals(0.0, assertNotNull(bottles.byId(blend)).status.remainingMilliliters)
+
+        val source = bottles.add(name = "Weller 12", volumeMl = 750.0, abv = 45.0, now = 1_000)
+        bottles.addToBlend(blend, milliliters = 100.0, sourceBottleId = source, now = 2_000)
+
+        assertEquals(100.0, assertNotNull(bottles.byId(blend)).status.remainingMilliliters)
+    }
+
+    @Test
+    fun `whiskey that leaves one bottle arrives in the other`() {
+        val blend = bottles.startInfinityBottle(name = "The infinity", volumeMl = 750.0, now = 1_000)
+        val source = bottles.add(name = "Weller 12", volumeMl = 750.0, abv = 45.0, now = 1_000)
+
+        bottles.addToBlend(blend, milliliters = 100.0, sourceBottleId = source, now = 2_000)
+
+        // Off the source as a real pour...
+        assertEquals(650.0, assertNotNull(bottles.byId(source)).status.remainingMilliliters)
+        assertEquals(1, bottles.poursFor(source).size)
+        // ...and on to the blend as an addition. A half-written version of
+        // this is a volume nothing in the app could explain.
+        assertEquals(100.0, assertNotNull(bottles.byId(blend)).status.remainingMilliliters)
+        assertEquals(1, bottles.additionsFor(blend).size)
+    }
+
+    @Test
+    fun `something poured in from outside the collection still counts`() {
+        val blend = bottles.startInfinityBottle(name = "The infinity", volumeMl = 750.0, now = 1_000)
+        bottles.addToBlend(
+            blend,
+            milliliters = 60.0,
+            sourceName = "A sample from Mike",
+            abv = 62.1,
+            now = 2_000,
+        )
+
+        assertEquals(60.0, assertNotNull(bottles.byId(blend)).status.remainingMilliliters)
+        val addition = bottles.additionsFor(blend).single()
+        assertNull(addition.source_bottle_id)
+        assertNull(addition.pour_id)
+        assertEquals("A sample from Mike", addition.source_name)
+        assertEquals(62.1, addition.abv)
+    }
+
+    @Test
+    fun `pouring from an infinity bottle takes it back down`() {
+        val blend = bottles.startInfinityBottle(name = "The infinity", volumeMl = 750.0, now = 1_000)
+        bottles.addToBlend(blend, milliliters = 200.0, sourceName = "Something", now = 2_000)
+        bottles.logPour(blend, milliliters = 50.0, now = 3_000)
+
+        assertEquals(150.0, assertNotNull(bottles.byId(blend)).status.remainingMilliliters)
+    }
+
+    @Test
+    fun `a reading of an infinity bottle counts only what came after it`() {
+        val blend = bottles.startInfinityBottle(name = "The infinity", volumeMl = 750.0, now = 1_000)
+        bottles.addToBlend(blend, milliliters = 300.0, sourceName = "Early", now = 2_000)
+
+        // Somebody looks at it: there is really 250 in there.
+        bottles.setLevel(blend, remainingMilliliters = 250.0, now = 3_000)
+        assertEquals(250.0, assertNotNull(bottles.byId(blend)).status.remainingMilliliters)
+
+        // A later addition counts on top of the reading; the earlier one is
+        // already accounted for by the person who looked.
+        bottles.addToBlend(blend, milliliters = 100.0, sourceName = "Later", now = 4_000)
+        assertEquals(350.0, assertNotNull(bottles.byId(blend)).status.remainingMilliliters)
+    }
+
+    @Test
+    fun `the blend keeps the name of a source that later goes away`() {
+        val blend = bottles.startInfinityBottle(name = "The infinity", volumeMl = 750.0, now = 1_000)
+        val source = bottles.add(name = "Weller 12", volumeMl = 750.0, abv = 45.0, now = 1_000)
+        bottles.addToBlend(blend, milliliters = 100.0, sourceBottleId = source, now = 2_000)
+
+        bottles.softDelete(source, now = 3_000)
+
+        // The bottle is gone from the shelf; what went into the blend is not.
+        assertNull(bottles.byId(source))
+        val addition = bottles.additionsFor(blend).single()
+        assertEquals("Weller 12", addition.source_name)
+        assertEquals(45.0, addition.abv)
+        assertEquals(100.0, assertNotNull(bottles.byId(blend)).status.remainingMilliliters)
+    }
+
     // Fill readings
 
     @Test
