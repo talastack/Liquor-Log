@@ -27,9 +27,10 @@
   <key>CFBundlePackageType</key>
   <string>APPL</string>
 
-  <!-- The name under the icon. The product has no final name yet. -->
+  <!-- The name under the icon, and what Siri hears: the App Intents
+       phrases are built from .applicationName, so they follow this. -->
   <key>CFBundleDisplayName</key>
-  <string>Liquor-Log</string>
+  <string>Pour Memo</string>
   <key>CFBundleShortVersionString</key>
   <string>$(MARKETING_VERSION)</string>
   <key>CFBundleVersion</key>

@@ -120,6 +120,13 @@ jobs:
       - name: Check the privacy manifest
         run: python3 scripts/check_privacy_manifest.py
 
+      # Same class of failure as the manifest: an app with no icon, or with
+      # an icon carrying an alpha channel, builds and archives happily and is
+      # refused at validation. The alpha one is the trap -- it looks
+      # identical and almost every design tool exports one by default.
+      - name: Check the app icon
+        run: python3 scripts/check_app_icon.py
+
       - name: Validate shipped JSON
         run: |
           for file in shared/data/*.json; do

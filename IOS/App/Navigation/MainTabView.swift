@@ -138,7 +138,7 @@ struct MainTabView: View {
                         .font(TypeScale.body())
                 }
                 .listStyle(.sidebar)
-                .navigationTitle("Liquor-Log")
+                .navigationTitle("Pour Memo")
             } detail: {
                 NavigationStack { screen(for: tab) }
                     .id(tab)

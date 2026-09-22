@@ -14,15 +14,21 @@ named and where it lands in the repo is given.
 Read this first. Everything else in this document is ordinary setup; these
 are the things without which an upload is refused or a review fails.
 
-- [ ] **The app icon.** There is no asset catalog in the repository at all,
-      and an app cannot be submitted without an icon. Drop a 1024x1024 PNG
-      (no alpha, no rounded corners -- Apple masks it) and the catalog can
-      be built around it in minutes. This is the one hard blocker that
-      cannot be worked around.
-- [ ] **The app's name**, if it is changing from "Liquor-Log". It sets
-      `CFBundleDisplayName`, the Siri phrases and the App Store listing.
-      The bundle id `com.talastack.liquorlog` is fixed after the first
-      upload; the display name is not.
+- [x] **The app icon.** `IOS/App/Resources/Assets.xcassets`, a single
+      1024x1024 RGB PNG with no alpha, cropped so the art runs to the edge
+      and iOS applies its own corner mask rather than double-rounding one
+      that was already rounded. `scripts/check_app_icon.py` guards the size
+      and the alpha channel, both of which are refused at validation rather
+      than at build.
+- [x] **The app's name.** "Pour Memo", in `CFBundleDisplayName`. The Siri
+      phrases are built from `.applicationName` so they follow it, and the
+      iPad sidebar title is set to match.
+- [ ] **The bundle id, if it is to match the name.** It is still
+      `com.talastack.liquorlog`, and nothing has been uploaded yet, so this
+      is the last moment it can change. Changing it means changing the App
+      Group, the `liquorlog://` URL scheme, the widget's id and the Supabase
+      redirect URLs together. Leaving it is invisible to everybody except
+      you; changing it after the first upload is impossible.
 - [x] **The privacy manifest.** `IOS/App/Resources/PrivacyInfo.xcprivacy`,
       declaring UserDefaults with reasons CA92.1 and 1C8F.1, in both the
       app and the widget bundle. Without it an upload is answered with
