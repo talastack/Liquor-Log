@@ -4,6 +4,8 @@ import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.talastack.liquorlog.engine.ClassType
+import com.talastack.liquorlog.engine.ABV
+import com.talastack.liquorlog.engine.CollectionImport
 import com.talastack.liquorlog.engine.Hunt
 import com.talastack.liquorlog.engine.ProductionType
 import kotlin.test.AfterTest
@@ -239,6 +241,78 @@ class RepositoryTest {
         )
         // 750 ml is 17 pours; $34.00 over 17 is $2.00.
         assertEquals(200, assertNotNull(bottles.byId(id)).costPerPourCents)
+    }
+
+    // Import
+
+    /**
+     * Somebody else's spreadsheet, end to end.
+     *
+     * The engine's own tests cover the column guessing. This covers the half
+     * the screen owns: that a planned row becomes a bottle with the right
+     * fields, and that the defaults it has to invent are the harmless ones.
+     */
+    @Test
+    fun `a planned row becomes a bottle`() {
+        val csv = listOf(
+            "Whiskey,Proof,Size,Cost,Bought at,Batch,Status,Sample",
+            "Elijah Craig Barrel Proof,124.2,750,79.99,Total Wine,B523,open,",
+            "Weller 12,90,,34.99,,,,Mike",
+            // Values but no name: cannot be imported, and must be reported.
+            ",100,750,19.99,,,,",
+            // Wholly blank: not a row at all. Our own export writes CRLF, and
+            // a reader that did not drop these would see one of them between
+            // every bottle.
+            ",,,,,,,",
+        ).joinToString("\n")
+
+        val plan = CollectionImport.plan(csv)
+        assertEquals(2, plan.rows.size)
+        // One skipped, not two: the blank line was never a record.
+        assertEquals(1, plan.skippedLines.size)
+
+        for (row in plan.rows) {
+            bottles.add(
+                name = row.name,
+                volumeMl = row.volumeMilliliters ?: 750.0,
+                abv = row.proof?.let { ABV.fromProof(it).percent },
+                batchNumber = row.batch,
+                purchasePriceCents = row.paidCents?.toLong(),
+                purchaseStore = row.store,
+                isSample = row.isSample,
+                sampleFrom = row.sampleFrom,
+                openNow = row.isOpen,
+                now = 1_000,
+            )
+        }
+
+        val shelf = bottles.all().associateBy { it.name }
+        val ec = assertNotNull(shelf["Elijah Craig Barrel Proof"])
+        assertEquals(750.0, ec.volumeMl)
+        assertEquals(62.1, ec.abv)
+        assertEquals(7_999L, ec.purchasePriceCents)
+        assertEquals("Total Wine", ec.bottle.purchase_store)
+        assertEquals("B523", ec.bottle.batch_number)
+        assertTrue(ec.isOpen)
+
+        val weller = assertNotNull(shelf["Weller 12"])
+        // The file gave no size. 750 is the default, because every pour count
+        // in the app derives from it and it cannot be left absent.
+        assertEquals(750.0, weller.volumeMl)
+        assertEquals(45.0, weller.abv)
+        // "Mike" in the sample column is a sample FROM Mike, not the word yes.
+        assertTrue(weller.isSample)
+        assertEquals("Mike", weller.bottle.sample_from)
+        assertFalse(weller.isOpen)
+    }
+
+    @Test
+    fun `a file with no name column imports nothing`() {
+        val csv = "Proof,Size\n124.2,750"
+        val plan = CollectionImport.plan(csv)
+        // Every line skipped rather than a name invented from the first column.
+        assertTrue(plan.rows.isEmpty())
+        assertEquals(listOf(2), plan.skippedLines)
     }
 
     // People

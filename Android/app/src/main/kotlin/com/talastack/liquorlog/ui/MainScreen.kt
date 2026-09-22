@@ -85,6 +85,7 @@ object Route {
     const val TRY_NEXT = "tryNext"
     const val WISHLIST = "wishlist"
     const val EXPORT = "export"
+    const val IMPORT = "import"
     const val HUNT_LOG = "huntLog"
     const val PASSPORT = "passport"
     const val PEOPLE = "people"
@@ -372,6 +373,9 @@ private fun AppNavHost(navController: NavHostController, state: AppState) {
         }
         composable(Route.EXPORT) {
             ExportScreen(onBack = { navController.popBackStack() })
+        }
+        composable(Route.IMPORT) {
+            ImportScreen(onBack = { navController.popBackStack() })
         }
         composable(Route.HUNT_LOG) {
             HuntLogScreen(onBack = { navController.popBackStack() })

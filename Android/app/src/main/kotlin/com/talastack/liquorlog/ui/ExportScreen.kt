@@ -140,15 +140,6 @@ fun ExportScreen(onBack: () -> Unit) {
                 }
             }
 
-            item {
-                Text(
-                    "Import is not built on Android yet. The engine reads a " +
-                        "spreadsheet and maps its columns -- that part is tested " +
-                        "on this platform -- but nothing here opens a file.",
-                    style = TypeScale.caption,
-                    color = colors.textMuted,
-                )
-            }
         }
     }
 }

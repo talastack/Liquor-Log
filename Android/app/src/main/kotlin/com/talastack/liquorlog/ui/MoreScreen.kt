@@ -16,6 +16,7 @@ import androidx.compose.material.icons.automirrored.filled.TrendingFlat
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material.icons.filled.FileDownload
+import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.People
@@ -165,6 +166,13 @@ fun MoreScreen(onOpen: (String) -> Unit) {
         }
         item {
             ToolRow(
+                "Import",
+                "A CSV from wherever you kept the collection before",
+                Icons.Filled.FileUpload,
+            ) { onOpen(Route.IMPORT) }
+        }
+        item {
+            ToolRow(
                 "Insurance report",
                 "What you own and what it cost, for a policy schedule",
                 Icons.Filled.Security,
@@ -258,7 +266,7 @@ private val NOT_YET = listOf(
     "Sync, sign-in and a shared shelf",
     "Label scanning and bulk shelf entry",
     "Price history and the community price check",
-    "Import a spreadsheet, and backup",
+    "Backup and restore",
     "Flights, the shelf walk and infinity-bottle blending",
 )
 
