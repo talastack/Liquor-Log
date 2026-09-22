@@ -9,6 +9,35 @@ simulator, the schema applied to a live Postgres, on every push).
 Tick the boxes as you go. Where a step needs a decision, the decision is
 named and where it lands in the repo is given.
 
+## 0. What is blocking right now
+
+Read this first. Everything else in this document is ordinary setup; these
+are the things without which an upload is refused or a review fails.
+
+- [ ] **The app icon.** There is no asset catalog in the repository at all,
+      and an app cannot be submitted without an icon. Drop a 1024x1024 PNG
+      (no alpha, no rounded corners -- Apple masks it) and the catalog can
+      be built around it in minutes. This is the one hard blocker that
+      cannot be worked around.
+- [ ] **The app's name**, if it is changing from "Liquor-Log". It sets
+      `CFBundleDisplayName`, the Siri phrases and the App Store listing.
+      The bundle id `com.talastack.liquorlog` is fixed after the first
+      upload; the display name is not.
+- [x] **The privacy manifest.** `IOS/App/Resources/PrivacyInfo.xcprivacy`,
+      declaring UserDefaults with reasons CA92.1 and 1C8F.1, in both the
+      app and the widget bundle. Without it an upload is answered with
+      ITMS-91053 after the archive, not before.
+      `scripts/check_privacy_manifest.py` keeps it honest as the app grows.
+- [ ] **A hosted privacy policy URL.** Apple requires one for every app.
+      `docs/privacy-policy.md` is the draft; GitHub Pages on this repo is
+      enough to host it.
+- [ ] **Screenshots from a real device.** Cannot be faked and cannot be
+      taken from the simulator for the App Store sizes you need.
+
+**On the timing.** Submitting today means review overnight at the very
+best. Apple's median is roughly a day, but it is not a promise, and a
+rejection restarts it. Nothing in the code is what decides that.
+
 ## 1. On the Mac
 
 - [ ] `cd ~/Liquor-Log && git pull` — `main` carries everything.
@@ -118,6 +147,11 @@ same user id comes back (not a second account).
 
 ## 3. Decisions
 
+- [ ] **The app icon.** See section 0. No asset catalog exists yet; add
+      `IOS/App/Resources/Assets.xcassets` with an `AppIcon.appiconset`
+      holding a 1024x1024 PNG, and set `ASSETCATALOG_COMPILER_APPICON_NAME`
+      to `AppIcon` in `IOS/project.yml`. A single 1024 image is enough for
+      a modern target; Xcode derives the rest.
 - [ ] **The app's name.** Today it is "Liquor-Log" under the icon
       (`IOS/App/Resources/Info.plist`, `CFBundleDisplayName`) and
       `com.talastack.liquorlog` as the bundle id (`IOS/project.yml`). The
