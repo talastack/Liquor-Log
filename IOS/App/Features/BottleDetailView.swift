@@ -685,7 +685,47 @@ struct BottleDetailView: View {
                 label: "Size",
                 value: VolumeDisplay.both(summary.bottle.volumeMl, ounces: ounces),
                 isLast: true)
+            whereTheseFactsCameFrom(summary)
         }
+    }
+
+    /// Where the facts above came from, when they came from the catalogue.
+    ///
+    /// The class, the production type and the strength on this screen are
+    /// not things the owner typed -- they are read out of the bundled
+    /// catalogue -- and until now the screen printed them with nothing to
+    /// say so. A figure with no provenance reads as established fact, which
+    /// is a claim this app does not get to make on somebody else's behalf.
+    ///
+    /// `verified` means one thing only: somebody checked this row against a
+    /// published source and recorded the URL. No row carries that yet, so
+    /// this says so rather than staying quiet about it. When rows start
+    /// being verified the line changes on its own, per row, with no code
+    /// change -- which is the point of reading it from the data.
+    ///
+    /// A bottle typed in by hand has no catalogue row behind it and gets
+    /// nothing here: its facts are the owner's own and need no citation.
+    @ViewBuilder
+    private func whereTheseFactsCameFrom(_ summary: BottleSummary) -> some View {
+        if let product = env.product(for: summary.bottle), !product.source.isEmpty {
+            Text(provenanceLine(product))
+                .font(TypeScale.caption())
+                .textCase(nil)
+                .foregroundStyle(Palette.textMuted)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.top, Space.s)
+        }
+    }
+
+    /// One sentence, and never a claim the data does not support.
+    private func provenanceLine(_ product: CatalogProduct) -> String {
+        let where_ = "Class, strength and how it is made come from \(product.source)."
+        if product.verified {
+            return where_ + " Checked against a published source."
+        }
+        return where_ + " Not yet checked against a published source, so treat"
+            + " it as a starting point and correct anything the bottle in your"
+            + " hand disagrees with."
     }
 
     /// What it cost, what a pour costs, and what you have paid before.

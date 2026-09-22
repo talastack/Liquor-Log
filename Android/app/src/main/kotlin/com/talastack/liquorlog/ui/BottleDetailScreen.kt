@@ -41,6 +41,7 @@ import com.talastack.liquorlog.data.BottleRepository
 import com.talastack.liquorlog.data.TastingRepository
 import com.talastack.liquorlog.engine.ABV
 import com.talastack.liquorlog.engine.Blend
+import com.talastack.liquorlog.engine.CatalogProduct
 import com.talastack.liquorlog.engine.FillLevel
 import com.talastack.liquorlog.engine.Money
 import com.talastack.liquorlog.engine.OxidationBand
@@ -656,6 +657,7 @@ private fun PriceSection(summary: BottleRepository.Summary) {
 @Composable
 private fun FactsSection(summary: BottleRepository.Summary) {
     val state = LocalAppState.current
+    val colors = palette
     val bottle = summary.bottle
     val product = state.product(bottle.catalog_product_id)
     val entry = bottle.catalog_product_id?.let { state.bottles.customEntry(it) }
@@ -711,6 +713,38 @@ private fun FactsSection(summary: BottleRepository.Summary) {
                 FactRow(label, value, isLast = index == rows.lastIndex)
             }
         }
+        // Where those facts came from, when they came from the catalogue
+        // rather than from the person. A figure with no provenance reads as
+        // established fact, and the class, strength and production type on
+        // this screen are somebody else's transcription of a label.
+        product?.takeIf { it.source.isNotBlank() }?.let {
+            Text(
+                provenanceLine(it),
+                style = TypeScale.caption,
+                color = colors.textMuted,
+            )
+        }
+    }
+}
+
+/**
+ * One sentence about where a catalogue row came from, and never a claim the
+ * data does not support.
+ *
+ * `verified` means one thing: somebody checked this row against a published
+ * source and recorded the URL. No row carries that yet, so this says so
+ * rather than staying quiet. When rows start being verified the line changes
+ * per row with no code change, which is the point of reading it from the
+ * data rather than hard-coding the caveat.
+ */
+private fun provenanceLine(product: CatalogProduct): String {
+    val where = "Class, strength and how it is made come from " + product.source + "."
+    return if (product.verified) {
+        where + " Checked against a published source."
+    } else {
+        where + " Not yet checked against a published source, so treat it as a " +
+            "starting point and correct anything the bottle in your hand " +
+            "disagrees with."
     }
 }
 
