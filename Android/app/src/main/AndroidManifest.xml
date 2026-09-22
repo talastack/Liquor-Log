@@ -12,7 +12,7 @@
          anyway; all the Android theme has to do is stay out of the way. -->
 
     <application
-        android:label="Liquor Log"
+        android:label="Pour Memo"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
         <activity

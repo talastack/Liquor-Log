@@ -45,6 +45,26 @@ are the things without which an upload is refused or a review fails.
 - [ ] **Check `privacy@talastack.com` actually receives mail.** It is the
       contact address on both published pages. A policy naming a mailbox
       nobody reads is worse than one naming none.
+- [ ] **Two schema patches the live project has not had.** Section 2
+      records 0002 through 0012 as applied on 16 September. `0013` and
+      `0014` were written after that and are still only in the repository.
+      Both matter before a reviewer touches the app:
+
+      - `0013_delete_account.sql` creates `delete_my_account()`, which is
+        what the app's "Delete my account" button calls. Until it exists
+        on the server that button answers with a 404 from PostgREST.
+        Apple's reviewer tests account deletion, and guideline 5.1.1(v)
+        is a rejection, not a note.
+      - `0014_community_thresholds.sql` moves the "three reports before a
+        figure is shown" rule out of Swift and into the views. The
+        publishable key ships in every binary by design, so until this is
+        applied anyone can ask the view for `reports=eq.1` and read one
+        person's exact price, their state and the day they saw it. The
+        privacy policy, now published, says other users see only totals.
+
+      Paste both into Database -> SQL, in order, then `rls/policies.sql`
+      again. The runbook is `shared/schema/README.md`.
+
 - [ ] **Screenshots from a real device.** Cannot be faked and cannot be
       taken from the simulator for the App Store sizes you need.
 
@@ -71,7 +91,7 @@ rejection restarts it. Nothing in the code is what decides that.
 - [ ] Ask: "what's open", "saw Blanton's at Total Wine for $75, 3 on the
       shelf", "where did I see Blanton's", "what did Mike send me",
       "visited Buffalo Trace", "have I been to Buffalo Trace".
-- [ ] Siri: "What's open in Liquor-Log", "Ask Liquor-Log". (The phrases
+- [ ] Siri: "What's open in Pour Memo", "Ask Pour Memo". (The phrases
       follow the display name; see step 4.)
 - [ ] Add the What's open widget to the Home Screen and tap a pour button.
 - [ ] Search the phone for a bottle's name (Spotlight) and open it.
@@ -83,6 +103,9 @@ Done on 16 September 2026:
 
 - [x] Patches 0002 through 0012 applied in the SQL editor; 17 tables and
       the two community views present.
+- [ ] **Patches 0013 and 0014 are still outstanding** -- see section 0.
+      They were written after this date. Apply them, then `rls/policies.sql`
+      again.
 - [x] `rls/policies.sql` applied; `rowsecurity` true on every table.
 - [x] RLS proven by direct API call against the live project: a row owned
       by user A is invisible anonymously and to user B; B cannot insert in
@@ -161,21 +184,24 @@ same user id comes back (not a second account).
 
 ## 3. Decisions
 
-- [ ] **The app icon.** See section 0. No asset catalog exists yet; add
-      `IOS/App/Resources/Assets.xcassets` with an `AppIcon.appiconset`
-      holding a 1024x1024 PNG, and set `ASSETCATALOG_COMPILER_APPICON_NAME`
-      to `AppIcon` in `IOS/project.yml`. A single 1024 image is enough for
-      a modern target; Xcode derives the rest.
-- [ ] **The app's name.** Today it is "Liquor-Log" under the icon
-      (`IOS/App/Resources/Info.plist`, `CFBundleDisplayName`) and
-      `com.talastack.liquorlog` as the bundle id (`IOS/project.yml`). The
-      bundle id cannot change after the first upload; the display name
-      can. The Siri phrases use whatever the display name is.
-- [ ] **Privacy policy.** A draft is `docs/privacy-policy.md`. Host it at
-      a public URL (GitHub Pages of this repo is enough) and give that URL
-      to App Store Connect. Apple requires one for every app. `docs/terms.md`
-      is no longer required by the store -- there is nothing to sell -- but
-      it costs nothing to host beside it.
+- [x] **The app icon.** Done. `IOS/App/Resources/Assets.xcassets`
+      carries `AppIcon.appiconset` with the 1024x1024 image, and
+      `ASSETCATALOG_COMPILER_APPICON_NAME` is set in `IOS/project.yml`.
+      A single 1024 image is enough for a modern target; Xcode derives
+      the rest.
+- [x] **The app's name.** Done: "Pour Memo" under the icon
+      (`IOS/App/Resources/Info.plist`, `CFBundleDisplayName`). The Siri
+      phrases are built from `.applicationName`, so they followed it
+      without an edit, and so will anything else that asks the system
+      what the app is called.
+
+      The **bundle id** is a separate decision and is still open; it is
+      in section 0. It is `com.talastack.liquorlog` and cannot change
+      after the first upload.
+- [x] **Privacy policy.** Written and built into a page:
+      `docs/privacy-policy.md` is the source, `docs/privacy.html` is what
+      a reviewer opens, and `docs/terms.html` sits beside it. Turning
+      GitHub Pages on is the one step left, and it is in section 0.
 
 ## 4. App Store Connect
 

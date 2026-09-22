@@ -1,7 +1,11 @@
 # Liquor-Log
 
-A bourbon and American whiskey collection log. Native iOS (Swift), with a
-shared backend and data layer a future Android client consumes.
+**The app is called Pour Memo.** `Liquor-Log` is the repository, and the
+module and target names inside it; renaming those would churn every import
+for no gain to anybody holding a phone.
+
+A bourbon and American whiskey collection log. Native iOS (Swift) and
+Android (Kotlin/Compose) over a shared engine, schema and data layer.
 
 The barrel is the object, not the label. Store picks, single barrels, recipe
 codes, batch codes, dump dates, warehouse and rick: every one of those lives on

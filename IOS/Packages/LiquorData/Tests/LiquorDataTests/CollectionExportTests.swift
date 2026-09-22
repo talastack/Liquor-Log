@@ -175,7 +175,7 @@ final class CollectionExportTests: XCTestCase {
         try SightingRepository(db).record(customName: "Stagg", store: "Total Wine")
         let some = try export(db).writeAll(to: directory, resolveName: { $0.customName ?? $0.id }, resolveIdentity: { _ in nil })
         XCTAssertEqual(some.count, 2)
-        XCTAssertTrue(some[1].lastPathComponent.hasPrefix("liquor-log-hunt-log-"))
+        XCTAssertTrue(some[1].lastPathComponent.hasPrefix("pour-memo-hunt-log-"))
     }
 }
 

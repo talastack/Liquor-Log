@@ -249,7 +249,7 @@ public struct CollectionExport: Sendable {
         // A header alone is one line; anything recorded makes two. (CRLF is
         // one Character in Swift, so this is a string split, not a Character one.)
         for (name, contents) in extras where contents.components(separatedBy: "\r\n").filter({ !$0.isEmpty }).count > 1 {
-            let url = directory.appendingPathComponent("liquor-log-\(name)-\(stamp).csv")
+            let url = directory.appendingPathComponent("pour-memo-\(name)-\(stamp).csv")
             try contents.write(to: url, atomically: true, encoding: .utf8)
             urls.append(url)
         }
@@ -264,7 +264,7 @@ public struct CollectionExport: Sendable {
     ) throws -> URL {
         let contents = try csv(resolveName: resolveName, resolveIdentity: resolveIdentity)
         let stamp = ISO8601DateFormatter().string(from: Date()).prefix(10)
-        let url = directory.appendingPathComponent("liquor-log-\(stamp).csv")
+        let url = directory.appendingPathComponent("pour-memo-\(stamp).csv")
         try contents.write(to: url, atomically: true, encoding: .utf8)
         return url
     }

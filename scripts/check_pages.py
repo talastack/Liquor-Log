@@ -47,6 +47,26 @@ def main():
                 " -- run python scripts/build_pages.py" % (target, source)
             )
 
+    # The landing page is the Support URL App Store Connect requires, so it
+    # is held to the same rule as the other two rather than being the one
+    # page that can drift.
+    source, target, label = build_pages.INDEX
+    md = DOCS / source
+    page = DOCS / target
+    if not md.exists():
+        problems.append("missing source docs/%s" % source)
+    elif not page.exists():
+        problems.append("missing docs/%s -- run python scripts/build_pages.py" % target)
+    else:
+        title, meta, body = build_pages.render(md.read_text(encoding="utf-8"))
+        expected = build_pages.page(
+            title or label, meta, body, "Privacy policy", "privacy.html")
+        if page.read_text(encoding="utf-8") != expected:
+            problems.append(
+                "docs/%s is out of step with docs/%s"
+                " -- run python scripts/build_pages.py" % (target, source)
+            )
+
     if not (DOCS / ".nojekyll").exists():
         problems.append(
             "docs/.nojekyll is missing; GitHub would put Jekyll between the"
@@ -59,7 +79,7 @@ def main():
             print("  - %s" % problem, file=sys.stderr)
         return 1
 
-    print("pages ok: %d built from Markdown, in step" % len(build_pages.PAGES))
+    print("pages ok: %d built from Markdown, in step" % (len(build_pages.PAGES) + 1))
     return 0
 
 

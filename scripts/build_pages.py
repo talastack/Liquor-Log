@@ -28,6 +28,12 @@ PAGES = [
     ("terms.md", "terms.html", "Terms of use"),
 ]
 
+# The landing page is the app's Support URL, which App Store Connect
+# requires and a reviewer opens. Built from Markdown like the other two,
+# so the same edit-and-rebuild rule covers all three and none of them can
+# quietly become the odd one out.
+INDEX = ("support.md", "index.html", "Support")
+
 STYLE = """
 :root {
   color-scheme: light dark;
@@ -177,19 +183,17 @@ def main():
     # reviewer opening the link.
     (DOCS / ".nojekyll").write_text("", encoding="utf-8")
 
-    (DOCS / "index.html").write_text(
-        page(
-            "Pour Memo",
-            "A bourbon and spirits collection, by TALASTACK LLC.",
-            "<p>The legal documents for the app.</p>"
-            '<ul><li><a href="privacy.html">Privacy policy</a></li>'
-            '<li><a href="terms.html">Terms of use</a></li></ul>',
-            "Privacy policy",
-            "privacy.html",
-        ),
+    source, target, label = INDEX
+    path = DOCS / source
+    if not path.exists():
+        print("missing %s" % path, file=sys.stderr)
+        return 1
+    title, meta, body = render(path.read_text(encoding="utf-8"))
+    (DOCS / target).write_text(
+        page(title or label, meta, body, "Privacy policy", "privacy.html"),
         encoding="utf-8",
     )
-    written.append("index.html")
+    written.append(target)
 
     print("built %s in docs/" % ", ".join(written))
     return 0

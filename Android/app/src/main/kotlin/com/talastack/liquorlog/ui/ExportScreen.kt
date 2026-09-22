@@ -71,7 +71,7 @@ fun ExportScreen(onBack: () -> Unit) {
                 ) {
                     lastWritten = share(
                         context,
-                        "liquor-log-collection",
+                        "pour-memo-collection",
                         export.bottlesCsv(
                             name = { state.name(it) },
                             distillery = { state.distillery(it) },
@@ -97,7 +97,7 @@ fun ExportScreen(onBack: () -> Unit) {
                 ) {
                     lastWritten = share(
                         context,
-                        "liquor-log-tastings",
+                        "pour-memo-tastings",
                         export.tastingsCsv(
                             name = { names[it] ?: it },
                             // The wheel's labels, not its keys: a spreadsheet
@@ -120,7 +120,7 @@ fun ExportScreen(onBack: () -> Unit) {
                 ) {
                     lastWritten = share(
                         context,
-                        "liquor-log-pours",
+                        "pour-memo-pours",
                         export.poursCsv(name = { names[it] ?: it }),
                     )
                 }
