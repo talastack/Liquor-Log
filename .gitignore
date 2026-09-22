@@ -10,6 +10,17 @@ build/
 .swiftpm/
 Package.resolved
 
+# Gradle's own project cache: lock files and binary hash caches, written on
+# every build. Machine state, not source, and unreadable by anyone -- the same
+# reason no wrapper jar is committed either.
+.gradle/
+local.properties
+
+# The Kotlin compiler's own scratch directory, including the error logs it
+# writes when a daemon fails to start. Machine state, and the second build
+# artefact to get committed by a `git add -A` -- hence the entry.
+.kotlin/
+
 # Secrets are injected at build time, never committed.
 IOS/Secrets.xcconfig
 

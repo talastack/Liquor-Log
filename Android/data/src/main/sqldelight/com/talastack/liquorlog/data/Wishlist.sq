@@ -1,0 +1,35 @@
+-- Bottles you want, and what you would pay.
+--
+-- A wishlist row can name a catalogue product or just a string somebody
+-- typed. Both are real: the whole point is to write down the thing you saw
+-- and could not place, as well as the thing you have been hunting for
+-- months.
+
+insertItem:
+INSERT INTO wishlist_items (
+    id, user_id, catalog_product_id, custom_name, target_price_cents, note,
+    created_at, updated_at, dirty
+) VALUES (?, NULL, ?, ?, ?, ?, ?, ?, 1);
+
+updateItem:
+UPDATE wishlist_items
+   SET custom_name = ?, target_price_cents = ?, note = ?,
+       updated_at = ?, dirty = 1
+ WHERE id = ?;
+
+selectAllItems:
+SELECT * FROM wishlist_items
+ WHERE deleted_at IS NULL
+ ORDER BY created_at DESC;
+
+selectItemById:
+SELECT * FROM wishlist_items WHERE id = ? AND deleted_at IS NULL;
+
+-- The product ids on the list, which is what the shelf check needs: it asks
+-- "is this one I am already looking for" and nothing else.
+wishedProductIds:
+SELECT catalog_product_id FROM wishlist_items
+ WHERE deleted_at IS NULL AND catalog_product_id IS NOT NULL;
+
+softDeleteItem:
+UPDATE wishlist_items SET deleted_at = ?, updated_at = ?, dirty = 1 WHERE id = ?;

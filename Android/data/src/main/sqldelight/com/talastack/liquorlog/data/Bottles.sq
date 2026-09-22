@@ -1,0 +1,152 @@
+-- Queries over the bottles on the shelf.
+--
+-- Named queries rather than raw SQL, unlike AccountLinker: these run against
+-- one table with real columns, so SQLDelight generating the types is worth
+-- having. The linker's four statements run against fourteen tables and would
+-- have become fifty-six generated functions saying the same thing.
+--
+-- Every read filters `deleted_at is null`. Tombstones stay in the database
+-- forever so they can sync, and are never shown.
+
+insert:
+INSERT INTO bottles (
+    id, user_id, catalog_product_id, custom_name, volume_ml, abv, category,
+    is_store_pick, pick_store, pick_name, barrel_number, batch_number,
+    recipe_code, age_months, purchase_date, purchase_price_cents,
+    purchase_store, storage_location, is_sample, sample_from, is_infinity,
+    pour_size_ml, opened_at, created_at, updated_at, dirty
+) VALUES (
+    ?, NULL, ?, ?, ?, ?, ?,
+    ?, ?, ?, ?, ?,
+    ?, ?, ?, ?,
+    ?, ?, ?, ?, ?,
+    ?, ?, ?, ?, 1
+);
+
+-- Newest first, the order the collection screen shows and the order iOS
+-- uses: created_at descending. Two queries rather than one with a flag,
+-- because a boolean bound into SQL is a parameter whose type SQLDelight has
+-- to guess and a reader has to decode.
+selectOnShelf:
+SELECT *
+  FROM bottles
+ WHERE deleted_at IS NULL AND finished_at IS NULL
+ ORDER BY created_at DESC;
+
+selectAll:
+SELECT *
+  FROM bottles
+ WHERE deleted_at IS NULL
+ ORDER BY created_at DESC;
+
+selectById:
+SELECT * FROM bottles WHERE id = ? AND deleted_at IS NULL;
+
+countLive:
+SELECT count(*) FROM bottles WHERE deleted_at IS NULL AND finished_at IS NULL;
+
+-- Opening a bottle starts the oxidation clock, so it is a recorded moment
+-- rather than a flag.
+open:
+UPDATE bottles
+   SET opened_at = ?, updated_at = ?, dirty = 1
+ WHERE id = ? AND opened_at IS NULL;
+
+-- Finished, not deleted. A bottle you drank leaves the shelf and stays in
+-- the history, tastings and all.
+finish:
+UPDATE bottles
+   SET finished_at = ?, updated_at = ?, dirty = 1
+ WHERE id = ?;
+
+-- Back on the shelf. Finishing by accident is a two-tap mistake and needs a
+-- one-tap way out; nothing about the bottle is lost either way.
+unfinish:
+UPDATE bottles
+   SET finished_at = NULL, updated_at = ?, dirty = 1
+ WHERE id = ?;
+
+-- A soft delete, for a bottle entered by mistake. The row stays so the
+-- tombstone can reach the other devices.
+softDelete:
+UPDATE bottles
+   SET deleted_at = ?, updated_at = ?, dirty = 1
+ WHERE id = ?;
+
+-- The fields the edit screen owns. One statement rather than one per field:
+-- a screen that saves six columns in six statements can half-save.
+update:
+UPDATE bottles
+   SET custom_name = ?, volume_ml = ?, abv = ?, category = ?,
+       is_store_pick = ?, pick_store = ?, pick_name = ?,
+       barrel_number = ?, batch_number = ?, recipe_code = ?,
+       age_months = ?, purchase_date = ?, purchase_price_cents = ?,
+       purchase_store = ?, storage_location = ?,
+       is_sample = ?, sample_from = ?, pour_size_ml = ?,
+       updated_at = ?, dirty = 1
+ WHERE id = ?;
+
+setPhoto:
+UPDATE bottles SET photo_file = ?, updated_at = ?, dirty = 1 WHERE id = ?;
+
+insertPour:
+INSERT INTO pours (
+    id, user_id, bottle_id, volume_ml, poured_at, note, given_to,
+    created_at, updated_at, dirty
+) VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, 1);
+
+deletePour:
+UPDATE pours SET deleted_at = ?, updated_at = ?, dirty = 1 WHERE id = ?;
+
+pouredTotal:
+-- sum() is NULL over no rows; the caller substitutes zero rather than
+-- coalescing here, so the generated type says plainly that it can be absent.
+SELECT sum(volume_ml) AS poured_ml
+  FROM pours
+ WHERE bottle_id = ? AND deleted_at IS NULL;
+
+-- Every bottle's poured total in one statement. The collection screen draws
+-- a fill bar per row; one query per bottle turned a hundred-bottle shelf
+-- into a hundred and one round trips.
+pouredTotals:
+SELECT bottle_id, sum(volume_ml) AS poured_ml
+  FROM pours
+ WHERE deleted_at IS NULL
+ GROUP BY bottle_id;
+
+lastPouredAts:
+SELECT bottle_id, max(poured_at) AS last_poured_at
+  FROM pours
+ WHERE deleted_at IS NULL
+ GROUP BY bottle_id;
+
+pourCount:
+SELECT count(*) FROM pours WHERE bottle_id = ? AND deleted_at IS NULL;
+
+poursFor:
+SELECT * FROM pours
+ WHERE bottle_id = ? AND deleted_at IS NULL
+ ORDER BY poured_at DESC;
+
+-- Custom catalogue entries, for bottles typed in rather than picked from a
+-- catalogue. They carry the class and production type the filters read.
+insertCustomEntry:
+INSERT INTO custom_catalog_entries (
+    id, user_id, distillery, brand, expression, class_type, production_type,
+    is_barrel_proof, is_bottled_in_bond, abv, stated_age_years, recipe_code,
+    created_at, updated_at, dirty
+) VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1);
+
+selectCustomEntries:
+SELECT * FROM custom_catalog_entries WHERE deleted_at IS NULL;
+
+selectCustomEntryById:
+SELECT * FROM custom_catalog_entries WHERE id = ? AND deleted_at IS NULL;
+
+updateCustomEntry:
+UPDATE custom_catalog_entries
+   SET distillery = ?, brand = ?, expression = ?, class_type = ?,
+       production_type = ?, is_barrel_proof = ?, is_bottled_in_bond = ?,
+       abv = ?, stated_age_years = ?, recipe_code = ?,
+       updated_at = ?, dirty = 1
+ WHERE id = ?;

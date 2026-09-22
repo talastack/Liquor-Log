@@ -26,6 +26,22 @@ ROOT = Path(__file__).resolve().parent.parent
 POSTGRES = ROOT / "shared" / "schema" / "postgres" / "0001_init.sql"
 SWIFT = (ROOT / "IOS" / "Packages" / "LiquorData" / "Sources" / "LiquorData"
          / "Schema" / "Migrations.swift")
+SQLDELIGHT = (ROOT / "Android" / "data" / "src" / "main" / "sqldelight"
+              / "com" / "talastack" / "liquorlog" / "data" / "Schema.sq")
+
+# The two account linkers. Each stamps `user_id` onto every row the client
+# writes at sign-in, and each keeps its own hard-coded list of which tables
+# those are. A table on one list and not the other is a table whose rows are
+# never adopted on that platform -- and an unstamped row can never be pushed
+# and could never be read back if it were.
+SWIFT_LINKER = (ROOT / "IOS" / "Packages" / "LiquorData" / "Sources" / "LiquorData"
+                / "Sync" / "AccountLinker.swift")
+KOTLIN_LINKER = (ROOT / "Android" / "data" / "src" / "main" / "kotlin" / "com"
+                 / "talastack" / "liquorlog" / "data" / "AccountLinker.kt")
+
+# Server-owned: its rows arrive by pull already carrying their owner, so no
+# client ever stamps them.
+NEVER_ADOPTED = {"subscriptions"}
 
 LOCAL_ONLY = {"dirty"}
 SERVER_ONLY = {"server_updated_at"}
@@ -96,67 +112,151 @@ def swift_tables(text):
     return tables
 
 
+def sqldelight_tables(text):
+    """{table: {column, ...}} from the Android schema's `CREATE TABLE` blocks.
+
+    The same schema a third time, for the Android client. A local schema that
+    has drifted from Postgres fails the same way on either platform -- the
+    column syncs into a void -- so it is held to the same comparison rather
+    than to a looser one.
+    """
+    tables = {}
+    pattern = re.compile(
+        r"create\s+table\s+(?:if\s+not\s+exists\s+)?([a-z_]+)\s*\((.*?)\)\s*;",
+        re.IGNORECASE | re.DOTALL,
+    )
+    for name, body in pattern.findall(text):
+        columns = set()
+        depth = 0
+        for raw in body.splitlines():
+            line = raw.strip()
+            if not line or line.startswith("--"):
+                continue
+            if depth == 0:
+                token = line.split()[0].strip(",").lower()
+                if token not in NOT_A_COLUMN and re.fullmatch(r"[a-z_][a-z0-9_]*", token):
+                    columns.add(token)
+            depth = max(0, depth + line.count("(") - line.count(")"))
+        if columns:
+            tables[name.lower()] = columns
+    return tables
+
+
+def compare(pg, local, label, problems):
+    """Every way a local schema can disagree with the server's."""
+    for t in sorted(set(pg) - set(local)):
+        problems.append("[%s] table %s is in Postgres but not in the local schema"
+                        % (label, t))
+    for t in sorted(set(local) - set(pg)):
+        problems.append("[%s] table %s is in the local schema but not in Postgres"
+                        % (label, t))
+
+    for table in sorted(set(pg) & set(local)):
+        pg_cols, local_cols = pg[table], local[table]
+
+        for c in sorted(pg_cols - local_cols - SERVER_ONLY):
+            problems.append(
+                "[%s] %s.%s exists in Postgres but not locally -- rows pulled from "
+                "the server will drop this column" % (label, table, c))
+        for c in sorted(local_cols - pg_cols - LOCAL_ONLY):
+            problems.append(
+                "[%s] %s.%s exists locally but not in Postgres -- this column syncs "
+                "into a void" % (label, table, c))
+
+        # The two allowed differences must actually be present on both sides,
+        # or sync is broken in a way this check would otherwise excuse.
+        for c in LOCAL_ONLY:
+            if c not in local_cols:
+                problems.append("[%s] %s is missing the local-only column %s"
+                                % (label, table, c))
+        for c in SERVER_ONLY:
+            if c in local_cols:
+                problems.append(
+                    "[%s] %s.%s must NOT exist locally: the pull cursor comes from "
+                    "the server's response, not a device's copy of its clock"
+                    % (label, table, c))
+
+
+def linker_tables(path, anchor):
+    """The table list an AccountLinker stamps, read from either language.
+
+    Both declare it the same way -- an identifier, then a bracketed list of
+    quoted lowercase names -- so one reader does for both. Returns an empty
+    set when the file or the anchor is absent, which the caller reports.
+    """
+    if not path.exists():
+        return set()
+    text = path.read_text(encoding="utf-8")
+    at = text.find(anchor)
+    if at < 0:
+        return set()
+    # Long enough for the list and nothing after it.
+    window = text[at:at + 900]
+    return set(re.findall(r'"([a-z][a-z0-9_]*)"', window))
+
+
+def check_linkers(pg, problems):
+    """Both linkers must stamp exactly the tables the schema says they own."""
+    expected = {t for t, cols in pg.items() if "user_id" in cols} - NEVER_ADOPTED
+    for path, anchor, label in (
+        (SWIFT_LINKER, "private var tables", "swift"),
+        (KOTLIN_LINKER, "val TABLES", "kotlin"),
+    ):
+        found = linker_tables(path, anchor)
+        if not found:
+            problems.append(
+                "[%s] could not read the account linker's table list from %s"
+                % (label, path.name))
+            continue
+        for t in sorted(expected - found):
+            problems.append(
+                "[%s] the account linker never stamps %s -- rows in it can never "
+                "be pushed and could never be read back" % (label, t))
+        for t in sorted(found - expected):
+            problems.append(
+                "[%s] the account linker stamps %s, which is not a table the "
+                "client owns" % (label, t))
+
+
 def main():
-    for path in (POSTGRES, SWIFT):
+    for path in (POSTGRES, SWIFT, SQLDELIGHT):
         if not path.exists():
             print("missing: %s" % path, file=sys.stderr)
             return 1
 
     pg = postgres_tables(POSTGRES.read_text(encoding="utf-8"))
     sw = swift_tables(SWIFT.read_text(encoding="utf-8"))
+    sq = sqldelight_tables(SQLDELIGHT.read_text(encoding="utf-8"))
 
     problems = []
 
-    only_pg = sorted(set(pg) - set(sw))
-    only_sw = sorted(set(sw) - set(pg))
-    for t in only_pg:
-        problems.append("table %s is in Postgres but not in the local schema" % t)
-    for t in only_sw:
-        problems.append("table %s is in the local schema but not in Postgres" % t)
-
-    for table in sorted(set(pg) & set(sw)):
-        pg_cols, sw_cols = pg[table], sw[table]
-
-        missing_locally = pg_cols - sw_cols - SERVER_ONLY
-        missing_on_server = sw_cols - pg_cols - LOCAL_ONLY
-
-        for c in sorted(missing_locally):
-            problems.append(
-                "%s.%s exists in Postgres but not locally -- rows pulled from the "
-                "server will drop this column" % (table, c))
-        for c in sorted(missing_on_server):
-            problems.append(
-                "%s.%s exists locally but not in Postgres -- this column syncs "
-                "into a void" % (table, c))
-
-        # The two allowed differences must actually be present on both sides,
-        # or sync is broken in a way this check would otherwise excuse.
+    # What Postgres owes both clients, checked once rather than per client.
+    for table in sorted(pg):
         for c in LOCAL_ONLY:
-            if c not in sw_cols:
-                problems.append("%s is missing the local-only column %s" % (table, c))
-            if c in pg_cols:
+            if c in pg[table]:
                 problems.append(
                     "%s.%s must NOT exist in Postgres: it is a local push queue"
                     % (table, c))
         for c in SERVER_ONLY:
-            if c not in pg_cols:
+            if c not in pg[table]:
                 problems.append("%s is missing the server-only column %s" % (table, c))
-            if c in sw_cols:
-                problems.append(
-                    "%s.%s must NOT exist locally: the pull cursor comes from the "
-                    "server's response, not a device's copy of its clock"
-                    % (table, c))
+
+    compare(pg, sw, "swift", problems)
+    compare(pg, sq, "sqldelight", problems)
+    check_linkers(pg, problems)
 
     if problems:
         print("schema mirror FAILED\n", file=sys.stderr)
         for p in problems:
             print("  - %s" % p, file=sys.stderr)
-        print("\n%d problem(s). %s and %s are a paired edit."
-              % (len(problems), POSTGRES.name, SWIFT.name), file=sys.stderr)
+        print("\n%d problem(s). %s, %s and %s are one paired edit."
+              % (len(problems), POSTGRES.name, SWIFT.name, SQLDELIGHT.name),
+              file=sys.stderr)
         return 1
 
     total = sum(len(v) for v in pg.values())
-    print("schema mirror ok: %d tables, %d columns" % (len(pg), total))
+    print("schema mirror ok: %d tables, %d columns, 3 copies agree"
+          % (len(pg), total))
     return 0
 
 
