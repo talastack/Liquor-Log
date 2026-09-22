@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Insights
+import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.LibraryBooks
@@ -142,6 +143,13 @@ fun MoreScreen(onOpen: (String) -> Unit) {
         }
         item {
             ToolRow(
+                "People",
+                "Who sent you samples, who you poured for, whose turn it is",
+                Icons.Filled.People,
+            ) { onOpen(Route.PEOPLE) }
+        }
+        item {
+            ToolRow(
                 "Your year",
                 "What was collected and written this year, in a few sentences",
                 Icons.Filled.CalendarMonth,
@@ -249,7 +257,6 @@ fun MoreScreen(onOpen: (String) -> Unit) {
 private val NOT_YET = listOf(
     "Sync, sign-in and a shared shelf",
     "Label scanning and bulk shelf entry",
-    "People -- who sent you samples, who you poured for",
     "Price history and the community price check",
     "Import a spreadsheet, and backup",
     "Flights, the shelf walk and infinity-bottle blending",

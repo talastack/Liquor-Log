@@ -30,6 +30,7 @@ class RepositoryTest {
     private val tastings = TastingRepository(database)
     private val wishlist = WishlistRepository(database)
     private val sightings = SightingRepository(database)
+    private val people = PeopleLedger(database)
 
     @AfterTest
     fun close() = driver.close()
@@ -238,6 +239,68 @@ class RepositoryTest {
         )
         // 750 ml is 17 pours; $34.00 over 17 is $2.00.
         assertEquals(200, assertNotNull(bottles.byId(id)).costPerPourCents)
+    }
+
+    // People
+
+    @Test
+    fun `the ledger is read from bottles and pours, not kept`() {
+        val gift = bottles.add(
+            name = "Weller 12", volumeMl = 50.0,
+            isSample = true, sampleFrom = "Mike", now = 1_000,
+        )
+        tastings.record(bottleId = gift, rating = 9, tastedAt = 1_500, now = 1_500)
+
+        val mine = bottles.add(name = "Elijah Craig", volumeMl = 750.0, now = 2_000)
+        bottles.logPour(mine, milliliters = 60.0, givenTo = "Mike", now = 3_000)
+        bottles.logPour(mine, milliliters = 44.0, now = 3_500)
+
+        val ledger = people.ledger()
+        assertEquals(1, ledger.size)
+        val mike = ledger[0]
+        assertEquals("Mike", mike.name)
+        // One sample in, one pour out. The pour with no recipient is not an
+        // exchange and must not appear.
+        assertEquals(1, mike.received.size)
+        assertEquals(1, mike.given.size)
+        assertEquals(50.0, mike.receivedMilliliters)
+        assertEquals(60.0, mike.givenMilliliters)
+    }
+
+    @Test
+    fun `two spellings of a name are one person`() {
+        val a = bottles.add(
+            name = "Weller 12", volumeMl = 50.0,
+            isSample = true, sampleFrom = "Mike", now = 1_000,
+        )
+        val mine = bottles.add(name = "Elijah Craig", volumeMl = 750.0, now = 2_000)
+        bottles.logPour(mine, milliliters = 60.0, givenTo = "mike ", now = 3_000)
+
+        val ledger = people.ledger()
+        // The engine folds on a trimmed, lowercased key, so one person.
+        assertEquals(1, ledger.size)
+        assertEquals(1, ledger[0].received.size)
+        assertEquals(1, ledger[0].given.size)
+    }
+
+    @Test
+    fun `a sample with nobody named is nobody's`() {
+        bottles.add(
+            name = "Weller 12", volumeMl = 50.0,
+            isSample = true, sampleFrom = "   ", now = 1_000,
+        )
+        assertTrue(people.ledger().isEmpty())
+    }
+
+    @Test
+    fun `the ledger names bottles the way the screen does`() {
+        val mine = bottles.add(name = "Typed name", volumeMl = 750.0, now = 1_000)
+        bottles.logPour(mine, milliliters = 60.0, givenTo = "Mike", now = 2_000)
+
+        val named = people.ledger(mapOf(mine to "W L Weller 12 Year"))
+        assertEquals("W L Weller 12 Year", named[0].given[0].bottle)
+        // Without the map it falls back to what was typed rather than to an id.
+        assertEquals("Typed name", people.ledger()[0].given[0].bottle)
     }
 
     // The hunt log

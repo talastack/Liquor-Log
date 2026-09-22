@@ -150,3 +150,28 @@ UPDATE custom_catalog_entries
        abv = ?, stated_age_years = ?, recipe_code = ?,
        updated_at = ?, dirty = 1
  WHERE id = ?;
+
+-- Every pour that went to somebody, across all bottles.
+--
+-- The people ledger is DERIVED rather than kept: a pour already says who it
+-- went to and a sample bottle already says who it came from, so a separate
+-- people table would be a second copy of a fact the records already hold,
+-- and the two would drift.
+poursGivenAway:
+SELECT p.bottle_id, p.volume_ml, p.poured_at, p.given_to, b.custom_name
+  FROM pours p
+  JOIN bottles b ON b.id = p.bottle_id
+ WHERE p.deleted_at IS NULL
+   AND b.deleted_at IS NULL
+   AND p.given_to IS NOT NULL
+   AND trim(p.given_to) <> ''
+ ORDER BY p.poured_at DESC;
+
+-- Sample bottles, which are what somebody gave YOU.
+samplesReceived:
+SELECT * FROM bottles
+ WHERE deleted_at IS NULL
+   AND is_sample = 1
+   AND sample_from IS NOT NULL
+   AND trim(sample_from) <> ''
+ ORDER BY created_at DESC;

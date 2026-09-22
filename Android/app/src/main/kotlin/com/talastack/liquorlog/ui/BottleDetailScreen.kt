@@ -84,6 +84,7 @@ fun BottleDetailScreen(
     var customPour by remember { mutableStateOf<String?>(null) }
     var showsAllPours by remember { mutableStateOf(false) }
     var settingLevel by remember { mutableStateOf(false) }
+    var givingPour by remember { mutableStateOf(false) }
     var replenish by remember { mutableStateOf<Replenish.Offer?>(null) }
 
     /**
@@ -93,9 +94,9 @@ fun BottleDetailScreen(
      * asked about again on every pour after that, which would turn a useful
      * question into nagging.
      */
-    fun pour(milliliters: Double) {
+    fun pour(milliliters: Double, givenTo: String? = null) {
         val before = summary?.status?.remainingPours ?: return
-        state.bottles.logPour(bottleId, milliliters = milliliters)
+        state.bottles.logPour(bottleId, milliliters = milliliters, givenTo = givenTo)
         state.noteChange()
         val after = state.bottles.byId(bottleId)?.status?.remainingPours ?: return
         replenish = Replenish.offer(
@@ -128,6 +129,7 @@ fun BottleDetailScreen(
                         summary = summary,
                         onPour = { ml -> pour(ml) },
                         onCustomPour = { customPour = "" },
+                        onGivePour = { givingPour = true },
                         onOpen = {
                             state.bottles.open(bottleId)
                             state.noteChange()
@@ -238,6 +240,17 @@ fun BottleDetailScreen(
 
     // `summary` is nullable again out here: the smart cast only holds inside
     // the column that returned early on null.
+    if (givingPour && summary != null) {
+        GivePourDialog(
+            defaultMl = summary.bottle.pour_size_ml,
+            onConfirm = { who, ml ->
+                pour(ml, givenTo = who)
+                givingPour = false
+            },
+            onDismiss = { givingPour = false },
+        )
+    }
+
     if (settingLevel && summary != null) {
         SetLevelDialog(
             capacityMl = summary.volumeMl,
@@ -740,6 +753,7 @@ private fun BottleMenu(
     summary: BottleRepository.Summary,
     onPour: (Double) -> Unit,
     onCustomPour: () -> Unit,
+    onGivePour: () -> Unit,
     onOpen: () -> Unit,
     onFinish: () -> Unit,
     onUnfinish: () -> Unit,
@@ -776,6 +790,15 @@ private fun BottleMenu(
                     text = { Text("Another amount…", style = TypeScale.body, color = colors.text) },
                     onClick = {
                         onCustomPour()
+                        open = false
+                    },
+                )
+                DropdownMenuItem(
+                    text = {
+                        Text("Pour for someone…", style = TypeScale.body, color = colors.text)
+                    },
+                    onClick = {
+                        onGivePour()
                         open = false
                     },
                 )
@@ -941,4 +964,59 @@ private fun fractionLabel(fraction: Double): String = when (fraction) {
     0.25 -> "A quarter"
     0.1 -> "The heel"
     else -> "Empty"
+}
+
+/**
+ * A pour that goes to somebody else.
+ *
+ * It comes off the bottle exactly like any other pour -- there is no second
+ * accounting -- and the name is what the people ledger is read from later.
+ * 60 ml is a 2 oz sample, which is the usual size of a swap.
+ */
+@Composable
+private fun GivePourDialog(
+    defaultMl: Double,
+    onConfirm: (String, Double) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val colors = palette
+    var who by remember { mutableStateOf("") }
+    var amount by remember { mutableStateOf(defaultMl.roundToInt().toString()) }
+    val ml = LocalNumber.parse(amount)
+    val canSave = who.isNotBlank() && ml != null && ml > 0
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = colors.surface,
+        title = { Text("Pour for someone", style = TypeScale.title, color = colors.text) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(Space.m)) {
+                Text(
+                    "A sample decanted for a friend, or a swap. It comes off the " +
+                        "bottle like any pour; 60 ml is a 2 oz sample.",
+                    style = TypeScale.secondary,
+                    color = colors.textSecondary,
+                )
+                Field(who, { who = it }, label = "Who", placeholder = "Mike")
+                Field(amount, { amount = it }, label = "Millilitres", numeric = true)
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { if (ml != null) onConfirm(who.trim(), ml) },
+                enabled = canSave,
+            ) {
+                Text(
+                    "Log it",
+                    style = TypeScale.headline,
+                    color = colors.accent.copy(alpha = if (canSave) 1f else 0.4f),
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel", style = TypeScale.body, color = colors.textMuted)
+            }
+        },
+    )
 }

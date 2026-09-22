@@ -87,6 +87,7 @@ object Route {
     const val EXPORT = "export"
     const val HUNT_LOG = "huntLog"
     const val PASSPORT = "passport"
+    const val PEOPLE = "people"
 
     fun bottle(id: String) = BOTTLE + "/" + id
     fun editBottle(id: String) = EDIT_BOTTLE + "/" + id
@@ -377,6 +378,9 @@ private fun AppNavHost(navController: NavHostController, state: AppState) {
         }
         composable(Route.PASSPORT) {
             PassportScreen(onBack = { navController.popBackStack() })
+        }
+        composable(Route.PEOPLE) {
+            PeopleScreen(onBack = { navController.popBackStack() })
         }
     }
 }

@@ -13,6 +13,7 @@ import com.talastack.liquorlog.data.BundledData
 import com.talastack.liquorlog.data.CollectionExport
 import com.talastack.liquorlog.data.Database
 import com.talastack.liquorlog.data.LiquorDatabase
+import com.talastack.liquorlog.data.PeopleLedger
 import com.talastack.liquorlog.data.SightingRepository
 import com.talastack.liquorlog.data.TastingRepository
 import com.talastack.liquorlog.data.WishlistRepository
@@ -56,6 +57,7 @@ class MainActivity : ComponentActivity() {
                     tastings = TastingRepository(database),
                     wishlist = WishlistRepository(database),
                     sightings = SightingRepository(database),
+                    people = PeopleLedger(database),
                     export = CollectionExport(database),
                     catalog = catalog,
                     wheel = wheel,
