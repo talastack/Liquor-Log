@@ -105,57 +105,9 @@ struct BottleDetailView: View {
         ScrollView {
             if let summary {
                 VStack(alignment: .leading, spacing: Space.xl) {
-                    hero(summary)
-                    if summary.bottle.isInfinity {
-                        InfinityCard(
-                            bottle: summary.bottle, additions: additions, profile: blend,
-                            onChange: { changed() })
-                    }
-                    fill(summary)
-                    if let estimate = oxidation(summary) {
-                        OxidationCard(estimate: estimate)
-                    }
-                    // Directly under the oxidation clock on purpose: the clock
-                    // is the estimate, the tastings are the evidence, and the
-                    // two are allowed to disagree.
-                    if !tastings.isEmpty {
-                        howItHasDrunk(summary)
-                    }
-                    priceCard(summary)
-                    facts(summary)
-                    if summary.bottle.catalogProductId != nil {
-                        ProductNoteCard(body_: productNote) { isEditingNote = true }
-                    }
-                    // Only when the proof is known and there is somewhere
-                    // lower to go: a bottle at 80 has nothing to add water for.
-                    if summary.bottle.isOpen,
-                       let abv = summary.bottle.abv ?? env.product(for: summary.bottle)?.abv,
-                       ABV(percent: abv).proof > 80, ABV(percent: abv).proof <= Proofing.highestProof {
-                        WaterCard(proof: ABV(percent: abv).proof, pourMilliliters: summary.bottle.pourSizeMl)
-                            // Rebuilt when the proof is edited, so the
-                            // target never sits above the new strength.
-                            .id(abv)
-                    }
-                    if showsWax(summary) {
-                        wax(summary)
-                    }
-                    if let recipe = summary.bottle.staves {
-                        staves(recipe)
-                    }
-                    if summary.bottle.hasPickDetail {
-                        pickDetail(summary)
-                        if let comparison = comparison(summary), !comparison.isEmpty {
-                            PickCompareCard(comparison: comparison)
-                        }
-                    }
-                    if hasLocation(summary) {
-                        whereItIs(summary)
-                    }
-                    if !siblings.isEmpty {
-                        alsoOnTheShelf
-                    }
-                    storyButton
-                    actions(summary)
+                    whatIsLeft(summary)
+                    whatItIs(summary)
+                    thisBottleInParticular(summary)
                 }
                 .padding(.horizontal, Space.xl)
                 .padding(.bottom, 96)
@@ -381,6 +333,100 @@ struct BottleDetailView: View {
     }
 
     // MARK: - Sections
+
+    /// **Why `body` is three calls and not twenty.**
+    ///
+    /// `ViewBuilder` has `buildBlock` overloads up to ten children; past that
+    /// the compiler nests tuples and the type checker has to infer a type
+    /// that grows with every branch. This view had sixteen, most of them
+    /// conditional, and the result was not a clear error -- it was
+    /// "unable to type-check this expression in reasonable time", which
+    /// points at the whole body and names nothing. It compiled on one
+    /// machine and failed on another, because a timeout is a property of the
+    /// machine as much as the code.
+    ///
+    /// Three groups, each under ten, in the order they are read: how much is
+    /// left, what the bottle is, and what is true of this bottle and no
+    /// other.
+
+    /// Fill, how it is holding up, and what you have thought of it.
+    @ViewBuilder
+    private func whatIsLeft(_ summary: BottleSummary) -> some View {
+        hero(summary)
+        if summary.bottle.isInfinity {
+            InfinityCard(
+                bottle: summary.bottle, additions: additions, profile: blend,
+                onChange: { changed() })
+        }
+        fill(summary)
+        if let estimate = oxidation(summary) {
+            OxidationCard(estimate: estimate)
+        }
+        // Directly under the oxidation clock on purpose: the clock is the
+        // estimate, the tastings are the evidence, and the two are allowed
+        // to disagree.
+        if !tastings.isEmpty {
+            howItHasDrunk(summary)
+        }
+    }
+
+    /// What it cost, what the label says, and what to do about the proof.
+    @ViewBuilder
+    private func whatItIs(_ summary: BottleSummary) -> some View {
+        priceCard(summary)
+        facts(summary)
+        if summary.bottle.catalogProductId != nil {
+            ProductNoteCard(body_: productNote) { isEditingNote = true }
+        }
+        if let proof = proofWorthWatering(summary) {
+            WaterCard(proof: proof, pourMilliliters: summary.bottle.pourSizeMl)
+                // Rebuilt when the proof is edited, so the target never sits
+                // above the new strength.
+                .id(proof)
+        }
+        if showsWax(summary) {
+            wax(summary)
+        }
+        if let recipe = summary.bottle.staves {
+            staves(recipe)
+        }
+    }
+
+    /// The barrel, the place, the siblings, the story, the actions.
+    @ViewBuilder
+    private func thisBottleInParticular(_ summary: BottleSummary) -> some View {
+        if summary.bottle.hasPickDetail {
+            pickDetail(summary)
+            if let comparison = comparison(summary), !comparison.isEmpty {
+                PickCompareCard(comparison: comparison)
+            }
+        }
+        if hasLocation(summary) {
+            whereItIs(summary)
+        }
+        if !siblings.isEmpty {
+            alsoOnTheShelf
+        }
+        storyButton
+        actions(summary)
+    }
+
+    /// The proof to offer water for, or nil.
+    ///
+    /// Plain Swift rather than a condition inside the builder: `??`, an
+    /// optional chain and two `ABV` constructions in one `if` is most of
+    /// what made the body uninferable, and none of it is a view decision.
+    ///
+    /// Only when the proof is known and there is somewhere lower to go --
+    /// a bottle at 80 has nothing to add water for.
+    private func proofWorthWatering(_ summary: BottleSummary) -> Double? {
+        guard summary.bottle.isOpen else { return nil }
+        let percent = summary.bottle.abv ?? env.product(for: summary.bottle)?.abv
+        guard let percent else { return nil }
+        let proof = ABV(percent: percent).proof
+        guard proof > 80, proof <= Proofing.highestProof else { return nil }
+        return proof
+    }
 
     private func hero(_ summary: BottleSummary) -> some View {
         VStack(spacing: Space.m) {

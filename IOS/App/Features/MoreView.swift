@@ -68,164 +68,192 @@ struct MoreView: View {
 
     // MARK: - Tools
 
+    /// **Three groups, not one list of seventeen.**
+    ///
+    /// `ViewBuilder` stops having a `buildBlock` at ten children. Past that
+    /// the type checker infers a type that grows with every branch, and each
+    /// row here is a `NavigationLink` with two trailing closures, which is
+    /// the most expensive shape there is. `BottleDetailView` hit that wall
+    /// first and failed with "unable to type-check this expression in
+    /// reasonable time" -- an error that names nothing and only appears on a
+    /// machine slow enough. This is the same shape, split before it gets
+    /// there.
     private var tools: some View {
         VStack(alignment: .leading, spacing: Space.m) {
             SectionLabel("Tools")
+            toolsAsking
+            toolsBrowsing
+            toolsPlanning
+        }
+    }
 
-            Button { isAsking = true } label: {
-                row(
-                    "Ask",
-                    detail: "\"What's open\", \"log a pour of Weller 12\" — answered from your shelf",
-                    symbol: "text.bubble",
-                    highlighted: true)
-            }
+    /// Ask, and the tools that answer one question about one thing.
+    @ViewBuilder
+    private var toolsAsking: some View {
 
-            NavigationLink {
-                CodeDecoderView()
-            } label: {
-                row(
-                    "Decode a code",
-                    detail: "Four Roses recipes, Elijah Craig batches",
-                    symbol: "textformat.abc")
-            }
+        Button { isAsking = true } label: {
+            row(
+                "Ask",
+                detail: "\"What's open\", \"log a pour of Weller 12\" — answered from your shelf",
+                symbol: "text.bubble",
+                highlighted: true)
+        }
 
-            NavigationLink {
-                CatalogBrowseView()
-            } label: {
-                row(
-                    "Browse the catalogue",
-                    detail: "Every product it knows, distillery by distillery, against your shelf",
-                    symbol: "books.vertical")
-            }
+        NavigationLink {
+            CodeDecoderView()
+        } label: {
+            row(
+                "Decode a code",
+                detail: "Four Roses recipes, Elijah Craig batches",
+                symbol: "textformat.abc")
+        }
 
-            NavigationLink {
-                StatsView()
-            } label: {
-                row(
-                    "Your collection",
-                    detail: "What is on your shelf, at a glance",
-                    symbol: "chart.bar")
-            }
+        NavigationLink {
+            CatalogBrowseView()
+        } label: {
+            row(
+                "Browse the catalogue",
+                detail: "Every product it knows, distillery by distillery, against your shelf",
+                symbol: "books.vertical")
+        }
 
-            NavigationLink {
-                PourMenuView()
-            } label: {
-                row(
-                    "What's open",
-                    detail: "A menu for guests, without the prices",
-                    symbol: "list.bullet.rectangle")
-            }
+        NavigationLink {
+            StatsView()
+        } label: {
+            row(
+                "Your collection",
+                detail: "What is on your shelf, at a glance",
+                symbol: "chart.bar")
+        }
 
-            NavigationLink {
-                CocktailsView()
-            } label: {
-                row(
-                    "Tonight",
-                    detail: "The IBA's cocktails you can make from what is open",
-                    symbol: "wineglass")
-            }
+        NavigationLink {
+            PourMenuView()
+        } label: {
+            row(
+                "What's open",
+                detail: "A menu for guests, without the prices",
+                symbol: "list.bullet.rectangle")
+        }
 
-            NavigationLink {
-                PalateView()
-            } label: {
-                row(
-                    "Your palate",
-                    detail: "What your tastings say: the words you reach for, what rates highest",
-                    symbol: "mouth")
-            }
+        NavigationLink {
+            CocktailsView()
+        } label: {
+            row(
+                "Tonight",
+                detail: "The IBA's cocktails you can make from what is open",
+                symbol: "wineglass")
+        }
 
-            NavigationLink {
-                TryNextView()
-            } label: {
-                row(
-                    "Try next",
-                    detail: "Related to what you rated well, and not yet had — each with its reason",
-                    symbol: "arrow.turn.down.right")
-            }
+    }
 
-            NavigationLink {
-                SyncView()
-            } label: {
-                row(
-                    "Sync",
-                    detail: "Optional. Only for a second device.",
-                    symbol: "arrow.triangle.2.circlepath")
-            }
+    /// The tools that read the whole collection.
+    @ViewBuilder
+    private var toolsBrowsing: some View {
+        NavigationLink {
+            PalateView()
+        } label: {
+            row(
+                "Your palate",
+                detail: "What your tastings say: the words you reach for, what rates highest",
+                symbol: "mouth")
+        }
 
-            NavigationLink {
-                WishlistView()
-            } label: {
-                row(
-                    "Wishlist",
-                    detail: "Bottles you want, and what you would pay",
-                    symbol: "star")
-            }
+        NavigationLink {
+            TryNextView()
+        } label: {
+            row(
+                "Try next",
+                detail: "Related to what you rated well, and not yet had — each with its reason",
+                symbol: "arrow.turn.down.right")
+        }
 
-            NavigationLink {
-                HuntLogView()
-            } label: {
-                row(
-                    "Hunt log",
-                    detail: "Where you looked, what was on the shelf, the lotteries you entered",
-                    symbol: "binoculars")
-            }
+        NavigationLink {
+            SyncView()
+        } label: {
+            row(
+                "Sync",
+                detail: "Optional. Only for a second device.",
+                symbol: "arrow.triangle.2.circlepath")
+        }
 
-            NavigationLink {
-                PeopleView()
-            } label: {
-                row(
-                    "People",
-                    detail: "Who sent you samples, who you poured for, whose turn it is",
-                    symbol: "person.2")
-            }
+        NavigationLink {
+            WishlistView()
+        } label: {
+            row(
+                "Wishlist",
+                detail: "Bottles you want, and what you would pay",
+                symbol: "star")
+        }
 
-            NavigationLink {
-                PassportView()
-            } label: {
-                row(
-                    "Passport",
-                    detail: "The distilleries you have stood in, against your shelf",
-                    symbol: "stamp")
-            }
+        NavigationLink {
+            HuntLogView()
+        } label: {
+            row(
+                "Hunt log",
+                detail: "Where you looked, what was on the shelf, the lotteries you entered",
+                symbol: "binoculars")
+        }
 
-            NavigationLink {
-                YearView()
-            } label: {
-                row(
-                    "Your year",
-                    detail: "What was collected and written this year, in a few sentences",
-                    symbol: "calendar")
-            }
+        NavigationLink {
+            PeopleView()
+        } label: {
+            row(
+                "People",
+                detail: "Who sent you samples, who you poured for, whose turn it is",
+                symbol: "person.2")
+        }
 
-            NavigationLink {
-                FlightView()
-            } label: {
-                row(
-                    "Taste a flight",
-                    detail: "Two to four open bottles side by side, blind if you like",
-                    symbol: "square.grid.2x2")
-            }
+    }
 
-            NavigationLink {
-                PickMyPourView()
-            } label: {
-                row(
-                    "Pick my pour",
-                    detail: "Something open you have not had in a while",
-                    symbol: "dice")
-            }
+    /// The tools that suggest what to do next.
+    @ViewBuilder
+    private var toolsPlanning: some View {
+        NavigationLink {
+            PassportView()
+        } label: {
+            row(
+                "Passport",
+                detail: "The distilleries you have stood in, against your shelf",
+                symbol: "stamp")
+        }
 
-            NavigationLink {
-                ReInventoryView()
-            } label: {
-                row(
-                    "Shelf walk",
-                    detail: isWalkDue
-                        ? "Some bottles have not been checked in months"
-                        : "Walk your shelves and bring the list back in line",
-                    symbol: "checklist",
-                    highlighted: isWalkDue)
-            }
+        NavigationLink {
+            YearView()
+        } label: {
+            row(
+                "Your year",
+                detail: "What was collected and written this year, in a few sentences",
+                symbol: "calendar")
+        }
+
+        NavigationLink {
+            FlightView()
+        } label: {
+            row(
+                "Taste a flight",
+                detail: "Two to four open bottles side by side, blind if you like",
+                symbol: "square.grid.2x2")
+        }
+
+        NavigationLink {
+            PickMyPourView()
+        } label: {
+            row(
+                "Pick my pour",
+                detail: "Something open you have not had in a while",
+                symbol: "dice")
+        }
+
+        NavigationLink {
+            ReInventoryView()
+        } label: {
+            row(
+                "Shelf walk",
+                detail: isWalkDue
+                    ? "Some bottles have not been checked in months"
+                    : "Walk your shelves and bring the list back in line",
+                symbol: "checklist",
+                highlighted: isWalkDue)
         }
     }
 
