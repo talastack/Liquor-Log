@@ -79,6 +79,7 @@ struct WishlistView: View {
             ToolbarItem(placement: .primaryAction) {
                 Button { isAdding = true } label: { Image(systemName: "plus") }
                     .foregroundStyle(Palette.gold)
+                    .accessibilityLabel("Add to wishlist")
             }
         }
         .sheet(isPresented: $isAdding) {

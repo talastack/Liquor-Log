@@ -56,6 +56,10 @@ struct LineSheetView: View {
                                         .font(.system(size: 15, weight: .semibold))
                                         .foregroundStyle(color(row.standing))
                                         .frame(width: 22)
+                                        // The standing is spelled out in
+                                        // words at the end of the row, so
+                                        // the symbol is decoration.
+                                        .accessibilityHidden(true)
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text(row.product.expression.isEmpty
                                              ? row.product.brand : row.product.expression)

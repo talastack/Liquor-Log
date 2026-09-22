@@ -17,6 +17,10 @@ import GRDB
 /// second device that syncs receives them.
 public struct CollectionBackup: Sendable {
 
+    // The tag INSIDE the file, which restore checks before reading anything.
+    // It keeps the old name on purpose: nobody sees it, and changing it would
+    // make every backup written before the rename fail to restore. The name
+    // the user sees is the filename, and that one followed the app.
     public static let format = "liquorlog-backup"
     public static let version = 1
 

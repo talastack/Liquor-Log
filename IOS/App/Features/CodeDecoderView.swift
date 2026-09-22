@@ -263,6 +263,12 @@ struct CodeDecoderView: View {
                         .frame(minHeight: Space.tapTarget)
                     }
                     .buttonStyle(.plain)
+                    // The tick is the only thing that says this clue is
+                    // chosen, and a tick is not a word. Without the trait
+                    // VoiceOver reads every clue identically whether it is
+                    // ticked or not.
+                    .accessibilityAddTraits(
+                        dustyChosen.contains(clue.id) ? [.isButton, .isSelected] : .isButton)
                     Divider().overlay(Palette.line)
                 }
             }

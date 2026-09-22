@@ -133,6 +133,12 @@ jobs:
       - name: Check the published pages
         run: python3 scripts/check_pages.py
 
+      # Guideline 1.4.3 again, this time as a check rather than a memory. A
+      # streak badge or a "drinks this week" line is an obvious feature to
+      # add and an obvious rejection afterwards.
+      - name: Check nothing on screen counts drinks
+        run: python3 scripts/check_no_drink_counting.py
+
       # The store listing is written in the repository and pasted into a form
       # that counts characters and refuses anything one over. Counting them
       # here moves that from the upload evening to a pull request.

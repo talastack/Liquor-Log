@@ -79,6 +79,7 @@ struct CatalogBrowseView: View {
     private var searchField: some View {
         HStack(spacing: Space.m) {
             Image(systemName: "magnifyingglass").foregroundStyle(Palette.textMuted)
+                .accessibilityHidden(true)
             TextField("Filter by name or distillery", text: $query)
                 .font(TypeScale.body())
                 .foregroundStyle(Palette.text)
@@ -88,6 +89,7 @@ struct CatalogBrowseView: View {
                 Button { query = "" } label: {
                     Image(systemName: "xmark.circle.fill").foregroundStyle(Palette.textMuted)
                 }
+                .accessibilityLabel("Clear filter")
             }
         }
         .padding(.horizontal, Space.l)

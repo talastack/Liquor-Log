@@ -101,6 +101,7 @@ struct ShelfCheckView: View {
     private var searchField: some View {
         HStack(spacing: Space.m) {
             Image(systemName: "magnifyingglass").foregroundStyle(Palette.textMuted)
+                .accessibilityHidden(true)
             TextField("Distillery, brand or expression", text: $query)
                 .font(TypeScale.body())
                 .foregroundStyle(Palette.text)
@@ -112,6 +113,7 @@ struct ShelfCheckView: View {
                     Image(systemName: "xmark.circle.fill").foregroundStyle(Palette.textMuted)
                 }
                 .frame(minWidth: Space.tapTarget, minHeight: Space.tapTarget)
+                .accessibilityLabel("Clear search")
             }
             // The camera lives HERE, on the home tab, because the whole use
             // case is a bottle in your hand in a shop. A scan lands on a

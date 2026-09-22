@@ -156,7 +156,7 @@ struct BackupView: View {
         do {
             let stamp = Date().formatted(.iso8601.year().month().day())
             let url = FileManager.default.temporaryDirectory
-                .appendingPathComponent("liquorlog-backup-\(stamp).json")
+                .appendingPathComponent("pour-memo-backup-\(stamp).json")
             backupCounts = try backup.write(to: url)
             backupURL = url
         } catch {

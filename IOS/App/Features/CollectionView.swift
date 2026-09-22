@@ -197,6 +197,7 @@ struct CollectionView: View {
         VStack(alignment: .leading, spacing: Space.s) {
             HStack(spacing: Space.m) {
                 Image(systemName: "magnifyingglass").foregroundStyle(Palette.textMuted)
+                    .accessibilityHidden(true)
                 TextField("Name, distillery, barrel, store, shelf", text: $criteria.query)
                     .font(TypeScale.body())
                     .foregroundStyle(Palette.text)
@@ -206,6 +207,7 @@ struct CollectionView: View {
                     Button { criteria.query = "" } label: {
                         Image(systemName: "xmark.circle.fill").foregroundStyle(Palette.textMuted)
                     }
+                    .accessibilityLabel("Clear search")
                     .frame(minWidth: Space.tapTarget, minHeight: Space.tapTarget)
                 }
                 sortMenu

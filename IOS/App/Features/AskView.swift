@@ -147,6 +147,7 @@ struct AskView: View {
                 .onSubmit { submit(typed) }
             Button { submit(typed) } label: {
                 Image(systemName: "arrow.up.circle.fill")
+                    .accessibilityLabel("Ask")
                     .font(.system(size: 28))
                     .foregroundStyle(typed.trimmingCharacters(in: .whitespaces).isEmpty ? Palette.textMuted : Palette.gold)
             }
