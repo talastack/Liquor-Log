@@ -92,6 +92,8 @@ fun BottleDetailScreen(
     var customPour by remember { mutableStateOf<String?>(null) }
     var showsAllPours by remember { mutableStateOf(false) }
     var settingLevel by remember { mutableStateOf(false) }
+    /// The pour a tap on the log has offered to take back, waiting on a confirm.
+    var undoingPour by remember { mutableStateOf<com.talastack.liquorlog.data.Pours?>(null) }
     var givingPour by remember { mutableStateOf(false) }
     var toppingUp by remember { mutableStateOf(false) }
     var replenish by remember { mutableStateOf<Replenish.Offer?>(null) }
@@ -190,6 +192,7 @@ fun BottleDetailScreen(
                     showsAll = showsAllPours,
                     onToggleAll = { showsAllPours = !showsAllPours },
                     onSetLevel = { settingLevel = true },
+                    onUndoPour = { undoingPour = it },
                 )
             }
 
@@ -217,6 +220,23 @@ fun BottleDetailScreen(
                 )
             }
         }
+    }
+
+    undoingPour?.let { pour ->
+        ConfirmDialog(
+            title = "Take this pour back?",
+            message = "Logged " + shortDate(pour.poured_at) + ". The fill goes back up by " +
+                VolumeDisplay.text(pour.volume_ml, state.ounces) +
+                ". For a pour logged by mistake, not one you drank.",
+            confirmLabel = "Undo",
+            destructive = true,
+            onConfirm = {
+                state.bottles.deletePour(pour.id)
+                state.noteChange()
+                undoingPour = null
+            },
+            onDismiss = { undoingPour = null },
+        )
     }
 
     if (confirmingFinish) {
@@ -378,6 +398,7 @@ private fun FillSection(
     showsAll: Boolean,
     onToggleAll: () -> Unit,
     onSetLevel: () -> Unit,
+    onUndoPour: (com.talastack.liquorlog.data.Pours) -> Unit,
 ) {
     val state = LocalAppState.current
     val colors = palette
@@ -437,7 +458,16 @@ private fun FillSection(
             val shown = if (showsAll) pours else pours.take(5)
             for (pour in shown) {
                 Row(
-                    modifier = Modifier.fillMaxWidth().height(26.dp),
+                    // A tap offers to take the pour back. iOS puts this on a
+                    // long press; a tap is used here because the row is the
+                    // only thing on it, and because it costs nothing -- the
+                    // dialog is what actually deletes, so a mis-tap changes
+                    // no data. A mis-tap is exactly how this gap was found:
+                    // the pour button is one tap and there was no way back.
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(Space.tapTarget)
+                        .clickable { onUndoPour(pour) },
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
