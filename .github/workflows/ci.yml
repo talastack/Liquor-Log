@@ -6,8 +6,21 @@ on:
   pull_request:
     branches: [main]
 
+# Keyed on the COMMIT rather than the branch, which fixes two things at once.
+#
+# `main` and `android` are deliberately kept at the same commit and pushed
+# together. Keyed by ref that was two groups, so every commit ran the whole
+# matrix TWICE on identical code -- including the macOS job, the slow and
+# expensive one. Keyed by SHA the duplicate collapses into a single run.
+#
+# And because a new commit is a new group, pushing again no longer cancels
+# the run still proving the previous one. That is not hypothetical: four runs
+# were killed mid-compile by the next push, and a cancelled run reports as a
+# red X with "The operation was canceled" buried at the end of the log. I read
+# one of those as a build failure and said so. Evidence that disappears when
+# you do the next piece of work is worse than no evidence.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.sha }}
   cancel-in-progress: true
 
 jobs:
