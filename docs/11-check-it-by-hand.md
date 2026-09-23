@@ -139,6 +139,6 @@ Being straight about the edges:
   first thing a reviewer sees and the last thing anybody tests.
 - Nothing here exercises a **large collection**. If you have two hundred
   bottles somewhere, import them and watch the Collection scroll.
-- The catalogue's facts are **not verified**. 831 products carry no source
+- The catalogue's facts are **not verified**. 869 products carry no source
   URL, which the app now says on each bottle rather than hiding. That is a
   disclosure, not a fix.

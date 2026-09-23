@@ -23,10 +23,12 @@ every bottle on almost every shelf.
 """
 
 import json
+import re
 import sys
 from pathlib import Path
 
-OUT = Path(__file__).resolve().parent.parent / "shared" / "data" / "spirits.v1.json"
+ROOT = Path(__file__).resolve().parent.parent
+OUT = ROOT / "shared" / "data" / "spirits.v1.json"
 
 BP = "barrel_proof"
 BIB = "bottled_in_bond"
@@ -807,6 +809,55 @@ ROWS = [
     ("pike-creek-10", "Hiram Walker", "Pike Creek", "10 Year", "canadianWhisky", "unspecified", 42.0, 10, [], None),
     ("goose-island-bcbs", "Goose Island", "Goose Island", "Bourbon County Brand Stout", "maltBeverage", "unspecified", 14.7, None, [], None),
 
+    # ------------------------ US craft, the rest of the world, the bitters
+    # worldWhisky had seven rows for every country without a class of its
+    # own -- Israel, England, Brittany, Bavaria, the Netherlands,
+    # Tasmania. Now it has eighteen.
+    #
+    # Two absences here are deliberate and both are the same rule. Spanish
+    # brandy (Torres 10 at 38%, Lepanto at 36%) and Arette tequila at 38%
+    # are correct for their own standards and below the 40% this app holds
+    # their families to. That floor has a test on it, and bending it was
+    # already tried this morning and reverted.
+    ("peerless-small-batch-bourbon", "Kentucky Peerless", "Peerless", "Small Batch Bourbon", "kentuckyStraightBourbon", "smallBatch", None, None, [BP], None),
+    ("peerless-rye", "Kentucky Peerless", "Peerless", "Small Batch Rye", "straightRye", "smallBatch", None, None, [BP], None),
+    ("still-austin-musician", "Still Austin", "Still Austin", "The Musician", "straightBourbon", "unspecified", 49.3, None, [], None),
+    ("milam-greene-triple-cask", "Milam and Greene", "Milam and Greene", "Triple Cask", "straightBourbon", "blend", 47.0, None, [], None),
+    ("town-branch-bourbon", "Town Branch", "Town Branch", "Kentucky Straight Bourbon", "kentuckyStraightBourbon", "unspecified", 40.0, None, [], None),
+    ("james-e-pepper-1776-bourbon", "James E. Pepper", "James E. Pepper", "1776 Straight Bourbon", "straightBourbon", "unspecified", 50.0, None, [], None),
+    ("james-e-pepper-1776-rye", "James E. Pepper", "James E. Pepper", "1776 Straight Rye", "straightRye", "unspecified", 50.0, None, [], None),
+    ("old-pogue-masters-select", "Old Pogue", "Old Pogue", "Master's Select", "kentuckyStraightBourbon", "smallBatch", 45.5, None, [], None),
+    ("rabbit-hole-boxergrail", "Rabbit Hole", "Rabbit Hole", "Boxergrail Rye", "straightRye", "unspecified", 47.5, None, [], None),
+    ("westland-peated", "Westland", "Westland", "Peated", "americanSingleMalt", "unspecified", 46.0, None, [], None),
+    ("milk-and-honey-classic", "Milk and Honey", "Milk and Honey", "Classic Single Malt", "worldWhisky", "unspecified", 46.0, None, [], None),
+    ("cotswolds-single-malt", "Cotswolds", "Cotswolds", "Signature Single Malt", "worldWhisky", "unspecified", 46.0, None, [], None),
+    ("english-whisky-original", "The English Whisky Co.", "The English", "Original", "worldWhisky", "unspecified", 43.0, None, [], None),
+    ("armorik-classic", "Warenghem", "Armorik", "Classic", "worldWhisky", "unspecified", 46.0, None, [], None),
+    ("slyrs-classic", "Slyrs", "Slyrs", "Classic", "worldWhisky", "unspecified", 43.0, None, [], None),
+    ("millstone-10", "Zuidam", "Millstone", "10 Year American Oak", "worldWhisky", "unspecified", 43.0, None, [], None),
+    ("lark-classic-cask", "Lark", "Lark", "Classic Cask", "worldWhisky", "unspecified", 43.0, None, [], None),
+    ("sullivans-cove-french-oak", "Sullivans Cove", "Sullivans Cove", "French Oak", "worldWhisky", "singleCask", 47.5, None, [], None),
+    ("hellyers-road-original", "Hellyers Road", "Hellyers Road", "Original", "worldWhisky", "unspecified", 40.0, None, [], None),
+    ("brenne-estate-cask", "Brenne", "Brenne", "Estate Cask", "worldWhisky", "unspecified", 40.0, None, [], None),
+    ("zucca-rabarbaro", "Zucca", "Zucca", "Rabarbaro", "amaro", "unspecified", 16.0, None, [], None),
+    ("sfumato-rabarbaro", "Cappelletti", "Sfumato", "Rabarbaro", "amaro", "unspecified", 20.0, None, [], None),
+    ("contratto-bitter", "Contratto", "Contratto", "Bitter", "amaro", "unspecified", 22.0, None, [], None),
+    ("becherovka", "Becherovka", "Becherovka", "Original", "liqueur", "unspecified", 38.0, None, [], None),
+    ("underberg", "Underberg", "Underberg", "", "amaro", "unspecified", 44.0, None, [], None),
+    ("jeppsons-malort", "Jeppson's", "Jeppson's", "Malort", "amaro", "unspecified", 35.0, None, [], None),
+    ("chareau-aloe", "Chareau", "Chareau", "Aloe", "liqueur", "unspecified", 20.0, None, [], None),
+    ("bertoux-brandy", "Bertoux", "Bertoux", "Brandy", "brandy", "blend", 40.0, None, [], None),
+    ("copper-and-kings-american", "Copper and Kings", "Copper and Kings", "American Craft Brandy", "brandy", "unspecified", 45.0, None, [], None),
+    ("st-remy-vsop", "St-Remy", "St-Remy", "VSOP", "brandy", "blend", 40.0, None, [], None),
+    ("pueblo-viejo-blanco", "Pueblo Viejo", "Pueblo Viejo", "Blanco", "tequilaBlanco", "unspecified", 40.0, None, [], None),
+    ("chinaco-blanco", "Chinaco", "Chinaco", "Blanco", "tequilaBlanco", "unspecified", 40.0, None, [], None),
+    ("calle-23-blanco", "Calle 23", "Calle 23", "Blanco", "tequilaBlanco", "unspecified", 40.0, None, [], None),
+    ("cabeza-blanco", "Cabeza", "Cabeza", "Blanco", "tequilaBlanco", "unspecified", 43.0, None, [], None),
+    ("siembra-valles-blanco", "Siembra Valles", "Siembra Valles", "Blanco", "tequilaBlanco", "unspecified", 45.5, None, [], None),
+    ("gibsons-finest-12", "Gibson's", "Gibson's", "Finest 12 Year", "canadianWhisky", "blend", 40.0, 12, [], None),
+    ("caribou-crossing", "Caribou Crossing", "Caribou Crossing", "Single Barrel", "canadianWhisky", "singleBarrel", 40.0, None, [], None),
+    ("stalk-and-barrel-blue", "Still Waters", "Stalk and Barrel", "Blue Blend", "canadianWhisky", "blend", 43.0, None, [], None),
+
     # -------------------------------- The back bar and the flavoured shelf
     # Two things were missing that a shop devotes whole aisles to.
     #
@@ -1231,6 +1282,19 @@ def main():
         "products": products,
     }
 
+
+    # The docs state the catalogue's size, and it moves every time this
+    # runs. Updating it here rather than by hand: three documents said 534
+    # for a day, and check_catalog.py refuses a number that disagrees, so
+    # the alternative is a failing build after every batch of rows.
+    # Only the figure is touched; the sentence around it is somebody's.
+    stated = re.compile(r"(?<![0-9])[0-9]{3,4} products")
+    for doc in sorted((ROOT / "docs").glob("*.md")):
+        before = doc.read_text(encoding="utf-8")
+        after = stated.sub("%d products" % len(products), before)
+        if after != before:
+            doc.write_text(after, encoding="utf-8", newline="\n")
+            print("  updated the count in %s" % doc.name)
     OUT.write_text(json.dumps(catalog, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     priced = sum(1 for p in products if p.get("msrp_cents") is not None)
     print("wrote %s: %d products, %d with a cited shelf price"
