@@ -213,6 +213,22 @@ ROWS = [
     ("sazerac-18", "Buffalo Trace", "Sazerac", "18 Year", "straightRye", "unspecified", 45.0, 18, [], None),
     ("eagle-rare-17", "Buffalo Trace", "Eagle Rare", "17 Year", "kentuckyStraightBourbon", "unspecified", 50.5, 17, [], None),
 
+    # ------------------------------------------------------------- Van Winkle
+    # Distilled at Buffalo Trace for the Van Winkle family, on the wheated
+    # mashbill. The most-hunted line in American whiskey and the one the
+    # catalogue was missing entirely, which meant the app answered NEVER HAD
+    # IT about the bottle a collector is proudest of owning.
+    #
+    # The proofs here are fixed by the label, unlike the annual barrel-proof
+    # releases above: Pappy 15 is 107 proof every year, not a new number each
+    # autumn.
+    ("orvw-10", "Buffalo Trace", "Old Rip Van Winkle", "10 Year", "kentuckyStraightBourbon", "unspecified", 53.5, 10, [], "wheated"),
+    ("van-winkle-12", "Buffalo Trace", "Van Winkle", "Special Reserve 12 Year Lot B", "kentuckyStraightBourbon", "unspecified", 45.2, 12, [], "wheated"),
+    ("pappy-15", "Buffalo Trace", "Pappy Van Winkle", "15 Year", "kentuckyStraightBourbon", "unspecified", 53.5, 15, [], "wheated"),
+    ("pappy-20", "Buffalo Trace", "Pappy Van Winkle", "20 Year", "kentuckyStraightBourbon", "unspecified", 45.2, 20, [], "wheated"),
+    ("pappy-23", "Buffalo Trace", "Pappy Van Winkle", "23 Year", "kentuckyStraightBourbon", "unspecified", 47.8, 23, [], "wheated"),
+    ("van-winkle-family-rye-13", "Buffalo Trace", "Van Winkle", "Family Reserve Rye 13 Year", "straightRye", "unspecified", 47.8, 13, [], None),
+
     # -------------------------------------------------- Heaven Hill, in full
     ("evan-williams-1783", "Heaven Hill", "Evan Williams", "1783 Small Batch", "kentuckyStraightBourbon", "smallBatch", 43.0, None, [], None),
     ("mellow-corn", "Heaven Hill", "Mellow Corn", "Bottled in Bond", "straightCornWhiskey", "unspecified", 50.0, 4, [BIB], None),
@@ -271,6 +287,7 @@ ROWS = [
     ("old-bardstown-estate", "Willett", "Old Bardstown", "Estate Bottled", "kentuckyStraightBourbon", "unspecified", 50.5, None, [], None),
     ("johnny-drum", "Willett", "Johnny Drum", "Private Stock", "kentuckyStraightBourbon", "smallBatch", 50.5, None, [], None),
     ("willett-family-estate-rye", "Willett", "Willett", "Family Estate Rye", "straightRye", "singleBarrel", None, None, [BP], None),
+    ("willett-family-estate-bourbon", "Willett", "Willett", "Family Estate Bourbon", "kentuckyStraightBourbon", "singleBarrel", None, None, [BP], None),
 
     # ----------------------------------------------------- Wild Turkey, more
     ("wild-turkey-81", "Wild Turkey", "Wild Turkey", "81", "kentuckyStraightBourbon", "unspecified", 40.5, None, [], None),
@@ -285,6 +302,34 @@ ROWS = [
     ("barrell-bourbon", "Barrell Craft Spirits", "Barrell", "Bourbon", "blendOfStraightBourbon", "blend", None, None, [BP], None),
     ("barrell-seagrass", "Barrell Craft Spirits", "Barrell", "Seagrass", "rye", "blend", None, None, [BP], None),
     ("barrell-dovetail", "Barrell Craft Spirits", "Barrell", "Dovetail", "blendedWhiskey", "blend", None, None, [BP], None),
+
+    # --------------------------------------------------- Annual releases
+    # The bottles people queue for. Every one of these is a new whiskey each
+    # year, so abv is null on purpose -- the convention already used for
+    # barrel proof above. A catalogue claiming one proof for Birthday
+    # Bourbon would be wrong for every year but one.
+    #
+    # Three kinds of bottle are deliberately NOT here, because the model
+    # cannot hold them honestly and check_catalog.py is right to refuse
+    # them:
+    #
+    #   Parker's Heritage changes CLASS between releases -- bourbon one
+    #   year, wheat whiskey or rye the next -- and class cannot say "it
+    #   depends". One row would be wrong for whichever year you hold.
+    #
+    #   Old Forester Birthday Bourbon and the Kentucky Owl batches change
+    #   STRENGTH every release without being barrel proof. `abv = None` is
+    #   allowed only alongside the barrel-proof flag, which is the correct
+    #   rule: it makes the app say "whatever this barrel came out at"
+    #   rather than leaving a number blank for no stated reason. There is
+    #   no flag yet for "a new recipe each year at a stated proof", and
+    #   inventing a proof to get past the check would put a wrong number
+    #   on every bottle but one.
+    #
+    # Adding them means adding that flag first, not adding a row.
+    ("king-of-kentucky", "Brown-Forman", "King of Kentucky", "", "kentuckyStraightBourbon", "singleBarrel", None, None, [BP], None),
+    ("little-book", "Jim Beam", "Little Book", "", "blendedWhiskey", "blend", None, None, [BP], None),
+    ("kentucky-owl-confiscated", "Kentucky Owl", "Kentucky Owl", "Confiscated", "kentuckyStraightBourbon", "smallBatch", 48.2, None, [], None),
     ("high-west-rendezvous", "High West", "High West", "Rendezvous Rye", "straightRye", "blend", 46.0, None, [], None),
     ("high-west-american-prairie", "High West", "High West", "American Prairie", "blendOfStraightBourbon", "blend", 46.0, None, [], None),
     ("smooth-ambler-contradiction", "Smooth Ambler", "Smooth Ambler", "Contradiction", "blendOfStraightBourbon", "blend", 50.0, None, [], None),
