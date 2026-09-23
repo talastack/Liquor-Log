@@ -809,6 +809,42 @@ ROWS = [
     ("pike-creek-10", "Hiram Walker", "Pike Creek", "10 Year", "canadianWhisky", "unspecified", 42.0, 10, [], None),
     ("goose-island-bcbs", "Goose Island", "Goose Island", "Bourbon County Brand Stout", "maltBeverage", "unspecified", 14.7, None, [], None),
 
+    # ------------------------------------------- Expressions, not just names
+    # Nobody owns "Talisker". They own Talisker 18, and the catalogue knew
+    # the distillery and two bottles. Same for Oban, Bowmore, Lagavulin,
+    # Laphroaig, Redbreast, Hennessy and most of the vodka shelf: the name
+    # was there and the bottle in somebody's cabinet was not.
+    ("talisker-18", "Talisker", "Talisker", "18 Year", "singleMaltScotch", "unspecified", 45.8, 18, [], None),
+    ("talisker-distillers-edition", "Talisker", "Talisker", "Distillers Edition", "singleMaltScotch", "unspecified", 45.8, None, [], None),
+    ("talisker-skye", "Talisker", "Talisker", "Skye", "singleMaltScotch", "unspecified", 45.8, None, [], None),
+    ("oban-18", "Oban", "Oban", "18 Year", "singleMaltScotch", "unspecified", 43.0, 18, [], None),
+    ("oban-little-bay", "Oban", "Oban", "Little Bay", "singleMaltScotch", "unspecified", 43.0, None, [], None),
+    ("bowmore-18", "Bowmore", "Bowmore", "18 Year", "singleMaltScotch", "unspecified", 43.0, 18, [], None),
+    ("springbank-18", "Springbank", "Springbank", "18 Year", "singleMaltScotch", "unspecified", 46.0, 18, [], None),
+    ("glenmorangie-18", "Glenmorangie", "Glenmorangie", "18 Year", "singleMaltScotch", "unspecified", 43.0, 18, [], None),
+    ("aberfeldy-12", "Aberfeldy", "Aberfeldy", "12 Year", "singleMaltScotch", "unspecified", 40.0, 12, [], None),
+    ("balblair-12", "Balblair", "Balblair", "12 Year", "singleMaltScotch", "unspecified", 46.0, 12, [], None),
+    ("loch-lomond-12", "Loch Lomond", "Loch Lomond", "12 Year", "singleMaltScotch", "unspecified", 46.0, 12, [], None),
+    ("tomintoul-16", "Tomintoul", "Tomintoul", "16 Year", "singleMaltScotch", "unspecified", 40.0, 16, [], None),
+    ("speyburn-10", "Speyburn", "Speyburn", "10 Year", "singleMaltScotch", "unspecified", 43.0, 10, [], None),
+    ("cardhu-12", "Cardhu", "Cardhu", "12 Year", "singleMaltScotch", "unspecified", 40.0, 12, [], None),
+    ("strathisla-12", "Strathisla", "Strathisla", "12 Year", "singleMaltScotch", "unspecified", 40.0, 12, [], None),
+    ("scapa-skiren", "Scapa", "Scapa", "Skiren", "singleMaltScotch", "unspecified", 40.0, None, [], None),
+    ("yamazaki-18", "Suntory", "Yamazaki", "18 Year", "japaneseWhisky", "unspecified", 43.0, 18, [], None),
+    ("beluga-noble", "Beluga", "Beluga", "Noble", "vodka", "unspecified", 40.0, None, [], None),
+    ("luksusowa", "Luksusowa", "Luksusowa", "", "vodka", "unspecified", 40.0, None, [], None),
+    ("sobieski", "Sobieski", "Sobieski", "", "vodka", "unspecified", 40.0, None, [], None),
+    ("wheatley-vodka", "Buffalo Trace", "Wheatley", "Vodka", "vodka", "unspecified", 41.0, None, [], None),
+    ("hangar-1-straight", "Hangar 1", "Hangar 1", "Straight", "vodka", "unspecified", 40.0, None, [], None),
+    ("crystal-head", "Crystal Head", "Crystal Head", "", "vodka", "unspecified", 40.0, None, [], None),
+    ("effen-vodka", "Effen", "Effen", "Original", "vodka", "unspecified", 40.0, None, [], None),
+    ("zubrowka-bison-grass", "Zubrowka", "Zubrowka", "Bison Grass", "flavoredVodka", "unspecified", 37.5, None, [], None),
+    ("uncle-vals-botanical", "Uncle Val's", "Uncle Val's", "Botanical", "distilledGin", "unspecified", 45.0, None, [], None),
+    ("real-mccoy-5", "Foursquare", "The Real McCoy", "5 Year", "rum", "unspecified", 40.0, 5, [], None),
+    ("chairmans-reserve", "St. Lucia Distillers", "Chairman's Reserve", "Original", "rum", "blend", 40.0, None, [], None),
+    ("damoiseau-vsop", "Damoiseau", "Damoiseau", "VSOP", "rhumAgricole", "unspecified", 42.0, None, [], None),
+    ("bumbu-original", "Bumbu", "Bumbu", "The Original", "flavoredRum", "unspecified", 35.0, None, [], None),
+
     # ------------------------ US craft, the rest of the world, the bitters
     # worldWhisky had seven rows for every country without a class of its
     # own -- Israel, England, Brittany, Bavaria, the Netherlands,
