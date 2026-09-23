@@ -84,6 +84,12 @@ class ClassificationTest {
         assertEquals(ClassType.Family.WHISKEY, ClassType.WORLD_WHISKY.family)
 
         assertEquals(30.0, ClassType.FLAVORED_RUM.minimumBottlingStrength?.percent)
+        // Class 9 is one floor for all of them: Tennessee Honey is 35% and
+        // Smirnoff's flavours are exactly 30.
+        assertEquals(30.0, ClassType.FLAVORED_WHISKEY.minimumBottlingStrength?.percent)
+        assertEquals(30.0, ClassType.FLAVORED_VODKA.minimumBottlingStrength?.percent)
+        assertEquals(ClassType.Family.WHISKEY, ClassType.FLAVORED_WHISKEY.family)
+        assertEquals(ClassType.Family.VODKA, ClassType.FLAVORED_VODKA.family)
         assertEquals(40.0, ClassType.RUM.minimumBottlingStrength?.percent)
         assertEquals(ClassType.Family.RUM, ClassType.FLAVORED_RUM.family)
 

@@ -49,6 +49,12 @@ public enum ClassType: String, Sendable, CaseIterable, Codable {
     /// Japanese whisky and saying so would be worse than saying nothing.
     case worldWhisky
 
+    /// Honeyed, cinnamon and apple whiskey. TTB's Class 9 alongside
+    /// flavoured rum, gin, vodka and brandy: at least 30%, which is why
+    /// Jack Daniel's Tennessee Honey at 35% is not a weak whiskey. Kept in
+    /// the whiskey family because that is where somebody looks for it.
+    case flavoredWhiskey
+
     // MARK: Agave
     case tequilaBlanco
     case tequilaReposado
@@ -76,6 +82,9 @@ public enum ClassType: String, Sendable, CaseIterable, Codable {
     case distilledGin
     case genever
     case vodka
+    /// Citron, vanilla, raspberry. Class 9 again, so 30% rather than the
+    /// family's 40%: Smirnoff's flavours are bottled at exactly 30.
+    case flavoredVodka
     case aquavit
 
     // MARK: Grape and fruit
@@ -166,7 +175,7 @@ public enum ClassType: String, Sendable, CaseIterable, Codable {
              .lightWhiskey, .blendedWhiskey,
              .singleMaltScotch, .blendedMaltScotch, .singleGrainScotch, .blendedScotch,
              .irishWhiskey, .singlePotStillIrish, .singleMaltIrish,
-             .canadianWhisky, .japaneseWhisky, .worldWhisky:
+             .canadianWhisky, .japaneseWhisky, .worldWhisky, .flavoredWhiskey:
             return .whiskey
         case .tequilaBlanco, .tequilaReposado, .tequilaAnejo, .tequilaExtraAnejo, .mezcal:
             return .agave
@@ -174,7 +183,7 @@ public enum ClassType: String, Sendable, CaseIterable, Codable {
             return .rum
         case .londonDryGin, .distilledGin, .genever:
             return .gin
-        case .vodka:
+        case .vodka, .flavoredVodka:
             return .vodka
         case .cognac, .armagnac, .calvados, .brandy, .pisco, .grappa:
             return .brandy
@@ -229,7 +238,7 @@ public enum ClassType: String, Sendable, CaseIterable, Codable {
         // them under-strength would put a warning on a bottle that is
         // exactly what its label says it is.
         switch self {
-        case .flavoredRum: return ABV(percent: 30)
+        case .flavoredRum, .flavoredWhiskey, .flavoredVodka: return ABV(percent: 30)
         case .cachaca: return ABV(percent: 38)
         case .grappa: return ABV(percent: 37.5)
         default: break
@@ -283,6 +292,8 @@ public enum ClassType: String, Sendable, CaseIterable, Codable {
         case .rum: return "Rum"
         case .rhumAgricole: return "Rhum Agricole"
         case .flavoredRum: return "Flavored Rum"
+        case .flavoredWhiskey: return "Flavored Whiskey"
+        case .flavoredVodka: return "Flavored Vodka"
         case .londonDryGin: return "London Dry Gin"
         case .distilledGin: return "Distilled Gin"
         case .genever: return "Genever"

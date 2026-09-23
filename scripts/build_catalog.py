@@ -807,6 +807,57 @@ ROWS = [
     ("pike-creek-10", "Hiram Walker", "Pike Creek", "10 Year", "canadianWhisky", "unspecified", 42.0, 10, [], None),
     ("goose-island-bcbs", "Goose Island", "Goose Island", "Bourbon County Brand Stout", "maltBeverage", "unspecified", 14.7, None, [], None),
 
+    # -------------------------------- The back bar and the flavoured shelf
+    # Two things were missing that a shop devotes whole aisles to.
+    #
+    # The cocktail bottles: curacao, maraschino, creme de violette,
+    # falernum, allspice dram, both Chartreuses. Somebody who owns a
+    # shaker owns most of them, and the app knew none.
+    #
+    # The flavoured shelf: Tennessee Honey, Crown Royal Apple, Absolut
+    # Citron. These need flavoredWhiskey and flavoredVodka to be listed
+    # honestly -- TTB's Class 9 is bottled at 30%, and calling a 35%
+    # Tennessee Honey a weak whiskey or a strong liqueur would both be
+    # wrong.
+    ("pierre-ferrand-dry-curacao", "Pierre Ferrand", "Pierre Ferrand", "Dry Curacao", "liqueur", "unspecified", 40.0, None, [], None),
+    ("rothman-creme-de-violette", "Rothman and Winter", "Rothman and Winter", "Creme de Violette", "liqueur", "unspecified", 20.0, None, [], None),
+    ("tempus-fugit-creme-de-cacao", "Tempus Fugit", "Tempus Fugit", "Creme de Cacao", "liqueur", "unspecified", 24.0, None, [], None),
+    ("tempus-fugit-creme-de-menthe", "Tempus Fugit", "Tempus Fugit", "Creme de Menthe", "liqueur", "unspecified", 24.0, None, [], None),
+    ("velvet-falernum", "John D. Taylor", "John D. Taylor", "Velvet Falernum", "liqueur", "unspecified", 11.0, None, [], None),
+    ("st-elizabeth-allspice-dram", "St. Elizabeth", "St. Elizabeth", "Allspice Dram", "liqueur", "unspecified", 22.0, None, [], None),
+    ("combier-triple-sec", "Combier", "Combier", "Liqueur d'Orange", "liqueur", "unspecified", 40.0, None, [], None),
+    ("giffard-banane", "Giffard", "Giffard", "Banane du Bresil", "liqueur", "unspecified", 25.0, None, [], None),
+    ("italicus", "Italicus", "Italicus", "Rosolio di Bergamotto", "liqueur", "unspecified", 20.0, None, [], None),
+    ("amer-picon", "Picon", "Picon", "Amer", "amaro", "unspecified", 21.0, None, [], None),
+    ("brancamenta", "Fratelli Branca", "Branca", "Brancamenta", "amaro", "unspecified", 28.0, None, [], None),
+    ("jack-daniels-tennessee-honey", "Jack Daniel's", "Jack Daniel's", "Tennessee Honey", "flavoredWhiskey", "unspecified", 35.0, None, [], None),
+    ("jack-daniels-tennessee-fire", "Jack Daniel's", "Jack Daniel's", "Tennessee Fire", "flavoredWhiskey", "unspecified", 35.0, None, [], None),
+    ("jack-daniels-tennessee-apple", "Jack Daniel's", "Jack Daniel's", "Tennessee Apple", "flavoredWhiskey", "unspecified", 35.0, None, [], None),
+    ("crown-royal-apple", "Crown Royal", "Crown Royal", "Regal Apple", "flavoredWhiskey", "unspecified", 35.0, None, [], None),
+    ("crown-royal-peach", "Crown Royal", "Crown Royal", "Peach", "flavoredWhiskey", "unspecified", 35.0, None, [], None),
+    ("crown-royal-vanilla", "Crown Royal", "Crown Royal", "Vanilla", "flavoredWhiskey", "unspecified", 35.0, None, [], None),
+    ("jim-beam-honey", "Jim Beam", "Jim Beam", "Honey", "flavoredWhiskey", "unspecified", 32.5, None, [], None),
+    ("jim-beam-apple", "Jim Beam", "Jim Beam", "Apple", "flavoredWhiskey", "unspecified", 32.5, None, [], None),
+    ("evan-williams-honey", "Heaven Hill", "Evan Williams", "Honey", "flavoredWhiskey", "unspecified", 35.0, None, [], None),
+    ("wild-turkey-american-honey", "Wild Turkey", "Wild Turkey", "American Honey", "flavoredWhiskey", "unspecified", 35.5, None, [], None),
+    ("absolut-citron", "Absolut", "Absolut", "Citron", "flavoredVodka", "unspecified", 40.0, None, [], None),
+    ("absolut-vanilia", "Absolut", "Absolut", "Vanilia", "flavoredVodka", "unspecified", 40.0, None, [], None),
+    ("deep-eddy-lemon", "Deep Eddy", "Deep Eddy", "Lemon", "flavoredVodka", "unspecified", 35.0, None, [], None),
+    ("deep-eddy-ruby-red", "Deep Eddy", "Deep Eddy", "Ruby Red", "flavoredVodka", "unspecified", 35.0, None, [], None),
+    ("smirnoff-raspberry", "Smirnoff", "Smirnoff", "Raspberry", "flavoredVodka", "unspecified", 30.0, None, [], None),
+    ("stoli-vanil", "Stolichnaya", "Stoli", "Vanil", "flavoredVodka", "unspecified", 37.5, None, [], None),
+    ("ketel-one-botanical-cucumber", "Ketel One", "Ketel One", "Botanical Cucumber and Mint", "flavoredVodka", "unspecified", 30.0, None, [], None),
+    ("new-amsterdam-pineapple", "New Amsterdam", "New Amsterdam", "Pineapple", "flavoredVodka", "unspecified", 35.0, None, [], None),
+    ("haymans-old-tom", "Hayman's", "Hayman's", "Old Tom", "distilledGin", "unspecified", 41.4, None, [], None),
+    ("ransom-old-tom", "Ransom", "Ransom", "Old Tom", "distilledGin", "unspecified", 43.8, None, [], None),
+    ("perrys-tot-navy-strength", "New York Distilling", "Perry's Tot", "Navy Strength", "distilledGin", "unspecified", 57.0, None, [], None),
+    ("four-pillars-rare-dry", "Four Pillars", "Four Pillars", "Rare Dry", "distilledGin", "unspecified", 41.8, None, [], None),
+    ("brockmans", "Brockmans", "Brockmans", "Intensely Smooth", "distilledGin", "unspecified", 40.0, None, [], None),
+    ("barr-hill-gin", "Caledonia Spirits", "Barr Hill", "Gin", "distilledGin", "unspecified", 45.0, None, [], None),
+    ("bluecoat-gin", "Philadelphia Distilling", "Bluecoat", "American Dry", "distilledGin", "unspecified", 47.0, None, [], None),
+    ("deaths-door-gin", "Death's Door", "Death's Door", "Gin", "distilledGin", "unspecified", 47.0, None, [], None),
+    ("haymans-sloe-gin", "Hayman's", "Hayman's", "Sloe Gin", "liqueur", "unspecified", 26.0, None, [], None),
+
     # ------------------------------- Beer, cider and bourbon, by request
     # Beer went from three rows to a category. The macro lagers are here
     # because they are what is in most fridges and somebody logging a

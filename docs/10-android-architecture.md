@@ -54,7 +54,7 @@ What is already shared and needs no port at all:
 
 | Already platform-neutral | Where |
 |---|---|
-| The catalogue (793 products) | `shared/data/spirits.v1.json` |
+| The catalogue (831 products) | `shared/data/spirits.v1.json` |
 | The flavour wheel | `shared/data/flavor-wheel.v1.json` |
 | The CRT tequila registry | `shared/data/tequila-nom.v1.json` |
 | The Postgres schema and RLS | `shared/schema/` |

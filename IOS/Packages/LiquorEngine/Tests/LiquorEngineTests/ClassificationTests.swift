@@ -130,6 +130,24 @@ final class ClassificationTests: XCTestCase {
         XCTAssertEqual(ClassType.worldWhisky.minimumBottlingStrength?.percent, 40)
     }
 
+    func testTheFlavouredClassesShareOneFloorAndKeepTheirFamilies() {
+        // TTB's Class 9 -- flavoured whisky, rum, gin, vodka, brandy -- is
+        // bottled at 30%. Tennessee Honey is 35% and Smirnoff's flavours are
+        // exactly 30, so holding either to the family's 40% would flag a
+        // bottle that is precisely what its label says.
+        for type in [ClassType.flavoredRum, .flavoredWhiskey, .flavoredVodka] {
+            XCTAssertEqual(type.minimumBottlingStrength?.percent, 30, "\(type)")
+        }
+        // Filed with their relatives, because that is where somebody looks.
+        XCTAssertEqual(ClassType.flavoredWhiskey.family, .whiskey)
+        XCTAssertEqual(ClassType.flavoredVodka.family, .vodka)
+        XCTAssertEqual(ClassType.flavoredRum.family, .rum)
+
+        XCTAssertTrue(issues(.flavoredWhiskey, abv: 35.0).isEmpty)
+        XCTAssertTrue(issues(.flavoredVodka, abv: 30.0).isEmpty)
+        XCTAssertFalse(issues(.flavoredVodka, abv: 25.0).isEmpty)
+    }
+
     func testFlavouredRumHasItsOwnFloorBelowItsFamily() {
         // Captain Morgan is 35%. Held to rum's 40% it reads as an
         // under-strength rum; it is nothing of the kind, it is a flavoured

@@ -47,6 +47,14 @@ enum class ClassType(val storageKey: String) {
      */
     WORLD_WHISKY("worldWhisky"),
 
+    /**
+     * Honeyed, cinnamon and apple whiskey. TTB's Class 9 alongside flavoured
+     * rum, gin, vodka and brandy: at least 30%, which is why Jack Daniel's
+     * Tennessee Honey at 35% is not a weak whiskey. Kept in the whiskey
+     * family because that is where somebody looks for it.
+     */
+    FLAVORED_WHISKEY("flavoredWhiskey"),
+
     // Agave
     TEQUILA_BLANCO("tequilaBlanco"),
     TEQUILA_REPOSADO("tequilaReposado"),
@@ -78,6 +86,11 @@ enum class ClassType(val storageKey: String) {
     DISTILLED_GIN("distilledGin"),
     GENEVER("genever"),
     VODKA("vodka"),
+    /**
+     * Citron, vanilla, raspberry. Class 9 again, so 30% rather than the
+     * family's 40%: Smirnoff's flavours are bottled at exactly 30.
+     */
+    FLAVORED_VODKA("flavoredVodka"),
     AQUAVIT("aquavit"),
 
     // Fruit
@@ -159,7 +172,7 @@ enum class ClassType(val storageKey: String) {
             LIGHT_WHISKEY, BLENDED_WHISKEY,
             SINGLE_MALT_SCOTCH, BLENDED_MALT_SCOTCH, SINGLE_GRAIN_SCOTCH, BLENDED_SCOTCH,
             IRISH_WHISKEY, SINGLE_POT_STILL_IRISH, SINGLE_MALT_IRISH,
-            CANADIAN_WHISKY, JAPANESE_WHISKY, WORLD_WHISKY,
+            CANADIAN_WHISKY, JAPANESE_WHISKY, WORLD_WHISKY, FLAVORED_WHISKEY,
             -> Family.WHISKEY
 
             TEQUILA_BLANCO, TEQUILA_REPOSADO, TEQUILA_ANEJO, TEQUILA_EXTRA_ANEJO, MEZCAL,
@@ -167,7 +180,7 @@ enum class ClassType(val storageKey: String) {
 
             RUM, RHUM_AGRICOLE, FLAVORED_RUM, CACHACA -> Family.RUM
             LONDON_DRY_GIN, DISTILLED_GIN, GENEVER -> Family.GIN
-            VODKA -> Family.VODKA
+            VODKA, FLAVORED_VODKA -> Family.VODKA
             COGNAC, ARMAGNAC, CALVADOS, BRANDY, PISCO, GRAPPA -> Family.BRANDY
             LIQUEUR, AMARO, VERMOUTH -> Family.LIQUEUR
             PORT, SHERRY, MADEIRA -> Family.FORTIFIED
@@ -214,7 +227,7 @@ enum class ClassType(val storageKey: String) {
             // family's. TTB's flavoured spirits are bottled at 30% and
             // calling one under-strength would put a warning on a bottle
             // that is exactly what its label says it is.
-            if (this == FLAVORED_RUM) return ABV(percent = 30.0)
+            if (this in FLAVORED_30) return ABV(percent = 30.0)
             if (this == CACHACA) return ABV(percent = 38.0)
             if (this == GRAPPA) return ABV(percent = 37.5)
             return when (family) {
@@ -266,6 +279,8 @@ enum class ClassType(val storageKey: String) {
             MEZCAL -> "Mezcal"
             RUM -> "Rum"
             FLAVORED_RUM -> "Flavored Rum"
+            FLAVORED_WHISKEY -> "Flavored Whiskey"
+            FLAVORED_VODKA -> "Flavored Vodka"
             RHUM_AGRICOLE -> "Rhum Agricole"
             LONDON_DRY_GIN -> "London Dry Gin"
             DISTILLED_GIN -> "Distilled Gin"
@@ -297,6 +312,9 @@ enum class ClassType(val storageKey: String) {
         }
 
     companion object {
+        /** TTB's Class 9 flavoured spirits, bottled at 30% not their family's 40%. */
+        private val FLAVORED_30 = setOf(FLAVORED_RUM, FLAVORED_WHISKEY, FLAVORED_VODKA)
+
 
         private val byKey: Map<String, ClassType> by lazy { entries.associateBy { it.storageKey } }
 
