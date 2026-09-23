@@ -162,7 +162,14 @@ class TastingRepository(private val database: LiquorDatabase) {
         id
     }
 
-    /** Saves an edited tasting, replacing its picks wholesale. */
+    /**
+     * Saves an edited tasting, replacing its picks wholesale.
+     *
+     * `tastedAt` defaults to leaving the date alone. Correcting a rating is
+     * not tasting the whiskey again: defaulting it to now moved the tasting
+     * to the evening somebody fixed a typo, which quietly rewrites the
+     * history the trend is drawn from.
+     */
     fun update(
         id: String,
         rating: Int? = null,
@@ -176,9 +183,10 @@ class TastingRepository(private val database: LiquorDatabase) {
         liked: String? = null,
         disliked: String? = null,
         descriptors: Map<Stage, List<String>> = emptyMap(),
-        tastedAt: Long = System.currentTimeMillis(),
+        tastedAt: Long? = null,
         now: Long = System.currentTimeMillis(),
     ): Unit = database.transaction {
+        val existing = q.selectTastingById(id).executeAsOneOrNull()
         q.updateTasting(
             rating = rating?.toLong(),
             would_rebuy = rebuy?.storageKey,
@@ -190,7 +198,7 @@ class TastingRepository(private val database: LiquorDatabase) {
             blind = if (isBlind) 1L else 0L,
             liked = liked?.takeIf { it.isNotBlank() },
             disliked = disliked?.takeIf { it.isNotBlank() },
-            tasted_at = tastedAt,
+            tasted_at = tastedAt ?: existing?.tasted_at ?: now,
             updated_at = now,
             id = id,
         )

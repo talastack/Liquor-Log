@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -73,6 +74,7 @@ object Route {
     const val ADD_BOTTLE = "addBottle"
     const val EDIT_BOTTLE = "editBottle"
     const val TASTING_SHEET = "tastingSheet"
+    const val TASTING_EDIT = "tastingEdit"
     const val CATALOG = "catalog"
     const val STATS = "stats"
     const val CODE_DECODER = "codeDecoder"
@@ -99,6 +101,8 @@ object Route {
      * fails to match the route.
      */
     fun tastingSheet(bottleId: String?) = TASTING_SHEET + "/" + (bottleId ?: "-")
+
+    fun tastingEdit(tastingId: String) = TASTING_EDIT + "/" + tastingId
 }
 
 /**
@@ -302,6 +306,7 @@ private fun AppNavHost(navController: NavHostController, state: AppState) {
                 onBack = { navController.popBackStack() },
                 onEdit = { navController.navigate(Route.editBottle(it)) },
                 onRecordTasting = { navController.navigate(Route.tastingSheet(it)) },
+                onEditTasting = { navController.navigate(Route.tastingEdit(it)) },
             )
         }
         composable(Route.ADD_BOTTLE) {
@@ -328,6 +333,26 @@ private fun AppNavHost(navController: NavHostController, state: AppState) {
                 bottleId = raw?.takeIf { it != "-" },
                 onDone = { navController.popBackStack() },
             )
+        }
+        composable(
+            Route.TASTING_EDIT + "/{tastingId}",
+            arguments = listOf(navArgument("tastingId") { type = NavType.StringType }),
+        ) { entry ->
+            val state = LocalAppState.current
+            val id = entry.arguments?.getString("tastingId")
+            val editing = remember(id) { id?.let { state.tastings.byId(it) } }
+            if (editing == null) {
+                // The tasting was removed while this screen was on the back
+                // stack. Going back is better than an empty form that would
+                // save a second tasting nobody asked for.
+                LaunchedEffect(Unit) { navController.popBackStack() }
+            } else {
+                TastingSheetScreen(
+                    bottleId = editing.bottleId,
+                    editing = editing,
+                    onDone = { navController.popBackStack() },
+                )
+            }
         }
         composable(Route.CATALOG) {
             CatalogBrowseScreen(onBack = { navController.popBackStack() })

@@ -489,6 +489,38 @@ class RepositoryTest {
     }
 
     @Test
+    fun `editing a tasting corrects it in place rather than adding a second`() {
+        val bottle = bottles.add(name = "Weller 12", volumeMl = 750.0, now = 1_000)
+        val id = tastings.record(
+            bottleId = bottle,
+            rating = 4,
+            liked = "Too hot",
+            descriptors = mapOf(TastingRepository.Stage.NOSE to listOf("caramel")),
+            tastedAt = 2_000,
+            now = 2_000,
+        )
+
+        tastings.update(
+            id = id,
+            rating = 7,
+            liked = "Better with water",
+            descriptors = mapOf(TastingRepository.Stage.NOSE to listOf("caramel", "dried fig")),
+            now = 3_000,
+        )
+
+        // One tasting, not two: the bottle must not show the same night twice.
+        val all = tastings.forBottle(bottle)
+        assertEquals(1, all.size)
+        val only = all.single()
+        assertEquals(7, only.rating)
+        assertEquals("Better with water", only.liked)
+        // The date it happened is not the date it was corrected.
+        assertEquals(2_000L, only.tastedAt)
+        // Picks are replaced wholesale, which is what the wheel does.
+        assertEquals(listOf("caramel", "dried fig"), only.descriptors(TastingRepository.Stage.NOSE))
+    }
+
+    @Test
     fun `undoing a blend pour takes it out of the blend as well`() {
         // The other half of "whiskey that leaves one bottle arrives in the
         // other". Undo used to put the liquid back in the source and leave

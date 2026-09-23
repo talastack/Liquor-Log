@@ -25,6 +25,16 @@ struct TastingSheetView: View {
     /// uses it to move to the next glass.
     var onSaved: (() -> Void)?
 
+    /// The tasting being changed, when this sheet was opened on one that
+    /// already exists.
+    ///
+    /// An opinion is the one thing in this app that is genuinely revisable:
+    /// a rating typed a digit out, a finish you would call medium on the
+    /// second glass, a descriptor you meant to pick. Recording one was a
+    /// one-way door until now -- the only way to fix a 4 you meant as a 7
+    /// was to delete the tasting and lose its date with it.
+    let existing: TastingDetail?
+
     @State private var rating: Int?
     @State private var rebuy: Rebuy?
     @State private var liked = ""
@@ -50,13 +60,32 @@ struct TastingSheetView: View {
         catalogProductId: String? = nil,
         pourId: String? = nil,
         blind: Bool = false,
+        existing: TastingDetail? = nil,
         onSaved: (() -> Void)? = nil
     ) {
-        self.bottleId = bottleId
-        self.catalogProductId = catalogProductId
-        self.pourId = pourId
-        self.blind = blind
+        // An edit keeps the tasting's own subject and pour, whatever the
+        // caller passed: changing your mind about a whiskey does not move
+        // it to a different bottle.
+        let tasting = existing?.tasting
+        self.bottleId = tasting?.bottleId ?? bottleId
+        self.catalogProductId = tasting?.catalogProductId ?? catalogProductId
+        self.pourId = tasting?.pourId ?? pourId
+        self.blind = tasting?.blind ?? blind
+        self.existing = existing
         self.onSaved = onSaved
+
+        if let tasting, let existing {
+            _rating = State(initialValue: tasting.rating)
+            _rebuy = State(initialValue: tasting.wouldRebuy)
+            _liked = State(initialValue: tasting.liked ?? "")
+            _disliked = State(initialValue: tasting.disliked ?? "")
+            _picks = State(initialValue: existing.notes)
+            _heat = State(initialValue: tasting.perceivedHeat
+                .flatMap(PerceivedProof.Heat.init(rawValue:)))
+            _finishLength = State(initialValue: FinishLength.nearest(tasting.finishSeconds))
+            _source = State(initialValue: tasting.source)
+            _sourceNote = State(initialValue: tasting.sourceNote ?? "")
+        }
     }
 
     /// Bands, not a stopwatch. Nobody times a finish, but everybody can say
@@ -82,6 +111,17 @@ struct TastingSheetView: View {
             case .long: return 60
             case .veryLong: return 120
             }
+        }
+
+        /// The band a stored figure belongs to. Seconds are stored so they
+        /// can be compared and exported; the form only ever offers bands,
+        /// so an edit has to find its way back to one.
+        static func nearest(_ seconds: Int?) -> FinishLength {
+            guard let seconds else { return .notRecorded }
+            return allCases
+                .filter { $0.seconds != nil }
+                .min { abs(($0.seconds ?? 0) - seconds) < abs(($1.seconds ?? 0) - seconds) }
+                ?? .notRecorded
         }
 
         var caption: String {
@@ -487,7 +527,7 @@ struct TastingSheetView: View {
     private func save() {
         do {
             let productId = try catalogProductId ?? resolvedProductId() ?? productForTypedName()
-            let tasting = Tasting(
+            var tasting = Tasting(
                 bottleId: bottleId,
                 catalogProductId: productId,
                 pourId: pourId,
@@ -500,6 +540,15 @@ struct TastingSheetView: View {
                 blind: blind,
                 liked: liked.isEmpty ? nil : liked,
                 disliked: disliked.isEmpty ? nil : disliked)
+            // An edit keeps the row's identity and its date. `save` upserts
+            // on the id, so without this a correction would leave the
+            // original behind and the bottle would show the same night
+            // twice.
+            if let original = existing?.tasting {
+                tasting.id = original.id
+                tasting.tastedAt = original.tastedAt
+                tasting.createdAt = original.createdAt
+            }
             // Tasting and picks save in ONE transaction: a rating that survived
             // while its notes did not would be a silent loss.
             try env.tastings.save(tasting, descriptors: picks)

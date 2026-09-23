@@ -157,26 +157,40 @@ private fun title(
  * stop filling in after the third bottle.
  */
 @Composable
-fun TastingSheetScreen(bottleId: String?, onDone: () -> Unit) {
+fun TastingSheetScreen(
+    bottleId: String?,
+    /**
+     * The tasting being corrected, when this was opened on one that already
+     * exists. An opinion is the one thing in this app that is genuinely
+     * revisable -- a rating typed a digit out, a descriptor you meant to
+     * pick -- and recording one used to be a one-way door.
+     */
+    editing: TastingRepository.Detail? = null,
+    onDone: () -> Unit,
+) {
     val state = LocalAppState.current
     val colors = palette
-    val bottle = remember(bottleId) { bottleId?.let { state.bottles.byId(it) } }
+    // An edit keeps the tasting's own subject: changing your mind about a
+    // whiskey does not move it to a different bottle.
+    val subjectId = editing?.tasting?.bottle_id ?: bottleId
+    val bottle = remember(subjectId) { subjectId?.let { state.bottles.byId(it) } }
 
-    var rating by remember { mutableStateOf<Int?>(null) }
-    var rebuy by remember { mutableStateOf<TastingRepository.Rebuy?>(null) }
-    var liked by remember { mutableStateOf("") }
-    var disliked by remember { mutableStateOf("") }
-    var where by remember { mutableStateOf("") }
-    var untitled by remember { mutableStateOf("") }
-    var blind by remember { mutableStateOf(false) }
+    var rating by remember { mutableStateOf(editing?.tasting?.rating?.toInt()) }
+    var rebuy by remember { mutableStateOf(editing?.rebuy) }
+    var liked by remember { mutableStateOf(editing?.tasting?.liked ?: "") }
+    var disliked by remember { mutableStateOf(editing?.tasting?.disliked ?: "") }
+    var where by remember { mutableStateOf(editing?.tasting?.source ?: "") }
+    var untitled by remember { mutableStateOf(editing?.tasting?.source_note ?: "") }
+    var blind by remember { mutableStateOf(editing?.tasting?.blind == 1L) }
     var picks by remember {
-        mutableStateOf(mapOf<TastingRepository.Stage, List<String>>())
+        mutableStateOf(editing?.descriptors ?: mapOf<TastingRepository.Stage, List<String>>())
     }
     var pickingStage by remember { mutableStateOf<TastingRepository.Stage?>(null) }
 
     Column(Modifier.fillMaxWidth()) {
         DetailBar(
-            title = bottle?.let { state.name(it) } ?: "Record a tasting",
+            title = bottle?.let { state.name(it) }
+                ?: if (editing != null) "Edit tasting" else "Record a tasting",
             onBack = onDone,
             actions = {
                 Text(
@@ -185,17 +199,34 @@ fun TastingSheetScreen(bottleId: String?, onDone: () -> Unit) {
                     color = colors.accent,
                     modifier = Modifier
                         .clickable {
-                            state.tastings.record(
-                                bottleId = bottleId,
-                                rating = rating,
-                                rebuy = rebuy,
-                                liked = liked,
-                                disliked = disliked,
-                                source = where.trim().ifBlank { null },
-                                sourceNote = untitled.trim().ifBlank { null },
-                                isBlind = blind,
-                                descriptors = picks,
-                            )
+                            // An edit writes over the same row. Recording a
+                            // second one would leave the original behind and
+                            // show the same night twice.
+                            if (editing != null) {
+                                state.tastings.update(
+                                    id = editing.tasting.id,
+                                    rating = rating,
+                                    rebuy = rebuy,
+                                    liked = liked,
+                                    disliked = disliked,
+                                    source = where.trim().ifBlank { null },
+                                    sourceNote = untitled.trim().ifBlank { null },
+                                    isBlind = blind,
+                                    descriptors = picks,
+                                )
+                            } else {
+                                state.tastings.record(
+                                    bottleId = subjectId,
+                                    rating = rating,
+                                    rebuy = rebuy,
+                                    liked = liked,
+                                    disliked = disliked,
+                                    source = where.trim().ifBlank { null },
+                                    sourceNote = untitled.trim().ifBlank { null },
+                                    isBlind = blind,
+                                    descriptors = picks,
+                                )
+                            }
                             state.noteChange()
                             onDone()
                         }

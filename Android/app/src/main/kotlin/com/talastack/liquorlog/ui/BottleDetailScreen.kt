@@ -77,6 +77,7 @@ fun BottleDetailScreen(
     onBack: () -> Unit,
     onEdit: (String) -> Unit,
     onRecordTasting: (String) -> Unit,
+    onEditTasting: (String) -> Unit,
 ) {
     val state = LocalAppState.current
     val colors = palette
@@ -201,7 +202,7 @@ fun BottleDetailScreen(
             }
 
             if (tastings.isNotEmpty()) {
-                item { HowItHasDrunk(summary, tastings) }
+                item { HowItHasDrunk(summary, tastings, onEditTasting) }
             }
             item { PriceSection(summary) }
             item { FactsSection(summary) }
@@ -590,6 +591,7 @@ private fun OxidationCard(estimate: OxidationBand.Estimate) {
 private fun HowItHasDrunk(
     summary: BottleRepository.Summary,
     tastings: List<TastingRepository.Detail>,
+    onEditTasting: (String) -> Unit,
 ) {
     val state = LocalAppState.current
     val colors = palette
@@ -611,7 +613,10 @@ private fun HowItHasDrunk(
             Card { Text(it.text, style = TypeScale.body, color = colors.text) }
         }
         for (detail in tastings) {
-            Card {
+            // Tapping a tasting opens it for correction. Same reasoning as
+            // the pour log above: the card is the only thing on its row,
+            // and an opinion is the one record here worth revising.
+            Card(onClick = { onEditTasting(detail.id) }) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,

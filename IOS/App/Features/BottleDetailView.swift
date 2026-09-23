@@ -40,6 +40,10 @@ struct BottleDetailView: View {
     /// clear that seeing that change is why people keep the notes at all.
     @State private var tastings: [TastingDetail] = []
 
+    /// The tasting being corrected. An opinion is the one thing here that
+    /// is genuinely revisable, and recording one used to be a one-way door.
+    @State private var editingTasting: TastingDetail?
+
     /// Your best rating of a NON-pick bottle of the same product, for the
     /// comparison. Nil when you have only ever had the pick.
     @State private var standardRating: Int?
@@ -209,6 +213,14 @@ struct BottleDetailView: View {
         .sheet(isPresented: $isEditing) {
             NavigationStack {
                 EditBottleView(bottleId: bottleId, onSave: { changed() })
+            }
+        }
+        .sheet(item: $editingTasting) { detail in
+            NavigationStack {
+                TastingSheetView(existing: detail) {
+                    editingTasting = nil
+                    changed()
+                }
             }
         }
         .sheet(isPresented: $isReadingStory) {
@@ -1244,6 +1256,11 @@ struct BottleDetailView: View {
                     daysOpen: daysOpen(at: detail.tasting, of: summary.bottle),
                     wheel: env.wheel)
                 .contextMenu {
+                    Button {
+                        editingTasting = detail
+                    } label: {
+                        Label("Edit this tasting", systemImage: "pencil")
+                    }
                     Button(role: .destructive) {
                         removeTasting(detail.id)
                     } label: {
