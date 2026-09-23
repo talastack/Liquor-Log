@@ -754,6 +754,59 @@ ROWS = [
     ("aalborg-taffel", "Aalborg", "Aalborg", "Taffel", "aquavit", "unspecified", 45.0, None, [], None),
     ("krogstad-aquavit", "House Spirits", "Krogstad", "Festlig Aquavit", "aquavit", "unspecified", 40.0, None, [], None),
 
+    # ------------------------------------------- The bottles every shop has
+    # The catalogue was built by somebody who knows bourbon, and it showed.
+    # 112 Kentucky straight bourbons, five E.H. Taylors, the whole Antique
+    # Collection -- and no Captain Morgan, no Jose Cuervo, no Fireball, no
+    # Jagermeister. Those outsell every bottle above them put together. A
+    # shelf check that cannot find Captain Morgan is not a shelf check,
+    # however many store picks it knows.
+    #
+    # Nothing here is exciting. That is the point.
+    ("captain-morgan-spiced", "Captain Morgan", "Captain Morgan", "Original Spiced", "flavoredRum", "unspecified", 35.0, None, [], None),
+    ("havana-club-7", "Havana Club", "Havana Club", "Anejo 7 Anos", "rum", "unspecified", 40.0, 7, [], None),
+    ("don-q-cristal", "Destileria Serralles", "Don Q", "Cristal", "rum", "unspecified", 40.0, None, [], None),
+    ("brugal-1888", "Brugal", "Brugal", "1888 Gran Reserva", "rum", "unspecified", 40.0, None, [], None),
+    ("santa-teresa-1796", "Santa Teresa", "Santa Teresa", "1796", "rum", "unspecified", 40.0, None, [], None),
+    ("ron-barcelo-imperial", "Ron Barcelo", "Ron Barcelo", "Imperial", "rum", "unspecified", 40.0, None, [], None),
+    ("cuervo-especial-silver", "Jose Cuervo", "Jose Cuervo", "Especial Silver", "tequilaBlanco", "unspecified", 40.0, None, [], None),
+    ("cuervo-tradicional-reposado", "Jose Cuervo", "Jose Cuervo", "Tradicional Reposado", "tequilaReposado", "unspecified", 40.0, None, [], None),
+    ("1800-silver", "Jose Cuervo", "1800", "Silver", "tequilaBlanco", "unspecified", 40.0, None, [], None),
+    ("hornitos-plata", "Sauza", "Hornitos", "Plata", "tequilaBlanco", "unspecified", 40.0, None, [], None),
+    ("sauza-silver", "Sauza", "Sauza", "Silver", "tequilaBlanco", "unspecified", 40.0, None, [], None),
+    ("milagro-silver", "Milagro", "Milagro", "Silver", "tequilaBlanco", "unspecified", 40.0, None, [], None),
+    ("teremana-blanco", "Teremana", "Teremana", "Blanco", "tequilaBlanco", "unspecified", 40.0, None, [], None),
+    ("tapatio-blanco", "La Alteria", "Tapatio", "Blanco", "tequilaBlanco", "unspecified", 40.0, None, [], None),
+    ("lalo-blanco", "LALO", "LALO", "Blanco", "tequilaBlanco", "unspecified", 40.0, None, [], None),
+    ("codigo-1530-blanco", "Codigo 1530", "Codigo 1530", "Blanco", "tequilaBlanco", "unspecified", 40.0, None, [], None),
+    ("volcan-blanco", "Volcan de mi Tierra", "Volcan", "Blanco", "tequilaBlanco", "unspecified", 40.0, None, [], None),
+    ("herradura-suprema", "Herradura", "Herradura", "Seleccion Suprema", "tequilaExtraAnejo", "unspecified", 40.0, None, [], None),
+    ("fireball", "Sazerac", "Fireball", "Cinnamon Whisky", "liqueur", "unspecified", 33.0, None, [], None),
+    ("jagermeister", "Mast-Jaegermeister", "Jagermeister", "", "liqueur", "unspecified", 35.0, None, [], None),
+    ("malibu", "Malibu", "Malibu", "Original Coconut", "liqueur", "unspecified", 21.0, None, [], None),
+    ("southern-comfort", "Southern Comfort", "Southern Comfort", "Original", "liqueur", "unspecified", 35.0, None, [], None),
+    ("midori", "Suntory", "Midori", "Melon", "liqueur", "unspecified", 20.0, None, [], None),
+    ("rumchata", "RumChata", "RumChata", "", "liqueur", "unspecified", 13.75, None, [], None),
+    ("tia-maria", "Tia Maria", "Tia Maria", "", "liqueur", "unspecified", 20.0, None, [], None),
+    ("luxardo-limoncello", "Luxardo", "Luxardo", "Limoncello", "liqueur", "unspecified", 27.0, None, [], None),
+    ("ouzo-12", "Ouzo 12", "Ouzo 12", "", "liqueur", "unspecified", 40.0, None, [], None),
+    ("amarula", "Amarula", "Amarula", "Cream", "liqueur", "unspecified", 17.0, None, [], None),
+    ("screwball", "Screwball", "Screwball", "Peanut Butter Whiskey", "liqueur", "unspecified", 35.0, None, [], None),
+    ("svedka", "Svedka", "Svedka", "", "vodka", "unspecified", 40.0, None, [], None),
+    ("new-amsterdam-vodka", "New Amsterdam", "New Amsterdam", "Original", "vodka", "unspecified", 40.0, None, [], None),
+    ("deep-eddy-vodka", "Deep Eddy", "Deep Eddy", "Original", "vodka", "unspecified", 40.0, None, [], None),
+    ("russian-standard", "Russian Standard", "Russian Standard", "Original", "vodka", "unspecified", 40.0, None, [], None),
+    ("pinnacle-vodka", "Pinnacle", "Pinnacle", "Original", "vodka", "unspecified", 40.0, None, [], None),
+    ("three-olives", "Three Olives", "Three Olives", "Original", "vodka", "unspecified", 40.0, None, [], None),
+    ("seagrams-extra-dry-gin", "Seagram's", "Seagram's", "Extra Dry", "distilledGin", "unspecified", 40.0, None, [], None),
+    ("bols-genever", "Lucas Bols", "Bols", "Genever", "genever", "unspecified", 42.0, None, [], None),
+    ("glen-scotia-double-cask", "Glen Scotia", "Glen Scotia", "Double Cask", "singleMaltScotch", "unspecified", 46.0, None, [], None),
+    ("cameron-brig", "Cameronbridge", "Cameron Brig", "", "singleGrainScotch", "unspecified", 40.0, None, [], None),
+    ("haig-club-clubman", "Cameronbridge", "Haig Club", "Clubman", "singleGrainScotch", "unspecified", 40.0, None, [], None),
+    ("jp-wisers-deluxe", "Hiram Walker", "J.P. Wiser's", "Deluxe", "canadianWhisky", "unspecified", 40.0, None, [], None),
+    ("pike-creek-10", "Hiram Walker", "Pike Creek", "10 Year", "canadianWhisky", "unspecified", 42.0, 10, [], None),
+    ("goose-island-bcbs", "Goose Island", "Goose Island", "Bourbon County Brand Stout", "maltBeverage", "unspecified", 14.7, None, [], None),
+
     # ------------------------------------------------------------------ Cider
     # Hard cider is a real TTB class -- a wine made from apples or pears,
     # still or lightly carbonated, under 8.5% -- so these rows say what they

@@ -77,6 +77,26 @@ def swift_class_types(text):
     return cases, straight, families
 
 
+def swift_class_floors(text):
+    """Per-class floors that override the family rule.
+
+    `minimumBottlingStrength` answers from the family for almost every
+    class, but a few carry their own lower figure -- TTB's flavoured
+    spirits are bottled at 30% where their family needs 40%. Read those
+    out of the engine too, rather than keeping a second list here that can
+    disagree with the app a user is holding.
+    """
+    floors = {}
+    block = text.split("public var minimumBottlingStrength", 1)
+    if len(block) < 2:
+        return floors
+    head = block[1].split("switch family", 1)[0]
+    for name, percent in re.findall(
+            r"case\s+\.([a-zA-Z]+):\s*return\s+ABV\(percent:\s*([0-9.]+)\)", head):
+        floors[name] = float(percent)
+    return floors
+
+
 def swift_recipe_codes(text):
     letters = re.findall(r'case\s+([a-z])\s*=\s*"([A-Z])"', text)
     if len(letters) < 7:
@@ -111,8 +131,15 @@ def main():
         print("could not read from the engine: %s" % ", ".join(missing), file=sys.stderr)
         return 1
 
-    def has_strength_floor(class_type):
-        return families.get(class_type, "other") not in NO_FLOOR_FAMILIES
+    class_floors = swift_class_floors(classification)
+
+    def strength_floor(class_type):
+        """The floor for this class, or None when it has none."""
+        if class_type in class_floors:
+            return class_floors[class_type]
+        if families.get(class_type, "other") in NO_FLOOR_FAMILIES:
+            return None
+        return min_abv
 
     try:
         catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
@@ -172,10 +199,11 @@ def main():
         if abv is not None:
             if not (0.5 < abv <= 95.0):
                 problems.append("%s: abv %s is outside 0.5-95" % (where, abv))
-            if has_strength_floor(class_type) and abv < min_abv:
+            floor = strength_floor(class_type)
+            if floor is not None and abv < floor:
                 problems.append(
                     "%s: %s bottles at no less than %s%% ABV; got %s"
-                    % (where, class_type, min_abv, abv))
+                    % (where, class_type, floor, abv))
             if bonded and abv != bond_abv:
                 problems.append(
                     "%s: bottled in bond is exactly %s%% ABV; got %s"

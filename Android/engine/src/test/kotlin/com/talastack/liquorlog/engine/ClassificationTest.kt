@@ -68,6 +68,13 @@ class ClassificationTest {
         // A 5% cider is not an under-strength spirit; it is a cider. The 40%
         // floor is an American spirits rule and applying it here would flag
         // every can on the shelf.
+        // Captain Morgan is 35%. Held to rum's 40% it reads as an
+        // under-strength rum; it is a flavoured rum, and TTB bottles those
+        // at 30%.
+        assertEquals(30.0, ClassType.FLAVORED_RUM.minimumBottlingStrength?.percent)
+        assertEquals(40.0, ClassType.RUM.minimumBottlingStrength?.percent)
+        assertEquals(ClassType.Family.RUM, ClassType.FLAVORED_RUM.family)
+
         assertNull(ClassType.HARD_CIDER.minimumBottlingStrength)
         assertNull(ClassType.HARD_SELTZER.minimumBottlingStrength)
     }

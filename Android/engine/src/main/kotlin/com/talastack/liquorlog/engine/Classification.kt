@@ -50,6 +50,14 @@ enum class ClassType(val storageKey: String) {
     RUM("rum"),
     RHUM_AGRICOLE("rhumAgricole"),
 
+    /**
+     * Spiced and flavoured rum. Its own TTB class, not a rum with something
+     * added: the standard of identity allows 30% where straight rum needs
+     * 40%, which is why Captain Morgan at 35% is not an under-strength rum
+     * but an ordinary flavoured one.
+     */
+    FLAVORED_RUM("flavoredRum"),
+
     // Clear and botanical
     LONDON_DRY_GIN("londonDryGin"),
     DISTILLED_GIN("distilledGin"),
@@ -118,7 +126,7 @@ enum class ClassType(val storageKey: String) {
             TEQUILA_BLANCO, TEQUILA_REPOSADO, TEQUILA_ANEJO, TEQUILA_EXTRA_ANEJO, MEZCAL,
             -> Family.AGAVE
 
-            RUM, RHUM_AGRICOLE -> Family.RUM
+            RUM, RHUM_AGRICOLE, FLAVORED_RUM -> Family.RUM
             LONDON_DRY_GIN, DISTILLED_GIN, GENEVER -> Family.GIN
             VODKA -> Family.VODKA
             COGNAC, ARMAGNAC, CALVADOS, BRANDY, PISCO -> Family.BRANDY
@@ -160,17 +168,24 @@ enum class ClassType(val storageKey: String) {
      * under-strength would be the app being wrong with confidence.
      */
     val minimumBottlingStrength: ABV?
-        get() = when (family) {
-            // A 5% cider is not under-strength; it is a cider. Asserting a
-            // spirits floor here would make the app wrong with confidence.
-            Family.LIQUEUR, Family.BEER, Family.CIDER, Family.SELTZER -> null
-            Family.WHISKEY, Family.AGAVE, Family.RUM,
-            Family.GIN, Family.VODKA, Family.BRANDY,
-            -> ABV(percent = 40.0)
-            // Aquavit and absinthe are bottled far above any floor in
-            // practice, but their minimums vary by origin, so the app does
-            // not assert one.
-            Family.OTHER -> null
+        get() {
+            // A few classes carry their own floor, lower than their
+            // family's. TTB's flavoured spirits are bottled at 30% and
+            // calling one under-strength would put a warning on a bottle
+            // that is exactly what its label says it is.
+            if (this == FLAVORED_RUM) return ABV(percent = 30.0)
+            return when (family) {
+                // A 5% cider is not under-strength; it is a cider. Asserting a
+                // spirits floor here would make the app wrong with confidence.
+                Family.LIQUEUR, Family.BEER, Family.CIDER, Family.SELTZER -> null
+                Family.WHISKEY, Family.AGAVE, Family.RUM,
+                Family.GIN, Family.VODKA, Family.BRANDY,
+                -> ABV(percent = 40.0)
+                // Aquavit and absinthe are bottled far above any floor in
+                // practice, but their minimums vary by origin, so the app does
+                // not assert one.
+                Family.OTHER -> null
+            }
         }
 
     /** What the UI prints. The storage key is a key, not English. */
@@ -205,6 +220,7 @@ enum class ClassType(val storageKey: String) {
             TEQUILA_EXTRA_ANEJO -> "Tequila Extra Añejo"
             MEZCAL -> "Mezcal"
             RUM -> "Rum"
+            FLAVORED_RUM -> "Flavored Rum"
             RHUM_AGRICOLE -> "Rhum Agricole"
             LONDON_DRY_GIN -> "London Dry Gin"
             DISTILLED_GIN -> "Distilled Gin"

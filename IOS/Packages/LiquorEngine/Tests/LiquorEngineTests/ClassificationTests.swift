@@ -96,6 +96,18 @@ final class ClassificationTests: XCTestCase {
         XCTAssertTrue(amaro.isEmpty)
     }
 
+    func testFlavouredRumHasItsOwnFloorBelowItsFamily() {
+        // Captain Morgan is 35%. Held to rum's 40% it reads as an
+        // under-strength rum; it is nothing of the kind, it is a flavoured
+        // rum, and TTB bottles those at 30%.
+        XCTAssertEqual(ClassType.flavoredRum.minimumBottlingStrength?.percent, 30)
+        XCTAssertEqual(ClassType.rum.minimumBottlingStrength?.percent, 40)
+        XCTAssertEqual(ClassType.flavoredRum.family, .rum, "still a rum on the shelf")
+
+        XCTAssertTrue(issues(.flavoredRum, abv: 35.0).isEmpty)
+        XCTAssertFalse(issues(.flavoredRum, abv: 25.0).isEmpty, "below even its own floor")
+    }
+
     func testCiderAndSeltzerAreNotHeldToASpiritsFloor() {
         // A 5% cider is not an under-strength spirit; it is a cider. The
         // 40% floor is an American *spirits* rule, and applying it here

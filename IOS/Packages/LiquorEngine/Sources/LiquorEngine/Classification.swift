@@ -54,6 +54,12 @@ public enum ClassType: String, Sendable, CaseIterable, Codable {
     case rum
     case rhumAgricole
 
+    /// Spiced and flavoured rum. Its own TTB class, not a rum with
+    /// something added: the standard of identity allows 30% where straight
+    /// rum needs 40%, which is why Captain Morgan at 35% is not an
+    /// under-strength rum but an ordinary flavoured one.
+    case flavoredRum
+
     // MARK: Juniper and neutral
     case londonDryGin
     case distilledGin
@@ -126,7 +132,7 @@ public enum ClassType: String, Sendable, CaseIterable, Codable {
             return .whiskey
         case .tequilaBlanco, .tequilaReposado, .tequilaAnejo, .tequilaExtraAnejo, .mezcal:
             return .agave
-        case .rum, .rhumAgricole:
+        case .rum, .rhumAgricole, .flavoredRum:
             return .rum
         case .londonDryGin, .distilledGin, .genever:
             return .gin
@@ -176,6 +182,15 @@ public enum ClassType: String, Sendable, CaseIterable, Codable {
     /// vermouth may sit well below 40% by design, and rejecting a 16% amaro as
     /// under-strength would be the app being wrong with confidence.
     public var minimumBottlingStrength: ABV? {
+        // A few classes carry their own floor, lower than their family's.
+        // TTB's flavoured spirits are bottled at 30% and calling one of
+        // them under-strength would put a warning on a bottle that is
+        // exactly what its label says it is.
+        switch self {
+        case .flavoredRum: return ABV(percent: 30)
+        default: break
+        }
+
         switch family {
         case .liqueur, .beer, .cider, .seltzer:
             // A 5% cider is not under-strength; it is a cider. Asserting a
@@ -223,6 +238,7 @@ public enum ClassType: String, Sendable, CaseIterable, Codable {
         case .mezcal: return "Mezcal"
         case .rum: return "Rum"
         case .rhumAgricole: return "Rhum Agricole"
+        case .flavoredRum: return "Flavored Rum"
         case .londonDryGin: return "London Dry Gin"
         case .distilledGin: return "Distilled Gin"
         case .genever: return "Genever"
