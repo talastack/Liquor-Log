@@ -16,6 +16,8 @@ struct MoreView: View {
     @AppStorage(VolumeDisplay.key) private var ounces = false
 
     @AppStorage(Palette.Look.key, store: Palette.Look.defaults) private var look = Palette.Look.standard.rawValue
+    @AppStorage(Palette.Appearance.key, store: Palette.Appearance.defaults)
+    private var appearanceChoice = Palette.Appearance.standard.rawValue
     @AppStorage(AppEnvironment.sharingKey) private var isSharing = false
     @AppStorage(AppEnvironment.regionKey) private var region = ""
     @Environment(\.colorScheme) private var colorScheme
@@ -43,6 +45,7 @@ struct MoreView: View {
 
                 tools
                 appearance
+                lightOrDark
                 money
                 if env.community != nil {
                     sharing
@@ -397,6 +400,56 @@ struct MoreView: View {
                         .stroke(look == option.rawValue ? Palette.gold : Palette.line, lineWidth: 1))
                 }
             }
+        }
+    }
+
+    // MARK: - Light or dark
+
+    /// Which half of the chosen look to use.
+    ///
+    /// Before this the phone decided and nothing in the app could, so three
+    /// of the four looks were unreachable on a phone kept in light mode:
+    /// "green-black and copper" arrived pale green.
+    private var lightOrDark: some View {
+        VStack(alignment: .leading, spacing: Space.m) {
+            SectionLabel("Light or dark")
+            ForEach(Palette.Appearance.allCases) { option in
+                Button { appearanceChoice = option.rawValue } label: {
+                    HStack(spacing: Space.m) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(option.name)
+                                .font(TypeScale.body())
+                                .foregroundStyle(Palette.text)
+                            Text(option.line)
+                                .font(TypeScale.caption())
+                                .textCase(nil)
+                                .foregroundStyle(Palette.textMuted)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .multilineTextAlignment(.leading)
+                        }
+                        Spacer(minLength: Space.s)
+                        if appearanceChoice == option.rawValue {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundStyle(Palette.gold)
+                        }
+                    }
+                    .padding(Space.l)
+                    .frame(maxWidth: .infinity, minHeight: Space.tapTarget, alignment: .leading)
+                    .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
+                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(
+                        appearanceChoice == option.rawValue ? Palette.gold : Palette.line,
+                        lineWidth: 1))
+                }
+            }
+            // Said once, here, because somebody who forces dark and then sees
+            // a light widget will otherwise think one of them is broken.
+            Text("The Home Screen widget follows the phone either way. iOS does"
+                 + " not let an app set the appearance of its own widget.")
+                .font(TypeScale.caption())
+                .textCase(nil)
+                .foregroundStyle(Palette.textMuted)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 

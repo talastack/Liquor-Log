@@ -16,6 +16,7 @@ import com.talastack.liquorlog.engine.Catalog
 import com.talastack.liquorlog.engine.CatalogProduct
 import com.talastack.liquorlog.engine.FlavorWheel
 import com.talastack.liquorlog.engine.ProductIdentity
+import com.talastack.liquorlog.ui.theme.Appearance
 import com.talastack.liquorlog.ui.theme.Look
 
 /**
@@ -42,6 +43,8 @@ class AppState(
     val wheel: FlavorWheel?,
     look: Look,
     private val onLookPicked: (Look) -> Unit,
+    appearance: Appearance,
+    private val onAppearancePicked: (Appearance) -> Unit,
     ounces: Boolean,
     private val onUnitsPicked: (Boolean) -> Unit,
     showsValue: Boolean,
@@ -51,6 +54,10 @@ class AppState(
         private set
 
     var look by mutableStateOf(look)
+        private set
+
+    /** Light, dark, or the phone's own setting. */
+    var appearance by mutableStateOf(appearance)
         private set
 
     /** Shown in ounces rather than millilitres. A preference, never data. */
@@ -75,6 +82,11 @@ class AppState(
     fun pick(look: Look) {
         this.look = look
         onLookPicked(look)
+    }
+
+    fun pick(appearance: Appearance) {
+        this.appearance = appearance
+        onAppearancePicked(appearance)
     }
 
     fun pick(ounces: Boolean) {

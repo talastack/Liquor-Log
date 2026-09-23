@@ -20,6 +20,7 @@ import com.talastack.liquorlog.data.WishlistRepository
 import com.talastack.liquorlog.ui.AppState
 import com.talastack.liquorlog.ui.MainScreen
 import com.talastack.liquorlog.ui.VolumeDisplay
+import com.talastack.liquorlog.ui.theme.Appearance
 import com.talastack.liquorlog.ui.theme.LiquorLogTheme
 import com.talastack.liquorlog.ui.theme.Look
 
@@ -65,6 +66,10 @@ class MainActivity : ComponentActivity() {
                     onLookPicked = {
                         preferences.edit().putString(Look.KEY, it.key).apply()
                     },
+                    appearance = Appearance.fromKey(preferences.getString(Appearance.KEY, null)),
+                    onAppearancePicked = {
+                        preferences.edit().putString(Appearance.KEY, it.key).apply()
+                    },
                     ounces = preferences.getBoolean(VolumeDisplay.KEY, false),
                     onUnitsPicked = {
                         preferences.edit().putBoolean(VolumeDisplay.KEY, it).apply()
@@ -76,7 +81,7 @@ class MainActivity : ComponentActivity() {
                     },
                 )
             }
-            LiquorLogTheme(look = state.look) {
+            LiquorLogTheme(look = state.look, appearance = state.appearance) {
                 MainScreen(state)
             }
         }

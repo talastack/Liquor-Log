@@ -58,6 +58,31 @@ enum class Look(val key: String, val display: String, val line: String) {
     }
 }
 
+/**
+ * Light, dark, or whatever the phone is set to.
+ *
+ * Separate from [Look] on purpose. A look is a colour family -- the green of
+ * a rickhouse, the cream and oxblood of a label -- and every one of them has
+ * a light set of tokens and a dark set. Until now the phone chose between
+ * them and nothing in the app could, so somebody who keeps their phone light
+ * could not have a dark shelf, and picking "Cellar: green-black and copper"
+ * gave them a pale green screen.
+ */
+enum class Appearance(val key: String, val display: String, val line: String) {
+    SYSTEM("system", "Follow the phone", "Light by day, dark at night, as the phone is set."),
+    LIGHT("light", "Always light", "Paper, whatever the phone is doing."),
+    DARK("dark", "Always dark", "The bar at night, whatever the phone is doing."),
+    ;
+
+    companion object {
+        val standard: Appearance = SYSTEM
+        const val KEY: String = "theme.appearance"
+
+        fun fromKey(key: String?): Appearance =
+            entries.firstOrNull { it.key == key } ?: standard
+    }
+}
+
 /** The token set for one look in one mode. */
 fun paletteFor(look: Look, dark: Boolean): Palette = when (look) {
     Look.CELLAR -> if (dark) cellarDark else cellarLight

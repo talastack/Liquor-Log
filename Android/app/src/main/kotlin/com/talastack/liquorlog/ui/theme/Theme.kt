@@ -94,9 +94,17 @@ val palette: Palette
 @Composable
 fun LiquorLogTheme(
     look: Look = Look.standard,
-    dark: Boolean = isSystemInDarkTheme(),
+    appearance: Appearance = Appearance.standard,
     content: @Composable () -> Unit,
 ) {
+    // The phone answers only when nobody has said otherwise. `dark` used to
+    // BE `isSystemInDarkTheme()` with no way past it, which made three of
+    // the four looks unreachable on a phone kept in light mode.
+    val dark = when (appearance) {
+        Appearance.SYSTEM -> isSystemInDarkTheme()
+        Appearance.LIGHT -> false
+        Appearance.DARK -> true
+    }
     val tokens = paletteFor(look, dark)
 
     val colors = if (dark) {

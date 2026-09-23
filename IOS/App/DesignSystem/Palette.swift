@@ -70,6 +70,67 @@ enum Palette {
         }
     }
 
+    // MARK: - Light or dark
+
+    /// Which half of a look to use.
+    ///
+    /// Separate from `Look` on purpose. A look is a colour family -- the
+    /// green of a rickhouse, the cream and oxblood of a label -- and each
+    /// one has a light set of tokens and a dark set. Until now the phone
+    /// chose between them and nothing in the app could, so somebody who
+    /// keeps their phone in light mode could not have a dark shelf, and
+    /// picking "Cellar: green-black and copper" gave them a pale green
+    /// screen.
+    ///
+    /// The WIDGET cannot follow this. A widget renders in the system
+    /// appearance and an app cannot override that for it, so a forced-dark
+    /// app on a light phone has a light widget. Better than the alternative,
+    /// which is a widget that disagrees with the Home Screen around it.
+    enum Appearance: String, CaseIterable, Identifiable {
+        case system, light, dark
+
+        var id: String { rawValue }
+
+        var name: String {
+            switch self {
+            case .system: return "Follow the phone"
+            case .light: return "Always light"
+            case .dark: return "Always dark"
+            }
+        }
+
+        var line: String {
+            switch self {
+            case .system: return "Light by day, dark at night, as the phone is set."
+            case .light: return "Paper, whatever the phone is doing."
+            case .dark: return "The bar at night, whatever the phone is doing."
+            }
+        }
+
+        /// What SwiftUI needs. `nil` means "do not override", which is the
+        /// only way to say "follow the phone" -- there is no `.system` case
+        /// on ColorScheme.
+        var colorScheme: ColorScheme? {
+            switch self {
+            case .system: return nil
+            case .light: return .light
+            case .dark: return .dark
+            }
+        }
+
+        static let key = "theme.appearance"
+        static let standard: Appearance = .system
+
+        /// The same app-group defaults the look uses.
+        static var defaults: UserDefaults { Look.defaults }
+
+        static var current: Appearance {
+            let stored = defaults.string(forKey: key)
+                ?? UserDefaults.standard.string(forKey: key)
+            return Appearance(rawValue: stored ?? "") ?? standard
+        }
+    }
+
     /// One look: every token as a dark and a light hex.
     struct Scheme {
         let background, surface, surfaceRaised, line: (dark: UInt32, light: UInt32)

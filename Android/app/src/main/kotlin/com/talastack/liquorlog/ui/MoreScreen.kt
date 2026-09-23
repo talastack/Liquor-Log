@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import com.talastack.liquorlog.ui.theme.Appearance
 import com.talastack.liquorlog.ui.theme.Look
 import com.talastack.liquorlog.ui.theme.Space
 import com.talastack.liquorlog.ui.theme.TypeScale
@@ -204,6 +205,21 @@ fun MoreScreen(onOpen: (String) -> Unit) {
             item { LookRow(option, selected = option == state.look) { state.pick(option) } }
         }
 
+        // Which half of the look to use. Every look has a light set of
+        // tokens and a dark set; before this the phone decided and nothing
+        // in the app could, so "green-black and copper" arrived pale green
+        // on a phone kept in light mode.
+        item { SectionLabel("Light or dark") }
+        for (option in Appearance.entries) {
+            item {
+                LookRow(
+                    option.display,
+                    option.line,
+                    selected = option == state.appearance,
+                ) { state.pick(option) }
+            }
+        }
+
         item { SectionLabel("Your collection") }
         item {
             Card {
@@ -344,10 +360,19 @@ private fun SwitchRow(
 }
 
 @Composable
-private fun LookRow(look: Look, selected: Boolean, onClick: () -> Unit) {
+private fun LookRow(look: Look, selected: Boolean, onClick: () -> Unit) =
+    LookRow(look.display, look.line, selected, onClick)
+
+@Composable
+private fun LookRow(
+    title: String,
+    line: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
     val colors = palette
     Card(onClick = onClick, borderColor = if (selected) colors.accent else null) {
-        Text(look.display, style = TypeScale.headline, color = colors.text)
-        Text(look.line, style = TypeScale.secondary, color = colors.textSecondary)
+        Text(title, style = TypeScale.headline, color = colors.text)
+        Text(line, style = TypeScale.secondary, color = colors.textSecondary)
     }
 }

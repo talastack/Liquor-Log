@@ -17,6 +17,12 @@ struct LiquorLogApp: App {
     /// every `Palette` read picks up the new values.
     @AppStorage(Palette.Look.key, store: Palette.Look.defaults) private var look = Palette.Look.standard.rawValue
 
+    /// Light, dark, or the phone's own setting. Every colour in the app is a
+    /// dynamic `UIColor` that reads the trait collection, so overriding the
+    /// scheme at the root is all it takes -- nothing else has to know.
+    @AppStorage(Palette.Appearance.key, store: Palette.Appearance.defaults)
+    private var appearance = Palette.Appearance.standard.rawValue
+
     init() {
         let env = AppEnvironment.live()
         _environment = State(initialValue: env)
@@ -32,6 +38,8 @@ struct LiquorLogApp: App {
         WindowGroup {
             MainTabView()
                 .id(look)
+                .preferredColorScheme(
+                    Palette.Appearance(rawValue: appearance)?.colorScheme)
                 // The widget is the same look; it is told when that changes.
                 .onChange(of: look) { _, _ in WidgetCenter.shared.reloadAllTimelines() }
                 // Search index and widget are brought up to date once at
