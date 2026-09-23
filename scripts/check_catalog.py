@@ -83,19 +83,24 @@ def swift_class_floors(text):
     """Per-class floors that override the family rule.
 
     `minimumBottlingStrength` answers from the family for almost every
-    class, but a few carry their own lower figure -- TTB's flavoured
-    spirits are bottled at 30% where their family needs 40%. Read those
-    out of the engine too, rather than keeping a second list here that can
-    disagree with the app a user is holding.
+    class, but several carry their own figure: TTB's flavoured spirits
+    are bottled at 30%, cachaca at 38%, grappa at 37.5%, the agave
+    classes at 35% under NOM, jenever at 30% in the EU. Read them out of
+    the engine rather than keeping a second list here that can disagree
+    with the app somebody is holding.
     """
     floors = {}
     block = text.split("public var minimumBottlingStrength", 1)
     if len(block) < 2:
         return floors
     head = block[1].split("switch family", 1)[0]
-    for name, percent in re.findall(
-            r"case\s+\.([a-zA-Z]+):\s*return\s+ABV\(percent:\s*([0-9.]+)\)", head):
-        floors[name] = float(percent)
+    # One case or a list of them, over one line or two, so the whole
+    # list is captured rather than only its first name.
+    pattern = re.compile(
+        r"case\s+((?:\.[a-zA-Z]+\s*,?\s*)+):\s*\n?\s*return\s+ABV\(percent:\s*([0-9.]+)\)")
+    for names, percent in pattern.findall(head):
+        for name in re.findall(r"\.([a-zA-Z]+)", names):
+            floors[name] = float(percent)
     return floors
 
 

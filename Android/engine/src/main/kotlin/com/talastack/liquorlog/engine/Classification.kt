@@ -297,6 +297,7 @@ enum class ClassType(val storageKey: String) {
         }
 
     companion object {
+
         private val byKey: Map<String, ClassType> by lazy { entries.associateBy { it.storageKey } }
 
         /** The class a stored key names, or null when nothing does. */

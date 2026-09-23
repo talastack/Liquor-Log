@@ -807,6 +807,99 @@ ROWS = [
     ("pike-creek-10", "Hiram Walker", "Pike Creek", "10 Year", "canadianWhisky", "unspecified", 42.0, 10, [], None),
     ("goose-island-bcbs", "Goose Island", "Goose Island", "Bourbon County Brand Stout", "maltBeverage", "unspecified", 14.7, None, [], None),
 
+    # ------------------------------------------------- Depth, where it was thin
+    # An audit by class turned up categories carrying one row or two:
+    # mezcal had one name of thirteen, rum three, and half a dozen
+    # classes existed with a single bottle behind them. A class with one
+    # example is a promise the data does not keep.
+    #
+    # bourbon, wheatWhiskey and lightWhiskey are still empty on purpose.
+    # Almost every American bourbon and wheat whiskey on a shelf is the
+    # STRAIGHT version, and light whiskey is barely bottled at all, so
+    # there is no honest row to write. An empty class is better than a
+    # bottle filed under the wrong one.
+    ("vago-espadin", "Mezcal Vago", "Mezcal Vago", "Espadin", "mezcal", "unspecified", 50.2, None, [], None),
+    ("rey-campero-espadin", "Rey Campero", "Rey Campero", "Espadin", "mezcal", "unspecified", 47.0, None, [], None),
+    ("xicaru-silver", "Xicaru", "Xicaru", "Silver 102", "mezcal", "unspecified", 51.0, None, [], None),
+    ("madre-mezcal", "Madre", "Madre", "Espadin y Cuishe", "mezcal", "unspecified", 45.0, None, [], None),
+    ("alipus-san-andres", "Alipus", "Alipus", "San Andres", "mezcal", "unspecified", 47.5, None, [], None),
+    ("derrumbes-oaxaca", "Derrumbes", "Derrumbes", "Oaxaca", "mezcal", "unspecified", 45.0, None, [], None),
+    ("nuestra-soledad-lachigui", "Nuestra Soledad", "Nuestra Soledad", "Lachigui", "mezcal", "unspecified", 46.0, None, [], None),
+    ("wahaka-espadin", "Wahaka", "Wahaka", "Espadin", "mezcal", "unspecified", 40.0, None, [], None),
+    ("sombra-mezcal", "Sombra", "Sombra", "Joven", "mezcal", "unspecified", 45.0, None, [], None),
+    # Union Uno, 400 Conejos and Bols Corenwyn are 38% and are NOT here.
+    # Those are the Mexican and Dutch bottlings; the US standards of
+    # identity require 80 proof for tequila, mezcal and gin, so the US
+    # bottling of each is 40% and the 38% figure would be wrong for the
+    # bottle in an American hand. I tried lowering the floor to NOM's 35%
+    # to fit them and an existing test caught it, which is the test doing
+    # its job: that 40% was a decision, not an oversight.
+    ("clase-azul-ultra", "Clase Azul", "Clase Azul", "Ultra Extra Anejo", "tequilaExtraAnejo", "unspecified", 40.0, None, [], None),
+    ("hamilton-jamaican-pot", "Hamilton", "Hamilton", "Jamaican Pot Still Black", "rum", "unspecified", 46.5, None, [], None),
+    ("rum-fire", "Hampden Estate", "Rum Fire", "Overproof", "rum", "unspecified", 63.0, None, [], None),
+    ("worthy-park-109", "Worthy Park", "Worthy Park", "109", "rum", "unspecified", 54.5, None, [], None),
+    ("ten-to-one-dark", "Ten To One", "Ten To One", "Dark", "rum", "blend", 45.0, None, [], None),
+    ("denizen-merchants", "Denizen", "Denizen", "Merchants Reserve", "rum", "blend", 43.0, None, [], None),
+    ("cruzan-black-strap", "Cruzan", "Cruzan", "Black Strap", "rum", "unspecified", 40.0, None, [], None),
+    ("privateer-signature", "Privateer", "Privateer", "Signature Reserve", "rum", "blend", 40.0, None, [], None),
+    ("richland-single-estate", "Richland", "Richland", "Single Estate Old Georgia", "rum", "unspecified", 43.0, None, [], None),
+    ("neisson-blanc", "Neisson", "Neisson", "Blanc 52.5", "rhumAgricole", "unspecified", 52.5, None, [], None),
+    ("clement-premiere-canne", "Clement", "Clement", "Premiere Canne", "rhumAgricole", "unspecified", 40.0, None, [], None),
+    ("captain-morgan-black", "Captain Morgan", "Captain Morgan", "Black Spiced", "flavoredRum", "unspecified", 40.0, None, [], None),
+    ("bacardi-spiced", "Bacardi", "Bacardi", "Spiced", "flavoredRum", "unspecified", 35.0, None, [], None),
+    ("tomatin-12", "Tomatin", "Tomatin", "12 Year", "singleMaltScotch", "unspecified", 43.0, 12, [], None),
+    ("benriach-the-twelve", "BenRiach", "BenRiach", "The Twelve", "singleMaltScotch", "unspecified", 46.0, 12, [], None),
+    ("jura-10", "Jura", "Jura", "10 Year", "singleMaltScotch", "unspecified", 40.0, 10, [], None),
+    ("glenrothes-12", "Glenrothes", "Glenrothes", "12 Year", "singleMaltScotch", "unspecified", 40.0, 12, [], None),
+    ("edradour-10", "Edradour", "Edradour", "10 Year", "singleMaltScotch", "unspecified", 40.0, 10, [], None),
+    ("glen-garioch-12", "Glen Garioch", "Glen Garioch", "12 Year", "singleMaltScotch", "unspecified", 48.0, 12, [], None),
+    ("longrow-peated", "Springbank", "Longrow", "Peated", "singleMaltScotch", "unspecified", 46.0, None, [], None),
+    ("octomore-cask-strength", "Bruichladdich", "Octomore", "Cask Strength", "singleMaltScotch", "unspecified", None, None, [BP], None),
+    ("big-peat", "Douglas Laing", "Big Peat", "", "blendedMaltScotch", "blend", 46.0, None, [], None),
+    ("waterford-cuvee", "Waterford", "Waterford", "Cuvee Koffi", "singleMaltIrish", "unspecified", 50.0, None, [], None),
+    ("dingle-single-malt", "Dingle", "Dingle", "Single Malt", "singleMaltIrish", "unspecified", 46.3, None, [], None),
+    ("kilbeggan-traditional", "Kilbeggan", "Kilbeggan", "Traditional", "irishWhiskey", "blend", 40.0, None, [], None),
+    ("tyrconnell-single-malt", "Cooley", "Tyrconnell", "Single Malt", "singleMaltIrish", "unspecified", 43.0, None, [], None),
+    ("chita-single-grain", "Suntory", "Chita", "Single Grain", "japaneseWhisky", "unspecified", 43.0, None, [], None),
+    ("ohishi-brandy-cask", "Ohishi", "Ohishi", "Brandy Cask", "japaneseWhisky", "unspecified", 41.0, None, [], None),
+    ("fuji-single-blended", "Kirin", "Fuji", "Single Blended", "japaneseWhisky", "blend", 43.0, None, [], None),
+    ("togouchi-premium", "Chugoku Jozo", "Togouchi", "Premium", "japaneseWhisky", "blend", 40.0, None, [], None),
+    ("tenjaku-blended", "Tenjaku", "Tenjaku", "Blended", "japaneseWhisky", "blend", 40.0, None, [], None),
+    ("wyoming-whiskey-small-batch", "Wyoming Whiskey", "Wyoming Whiskey", "Small Batch", "straightBourbon", "smallBatch", 44.0, None, [], None),
+    ("cedar-ridge-bourbon", "Cedar Ridge", "Cedar Ridge", "Straight Bourbon", "straightBourbon", "unspecified", 43.0, None, [], None),
+    ("copper-fox-rye", "Copper Fox", "Copper Fox", "Rye", "rye", "unspecified", 45.0, None, [], None),
+    ("corsair-triple-smoke", "Corsair", "Corsair", "Triple Smoke", "americanSingleMalt", "smallBatch", 40.0, None, [], None),
+    ("virginia-distillery-courage", "Virginia Distillery", "Virginia Distillery", "Courage and Conviction", "americanSingleMalt", "unspecified", 46.0, None, [], None),
+    ("boulder-american-single-malt", "Boulder Spirits", "Boulder", "American Single Malt", "americanSingleMalt", "unspecified", 42.0, None, [], None),
+    ("byrrh-grand-quinquina", "Byrrh", "Byrrh", "Grand Quinquina", "vermouth", "unspecified", 18.0, None, [], None),
+    ("bonal-gentiane-quina", "Bonal", "Bonal", "Gentiane-Quina", "vermouth", "unspecified", 16.0, None, [], None),
+    ("salers-gentiane", "Salers", "Salers", "Gentiane", "amaro", "unspecified", 16.0, None, [], None),
+    ("cappelletti-aperitivo", "Cappelletti", "Cappelletti", "Aperitivo Americano Rosso", "amaro", "unspecified", 17.0, None, [], None),
+    ("chateau-de-laubade-vsop", "Chateau de Laubade", "Chateau de Laubade", "VSOP", "armagnac", "unspecified", 40.0, None, [], None),
+    ("castarede-vsop", "Castarede", "Castarede", "VSOP", "armagnac", "unspecified", 40.0, None, [], None),
+    ("baron-de-sigognac-10", "Baron de Sigognac", "Baron de Sigognac", "10 Year", "armagnac", "unspecified", 40.0, 10, [], None),
+    ("christian-drouin-selection", "Christian Drouin", "Christian Drouin", "Selection", "calvados", "unspecified", 40.0, None, [], None),
+    ("roger-groult-8", "Roger Groult", "Roger Groult", "8 Year", "calvados", "unspecified", 41.0, 8, [], None),
+    ("macchu-pisco", "Macchu Pisco", "Macchu Pisco", "", "pisco", "unspecified", 40.0, None, [], None),
+    ("campo-de-encanto", "Campo de Encanto", "Campo de Encanto", "Grand Pisco", "pisco", "unspecified", 40.5, None, [], None),
+    ("hitachino-nest-white", "Kiuchi", "Hitachino Nest", "White Ale", "maltBeverage", "unspecified", 5.5, None, [], None),
+    ("founders-kbs", "Founders", "Founders", "KBS", "maltBeverage", "unspecified", 12.0, None, [], None),
+    ("jinro-is-back", "HiteJinro", "Jinro", "Is Back", "soju", "unspecified", 16.5, None, [], None),
+    ("kannoko-shochu", "Satsuma Shuzo", "Kannoko", "Barley Shochu", "shochu", "unspecified", 25.0, None, [], None),
+    ("mizu-shochu", "Mizu", "Mizu", "Lemongrass Shochu", "shochu", "unspecified", 24.0, None, [], None),
+    ("born-gold", "Katoukichibee", "Born", "Gold Junmai Daiginjo", "sake", "unspecified", 15.5, None, [], None),
+    ("fenjiu-classic", "Shanxi Xinghuacun Fen", "Fenjiu", "Classic", "baijiu", "unspecified", 53.0, None, [], None),
+    ("yanghe-daqu", "Yanghe", "Yanghe", "Daqu", "baijiu", "unspecified", 52.0, None, [], None),
+    ("nonino-grappa-riserva", "Nonino", "Nonino", "Riserva Antica Cuvee", "grappa", "unspecified", 41.0, None, [], None),
+    ("berta-tre-soli", "Berta", "Berta", "Tre Soli Tre", "grappa", "unspecified", 43.0, None, [], None),
+    ("sandeman-founders", "Sandeman", "Sandeman", "Founders Reserve", "port", "unspecified", 19.5, None, [], None),
+    ("quinta-do-noval-lbv", "Quinta do Noval", "Quinta do Noval", "Late Bottled Vintage", "port", "unspecified", 19.5, None, [], None),
+    ("lustau-amontillado", "Lustau", "Lustau", "Los Arcos Amontillado", "sherry", "unspecified", 18.5, None, [], None),
+    ("hidalgo-manzanilla", "Hidalgo", "Hidalgo", "La Gitana Manzanilla", "sherry", "unspecified", 15.0, None, [], None),
+    ("barbeito-10-verdelho", "Barbeito", "Barbeito", "10 Year Verdelho", "madeira", "unspecified", 19.0, 10, [], None),
+    ("leblon-reserva", "Leblon", "Leblon", "Reserva Especial", "cachaca", "unspecified", 40.0, None, [], None),
+    ("avua-prata", "Avua", "Avua", "Prata", "cachaca", "unspecified", 42.0, None, [], None),
+
     # ------------------------------------------------ The rest of the shelf
     # Whole categories the class system could not express until now. Each of
     # these was somebody's whole shelf being invisible to the app.
