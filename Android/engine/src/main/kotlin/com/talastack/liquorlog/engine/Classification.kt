@@ -72,6 +72,21 @@ enum class ClassType(val storageKey: String) {
 
     // Beer
     MALT_BEVERAGE("maltBeverage"),
+
+    // Cider and seltzer
+    //
+    // HARD_CIDER IS a defined class: TTB taxes it as a wine made from apples
+    // or pears, still or lightly carbonated, under 8.5% ABV. Pear cider --
+    // perry -- belongs here too, because the tax class covers it.
+    //
+    // HARD_SELTZER is NOT. It is a market category with two different bases:
+    // some are flavoured malt beverages (Truly, Bud Light Seltzer) and some
+    // are fermented from cane sugar with no malt at all (White Claw), which
+    // are not even regulated by the same agency. The app keeps them as one
+    // class because that is how a person holding the can thinks of them, and
+    // does not claim a regulated class for any of them.
+    HARD_CIDER("hardCider"),
+    HARD_SELTZER("hardSeltzer"),
     ;
 
     /** A grouping for filters and chips, not a legal concept. */
@@ -84,6 +99,8 @@ enum class ClassType(val storageKey: String) {
         BRANDY("brandy", "Brandy"),
         LIQUEUR("liqueur", "Liqueur"),
         BEER("beer", "Beer"),
+        CIDER("cider", "Cider"),
+        SELTZER("seltzer", "Seltzer"),
         OTHER("other", "Other"),
     }
 
@@ -107,6 +124,8 @@ enum class ClassType(val storageKey: String) {
             COGNAC, ARMAGNAC, CALVADOS, BRANDY, PISCO -> Family.BRANDY
             LIQUEUR, AMARO, VERMOUTH -> Family.LIQUEUR
             MALT_BEVERAGE -> Family.BEER
+            HARD_CIDER -> Family.CIDER
+            HARD_SELTZER -> Family.SELTZER
             AQUAVIT, ABSINTHE -> Family.OTHER
         }
 
@@ -142,7 +161,9 @@ enum class ClassType(val storageKey: String) {
      */
     val minimumBottlingStrength: ABV?
         get() = when (family) {
-            Family.LIQUEUR, Family.BEER -> null
+            // A 5% cider is not under-strength; it is a cider. Asserting a
+            // spirits floor here would make the app wrong with confidence.
+            Family.LIQUEUR, Family.BEER, Family.CIDER, Family.SELTZER -> null
             Family.WHISKEY, Family.AGAVE, Family.RUM,
             Family.GIN, Family.VODKA, Family.BRANDY,
             -> ABV(percent = 40.0)
@@ -200,6 +221,8 @@ enum class ClassType(val storageKey: String) {
             VERMOUTH -> "Vermouth"
             ABSINTHE -> "Absinthe"
             MALT_BEVERAGE -> "Malt Beverage"
+            HARD_CIDER -> "Hard Cider"
+            HARD_SELTZER -> "Hard Seltzer"
         }
 
     companion object {

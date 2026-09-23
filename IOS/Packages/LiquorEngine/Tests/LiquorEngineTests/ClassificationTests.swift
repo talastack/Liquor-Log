@@ -96,6 +96,29 @@ final class ClassificationTests: XCTestCase {
         XCTAssertTrue(amaro.isEmpty)
     }
 
+    func testCiderAndSeltzerAreNotHeldToASpiritsFloor() {
+        // A 5% cider is not an under-strength spirit; it is a cider. The
+        // 40% floor is an American *spirits* rule, and applying it here
+        // would have the app flag every can on the shelf.
+        XCTAssertNil(ClassType.hardCider.minimumBottlingStrength)
+        XCTAssertNil(ClassType.hardSeltzer.minimumBottlingStrength)
+
+        let cider = issues(.hardCider, abv: 5.0, volume: 355)
+        XCTAssertTrue(cider.isEmpty, "a 5% cider in a 355 ml can is ordinary")
+
+        let seltzer = issues(.hardSeltzer, abv: 5.0, volume: 355)
+        XCTAssertTrue(seltzer.isEmpty, "so is a White Claw")
+    }
+
+    func testCiderAndSeltzerAreTheirOwnFamilies() {
+        // Not beer. Cider is a wine for tax purposes and seltzer is not one
+        // thing at all, so filing either under Beer would put a wrong word
+        // on a filter chip somebody uses to find their own shelf.
+        XCTAssertEqual(ClassType.hardCider.family, .cider)
+        XCTAssertEqual(ClassType.hardSeltzer.family, .seltzer)
+        XCTAssertEqual(ClassType.maltBeverage.family, .beer)
+    }
+
     func testGinAndTequilaAreHeldToFortyToo() {
         XCTAssertEqual(ClassType.londonDryGin.minimumBottlingStrength?.percent, 40)
         XCTAssertEqual(ClassType.tequilaBlanco.minimumBottlingStrength?.percent, 40)

@@ -38,6 +38,10 @@ class ClassificationTest {
         assertEquals(ClassType.Family.BRANDY, ClassType.COGNAC.family)
         assertEquals(ClassType.Family.LIQUEUR, ClassType.AMARO.family)
         assertEquals(ClassType.Family.BEER, ClassType.MALT_BEVERAGE.family)
+        // Not beer: cider is a wine for tax purposes and seltzer is not one
+        // thing at all.
+        assertEquals(ClassType.Family.CIDER, ClassType.HARD_CIDER.family)
+        assertEquals(ClassType.Family.SELTZER, ClassType.HARD_SELTZER.family)
         assertEquals(ClassType.Family.OTHER, ClassType.ABSINTHE.family)
     }
 
@@ -60,6 +64,12 @@ class ClassificationTest {
         assertNull(ClassType.AMARO.minimumBottlingStrength)
         assertNull(ClassType.VERMOUTH.minimumBottlingStrength)
         assertNull(ClassType.MALT_BEVERAGE.minimumBottlingStrength)
+
+        // A 5% cider is not an under-strength spirit; it is a cider. The 40%
+        // floor is an American spirits rule and applying it here would flag
+        // every can on the shelf.
+        assertNull(ClassType.HARD_CIDER.minimumBottlingStrength)
+        assertNull(ClassType.HARD_SELTZER.minimumBottlingStrength)
     }
 
     @Test

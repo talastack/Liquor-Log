@@ -77,10 +77,25 @@ public enum ClassType: String, Sendable, CaseIterable, Codable {
     // MARK: Beer
     case maltBeverage
 
+    // MARK: Cider and seltzer
+    //
+    // `hardCider` IS a defined class: TTB taxes it as a wine made from apples
+    // or pears, still or lightly carbonated, under 8.5% ABV. Pear cider --
+    // perry -- belongs here too, because the tax class covers it.
+    //
+    // `hardSeltzer` is NOT. It is a market category with two different bases:
+    // some are flavoured malt beverages (Truly, Bud Light Seltzer) and some
+    // are fermented from cane sugar with no malt at all (White Claw), which
+    // are not even regulated by the same agency. The app keeps them as one
+    // class because that is how a person holding the can thinks of them, and
+    // does not claim a regulated class for any of them.
+    case hardCider
+    case hardSeltzer
+
     /// Broad grouping, for filters and for grouping a shelf. Not a legal
     /// concept — the legal concept is the case itself.
     public enum Family: String, Sendable, CaseIterable, Hashable {
-        case whiskey, agave, rum, gin, vodka, brandy, liqueur, beer, other
+        case whiskey, agave, rum, gin, vodka, brandy, liqueur, beer, cider, seltzer, other
 
         public var label: String {
             switch self {
@@ -92,6 +107,8 @@ public enum ClassType: String, Sendable, CaseIterable, Codable {
             case .brandy: return "Brandy"
             case .liqueur: return "Liqueur"
             case .beer: return "Beer"
+            case .cider: return "Cider"
+            case .seltzer: return "Seltzer"
             case .other: return "Other"
             }
         }
@@ -121,6 +138,10 @@ public enum ClassType: String, Sendable, CaseIterable, Codable {
             return .liqueur
         case .maltBeverage:
             return .beer
+        case .hardCider:
+            return .cider
+        case .hardSeltzer:
+            return .seltzer
         case .aquavit, .absinthe:
             return .other
         }
@@ -156,7 +177,9 @@ public enum ClassType: String, Sendable, CaseIterable, Codable {
     /// under-strength would be the app being wrong with confidence.
     public var minimumBottlingStrength: ABV? {
         switch family {
-        case .liqueur, .beer:
+        case .liqueur, .beer, .cider, .seltzer:
+            // A 5% cider is not under-strength; it is a cider. Asserting a
+            // spirits floor here would make the app wrong with confidence.
             return nil
         case .whiskey, .agave, .rum, .gin, .vodka, .brandy:
             return ABV(percent: 40)
@@ -215,6 +238,8 @@ public enum ClassType: String, Sendable, CaseIterable, Codable {
         case .vermouth: return "Vermouth"
         case .absinthe: return "Absinthe"
         case .maltBeverage: return "Malt Beverage"
+        case .hardCider: return "Hard Cider"
+        case .hardSeltzer: return "Hard Seltzer"
         }
     }
 }

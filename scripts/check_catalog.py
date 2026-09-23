@@ -36,7 +36,7 @@ PRODUCTION_TYPES = {"singleBarrel", "smallBatch", "blend", "singleCask", "unspec
 # Families with no bottling-strength floor, mirroring
 # ClassType.minimumBottlingStrength. A 16% vermouth is not under-strength, and
 # rejecting it would be the app being wrong with confidence.
-NO_FLOOR_FAMILIES = {"liqueur", "beer", "other"}
+NO_FLOOR_FAMILIES = {"liqueur", "beer", "cider", "seltzer", "other"}
 
 
 def swift_constant(text, name):

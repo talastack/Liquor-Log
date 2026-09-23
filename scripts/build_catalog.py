@@ -753,6 +753,49 @@ ROWS = [
     ("linie-aquavit", "Arcus", "Linie", "Aquavit", "aquavit", "unspecified", 41.5, None, [], None),
     ("aalborg-taffel", "Aalborg", "Aalborg", "Taffel", "aquavit", "unspecified", 45.0, None, [], None),
     ("krogstad-aquavit", "House Spirits", "Krogstad", "Festlig Aquavit", "aquavit", "unspecified", 40.0, None, [], None),
+
+    # ------------------------------------------------------------------ Cider
+    # Hard cider is a real TTB class -- a wine made from apples or pears,
+    # still or lightly carbonated, under 8.5% -- so these rows say what they
+    # are without hedging. Pear cider (perry) goes here too, because the tax
+    # class covers it.
+    #
+    # The "distillery" column holds the producer, which for cider is a cidery
+    # and for seltzer below is a brewer. The column is named for the app's
+    # first subject, not for these.
+    ("angry-orchard-crisp", "Angry Orchard", "Angry Orchard", "Crisp Apple", "hardCider", "unspecified", 5.0, None, [], None),
+    ("angry-orchard-rose", "Angry Orchard", "Angry Orchard", "Rosé", "hardCider", "unspecified", 5.5, None, [], None),
+    ("angry-orchard-unfiltered", "Angry Orchard", "Angry Orchard", "Crisp Unfiltered", "hardCider", "unspecified", 5.0, None, [], None),
+    ("woodchuck-amber", "Vermont Cider Co.", "Woodchuck", "Amber", "hardCider", "unspecified", 5.0, None, [], None),
+    ("austin-eastciders-original", "Austin Eastciders", "Austin Eastciders", "Original Dry", "hardCider", "unspecified", 5.0, None, [], None),
+    ("austin-eastciders-pineapple", "Austin Eastciders", "Austin Eastciders", "Pineapple", "hardCider", "unspecified", 5.0, None, [], None),
+    ("downeast-original", "Downeast Cider House", "Downeast", "Original Blend", "hardCider", "unspecified", 5.1, None, [], None),
+    ("ace-pineapple", "California Cider Co.", "Ace", "Pineapple", "hardCider", "unspecified", 5.0, None, [], None),
+    ("stella-cidre", "Stella Artois", "Stella Artois", "Cidre", "hardCider", "unspecified", 4.5, None, [], None),
+    ("magners-original", "C&C Group", "Magners", "Original Irish Cider", "hardCider", "unspecified", 4.5, None, [], None),
+    ("strongbow-gold-apple", "Bulmers", "Strongbow", "Gold Apple", "hardCider", "unspecified", 5.0, None, [], None),
+    ("2-towns-bright-cider", "2 Towns Ciderhouse", "2 Towns", "Bright Cider", "hardCider", "unspecified", 5.0, None, [], None),
+
+    # --------------------------------------------------------------- Seltzer
+    # "Hard seltzer" is a market category rather than a class -- see the
+    # comment on ClassType.hardSeltzer. The bases genuinely differ: White
+    # Claw ferments cane sugar, Truly and Bud Light are malt. Flavours are
+    # expressions because that is what is on the can and what somebody would
+    # search for.
+    ("white-claw-black-cherry", "White Claw", "White Claw", "Black Cherry", "hardSeltzer", "unspecified", 5.0, None, [], None),
+    ("white-claw-mango", "White Claw", "White Claw", "Mango", "hardSeltzer", "unspecified", 5.0, None, [], None),
+    ("white-claw-lime", "White Claw", "White Claw", "Natural Lime", "hardSeltzer", "unspecified", 5.0, None, [], None),
+    ("white-claw-watermelon", "White Claw", "White Claw", "Watermelon", "hardSeltzer", "unspecified", 5.0, None, [], None),
+    ("white-claw-ruby-grapefruit", "White Claw", "White Claw", "Ruby Grapefruit", "hardSeltzer", "unspecified", 5.0, None, [], None),
+    ("white-claw-raspberry", "White Claw", "White Claw", "Raspberry", "hardSeltzer", "unspecified", 5.0, None, [], None),
+    ("white-claw-surge-blackberry", "White Claw", "White Claw", "Surge Blackberry", "hardSeltzer", "unspecified", 8.0, None, [], None),
+    ("white-claw-surge-cranberry", "White Claw", "White Claw", "Surge Cranberry", "hardSeltzer", "unspecified", 8.0, None, [], None),
+    ("truly-wild-berry", "Boston Beer Co.", "Truly", "Wild Berry", "hardSeltzer", "unspecified", 5.0, None, [], None),
+    ("truly-lime", "Boston Beer Co.", "Truly", "Lime", "hardSeltzer", "unspecified", 5.0, None, [], None),
+    ("bud-light-seltzer-lemon-lime", "Anheuser-Busch", "Bud Light Seltzer", "Lemon Lime", "hardSeltzer", "unspecified", 5.0, None, [], None),
+    ("topo-chico-strawberry-guava", "Topo Chico", "Topo Chico Hard Seltzer", "Strawberry Guava", "hardSeltzer", "unspecified", 4.7, None, [], None),
+    ("high-noon-black-cherry", "High Noon", "High Noon", "Black Cherry", "hardSeltzer", "unspecified", 4.5, None, [], None),
+    ("high-noon-pineapple", "High Noon", "High Noon", "Pineapple", "hardSeltzer", "unspecified", 4.5, None, [], None),
 ]
 
 RECIPE_CODES = {"four-roses-single-barrel": "OBSV"}
