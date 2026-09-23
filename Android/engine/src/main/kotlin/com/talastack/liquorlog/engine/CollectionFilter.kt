@@ -88,6 +88,21 @@ object CollectionFilter {
         RYE("rye"),
         WHEAT_WHISKEY("wheatWhiskey"),
         SCOTCH("scotch"),
+
+        // One per family, for the shelves that are not whiskey. Cheap to
+        // carry because availableKinds drops any chip that would narrow
+        // nothing: a bourbon-only shelf never sees one of them, and somebody
+        // with a dozen ciders stops reaching for the blunt "Not whiskey".
+        TEQUILA("tequila"),
+        RUM("rum"),
+        GIN("gin"),
+        VODKA("vodka"),
+        LIQUEUR("liqueur"),
+        FORTIFIED("fortified"),
+        CIDER("cider"),
+        SELTZER("seltzer"),
+        EAST_ASIAN("eastAsian"),
+
         NOT_WHISKEY("notWhiskey"),
         SAMPLE("sample"),
         INFINITY("infinity");
@@ -103,10 +118,22 @@ object CollectionFilter {
                 RYE -> "Rye"
                 WHEAT_WHISKEY -> "Wheat whiskey"
                 SCOTCH -> "Scotch"
+                TEQUILA -> "Tequila"
+                RUM -> "Rum"
+                GIN -> "Gin"
+                VODKA -> "Vodka"
+                LIQUEUR -> "Liqueur"
+                FORTIFIED -> "Port & sherry"
+                CIDER -> "Cider"
+                SELTZER -> "Seltzer"
+                EAST_ASIAN -> "Sake & soju"
                 NOT_WHISKEY -> "Not whiskey"
                 SAMPLE -> "Samples"
                 INFINITY -> "Infinity bottles"
             }
+
+        private fun isFamily(family: ClassType.Family, row: Row): Boolean =
+            row.classType?.family == family
 
         internal fun matches(row: Row): Boolean = when (this) {
             STORE_PICK -> row.isStorePick
@@ -134,6 +161,15 @@ object CollectionFilter {
                 ClassType.BLENDED_SCOTCH -> true
                 else -> false
             }
+            TEQUILA -> isFamily(ClassType.Family.AGAVE, row)
+            RUM -> isFamily(ClassType.Family.RUM, row)
+            GIN -> isFamily(ClassType.Family.GIN, row)
+            VODKA -> isFamily(ClassType.Family.VODKA, row)
+            LIQUEUR -> isFamily(ClassType.Family.LIQUEUR, row)
+            FORTIFIED -> isFamily(ClassType.Family.FORTIFIED, row)
+            CIDER -> isFamily(ClassType.Family.CIDER, row)
+            SELTZER -> isFamily(ClassType.Family.SELTZER, row)
+            EAST_ASIAN -> isFamily(ClassType.Family.EAST_ASIAN, row)
             NOT_WHISKEY -> {
                 val type = row.classType
                 if (type == null) false else type.family != ClassType.Family.WHISKEY

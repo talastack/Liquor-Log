@@ -37,6 +37,13 @@ SWIFT = ROOT / "IOS/Packages/LiquorEngine/Sources/LiquorEngine/Classification.sw
 KOTLIN = ROOT / "Android/engine/src/main/kotlin/com/talastack/liquorlog/engine/Classification.kt"
 CATALOG = ROOT / "shared/data/spirits.v1.json"
 
+# The filter chips are a third hand-mirrored list with storage keys of its
+# own, and they are persisted: a saved filter names its kinds by key. A kind
+# on one platform and not the other is the same silent failure in a
+# different place.
+SWIFT_FILTER = ROOT / "IOS/Packages/LiquorEngine/Sources/LiquorEngine/CollectionFilter.swift"
+KOTLIN_FILTER = ROOT / "Android/engine/src/main/kotlin/com/talastack/liquorlog/engine/CollectionFilter.kt"
+
 
 def swift_class_keys(text):
     """`case port` -- the case name IS the storage key, via RawRepresentable."""
@@ -53,6 +60,11 @@ def swift_family_keys(text):
     return keys
 
 
+def swift_filter_kinds(text):
+    body = text.split("public enum Kind", 1)[1].split("\n        }", 1)[0]
+    return set(re.findall(r"^\s*case ([a-zA-Z]+)$", body, re.M))
+
+
 def kotlin_keys(text, header, end):
     """`PORT("port"),` and `FORTIFIED("fortified", "Fortified wine"),`.
 
@@ -65,7 +77,7 @@ def kotlin_keys(text, header, end):
 
 
 def main():
-    for path in (SWIFT, KOTLIN, CATALOG):
+    for path in (SWIFT, KOTLIN, CATALOG, SWIFT_FILTER, KOTLIN_FILTER):
         if not path.exists():
             print("class parity FAILED\n\n  - missing %s"
                   % path.relative_to(ROOT).as_posix(), file=sys.stderr)
@@ -93,9 +105,20 @@ def main():
             % (len(s_family), len(k_family))
         )
 
+    s_kind = swift_filter_kinds(SWIFT_FILTER.read_text(encoding="utf-8"))
+    k_kind = kotlin_keys(
+        KOTLIN_FILTER.read_text(encoding="utf-8"), "enum class Kind",
+        "\n\n        val label")
+    if not s_kind or not k_kind:
+        problems.append(
+            "could not read the filter kinds (swift=%d, kotlin=%d)"
+            % (len(s_kind), len(k_kind))
+        )
+
     for label, swift_set, kotlin_set in [
         ("ClassType", s_class, k_class),
         ("Family", s_family, k_family),
+        ("filter Kind", s_kind, k_kind),
     ]:
         for key in sorted(swift_set - kotlin_set):
             problems.append(
@@ -130,8 +153,9 @@ def main():
         )
         return 1
 
-    print("class parity ok: %d classes and %d families, identical on both"
-          " engines and used by the catalogue" % (len(s_class), len(s_family)))
+    print("class parity ok: %d classes, %d families and %d filter kinds,"
+          " identical on both engines and used by the catalogue"
+          % (len(s_class), len(s_family), len(s_kind)))
     return 0
 
 

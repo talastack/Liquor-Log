@@ -9,6 +9,13 @@ final class CollectionFilterTests: XCTestCase {
 
     private func day(_ n: Int) -> Date { Date(timeIntervalSince1970: Double(n) * 86_400) }
 
+    /// A row that is nothing but its class, for the family-chip tests.
+    private func row(classType: ClassType) -> CollectionFilter.Row {
+        CollectionFilter.Row(
+            id: classType.rawValue, name: classType.label, distillery: "Somewhere",
+            classType: classType, addedAt: day(1), fillFraction: 1)
+    }
+
     private var shelf: [CollectionFilter.Row] {
         [
             CollectionFilter.Row(
@@ -186,4 +193,44 @@ final class CollectionFilterTests: XCTestCase {
         XCTAssertEqual(CollectionFilter.apply(.init(kinds: [.infinity]), to: rows).map(\.id), ["inf"])
         XCTAssertFalse(CollectionFilter.availableKinds(in: shelf).contains(.infinity))
     }
+    // MARK: - Family chips
+
+    func testFamilyChipsAppearOnlyForShelvesThatHaveThem() {
+        // The chip list is curated for bourbon, and the catalogue is not any
+        // more. These chips are cheap because availableKinds hides the ones
+        // that would narrow nothing -- so a bourbon-only shelf must not grow
+        // a Cider chip just because ciders exist in the world.
+        let bourbonOnly = [row(classType: .kentuckyStraightBourbon)]
+        let kinds = CollectionFilter.availableKinds(in: bourbonOnly)
+        XCTAssertFalse(kinds.contains(.cider))
+        XCTAssertFalse(kinds.contains(.seltzer))
+        XCTAssertFalse(kinds.contains(.fortified))
+        XCTAssertTrue(kinds.contains(.bourbon))
+
+        let mixed = [
+            row(classType: .kentuckyStraightBourbon),
+            row(classType: .hardCider),
+            row(classType: .port),
+            row(classType: .sake),
+        ]
+        let wider = CollectionFilter.availableKinds(in: mixed)
+        XCTAssertTrue(wider.contains(.cider))
+        XCTAssertTrue(wider.contains(.fortified))
+        XCTAssertTrue(wider.contains(.eastAsian))
+    }
+
+    func testAFamilyChipNarrowsToThatFamily() {
+        let rows = [
+            row(classType: .kentuckyStraightBourbon),
+            row(classType: .hardCider),
+            row(classType: .hardSeltzer),
+        ]
+        var criteria = CollectionFilter.Criteria()
+        criteria.status = .any
+        criteria.kinds = [.cider]
+        let found = CollectionFilter.apply(criteria, to: rows)
+        XCTAssertEqual(found.count, 1)
+        XCTAssertEqual(found.first?.classType, .hardCider)
+    }
+
 }

@@ -314,6 +314,48 @@ class CollectionFilterTest {
         )
         assertFalse(CollectionFilter.availableKinds(shelf).contains(CollectionFilter.Kind.INFINITY))
     }
+
+    /**
+     * The chip list is curated for bourbon and the catalogue is not any more.
+     * Family chips are cheap only because availableKinds hides the ones that
+     * would narrow nothing: a bourbon-only shelf must not grow a Cider chip
+     * just because ciders exist in the world.
+     */
+    @Test
+    fun `family chips appear only for shelves that have them`() {
+        fun row(type: ClassType) = CollectionFilter.Row(
+            id = type.storageKey, name = type.label, distillery = "Somewhere",
+            classType = type, addedAt = day(1), fillFraction = 1.0
+        )
+
+        val bourbonOnly = listOf(row(ClassType.KENTUCKY_STRAIGHT_BOURBON))
+        val narrow = CollectionFilter.availableKinds(bourbonOnly)
+        assertFalse(narrow.contains(CollectionFilter.Kind.CIDER))
+        assertFalse(narrow.contains(CollectionFilter.Kind.FORTIFIED))
+        assertTrue(narrow.contains(CollectionFilter.Kind.BOURBON))
+
+        val mixed = listOf(
+            row(ClassType.KENTUCKY_STRAIGHT_BOURBON),
+            row(ClassType.HARD_CIDER),
+            row(ClassType.PORT),
+            row(ClassType.SAKE),
+        )
+        val wider = CollectionFilter.availableKinds(mixed)
+        assertTrue(wider.contains(CollectionFilter.Kind.CIDER))
+        assertTrue(wider.contains(CollectionFilter.Kind.FORTIFIED))
+        assertTrue(wider.contains(CollectionFilter.Kind.EAST_ASIAN))
+
+        assertEquals(
+            listOf(ClassType.HARD_CIDER.storageKey),
+            CollectionFilter.apply(
+                CollectionFilter.Criteria(
+                    status = CollectionFilter.Status.ANY,
+                    kinds = setOf(CollectionFilter.Kind.CIDER),
+                ),
+                mixed,
+            ).map { it.id }
+        )
+    }
 }
 
 /**

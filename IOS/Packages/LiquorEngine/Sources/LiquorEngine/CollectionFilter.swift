@@ -118,6 +118,22 @@ public enum CollectionFilter: Sendable {
         case rye
         case wheatWhiskey
         case scotch
+
+        // One per family, for the shelves that are not whiskey. These are
+        // cheap to carry because `availableKinds` drops any chip that would
+        // narrow nothing: a bourbon-only shelf never sees one of them, and
+        // somebody with a dozen ciders stops having to reach for the blunt
+        // "Not whiskey" to find them.
+        case tequila
+        case rum
+        case gin
+        case vodka
+        case liqueur
+        case fortified
+        case cider
+        case seltzer
+        case eastAsian
+
         case notWhiskey
         case sample
         case infinity
@@ -133,10 +149,23 @@ public enum CollectionFilter: Sendable {
             case .rye: return "Rye"
             case .wheatWhiskey: return "Wheat whiskey"
             case .scotch: return "Scotch"
+            case .tequila: return "Tequila"
+            case .rum: return "Rum"
+            case .gin: return "Gin"
+            case .vodka: return "Vodka"
+            case .liqueur: return "Liqueur"
+            case .fortified: return "Port & sherry"
+            case .cider: return "Cider"
+            case .seltzer: return "Seltzer"
+            case .eastAsian: return "Sake & soju"
             case .notWhiskey: return "Not whiskey"
             case .sample: return "Samples"
             case .infinity: return "Infinity bottles"
             }
+        }
+
+        private func isFamily(_ family: ClassType.Family, _ row: Row) -> Bool {
+            row.classType?.family == family
         }
 
         func matches(_ row: Row) -> Bool {
@@ -165,6 +194,15 @@ public enum CollectionFilter: Sendable {
                 default:
                     return false
                 }
+            case .tequila: return isFamily(.agave, row)
+            case .rum: return isFamily(.rum, row)
+            case .gin: return isFamily(.gin, row)
+            case .vodka: return isFamily(.vodka, row)
+            case .liqueur: return isFamily(.liqueur, row)
+            case .fortified: return isFamily(.fortified, row)
+            case .cider: return isFamily(.cider, row)
+            case .seltzer: return isFamily(.seltzer, row)
+            case .eastAsian: return isFamily(.eastAsian, row)
             case .notWhiskey:
                 guard let type = row.classType else { return false }
                 return type.family != .whiskey
