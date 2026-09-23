@@ -636,7 +636,7 @@ struct BottleDetailView: View {
         // one fact; small batch is another. Merging them is what makes an
         // app unable to answer "do I have this, or do I have this type?"
         if let product = env.product(for: summary.bottle) {
-            FactRow(label: "Class", value: classLabel(product.classType))
+            FactRow(label: "Class", value: product.classType.label)
             FactRow(label: "How it is made", value: productionLabel(product))
         }
         if let batch = summary.bottle.batchNumber {
@@ -1320,21 +1320,6 @@ struct BottleDetailView: View {
         return env.product(for: summary.bottle)?.strengthDescription ?? "Strength not recorded"
     }
 
-    private func classLabel(_ type: ClassType) -> String {
-        switch type {
-        case .kentuckyStraightBourbon: return "Kentucky Straight Bourbon Whiskey"
-        case .straightBourbon: return "Straight Bourbon Whiskey"
-        case .bourbon: return "Bourbon Whiskey"
-        case .blendOfStraightBourbon: return "Blend of Straight Bourbon Whiskeys"
-        case .straightRye: return "Straight Rye Whiskey"
-        case .rye: return "Rye Whiskey"
-        case .maltBeverage: return "Malt Beverage"
-        // Every other class already spells itself out, and twenty were
-        // added this week. Falling back to rawValue printed "hardCider"
-        // and "flavoredWhiskey" on the bottle screen.
-        default: return type.label
-        }
-    }
 
     private func productionLabel(_ product: CatalogProduct) -> String {
         var parts: [String] = []
