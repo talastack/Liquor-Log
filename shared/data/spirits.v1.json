@@ -6695,7 +6695,7 @@
       "verified": false
     },
     {
-      "id": "tullibardine-500",
+      "id": "tullibardine-sovereign",
       "distillery": "Tullibardine",
       "brand": "Tullibardine",
       "expression": "Sovereign",
@@ -6841,28 +6841,6 @@
       "verified": false
     },
     {
-      "id": "absolut-original",
-      "distillery": "Absolut",
-      "brand": "Absolut",
-      "expression": "Original",
-      "class_type": "vodka",
-      "production_type": "unspecified",
-      "abv": 40.0,
-      "source": "Producer label",
-      "verified": false
-    },
-    {
-      "id": "skyy-vodka",
-      "distillery": "Skyy",
-      "brand": "Skyy",
-      "expression": "Original",
-      "class_type": "vodka",
-      "production_type": "unspecified",
-      "abv": 40.0,
-      "source": "Producer label",
-      "verified": false
-    },
-    {
       "id": "burnetts-vodka",
       "distillery": "Burnett's",
       "brand": "Burnett's",
@@ -6919,23 +6897,12 @@
     },
     {
       "id": "bacardi-151",
-      "distillery": "Bacardi",
-      "brand": "Bacardi",
+      "distillery": "Bacardí",
+      "brand": "Bacardí",
       "expression": "151",
       "class_type": "rum",
       "production_type": "unspecified",
       "abv": 75.5,
-      "source": "Producer label",
-      "verified": false
-    },
-    {
-      "id": "wray-and-nephew-overproof",
-      "distillery": "J. Wray",
-      "brand": "Wray and Nephew",
-      "expression": "White Overproof",
-      "class_type": "rum",
-      "production_type": "unspecified",
-      "abv": 63.0,
       "source": "Producer label",
       "verified": false
     },
@@ -6958,28 +6925,6 @@
       "class_type": "flavoredRum",
       "production_type": "unspecified",
       "abv": 35.0,
-      "source": "Producer label",
-      "verified": false
-    },
-    {
-      "id": "sauza-gold",
-      "distillery": "Sauza",
-      "brand": "Sauza",
-      "expression": "Gold",
-      "class_type": "tequilaReposado",
-      "production_type": "unspecified",
-      "abv": 40.0,
-      "source": "Producer label",
-      "verified": false
-    },
-    {
-      "id": "montezuma-gold",
-      "distillery": "Montezuma",
-      "brand": "Montezuma",
-      "expression": "Gold",
-      "class_type": "tequilaReposado",
-      "production_type": "unspecified",
-      "abv": 40.0,
       "source": "Producer label",
       "verified": false
     },
@@ -7029,8 +6974,8 @@
     },
     {
       "id": "kahlua-salted-caramel",
-      "distillery": "Kahlua",
-      "brand": "Kahlua",
+      "distillery": "Kahlúa",
+      "brand": "Kahlúa",
       "expression": "Salted Caramel",
       "class_type": "liqueur",
       "production_type": "unspecified",
@@ -7054,17 +6999,6 @@
       "distillery": "DeKuyper",
       "brand": "DeKuyper",
       "expression": "Peachtree Schnapps",
-      "class_type": "liqueur",
-      "production_type": "unspecified",
-      "abv": 15.0,
-      "source": "Producer label",
-      "verified": false
-    },
-    {
-      "id": "blue-curacao-dekuyper",
-      "distillery": "DeKuyper",
-      "brand": "DeKuyper",
-      "expression": "Blue Curacao",
       "class_type": "liqueur",
       "production_type": "unspecified",
       "abv": 15.0,
@@ -8118,17 +8052,6 @@
       "class_type": "brandy",
       "production_type": "blend",
       "abv": 40.0,
-      "source": "Producer label",
-      "verified": false
-    },
-    {
-      "id": "copper-and-kings-american",
-      "distillery": "Copper and Kings",
-      "brand": "Copper and Kings",
-      "expression": "American Craft Brandy",
-      "class_type": "brandy",
-      "production_type": "unspecified",
-      "abv": 45.0,
       "source": "Producer label",
       "verified": false
     },
@@ -9671,8 +9594,8 @@
     },
     {
       "id": "bacardi-spiced",
-      "distillery": "Bacardi",
-      "brand": "Bacardi",
+      "distillery": "Bacardí",
+      "brand": "Bacardí",
       "expression": "Spiced",
       "class_type": "flavoredRum",
       "production_type": "unspecified",

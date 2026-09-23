@@ -22,6 +22,7 @@ ever checks.
 import json
 import re
 import sys
+import unicodedata
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -36,6 +37,10 @@ PRODUCTION_TYPES = {"singleBarrel", "smallBatch", "blend", "singleCask", "unspec
 # Families with no bottling-strength floor, mirroring
 # ClassType.minimumBottlingStrength. A 16% vermouth is not under-strength, and
 # rejecting it would be the app being wrong with confidence.
+# Expressions that name no particular bottling, so they are the same
+# product as a row with no expression at all.
+GENERIC_EXPRESSIONS = {"", "original", "originale", "classic", "standard"}
+
 NO_FLOOR_FAMILIES = {
     "liqueur", "beer", "cider", "seltzer", "fortified", "eastAsian", "other",
 }
@@ -123,11 +128,31 @@ def stale_doc_counts(total):
     stale = []
     for path in sorted((ROOT / "docs").glob("*.md")):
         text = path.read_text(encoding="utf-8")
-        for match in re.finditer(r"(?<![0-9])([0-9]{3,4}) products", text):
+        for match in re.finditer(r"(?<![0-9])([0-9]{3,4}) (?:products|rows)", text):
             if int(match.group(1)) != total:
                 line = text[:match.start()].count(chr(10)) + 1
                 stale.append((path.relative_to(ROOT).as_posix(), line, match.group(1)))
     return stale
+
+
+def fold(text):
+    """Accent- and punctuation-insensitive, the way both engines match."""
+    text = unicodedata.normalize("NFD", text)
+    text = "".join(c for c in text if unicodedata.category(c) != "Mn")
+    # "&" and "and" are the same word on a label, and the difference hid a
+    # duplicate Copper & Kings for weeks.
+    text = text.lower().replace("&", " and ")
+    return re.sub(r"[^a-z0-9]+", " ", text).strip()
+
+
+def generic_expression(text):
+    """An empty expression and a generic one name the same bottle.
+
+    "Absolut" and "Absolut Original" are one product; so are "Skyy" and
+    "Skyy Original". Folding those together is what catches the pair.
+    """
+    folded = fold(text)
+    return "" if folded in GENERIC_EXPRESSIONS else folded
 
 
 def main():
@@ -190,13 +215,19 @@ def main():
             if not product.get(field):
                 problems.append("%s: missing %s" % (where, field))
 
-        identity = (product.get("distillery", "").lower(),
-                    product.get("brand", "").lower(),
-                    product.get("expression", "").lower())
+        # Accents, punctuation and a generic expression all hid duplicates.
+        # The catalogue carried Bacardi Superior twice, Absolut twice and
+        # Copper & Kings twice, because the raw triple reads Bacardi and
+        # Bacardi as different producers, and an empty expression as a
+        # different bottle from "Original". Two rows for one bottle means
+        # the shelf check answers a question twice.
+        identity = (fold(product.get("distillery", "")),
+                    fold(product.get("brand", "")),
+                    generic_expression(product.get("expression", "")))
         if identity in seen_products:
             problems.append(
-                "%s: duplicate product %s -- the shelf check must return one answer, "
-                "not two" % (where, identity))
+                "%s: duplicate product %s -- the shelf check must return one"
+                " answer, not two" % (where, identity))
         seen_products.add(identity)
 
         class_type = product.get("class_type")

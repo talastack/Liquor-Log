@@ -811,13 +811,16 @@ ROWS = [
 
     # ------------------------------------------ The shop shelf, not the cabinet
     # Everything above was written by somebody thinking about what is worth
-    # owning. This is what is actually stocked: Johnnie Walker Red, Gordon's,
-    # Smirnoff No. 21, Hennessy VS, El Jimador, Busch Light. The catalogue
-    # knew Kavalan Solist and did not know Johnnie Walker Black, which is the
-    # single best-selling Scotch on earth.
+    # owning. This is the everyday end: Ballantine's, Gilbey's, Busch Light,
+    # Tecate, El Jimador, D'USSE.
+    #
+    # Half of what was proposed for this section turned out to be here
+    # already -- Johnnie Walker Black and Red, Gordon's, Smirnoff No. 21,
+    # Hennessy VS among them. The dedupe caught them; an earlier version of
+    # this comment named them as missing and was wrong.
     ("glen-moray-12", "Glen Moray", "Glen Moray", "Elgin Heritage 12 Year", "singleMaltScotch", "unspecified", 40.0, 12, [], None),
     ("tamnavulin-double-cask", "Tamnavulin", "Tamnavulin", "Double Cask", "singleMaltScotch", "unspecified", 40.0, None, [], None),
-    ("tullibardine-500", "Tullibardine", "Tullibardine", "Sovereign", "singleMaltScotch", "unspecified", 43.0, None, [], None),
+    ("tullibardine-sovereign", "Tullibardine", "Tullibardine", "Sovereign", "singleMaltScotch", "unspecified", 43.0, None, [], None),
     ("glen-garioch-founders", "Glen Garioch", "Glen Garioch", "Founder's Reserve", "singleMaltScotch", "unspecified", 48.0, None, [], None),
     ("auchentoshan-12", "Auchentoshan", "Auchentoshan", "12 Year", "singleMaltScotch", "unspecified", 40.0, 12, [], None),
     ("tomatin-18", "Tomatin", "Tomatin", "18 Year", "singleMaltScotch", "unspecified", 46.0, 18, [], None),
@@ -830,27 +833,30 @@ ROWS = [
     ("teachers-highland-cream", "Teacher's", "Teacher's", "Highland Cream", "blendedScotch", "blend", 40.0, None, [], None),
     ("whyte-and-mackay", "Whyte and Mackay", "Whyte and Mackay", "Special", "blendedScotch", "blend", 40.0, None, [], None),
     ("proper-twelve", "Proper No. Twelve", "Proper No. Twelve", "Irish Whiskey", "irishWhiskey", "blend", 40.0, None, [], None),
-    ("absolut-original", "Absolut", "Absolut", "Original", "vodka", "unspecified", 40.0, None, [], None),
-    ("skyy-vodka", "Skyy", "Skyy", "Original", "vodka", "unspecified", 40.0, None, [], None),
     ("burnetts-vodka", "Burnett's", "Burnett's", "Original", "vodka", "unspecified", 40.0, None, [], None),
     ("popov-vodka", "Popov", "Popov", "", "vodka", "unspecified", 40.0, None, [], None),
     ("gilbeys-gin", "Gilbey's", "Gilbey's", "London Dry", "londonDryGin", "unspecified", 40.0, None, [], None),
     ("new-amsterdam-gin", "New Amsterdam", "New Amsterdam", "Gin", "distilledGin", "unspecified", 40.0, None, [], None),
     ("bombay-original-dry", "Bombay", "Bombay", "Original Dry", "londonDryGin", "unspecified", 43.0, None, [], None),
-    ("bacardi-151", "Bacardi", "Bacardi", "151", "rum", "unspecified", 75.5, None, [], None),
-    ("wray-and-nephew-overproof", "J. Wray", "Wray and Nephew", "White Overproof", "rum", "unspecified", 63.0, None, [], None),
+    ("bacardi-151", "Bacardí", "Bacardí", "151", "rum", "unspecified", 75.5, None, [], None),
     ("ron-zacapa-23", "Zacapa", "Zacapa", "23 Solera", "rum", "blend", 40.0, None, [], None),
     ("malibu-black", "Malibu", "Malibu", "Black", "flavoredRum", "unspecified", 35.0, None, [], None),
-    ("sauza-gold", "Sauza", "Sauza", "Gold", "tequilaReposado", "unspecified", 40.0, None, [], None),
-    ("montezuma-gold", "Montezuma", "Montezuma", "Gold", "tequilaReposado", "unspecified", 40.0, None, [], None),
+    # Sauza Gold and Montezuma Gold are NOT here. They are joven abocado --
+    # unaged mixto with colouring -- and typing them as tequilaReposado made
+    # the bottle screen assert an aging the label does not claim. There is no
+    # joven class yet, and a wrong one is worse than an absence.
+    #
+    # DeKuyper Blue Curacao is out for a different reason: I wrote 15%,
+    # copied from the schnapps row above it, and the bottle is commonly 24%.
+    # A figure I cannot check does not belong in a catalogue whose whole
+    # argument is that its figures can be checked.
     ("el-jimador-blanco", "El Jimador", "El Jimador", "Blanco", "tequilaBlanco", "unspecified", 40.0, None, [], None),
     ("el-jimador-reposado", "El Jimador", "El Jimador", "Reposado", "tequilaReposado", "unspecified", 40.0, None, [], None),
     ("cazadores-blanco", "Cazadores", "Cazadores", "Blanco", "tequilaBlanco", "unspecified", 40.0, None, [], None),
     ("dusse-vsop", "D'USSE", "D'USSE", "VSOP", "cognac", "blend", 40.0, None, [], None),
-    ("kahlua-salted-caramel", "Kahlua", "Kahlua", "Salted Caramel", "liqueur", "unspecified", 20.0, None, [], None),
+    ("kahlua-salted-caramel", "Kahlúa", "Kahlúa", "Salted Caramel", "liqueur", "unspecified", 20.0, None, [], None),
     ("triple-sec-hiram-walker", "Hiram Walker", "Hiram Walker", "Triple Sec", "liqueur", "unspecified", 30.0, None, [], None),
     ("peach-schnapps-dekuyper", "DeKuyper", "DeKuyper", "Peachtree Schnapps", "liqueur", "unspecified", 15.0, None, [], None),
-    ("blue-curacao-dekuyper", "DeKuyper", "DeKuyper", "Blue Curacao", "liqueur", "unspecified", 15.0, None, [], None),
     ("jagermeister-cold-brew", "Mast-Jaegermeister", "Jagermeister", "Cold Brew Coffee", "liqueur", "unspecified", 33.0, None, [], None),
     ("busch-light", "Anheuser-Busch", "Busch", "Light", "maltBeverage", "unspecified", 4.1, None, [], None),
     ("natural-light", "Anheuser-Busch", "Natural", "Light", "maltBeverage", "unspecified", 4.2, None, [], None),
@@ -962,7 +968,6 @@ ROWS = [
     ("jeppsons-malort", "Jeppson's", "Jeppson's", "Malort", "amaro", "unspecified", 35.0, None, [], None),
     ("chareau-aloe", "Chareau", "Chareau", "Aloe", "liqueur", "unspecified", 20.0, None, [], None),
     ("bertoux-brandy", "Bertoux", "Bertoux", "Brandy", "brandy", "blend", 40.0, None, [], None),
-    ("copper-and-kings-american", "Copper and Kings", "Copper and Kings", "American Craft Brandy", "brandy", "unspecified", 45.0, None, [], None),
     ("st-remy-vsop", "St-Remy", "St-Remy", "VSOP", "brandy", "blend", 40.0, None, [], None),
     ("pueblo-viejo-blanco", "Pueblo Viejo", "Pueblo Viejo", "Blanco", "tequilaBlanco", "unspecified", 40.0, None, [], None),
     ("chinaco-blanco", "Chinaco", "Chinaco", "Blanco", "tequilaBlanco", "unspecified", 40.0, None, [], None),
@@ -1144,7 +1149,7 @@ ROWS = [
     ("neisson-blanc", "Neisson", "Neisson", "Blanc 52.5", "rhumAgricole", "unspecified", 52.5, None, [], None),
     ("clement-premiere-canne", "Clement", "Clement", "Premiere Canne", "rhumAgricole", "unspecified", 40.0, None, [], None),
     ("captain-morgan-black", "Captain Morgan", "Captain Morgan", "Black Spiced", "flavoredRum", "unspecified", 40.0, None, [], None),
-    ("bacardi-spiced", "Bacardi", "Bacardi", "Spiced", "flavoredRum", "unspecified", 35.0, None, [], None),
+    ("bacardi-spiced", "Bacardí", "Bacardí", "Spiced", "flavoredRum", "unspecified", 35.0, None, [], None),
     ("tomatin-12", "Tomatin", "Tomatin", "12 Year", "singleMaltScotch", "unspecified", 43.0, 12, [], None),
     ("benriach-the-twelve", "BenRiach", "BenRiach", "The Twelve", "singleMaltScotch", "unspecified", 46.0, 12, [], None),
     ("jura-10", "Jura", "Jura", "10 Year", "singleMaltScotch", "unspecified", 40.0, 10, [], None),
@@ -1403,10 +1408,10 @@ def main():
     # for a day, and check_catalog.py refuses a number that disagrees, so
     # the alternative is a failing build after every batch of rows.
     # Only the figure is touched; the sentence around it is somebody's.
-    stated = re.compile(r"(?<![0-9])[0-9]{3,4} products")
+    stated = re.compile(r"(?<![0-9])[0-9]{3,4} (?:products|rows)")
     for doc in sorted((ROOT / "docs").glob("*.md")):
         before = doc.read_text(encoding="utf-8")
-        after = stated.sub("%d products" % len(products), before)
+        after = stated.sub(lambda m: "%d %s" % (len(products), m.group(0).split()[1]), before)
         if after != before:
             doc.write_text(after, encoding="utf-8", newline="\n")
             print("  updated the count in %s" % doc.name)

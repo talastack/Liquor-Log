@@ -30,13 +30,13 @@ Two rules govern everything below.
 
 ## Current state, stated plainly
 
-**971 products**, in `shared/data/spirits.v1.json`, authored by hand in the
+**964 products**, in `shared/data/spirits.v1.json`, authored by hand in the
 table at the top of `scripts/build_catalog.py` and generated from it. 60
 classes, from Kentucky Straight Bourbon to baijiu. Every row carries stable,
 widely published product facts: distillery, brand, expression, class,
 production type, and a strength where the bottle has a fixed one.
 
-**None of it is verified.** 0 of 899 rows carry a `source_url`. Each says
+**None of it is verified.** 0 of 964 rows carry a `source_url`. Each says
 `verified: false` and the bottle screen says so in words.
 
 ### Why it is not thousands, which is the question that gets asked
@@ -205,7 +205,7 @@ Each board's own pages were fetched. Quotes are verbatim; gaps are gaps.
 | Board | Bulk file | Terms |
 |---|---|---|
 | **Virginia ABC** | Quarterly XLSX and PDF | **Silent.** No terms of use exists, only a privacy policy that *"shall not be construed as a contractual promise."* One adjacent clause bars use *"for the purposes of advertising."* robots.txt permits the price files and disallows the live catalogue API. |
-| **Oregon OLCC** | Socrata dataset `vmf2-f83h`, CSV/JSON, ~263,000 rows, monthly | **Silent.** No terms page; dataset has **no licence field**. The only assertion anywhere is *"All Rights Reserved."* The cleanest bulk source of the three. |
+| **Oregon OLCC** | Socrata dataset `vmf2-f83h`, CSV/JSON, ~263,964 rows, monthly | **Silent.** No terms page; dataset has **no licence field**. The only assertion anywhere is *"All Rights Reserved."* The cleanest bulk source of the three. |
 | **Pennsylvania PLCB** | pa.gov wholesale XLSX with a field dictionary | **Split.** The pa.gov catalogues carry no terms at all. **finewineandgoodspirits.com expressly prohibits** commercial use without written permission and *"to spam, phish, pharm, pretext, spider, crawl, or scrape."* Never import from that domain. |
 
 Three robots.txt files serving the actual files could not be read (TLS failure,
