@@ -1,6 +1,6 @@
 # Checking it by hand, on the phone
 
-A build that succeeds proves the code compiles. The 732 automated tests
+A build that succeeds proves the code compiles. The 740 automated tests
 prove the maths and the database. Neither proves that tapping the button on
 screen reaches the code underneath it, which is the only part a person can
 actually see — and it is where both of this project's real bugs lived.
@@ -139,6 +139,6 @@ Being straight about the edges:
   first thing a reviewer sees and the last thing anybody tests.
 - Nothing here exercises a **large collection**. If you have two hundred
   bottles somewhere, import them and watch the Collection scroll.
-- The catalogue's facts are **not verified**. 534 products carry no source
+- The catalogue's facts are **not verified**. 793 products carry no source
   URL, which the app now says on each bottle rather than hiding. That is a
   disclosure, not a fix.

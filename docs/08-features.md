@@ -137,7 +137,7 @@ The aisle question, offline: *do I already own this?*
   4/5 quart, metric…) that returns a window, never a date (`RecipeCode`,
   `BatchCode`, `LaserCode`, `WildTurkeyCode`, `DistilleryPermit`,
   `TequilaRegistry`, `DustyClues`).
-- **Browse the catalogue** — 534 products by distillery, each with your
+- **Browse the catalogue** — 793 products by distillery, each with your
   standing; add or wish from the row.
 - **Your collection** — counts, by kind/distillery/brand/strength/place,
   added-by-year, notable (strongest, oldest, open longest, Blanton's set),

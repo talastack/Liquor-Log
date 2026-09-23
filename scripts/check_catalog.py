@@ -113,6 +113,23 @@ def swift_recipe_codes(text):
     return {"O" + m + "S" + y for m in mashbills for y in yeasts}
 
 
+def stale_doc_counts(total):
+    """Docs that state the catalogue's size, and disagree with it.
+
+    Three of them said "534 products" while the file held 793. A number
+    written once into prose is outlived by the data it describes, quietly,
+    and the reader has no way to tell which of the two is wrong.
+    """
+    stale = []
+    for path in sorted((ROOT / "docs").glob("*.md")):
+        text = path.read_text(encoding="utf-8")
+        for match in re.finditer(r"(?<![0-9])([0-9]{3,4}) products", text):
+            if int(match.group(1)) != total:
+                line = text[:match.start()].count(chr(10)) + 1
+                stale.append((path.relative_to(ROOT).as_posix(), line, match.group(1)))
+    return stale
+
+
 def main():
     for path in (CATALOG, CLASSIFICATION, RECIPE):
         if not path.exists():
@@ -270,6 +287,12 @@ def main():
             verified += 1
             if not product.get("source_url"):
                 problems.append("%s: marked verified but has no source_url" % where)
+
+    for where, line, stated in stale_doc_counts(len(catalog.get("products", []))):
+        problems.append(
+            "%s:%d says %s products; the catalogue holds %d"
+            % (where, line, stated, len(catalog.get("products", [])))
+        )
 
     if problems:
         print("catalog FAILED\n", file=sys.stderr)
