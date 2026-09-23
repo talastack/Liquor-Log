@@ -71,6 +71,18 @@ class ClassificationTest {
         // Captain Morgan is 35%. Held to rum's 40% it reads as an
         // under-strength rum; it is a flavoured rum, and TTB bottles those
         // at 30%.
+        // Under their family's 40% by their own definitions: cachaca is
+        // 38%-48% by TTB, grappa 37.5% in the EU.
+        assertEquals(38.0, ClassType.CACHACA.minimumBottlingStrength?.percent)
+        assertEquals(37.5, ClassType.GRAPPA.minimumBottlingStrength?.percent)
+        // A 20% port is a port and a 15% sake is a sake.
+        assertNull(ClassType.PORT.minimumBottlingStrength)
+        assertNull(ClassType.SAKE.minimumBottlingStrength)
+        assertNull(ClassType.SOJU.minimumBottlingStrength)
+        assertEquals(ClassType.Family.FORTIFIED, ClassType.PORT.family)
+        assertEquals(ClassType.Family.EAST_ASIAN, ClassType.SAKE.family)
+        assertEquals(ClassType.Family.WHISKEY, ClassType.WORLD_WHISKY.family)
+
         assertEquals(30.0, ClassType.FLAVORED_RUM.minimumBottlingStrength?.percent)
         assertEquals(40.0, ClassType.RUM.minimumBottlingStrength?.percent)
         assertEquals(ClassType.Family.RUM, ClassType.FLAVORED_RUM.family)

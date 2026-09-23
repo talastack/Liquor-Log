@@ -43,6 +43,12 @@ public enum ClassType: String, Sendable, CaseIterable, Codable {
     case canadianWhisky
     case japaneseWhisky
 
+    /// Whisky from somewhere without a class of its own here -- Taiwan,
+    /// India, Australia, Sweden. Named for what it is rather than given a
+    /// case per country, which would never stop growing. Kavalan is not
+    /// Japanese whisky and saying so would be worse than saying nothing.
+    case worldWhisky
+
     // MARK: Agave
     case tequilaBlanco
     case tequilaReposado
@@ -60,6 +66,11 @@ public enum ClassType: String, Sendable, CaseIterable, Codable {
     /// under-strength rum but an ordinary flavoured one.
     case flavoredRum
 
+    /// A distinctive product of Brazil, recognised by TTB since 2013:
+    /// sugarcane juice rather than molasses, bottled between 38% and 48%.
+    /// The 38% is why it carries its own floor.
+    case cachaca
+
     // MARK: Juniper and neutral
     case londonDryGin
     case distilledGin
@@ -68,6 +79,9 @@ public enum ClassType: String, Sendable, CaseIterable, Codable {
     case aquavit
 
     // MARK: Grape and fruit
+    /// Pomace brandy. Bottled at 37.5% in the EU, below the spirits floor
+    /// its family carries, so it sets its own.
+    case grappa
     case cognac
     case armagnac
     case calvados
@@ -79,6 +93,27 @@ public enum ClassType: String, Sendable, CaseIterable, Codable {
     case amaro
     case vermouth
     case absinthe
+
+    // MARK: Fortified wine
+    //
+    // Not spirits, and they live on the spirits shelf anyway. Each is a
+    // wine with grape spirit added, which is what puts them between 15%
+    // and 22% -- far under any spirits floor and exactly right for what
+    // they are.
+    case port
+    case sherry
+    case madeira
+
+    // MARK: East Asia
+    //
+    // Grouped for a filter chip, not by any shared definition: soju is
+    // usually diluted to 16-25%, shochu runs 20-45%, baijiu 35-65%, and
+    // sake is brewed rather than distilled at all. No floor covers that
+    // range honestly, so none is asserted.
+    case soju
+    case shochu
+    case sake
+    case baijiu
 
     // MARK: Beer
     case maltBeverage
@@ -101,7 +136,8 @@ public enum ClassType: String, Sendable, CaseIterable, Codable {
     /// Broad grouping, for filters and for grouping a shelf. Not a legal
     /// concept — the legal concept is the case itself.
     public enum Family: String, Sendable, CaseIterable, Hashable {
-        case whiskey, agave, rum, gin, vodka, brandy, liqueur, beer, cider, seltzer, other
+        case whiskey, agave, rum, gin, vodka, brandy, liqueur
+        case fortified, eastAsian, beer, cider, seltzer, other
 
         public var label: String {
             switch self {
@@ -112,6 +148,8 @@ public enum ClassType: String, Sendable, CaseIterable, Codable {
             case .vodka: return "Vodka"
             case .brandy: return "Brandy"
             case .liqueur: return "Liqueur"
+            case .fortified: return "Fortified wine"
+            case .eastAsian: return "East Asian"
             case .beer: return "Beer"
             case .cider: return "Cider"
             case .seltzer: return "Seltzer"
@@ -128,20 +166,24 @@ public enum ClassType: String, Sendable, CaseIterable, Codable {
              .lightWhiskey, .blendedWhiskey,
              .singleMaltScotch, .blendedMaltScotch, .singleGrainScotch, .blendedScotch,
              .irishWhiskey, .singlePotStillIrish, .singleMaltIrish,
-             .canadianWhisky, .japaneseWhisky:
+             .canadianWhisky, .japaneseWhisky, .worldWhisky:
             return .whiskey
         case .tequilaBlanco, .tequilaReposado, .tequilaAnejo, .tequilaExtraAnejo, .mezcal:
             return .agave
-        case .rum, .rhumAgricole, .flavoredRum:
+        case .rum, .rhumAgricole, .flavoredRum, .cachaca:
             return .rum
         case .londonDryGin, .distilledGin, .genever:
             return .gin
         case .vodka:
             return .vodka
-        case .cognac, .armagnac, .calvados, .brandy, .pisco:
+        case .cognac, .armagnac, .calvados, .brandy, .pisco, .grappa:
             return .brandy
         case .liqueur, .amaro, .vermouth:
             return .liqueur
+        case .port, .sherry, .madeira:
+            return .fortified
+        case .soju, .shochu, .sake, .baijiu:
+            return .eastAsian
         case .maltBeverage:
             return .beer
         case .hardCider:
@@ -188,11 +230,13 @@ public enum ClassType: String, Sendable, CaseIterable, Codable {
         // exactly what its label says it is.
         switch self {
         case .flavoredRum: return ABV(percent: 30)
+        case .cachaca: return ABV(percent: 38)
+        case .grappa: return ABV(percent: 37.5)
         default: break
         }
 
         switch family {
-        case .liqueur, .beer, .cider, .seltzer:
+        case .liqueur, .beer, .cider, .seltzer, .fortified, .eastAsian:
             // A 5% cider is not under-strength; it is a cider. Asserting a
             // spirits floor here would make the app wrong with confidence.
             return nil
@@ -253,6 +297,16 @@ public enum ClassType: String, Sendable, CaseIterable, Codable {
         case .amaro: return "Amaro"
         case .vermouth: return "Vermouth"
         case .absinthe: return "Absinthe"
+        case .worldWhisky: return "World Whisky"
+        case .grappa: return "Grappa"
+        case .cachaca: return "Cachaca"
+        case .port: return "Port"
+        case .sherry: return "Sherry"
+        case .madeira: return "Madeira"
+        case .soju: return "Soju"
+        case .shochu: return "Shochu"
+        case .sake: return "Sake"
+        case .baijiu: return "Baijiu"
         case .maltBeverage: return "Malt Beverage"
         case .hardCider: return "Hard Cider"
         case .hardSeltzer: return "Hard Seltzer"

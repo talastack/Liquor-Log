@@ -39,6 +39,14 @@ enum class ClassType(val storageKey: String) {
     CANADIAN_WHISKY("canadianWhisky"),
     JAPANESE_WHISKY("japaneseWhisky"),
 
+    /**
+     * Whisky from somewhere without a class of its own here -- Taiwan,
+     * India, Australia, Sweden. Named for what it is rather than a case per
+     * country, which would never stop growing. Kavalan is not Japanese
+     * whisky and saying so would be worse than saying nothing.
+     */
+    WORLD_WHISKY("worldWhisky"),
+
     // Agave
     TEQUILA_BLANCO("tequilaBlanco"),
     TEQUILA_REPOSADO("tequilaReposado"),
@@ -58,6 +66,13 @@ enum class ClassType(val storageKey: String) {
      */
     FLAVORED_RUM("flavoredRum"),
 
+    /**
+     * A distinctive product of Brazil, recognised by TTB since 2013:
+     * sugarcane juice rather than molasses, bottled between 38% and 48%.
+     * The 38% is why it carries its own floor.
+     */
+    CACHACA("cachaca"),
+
     // Clear and botanical
     LONDON_DRY_GIN("londonDryGin"),
     DISTILLED_GIN("distilledGin"),
@@ -66,6 +81,8 @@ enum class ClassType(val storageKey: String) {
     AQUAVIT("aquavit"),
 
     // Fruit
+    /** Pomace brandy. Bottled at 37.5% in the EU, under its family's floor. */
+    GRAPPA("grappa"),
     COGNAC("cognac"),
     ARMAGNAC("armagnac"),
     CALVADOS("calvados"),
@@ -77,6 +94,26 @@ enum class ClassType(val storageKey: String) {
     AMARO("amaro"),
     VERMOUTH("vermouth"),
     ABSINTHE("absinthe"),
+
+    // Fortified wine
+    //
+    // Not spirits, and they live on the spirits shelf anyway. Each is a wine
+    // with grape spirit added, which is what puts them between 15% and 22% --
+    // far under any spirits floor and exactly right for what they are.
+    PORT("port"),
+    SHERRY("sherry"),
+    MADEIRA("madeira"),
+
+    // East Asia
+    //
+    // Grouped for a filter chip, not by any shared definition: soju is
+    // usually diluted to 16-25%, shochu runs 20-45%, baijiu 35-65%, and sake
+    // is brewed rather than distilled at all. No floor covers that range
+    // honestly, so none is asserted.
+    SOJU("soju"),
+    SHOCHU("shochu"),
+    SAKE("sake"),
+    BAIJIU("baijiu"),
 
     // Beer
     MALT_BEVERAGE("maltBeverage"),
@@ -106,6 +143,8 @@ enum class ClassType(val storageKey: String) {
         VODKA("vodka", "Vodka"),
         BRANDY("brandy", "Brandy"),
         LIQUEUR("liqueur", "Liqueur"),
+        FORTIFIED("fortified", "Fortified wine"),
+        EAST_ASIAN("eastAsian", "East Asian"),
         BEER("beer", "Beer"),
         CIDER("cider", "Cider"),
         SELTZER("seltzer", "Seltzer"),
@@ -120,17 +159,19 @@ enum class ClassType(val storageKey: String) {
             LIGHT_WHISKEY, BLENDED_WHISKEY,
             SINGLE_MALT_SCOTCH, BLENDED_MALT_SCOTCH, SINGLE_GRAIN_SCOTCH, BLENDED_SCOTCH,
             IRISH_WHISKEY, SINGLE_POT_STILL_IRISH, SINGLE_MALT_IRISH,
-            CANADIAN_WHISKY, JAPANESE_WHISKY,
+            CANADIAN_WHISKY, JAPANESE_WHISKY, WORLD_WHISKY,
             -> Family.WHISKEY
 
             TEQUILA_BLANCO, TEQUILA_REPOSADO, TEQUILA_ANEJO, TEQUILA_EXTRA_ANEJO, MEZCAL,
             -> Family.AGAVE
 
-            RUM, RHUM_AGRICOLE, FLAVORED_RUM -> Family.RUM
+            RUM, RHUM_AGRICOLE, FLAVORED_RUM, CACHACA -> Family.RUM
             LONDON_DRY_GIN, DISTILLED_GIN, GENEVER -> Family.GIN
             VODKA -> Family.VODKA
-            COGNAC, ARMAGNAC, CALVADOS, BRANDY, PISCO -> Family.BRANDY
+            COGNAC, ARMAGNAC, CALVADOS, BRANDY, PISCO, GRAPPA -> Family.BRANDY
             LIQUEUR, AMARO, VERMOUTH -> Family.LIQUEUR
+            PORT, SHERRY, MADEIRA -> Family.FORTIFIED
+            SOJU, SHOCHU, SAKE, BAIJIU -> Family.EAST_ASIAN
             MALT_BEVERAGE -> Family.BEER
             HARD_CIDER -> Family.CIDER
             HARD_SELTZER -> Family.SELTZER
@@ -174,10 +215,14 @@ enum class ClassType(val storageKey: String) {
             // calling one under-strength would put a warning on a bottle
             // that is exactly what its label says it is.
             if (this == FLAVORED_RUM) return ABV(percent = 30.0)
+            if (this == CACHACA) return ABV(percent = 38.0)
+            if (this == GRAPPA) return ABV(percent = 37.5)
             return when (family) {
                 // A 5% cider is not under-strength; it is a cider. Asserting a
                 // spirits floor here would make the app wrong with confidence.
-                Family.LIQUEUR, Family.BEER, Family.CIDER, Family.SELTZER -> null
+                Family.LIQUEUR, Family.BEER, Family.CIDER, Family.SELTZER,
+                Family.FORTIFIED, Family.EAST_ASIAN,
+                -> null
                 Family.WHISKEY, Family.AGAVE, Family.RUM,
                 Family.GIN, Family.VODKA, Family.BRANDY,
                 -> ABV(percent = 40.0)
@@ -236,6 +281,16 @@ enum class ClassType(val storageKey: String) {
             AMARO -> "Amaro"
             VERMOUTH -> "Vermouth"
             ABSINTHE -> "Absinthe"
+            WORLD_WHISKY -> "World Whisky"
+            GRAPPA -> "Grappa"
+            CACHACA -> "Cachaca"
+            PORT -> "Port"
+            SHERRY -> "Sherry"
+            MADEIRA -> "Madeira"
+            SOJU -> "Soju"
+            SHOCHU -> "Shochu"
+            SAKE -> "Sake"
+            BAIJIU -> "Baijiu"
             MALT_BEVERAGE -> "Malt Beverage"
             HARD_CIDER -> "Hard Cider"
             HARD_SELTZER -> "Hard Seltzer"

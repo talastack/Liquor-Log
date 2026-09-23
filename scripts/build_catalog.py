@@ -807,6 +807,59 @@ ROWS = [
     ("pike-creek-10", "Hiram Walker", "Pike Creek", "10 Year", "canadianWhisky", "unspecified", 42.0, 10, [], None),
     ("goose-island-bcbs", "Goose Island", "Goose Island", "Bourbon County Brand Stout", "maltBeverage", "unspecified", 14.7, None, [], None),
 
+    # ------------------------------------------------ The rest of the shelf
+    # Whole categories the class system could not express until now. Each of
+    # these was somebody's whole shelf being invisible to the app.
+
+    # World whisky. The five that were dropped last time for being filed as
+    # Japanese, which they are not.
+    ("kavalan-classic", "Kavalan", "Kavalan", "Classic Single Malt", "worldWhisky", "unspecified", 40.0, None, [], None),
+    ("kavalan-solist-sherry", "Kavalan", "Kavalan", "Solist Sherry Cask", "worldWhisky", "singleCask", None, None, [BP], None),
+    ("amrut-fusion", "Amrut", "Amrut", "Fusion", "worldWhisky", "unspecified", 50.0, None, [], None),
+    ("paul-john-brilliance", "Paul John", "Paul John", "Brilliance", "worldWhisky", "unspecified", 46.0, None, [], None),
+    ("starward-nova", "Starward", "Starward", "Nova", "worldWhisky", "unspecified", 41.0, None, [], None),
+    ("mackmyra-brukswhisky", "Mackmyra", "Mackmyra", "Brukswhisky", "worldWhisky", "unspecified", 41.4, None, [], None),
+    ("stauning-rye", "Stauning", "Stauning", "Rye", "worldWhisky", "unspecified", 48.0, None, [], None),
+
+    # Port, sherry, madeira. Fortified wine keeps its own family: 20% is
+    # correct for a port and would be an under-strength anything else.
+    ("grahams-six-grapes", "Graham's", "Graham's", "Six Grapes Reserve", "port", "unspecified", 20.0, None, [], None),
+    ("grahams-10-tawny", "Graham's", "Graham's", "10 Year Tawny", "port", "unspecified", 20.0, 10, [], None),
+    ("taylor-fladgate-20", "Taylor Fladgate", "Taylor Fladgate", "20 Year Tawny", "port", "unspecified", 20.0, 20, [], None),
+    ("fonseca-bin-27", "Fonseca", "Fonseca", "Bin 27 Reserve", "port", "unspecified", 20.0, None, [], None),
+    ("warres-otima-10", "Warre's", "Warre's", "Otima 10 Year Tawny", "port", "unspecified", 20.0, 10, [], None),
+    ("dows-late-bottled-vintage", "Dow's", "Dow's", "Late Bottled Vintage", "port", "unspecified", 20.0, None, [], None),
+    ("tio-pepe", "Gonzalez Byass", "Tio Pepe", "Fino", "sherry", "unspecified", 15.0, None, [], None),
+    ("lustau-east-india", "Lustau", "Lustau", "East India Solera", "sherry", "unspecified", 20.0, None, [], None),
+    ("harveys-bristol-cream", "Harveys", "Harveys", "Bristol Cream", "sherry", "unspecified", 17.5, None, [], None),
+    ("sandeman-medium-dry", "Sandeman", "Sandeman", "Medium Dry Amontillado", "sherry", "unspecified", 17.5, None, [], None),
+    ("blandys-5-bual", "Blandy's", "Blandy's", "5 Year Bual", "madeira", "unspecified", 19.0, 5, [], None),
+    ("rainwater-madeira", "Broadbent", "Broadbent", "Rainwater", "madeira", "unspecified", 18.0, None, [], None),
+
+    # Cachaca. Its own floor at 38%, which is why Leblon does not read as an
+    # under-strength rum.
+    ("leblon-cachaca", "Leblon", "Leblon", "", "cachaca", "unspecified", 40.0, None, [], None),
+    ("novo-fogo-silver", "Novo Fogo", "Novo Fogo", "Silver", "cachaca", "unspecified", 40.0, None, [], None),
+    ("ypioca-prata", "Ypioca", "Ypioca", "Prata", "cachaca", "unspecified", 39.0, None, [], None),
+
+    # Grappa, at the EU's 37.5%.
+    ("nardini-bianca", "Nardini", "Nardini", "Grappa Bianca", "grappa", "unspecified", 50.0, None, [], None),
+    ("jacopo-poli-sarpa", "Poli", "Jacopo Poli", "Sarpa di Poli", "grappa", "unspecified", 40.0, None, [], None),
+
+    # East Asia. Nothing here shares a definition with anything else here,
+    # which is why the family is a grouping and the floor is nothing.
+    ("jinro-chamisul-fresh", "HiteJinro", "Jinro", "Chamisul Fresh", "soju", "unspecified", 16.9, None, [], None),
+    ("chum-churum", "Lotte", "Chum Churum", "Original", "soju", "unspecified", 16.5, None, [], None),
+    ("hwayo-41", "Hwayo", "Hwayo", "41", "soju", "unspecified", 41.0, None, [], None),
+    ("iichiko-silhouette", "Sanwa Shurui", "Iichiko", "Silhouette", "shochu", "unspecified", 25.0, None, [], None),
+    ("kurokirishima", "Kirishima", "Kuro Kirishima", "", "shochu", "unspecified", 25.0, None, [], None),
+    ("dassai-45", "Asahi Shuzo", "Dassai", "45 Junmai Daiginjo", "sake", "unspecified", 16.0, None, [], None),
+    ("hakkaisan-tokubetsu", "Hakkaisan", "Hakkaisan", "Tokubetsu Junmai", "sake", "unspecified", 15.5, None, [], None),
+    ("kubota-manju", "Asahi Shuzo Niigata", "Kubota", "Manju Junmai Daiginjo", "sake", "unspecified", 15.5, None, [], None),
+    ("moutai-flying-fairy", "Kweichow Moutai", "Kweichow Moutai", "Flying Fairy", "baijiu", "unspecified", 53.0, None, [], None),
+    ("wuliangye-classic", "Wuliangye", "Wuliangye", "Classic", "baijiu", "unspecified", 52.0, None, [], None),
+    ("hong-kong-baijiu-luzhou", "Luzhou Laojiao", "Luzhou Laojiao", "Tequ", "baijiu", "unspecified", 52.0, None, [], None),
+
     # ------------------------------------------------------------------ Cider
     # Hard cider is a real TTB class -- a wine made from apples or pears,
     # still or lightly carbonated, under 8.5% -- so these rows say what they

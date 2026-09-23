@@ -96,6 +96,40 @@ final class ClassificationTests: XCTestCase {
         XCTAssertTrue(amaro.isEmpty)
     }
 
+    func testFortifiedWineAndEastAsianCarryNoSpiritsFloor() {
+        // A 20% port is a port. A 15% sake is a sake. Holding either to the
+        // 40% American spirits floor would flag a correct bottle, which is
+        // the failure this whole family rule exists to avoid.
+        for type in [ClassType.port, .sherry, .madeira, .soju, .shochu, .sake, .baijiu] {
+            XCTAssertNil(type.minimumBottlingStrength, "\(type) should carry no floor")
+        }
+        XCTAssertTrue(issues(.port, abv: 20.0).isEmpty)
+        XCTAssertTrue(issues(.sake, abv: 15.5).isEmpty)
+        XCTAssertTrue(issues(.soju, abv: 16.9).isEmpty)
+
+        XCTAssertEqual(ClassType.port.family, .fortified)
+        XCTAssertEqual(ClassType.sake.family, .eastAsian)
+    }
+
+    func testCachacaAndGrappaSetTheirOwnFloors() {
+        // Both sit under their family's 40% by their own definitions:
+        // cachaca is 38% to 48% by TTB, grappa 37.5% in the EU. Using the
+        // family figure would reject bottles that are exactly what they say.
+        XCTAssertEqual(ClassType.cachaca.minimumBottlingStrength?.percent, 38)
+        XCTAssertEqual(ClassType.grappa.minimumBottlingStrength?.percent, 37.5)
+        XCTAssertTrue(issues(.cachaca, abv: 39.0).isEmpty)
+        XCTAssertFalse(issues(.cachaca, abv: 37.0).isEmpty)
+
+        // Still shelved with their relatives.
+        XCTAssertEqual(ClassType.cachaca.family, .rum)
+        XCTAssertEqual(ClassType.grappa.family, .brandy)
+    }
+
+    func testWorldWhiskyIsWhiskeyAndHeldToForty() {
+        XCTAssertEqual(ClassType.worldWhisky.family, .whiskey)
+        XCTAssertEqual(ClassType.worldWhisky.minimumBottlingStrength?.percent, 40)
+    }
+
     func testFlavouredRumHasItsOwnFloorBelowItsFamily() {
         // Captain Morgan is 35%. Held to rum's 40% it reads as an
         // under-strength rum; it is nothing of the kind, it is a flavoured
