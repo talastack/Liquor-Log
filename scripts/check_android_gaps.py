@@ -62,6 +62,49 @@ def built():
     return "\n".join(blob)
 
 
+# The other direction: a capability the DATA layer has, that no Android
+# screen calls, and that iOS does reach. Each of those is either a feature
+# waiting to be built or a line missing from the list -- and the list
+# saying nothing is how somebody concludes the app cannot do it at all.
+#
+# Keyed on the repository function because that is the durable name. A
+# screen gets rewritten; `removeVisit` is what the database has always
+# called it.
+REACHABLE_ON_IOS = {
+    "setPhoto": "Bottle photos",
+    "setBought": "Buying a bottle from a sighting",
+}
+
+DATA = ROOT / "Android/data/src/main/kotlin"
+
+
+def unlisted_gaps(listed):
+    """Repository functions no screen calls and no line admits to."""
+    missing = []
+    ui_text = chr(10).join(
+        path.read_text(encoding="utf-8", errors="replace")
+        for path in UI.rglob("*.kt")
+    )
+    listed_text = " ".join(listed).lower()
+    data_text = chr(10).join(
+        path.read_text(encoding="utf-8", errors="replace")
+        for path in DATA.rglob("*.kt")
+    )
+    for function, feature in sorted(REACHABLE_ON_IOS.items()):
+        if ("fun " + function + "(") not in data_text:
+            continue
+        if (function + "(") in ui_text:
+            continue
+        # EVERY significant word, not any of them. "Bottle photos" was
+        # counted as listed because another line said "bottle", which is
+        # exactly the kind of near-miss that makes a check useless.
+        words = [w for w in feature.lower().split() if len(w) > 3]
+        if not all(word in listed_text for word in words):
+            missing.append((function, feature))
+    return missing
+
+
+
 def main():
     if not MORE.exists():
         print("android gaps FAILED\n\n  - %s is missing" % MORE.name, file=sys.stderr)
@@ -91,6 +134,13 @@ def main():
                     '"%s" says %s is not built, but %s is in the UI'
                     % (line, feature, found.group(0))
                 )
+
+    for function, feature in unlisted_gaps(lines):
+        problems.append(
+            "%s() is in the data layer, no screen calls it, and nothing in"
+            " NOT_YET mentions %r -- so the app says nothing about it at all"
+            % (function, feature)
+        )
 
     if problems:
         print("android gaps FAILED\n", file=sys.stderr)

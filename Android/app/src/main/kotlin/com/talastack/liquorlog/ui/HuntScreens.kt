@@ -324,6 +324,8 @@ fun PassportScreen(onBack: () -> Unit) {
     val state = LocalAppState.current
     val colors = palette
     var adding by remember { mutableStateOf(false) }
+    /** The visit a tap has offered to remove, waiting on a confirm. */
+    var removingVisit by remember { mutableStateOf<String?>(null) }
 
     val visits = remember(state.changeCount) { state.sightings.visits() }
     val onShelf = remember(state.changeCount) {
@@ -372,7 +374,11 @@ fun PassportScreen(onBack: () -> Unit) {
                     }
                 }
                 items(visits, key = { it.id }) { visit ->
-                    Card {
+                    // Tapping offers to remove it. removeVisit has been in
+                    // the repository since the port with nothing calling it,
+                    // so a visit added by mistake was permanent on Android
+                    // and removable on iOS.
+                    Card(onClick = { removingVisit = visit.id }) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.Top,
@@ -413,6 +419,22 @@ fun PassportScreen(onBack: () -> Unit) {
                 state.noteChange()
                 adding = false
             },
+        )
+    }
+
+    removingVisit?.let { id ->
+        ConfirmDialog(
+            title = "Remove this visit?",
+            message = "It goes off the passport. For a visit added by mistake -- " +
+                "somewhere you have actually stood is worth keeping.",
+            confirmLabel = "Remove",
+            destructive = true,
+            onConfirm = {
+                state.sightings.removeVisit(id)
+                state.noteChange()
+                removingVisit = null
+            },
+            onDismiss = { removingVisit = null },
         )
     }
 }
