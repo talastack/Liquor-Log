@@ -303,8 +303,18 @@ struct AddBottleView: View {
                     .textCase(nil)
                     .foregroundStyle(Palette.textMuted)
                 Picker("Kind", selection: $customClass) {
-                    ForEach(ClassType.allCases, id: \.self) { type in
-                        Text(type.label).tag(type)
+                    // Grouped by family. A flat menu of 58 classes was fine
+                    // when there were twenty and all of them were whiskey;
+                    // now it runs from Kentucky Straight Bourbon to Baijiu
+                    // in one unbroken list, and nobody scrolls that to find
+                    // Hard Cider.
+                    ForEach(ClassType.Family.allCases, id: \.self) { family in
+                        Section(family.label) {
+                            ForEach(ClassType.allCases.filter { $0.family == family },
+                                    id: \.self) { type in
+                                Text(type.label).tag(type)
+                            }
+                        }
                     }
                 }
                 .pickerStyle(.menu)

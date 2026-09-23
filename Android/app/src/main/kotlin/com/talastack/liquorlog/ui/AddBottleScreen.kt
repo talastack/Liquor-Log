@@ -61,6 +61,7 @@ fun AddBottleScreen(bottleId: String?, onDone: () -> Unit) {
             } ?: ""
         )
     }
+    var showsAllClasses by remember { mutableStateOf(false) }
     var classType by remember {
         mutableStateOf(
             matched?.classType
@@ -276,6 +277,13 @@ fun AddBottleScreen(bottleId: String?, onDone: () -> Unit) {
             item {
                 // The regulation classes, not a free-text field: "bourbon"
                 // typed three ways is three categories that never group.
+                //
+                // The twelve below are whiskey because that is what most
+                // people are entering. Everything else was UNREACHABLE: a
+                // hand-typed cider, seltzer, port or tequila could not be
+                // given a class at all, which is half the catalogue and all
+                // of what was added to it this week. "Everything else" opens
+                // the rest, grouped by family.
                 Row(
                     modifier = Modifier.horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(Space.s),
@@ -283,6 +291,47 @@ fun AddBottleScreen(bottleId: String?, onDone: () -> Unit) {
                     for (option in commonClasses) {
                         Chip(option.label, isOn = classType == option) {
                             classType = if (classType == option) null else option
+                        }
+                    }
+                }
+            }
+            item {
+                val chosenElsewhere = classType != null && classType !in commonClasses
+                Text(
+                    if (showsAllClasses) "Fewer"
+                    else if (chosenElsewhere) "Everything else · " + classType!!.label
+                    else "Everything else",
+                    style = TypeScale.caption,
+                    color = palette.accent,
+                    modifier = Modifier
+                        .clickable { showsAllClasses = !showsAllClasses }
+                        .padding(vertical = Space.s),
+                )
+            }
+            if (showsAllClasses) {
+                for (family in ClassType.Family.entries) {
+                    val members = ClassType.entries.filter {
+                        it.family == family && it !in commonClasses
+                    }
+                    if (members.isEmpty()) continue
+                    item {
+                        Text(
+                            family.label,
+                            style = TypeScale.caption,
+                            color = palette.textMuted,
+                            modifier = Modifier.padding(top = Space.s),
+                        )
+                    }
+                    item {
+                        Row(
+                            modifier = Modifier.horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(Space.s),
+                        ) {
+                            for (option in members) {
+                                Chip(option.label, isOn = classType == option) {
+                                    classType = if (classType == option) null else option
+                                }
+                            }
                         }
                     }
                 }
