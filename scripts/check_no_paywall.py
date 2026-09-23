@@ -75,9 +75,19 @@ COPY = re.compile(
     # "$9/year". The bare "a month" and "a year" are how this app talks
     # about a bottle nobody has poured from in a while.
     r"|per month|per year|/month|/year|a month for|a year for"
-    r"|start your trial|cancel any time",
+    r"|start your trial|cancel any time"
+    # Advertising something as free is the paid tier's shadow. It only says
+    # anything if something else is not, so after the tier went it left
+    # three lines implying a paid version nobody could find: "Export and
+    # backup are free, account or not", "Bring in a CSV. Free", "Free and
+    # complete". "Free pour" is excluded below -- it is a real thing to do
+    # with a bottle and has nothing to do with money.
+    r"|\bfree\b",
     re.I,
 )
+
+# "Free" in its bartending sense: pouring by eye, with no measure.
+FREE_POUR = re.compile(r"free[ -]pour", re.I)
 
 STRING = re.compile(r'"((?:[^"\\]|\\.)*)"')
 COMMENT_PREFIXES = ("//", "/*", "*", "///", "<!--", "#")
@@ -86,6 +96,15 @@ COMMENT_PREFIXES = ("//", "/*", "*", "///", "<!--", "#")
 # because dropping it is a destructive migration against a deployed
 # database. It is server-owned, never written by the app and never shown.
 TABLE_NAME_ONLY = {"subscriptions"}
+
+# A schema file states column defaults as string literals, and one of them
+# is the word this check now looks for: `tier text not null default 'free'`.
+# That is a value in a column nothing reads, not a sentence anybody sees.
+# Scoped to the file rather than allowed everywhere, so a screen that says
+# "free" still fails.
+SCHEMA_LITERALS = {
+    "Migrations.swift": {"free", "pro", "subscriptions"},
+}
 
 
 def source_files():
@@ -129,6 +148,10 @@ def main():
                 strings_checked += 1
                 value = m.group(1)
                 if value in TABLE_NAME_ONLY:
+                    continue
+                if value in SCHEMA_LITERALS.get(f.name, ()):
+                    continue
+                if FREE_POUR.search(value):
                     continue
                 if COPY.search(value):
                     problems.append(

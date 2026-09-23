@@ -450,14 +450,14 @@ struct MoreView: View {
             } label: {
                 row(
                     "Import a spreadsheet",
-                    detail: "Bring in a CSV. Free, and you see the plan first.",
+                    detail: "Bring in a CSV. You see the plan before anything changes.",
                     symbol: "square.and.arrow.down")
             }
 
             Button { buildExport() } label: {
                 row(
                     exportURLs.isEmpty ? "Export everything as CSV" : "Rebuild the export",
-                    detail: "Every bottle and barrel field, every tasting with its wheel picks, every pour, the hunt log. Free and complete.",
+                    detail: "Every bottle and barrel field, every tasting with its wheel picks, every pour, the hunt log. All of it, in plain CSV.",
                     symbol: "tablecells")
             }
 

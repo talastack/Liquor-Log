@@ -161,7 +161,7 @@ struct SignInView: View {
         VStack(alignment: .leading, spacing: Space.s) {
             fact("Nothing leaves this phone until you sign in.")
             fact("Your bottles stay here either way. Signing out never removes them.")
-            fact("Export and backup are free, account or not.")
+            fact("Export and backup work whether you sign in or not.")
         }
     }
 

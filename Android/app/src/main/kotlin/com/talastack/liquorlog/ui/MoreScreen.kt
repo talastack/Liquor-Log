@@ -262,12 +262,16 @@ fun MoreScreen(onOpen: (String) -> Unit) {
     }
 }
 
+// What this screen says is missing has to keep matching what is missing.
+// Infinity bottles were on this list after they had been built, which is a
+// worse failure than the gap itself: the app was telling somebody a feature
+// was absent while it sat two taps away on their own bottle.
 private val NOT_YET = listOf(
     "Sync, sign-in and a shared shelf",
     "Label scanning and bulk shelf entry",
     "Price history and the community price check",
     "Backup and restore",
-    "Flights, the shelf walk and infinity-bottle blending",
+    "Flights and the shelf walk",
 )
 
 @Composable

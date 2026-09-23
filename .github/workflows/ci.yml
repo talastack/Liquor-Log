@@ -133,6 +133,12 @@ jobs:
       - name: Check the published pages
         run: python3 scripts/check_pages.py
 
+      # The Android app tells people what it does not have yet. Shipping a
+      # feature and forgetting to take it off that list makes the app wrong
+      # about itself, which is worse than the gap.
+      - name: Check the Android gap list is still true
+        run: python3 scripts/check_android_gaps.py
+
       # Guideline 1.4.3 again, this time as a check rather than a memory. A
       # streak badge or a "drinks this week" line is an obvious feature to
       # add and an obvious rejection afterwards.
