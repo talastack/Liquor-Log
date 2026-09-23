@@ -133,6 +133,15 @@ jobs:
       - name: Check the published pages
         run: python3 scripts/check_pages.py
 
+      # ClassType is written twice, in Swift and in Kotlin, and its storage
+      # keys are what travel between them. check_catalog.py reads the case
+      # list from the Swift file alone, so a class present in one engine and
+      # missing in the other passes every other check and ships -- and the
+      # failure is silent: the bottle just stops having a class on that
+      # platform.
+      - name: Check both engines know the same classes
+        run: python3 scripts/check_class_parity.py
+
       # The Android app tells people what it does not have yet. Shipping a
       # feature and forgetting to take it off that list makes the app wrong
       # about itself, which is worse than the gap.
