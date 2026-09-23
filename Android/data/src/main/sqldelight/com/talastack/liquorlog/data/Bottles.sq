@@ -92,8 +92,8 @@ UPDATE bottles SET photo_file = ?, updated_at = ?, dirty = 1 WHERE id = ?;
 insertPour:
 INSERT INTO pours (
     id, user_id, bottle_id, volume_ml, poured_at, note, given_to,
-    created_at, updated_at, dirty
-) VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, 1);
+    into_bottle_id, created_at, updated_at, dirty
+) VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, 1);
 
 deletePour:
 UPDATE pours SET deleted_at = ?, updated_at = ?, dirty = 1 WHERE id = ?;

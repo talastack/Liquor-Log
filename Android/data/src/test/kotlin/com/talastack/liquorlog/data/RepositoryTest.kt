@@ -489,6 +489,43 @@ class RepositoryTest {
     }
 
     @Test
+    fun `undoing a blend pour takes it out of the blend as well`() {
+        // The other half of "whiskey that leaves one bottle arrives in the
+        // other". Undo used to put the liquid back in the source and leave
+        // it in the blend, so the two disagreed for good: a blend has no
+        // capacity to check itself against, so nothing would ever notice.
+        val blend = bottles.startInfinityBottle(name = "The infinity", volumeMl = 750.0, now = 1_000)
+        val source = bottles.add(name = "Weller 12", volumeMl = 750.0, abv = 45.0, now = 1_000)
+        bottles.addToBlend(blend, milliliters = 100.0, sourceBottleId = source, now = 2_000)
+
+        val pour = bottles.poursFor(source).single()
+        // The pour knows where it went, which is what makes the undo
+        // possible and what tells the screen it was not an ordinary pour.
+        assertEquals(blend, pour.into_bottle_id)
+
+        bottles.deletePour(pour.id, now = 3_000)
+
+        assertEquals(750.0, assertNotNull(bottles.byId(source)).status.remainingMilliliters)
+        assertEquals(0.0, assertNotNull(bottles.byId(blend)).status.remainingMilliliters)
+        assertEquals(0, bottles.additionsFor(blend).size)
+    }
+
+    @Test
+    fun `undoing an ordinary pour leaves every blend alone`() {
+        val blend = bottles.startInfinityBottle(name = "The infinity", volumeMl = 750.0, now = 1_000)
+        val source = bottles.add(name = "Weller 12", volumeMl = 750.0, abv = 45.0, now = 1_000)
+        bottles.addToBlend(blend, milliliters = 100.0, sourceBottleId = source, now = 2_000)
+        val drunk = bottles.logPour(source, milliliters = 50.0, now = 3_000)
+
+        bottles.deletePour(drunk, now = 4_000)
+
+        // The blend keeps what it was given; only the drink goes back.
+        assertEquals(100.0, assertNotNull(bottles.byId(blend)).status.remainingMilliliters)
+        assertEquals(1, bottles.additionsFor(blend).size)
+        assertEquals(650.0, assertNotNull(bottles.byId(source)).status.remainingMilliliters)
+    }
+
+    @Test
     fun `something poured in from outside the collection still counts`() {
         val blend = bottles.startInfinityBottle(name = "The infinity", volumeMl = 750.0, now = 1_000)
         bottles.addToBlend(

@@ -31,3 +31,6 @@ Thumbs.db
 # Python
 __pycache__/
 *.pyc
+
+# Intermediates from the catalogue batch scripts, never part of the build.
+scratch_*.json

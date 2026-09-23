@@ -225,9 +225,23 @@ fun BottleDetailScreen(
     undoingPour?.let { pour ->
         ConfirmDialog(
             title = "Take this pour back?",
-            message = "Logged " + shortDate(pour.poured_at) + ". The fill goes back up by " +
-                VolumeDisplay.text(pour.volume_ml, state.ounces) +
-                ". For a pour logged by mistake, not one you drank.",
+            // Only pours after the most recent "set level" reading count
+            // towards the fill, so only those move it. Promising the bar
+            // will rise when it will not is a false statement attached to
+            // a destructive button.
+            message = run {
+                val rebasedAt = readings.firstOrNull()?.read_at
+                val movesTheFill = rebasedAt == null || pour.poured_at > rebasedAt
+                "Logged " + shortDate(pour.poured_at) + ". " +
+                    if (movesTheFill) {
+                        "The fill goes back up by " +
+                            VolumeDisplay.text(pour.volume_ml, state.ounces) + ". "
+                    } else {
+                        "It is older than the level you set by hand, so the fill " +
+                            "does not change -- only the log does. "
+                    } +
+                    "For a pour logged by mistake, not one you drank."
+            },
             confirmLabel = "Undo",
             destructive = true,
             onConfirm = {

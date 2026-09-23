@@ -149,7 +149,9 @@ public enum CollectionFilter: Sendable {
             case .rye: return "Rye"
             case .wheatWhiskey: return "Wheat whiskey"
             case .scotch: return "Scotch"
-            case .tequila: return "Tequila"
+            // Matches the whole agave family, so it must not say only
+            // "Tequila" -- a mezcal-only shelf grew a Tequila chip.
+            case .tequila: return "Tequila & mezcal"
             case .rum: return "Rum"
             case .gin: return "Gin"
             case .vodka: return "Vodka"

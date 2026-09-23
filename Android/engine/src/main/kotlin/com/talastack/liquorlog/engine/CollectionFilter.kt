@@ -118,7 +118,9 @@ object CollectionFilter {
                 RYE -> "Rye"
                 WHEAT_WHISKEY -> "Wheat whiskey"
                 SCOTCH -> "Scotch"
-                TEQUILA -> "Tequila"
+                // Matches the whole agave family, so it must not say only
+                // "Tequila" -- a mezcal-only shelf grew a Tequila chip.
+                TEQUILA -> "Tequila & mezcal"
                 RUM -> "Rum"
                 GIN -> "Gin"
                 VODKA -> "Vodka"

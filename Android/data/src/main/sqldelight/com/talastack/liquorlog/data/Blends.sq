@@ -33,5 +33,12 @@ SELECT blend_bottle_id, sum(volume_ml) AS added_ml
  WHERE deleted_at IS NULL
  GROUP BY blend_bottle_id;
 
+-- The addition a given pour created, for undoing that pour. Without this
+-- an undone blend pour put the whiskey back in the source bottle and left
+-- it in the blend as well.
+additionForPour:
+SELECT * FROM blend_additions
+ WHERE pour_id = ? AND deleted_at IS NULL;
+
 softDeleteAddition:
 UPDATE blend_additions SET deleted_at = ?, updated_at = ?, dirty = 1 WHERE id = ?;

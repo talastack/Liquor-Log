@@ -416,6 +416,7 @@ class BottleRepository(private val database: LiquorDatabase) {
             poured_at = now,
             note = note,
             given_to = givenTo,
+            into_bottle_id = null,
             created_at = now,
             updated_at = now,
         )
@@ -491,6 +492,7 @@ class BottleRepository(private val database: LiquorDatabase) {
                 poured_at = now,
                 note = note,
                 given_to = null,
+                into_bottle_id = blendBottleId,
                 created_at = now,
                 updated_at = now,
             )
@@ -520,9 +522,23 @@ class BottleRepository(private val database: LiquorDatabase) {
         id
     }
 
-    /** Undoes a pour. The fill bar goes back up; nothing else changes. */
-    fun deletePour(pourId: String, now: Long = System.currentTimeMillis()) =
-        q.deletePour(deleted_at = now, updated_at = now, id = pourId)
+    /**
+     * Undoes a pour.
+     *
+     * A pour into an infinity bottle undoes there as well: the whiskey did
+     * not go in if it never left. Without that the source bottle's fill
+     * goes back up while the blend still counts the same liquid, and the
+     * two disagree for good -- the blend has no capacity to check itself
+     * against. iOS has always cascaded here; Android had no way to undo a
+     * pour at all until today, which is why this was never wrong before.
+     */
+    fun deletePour(pourId: String, now: Long = System.currentTimeMillis()): Unit =
+        database.transaction {
+            q.deletePour(deleted_at = now, updated_at = now, id = pourId)
+            bl.additionForPour(pour_id = pourId).executeAsOneOrNull()?.let { addition ->
+                bl.softDeleteAddition(deleted_at = now, updated_at = now, id = addition.id)
+            }
+        }
 
     /**
      * An empty vessel you fill from your other bottles.

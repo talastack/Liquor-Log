@@ -1312,7 +1312,10 @@ struct BottleDetailView: View {
         case .straightRye: return "Straight Rye Whiskey"
         case .rye: return "Rye Whiskey"
         case .maltBeverage: return "Malt Beverage"
-        default: return type.rawValue
+        // Every other class already spells itself out, and twenty were
+        // added this week. Falling back to rawValue printed "hardCider"
+        // and "flavoredWhiskey" on the bottle screen.
+        default: return type.label
         }
     }
 
