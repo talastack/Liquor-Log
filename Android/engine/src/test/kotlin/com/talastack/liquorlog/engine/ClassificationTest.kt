@@ -55,6 +55,27 @@ class ClassificationTest {
         assertFalse(ClassType.SINGLE_MALT_SCOTCH.isStraight, "not an American designation")
     }
 
+    /**
+     * The Swift engine has had this since it was written and Kotlin did not,
+     * which is how the two disagreed for seven commits without Android
+     * noticing: adding FLAVORED_WHISKEY broke the Swift assertion and there
+     * was nothing here to break.
+     *
+     * One exception, and a real one: flavoured whiskey is TTB's Class 9 at
+     * 30%. It sits in the whiskey FAMILY because that is where somebody
+     * looks for it on a filter, and a family is a grouping rather than a
+     * rule.
+     */
+    @Test
+    fun `every whisky carries the forty percent floor`() {
+        for (type in ClassType.entries) {
+            if (type.family != ClassType.Family.WHISKEY) continue
+            if (type == ClassType.FLAVORED_WHISKEY) continue
+            assertEquals(40.0, type.minimumBottlingStrength?.percent, type.name)
+        }
+        assertEquals(30.0, ClassType.FLAVORED_WHISKEY.minimumBottlingStrength?.percent)
+    }
+
     @Test
     fun `the forty percent floor applies to spirits but never to a liqueur`() {
         assertEquals(ABV(percent = 40.0), ClassType.KENTUCKY_STRAIGHT_BOURBON.minimumBottlingStrength)

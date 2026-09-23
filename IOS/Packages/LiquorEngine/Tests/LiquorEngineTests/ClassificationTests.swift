@@ -74,12 +74,22 @@ final class ClassificationTests: XCTestCase {
     /// Japanese whisky each carry a 40% floor under their own rules, so the
     /// minimum is the same wherever the bottle came from. Exempting them was
     /// caution rather than accuracy.
+    ///
+    /// One exception, and it is a real one rather than a convenience:
+    /// `flavoredWhiskey` is TTB's Class 9, bottled at 30%, which is why
+    /// Tennessee Honey at 35% is not a weak whiskey. It is in the whiskey
+    /// FAMILY because that is where somebody looks for it on a filter, and
+    /// the family is a grouping rather than a rule -- so this test can no
+    /// longer say "every class in the family", only "every class that is
+    /// whiskey by the standards of identity".
     func testEveryWhiskyCarriesTheFortyPercentFloor() {
-        for type in ClassType.allCases where type.family == .whiskey {
+        for type in ClassType.allCases
+        where type.family == .whiskey && type != .flavoredWhiskey {
             XCTAssertEqual(
                 type.minimumBottlingStrength?.percent, 40,
                 "\(type) should carry the 40% floor")
         }
+        XCTAssertEqual(ClassType.flavoredWhiskey.minimumBottlingStrength?.percent, 30)
     }
 
     /// The real exception is the sugar-bearing classes. A 16% amaro is not
