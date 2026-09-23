@@ -12,22 +12,62 @@ Two rules govern everything below.
    committed to `shared/data/`, and updated on our schedule — never queried
    live. A shop is a concrete box, and an app whose search box depends on
    somebody else's uptime is an app that fails exactly where it is needed.
-2. **Every row cites its source.** Each catalog entry carries `source` and
-   `source_url`. `scripts/check_catalog_sources.py` fails CI on any row without
-   one. This is what makes "real data" enforceable rather than a promise.
+2. **Every row cites its source.** Each catalog entry carries `source`, and
+   `check_catalog.py` fails CI on a row without one, and on a row claiming
+   `verified` without a `source_url`.
+
+   Be clear about what that does and does not buy. Every row today says
+   `source: "Producer label"` and `verified: false`, and **none carries a
+   `source_url`**. The check enforces honesty, not verification: it stops
+   the catalogue claiming to be checked when it is not. The app shows that
+   on each bottle rather than hiding it.
+
+   (An earlier draft of this document named
+   `scripts/check_catalog_sources.py`. There is no such script and there
+   never was; the rule lives in `check_catalog.py`.)
 
 ---
 
 ## Current state, stated plainly
 
-As of this commit **there is no bottle catalog.** `shared/data/` holds the files
-listed below and nothing else. The `catalog_product_id` values in
-`AppDatabase.seedFixtures()` — `ec-barrel-proof`, `weller-antique-107` and the
-rest — are placeholders that resolve to nothing. The app will not have a working
-autocomplete until the ingestion described here is actually run.
+**971 products**, in `shared/data/spirits.v1.json`, authored by hand in the
+table at the top of `scripts/build_catalog.py` and generated from it. 60
+classes, from Kentucky Straight Bourbon to baijiu. Every row carries stable,
+widely published product facts: distillery, brand, expression, class,
+production type, and a strength where the bottle has a fixed one.
 
-That is deliberate. Inventing a catalog from memory is how a wrong proof ends up
-in a cost-per-pour figure that nobody ever checks.
+**None of it is verified.** 0 of 899 rows carry a `source_url`. Each says
+`verified: false` and the bottle screen says so in words.
+
+### Why it is not thousands, which is the question that gets asked
+
+A US shop stocks thousands of SKUs and this catalogue has hundreds. The gap
+is not effort, it is that **no free, legally clean, bulk dataset of consumer
+spirits with accurate strengths exists**. Measured rather than assumed, in
+September 2026:
+
+| Source | Licence | What it actually yields |
+|---|---|---|
+| Wikidata | CC0 | Queried its SPARQL endpoint: **28 whiskies, 1 rum, 0 gins, 0 tequilas** carry an ABV and an English label. 194 beers. Smaller than what is already here. |
+| TTB Public COLA Registry | CC0, public domain | 2.9M label approvals and the authoritative US record. **No bulk download and no API** -- an HTML search form only. Extracting it in bulk means automated querying of a government site, which is the scraping this project does not do. |
+| Open Food Facts | ODbL | Large, has strengths and barcodes. ODbL is **share-alike**: a database derived from it inherits the licence. That is a real entanglement for a shipped app and wants a lawyer, not a script. |
+| Commercial catalogue APIs | Paid | Out, by the first rule above. |
+
+So the catalogue grows by hand, and the ceiling is honesty per row rather
+than typing speed: a row needs a strength somebody can check, and inventing
+proofs to reach a round number is precisely how a wrong figure ends up in a
+cost-per-pour nobody questions.
+
+Two things take the pressure off the number:
+
+- **A bottle typed in by hand behaves exactly like a catalogue one.** It
+  resolves, it answers the shelf check, it filters. That is pinned by tests
+  in `EnvironmentResolverTests`, because it was once broken.
+- **COLA is the right tool for the other half.** It cannot be bulk-loaded,
+  but each approval has a permanent URL, which is exactly what a
+  `source_url` wants. Verifying the bottles people are most likely to own,
+  a few dozen at a time, turns "none of this is checked" into "the ones you
+  probably have are".
 
 ---
 
