@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- No permissions, still. Export hands its file to another app through
-         a FileProvider rather than writing to shared storage, which is what
-         WRITE_EXTERNAL_STORAGE would have been for; the camera and the
-         network come later, with the features that need them.
+    <!-- No permissions, still, and bottle photos did not change that.
+         Export hands its file to another app through a FileProvider rather
+         than writing to shared storage, which is what WRITE_EXTERNAL_STORAGE
+         would have been for. A photo is taken by the system camera app and
+         picked through the system photo picker, so neither CAMERA nor
+         READ_MEDIA_IMAGES is needed to store one picture. The network comes
+         later, with the feature that needs it.
 
          The theme is the platform's own, not a Material Components one: that
          theme lives in com.google.android.material, which a Compose app has

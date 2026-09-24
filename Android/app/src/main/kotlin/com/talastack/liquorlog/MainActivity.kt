@@ -8,6 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.core.view.WindowCompat
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
+import com.talastack.liquorlog.data.BottlePhotoStore
 import com.talastack.liquorlog.data.BottleRepository
 import com.talastack.liquorlog.data.BundledData
 import com.talastack.liquorlog.data.CollectionExport
@@ -48,6 +49,11 @@ class MainActivity : ComponentActivity() {
         // Read once, at launch, off the assets in the APK. The catalogue is
         // half a megabyte of JSON and the shelf check is the first tab: the
         // one thing it must not do is parse it again on every keystroke.
+        // Internal storage, not the cache: a photo the person took is theirs
+        // and is carried by a device backup. A folder that cannot be made is
+        // not a crash -- the screens show the bottle mark instead.
+        val photos = runCatching { BottlePhotoStore(java.io.File(filesDir, "photos")) }.getOrNull()
+
         val catalog = BundledData.catalog(this)
         val wheel = BundledData.flavorWheel(this)
 
@@ -60,6 +66,7 @@ class MainActivity : ComponentActivity() {
                     sightings = SightingRepository(database),
                     people = PeopleLedger(database),
                     export = CollectionExport(database),
+                    photos = photos,
                     catalog = catalog,
                     wheel = wheel,
                     look = Look.fromKey(preferences.getString(Look.KEY, null)),

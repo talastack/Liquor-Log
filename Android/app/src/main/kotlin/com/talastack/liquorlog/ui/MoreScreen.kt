@@ -288,7 +288,6 @@ private val NOT_YET = listOf(
     "Price history and the community price check",
     "Backup and restore",
     "Flights and the shelf walk",
-    "Bottle photos",
     "Buying a bottle from a sighting",
     "Shelf labels and the insurance report",
 )

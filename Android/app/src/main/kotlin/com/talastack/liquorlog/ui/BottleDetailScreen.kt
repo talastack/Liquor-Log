@@ -386,7 +386,11 @@ private fun Hero(summary: BottleRepository.Summary) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(Space.m),
     ) {
-        BottleMark(height = 104.dp)
+        BottleHeroPhoto(
+            bottleId = summary.id,
+            fileName = summary.bottle.photo_file,
+            onChange = { state.noteChange() },
+        )
         state.distillery(summary)?.let { SectionLabel(it) }
         Text(
             state.name(summary),

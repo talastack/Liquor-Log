@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
+import com.talastack.liquorlog.data.BottlePhotoStore
 import com.talastack.liquorlog.data.BottleRepository
 import com.talastack.liquorlog.data.CollectionExport
 import com.talastack.liquorlog.data.PeopleLedger
@@ -37,6 +38,11 @@ class AppState(
     val sightings: SightingRepository,
     val people: PeopleLedger,
     val export: CollectionExport,
+    /**
+     * Where bottle photos are kept. Null when the folder could not be made,
+     * which is the same to every screen as a bottle with no photo.
+     */
+    val photos: BottlePhotoStore?,
     /** The bundled catalogue. Empty when the asset could not be read. */
     val catalog: Catalog,
     /** The bundled flavour wheel. Null when the asset could not be read. */

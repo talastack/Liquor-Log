@@ -40,6 +40,7 @@ CLAIMS = [
     ("sync", r"\bSyncScreen\b|\bSignInScreen\b", "sync and sign-in"),
     ("scan", r"\bScanScreen\b|\bLabelScanner\b", "label scanning"),
     ("price", r"\bPriceScreen\b|\bPriceCheckScreen\b", "the price check"),
+    ("photo", r"\bBottleHeroPhoto\b|\bBottleImage\b", "bottle photos"),
 ]
 
 

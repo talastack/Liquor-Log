@@ -71,6 +71,12 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
 
     implementation("androidx.activity:activity-compose:1.9.2")
+
+    // A phone held upright writes a sideways JPEG and an orientation tag.
+    // Reading that tag is the difference between a bottle photo and a bottle
+    // photo lying down; the framework ExifInterface reads paths only, and a
+    // photo picked from the library arrives as a content URI.
+    implementation("androidx.exifinterface:exifinterface:1.3.7")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
 
     // One back stack, so a bottle opened from the collection, from the search

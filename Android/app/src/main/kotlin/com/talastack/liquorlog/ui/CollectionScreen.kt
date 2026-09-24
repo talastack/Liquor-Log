@@ -402,7 +402,7 @@ fun BottleCard(
 
     Card(onClick = onClick) {
         Row(horizontalArrangement = Arrangement.spacedBy(Space.m)) {
-            BottleMark(height = 58.dp)
+            BottleImage(summary.bottle.photo_file, height = 58.dp)
 
             Column(
                 modifier = Modifier.weight(1f),

@@ -2,10 +2,12 @@
 <!--
   What the FileProvider is allowed to hand out.
 
-  One directory, inside the app's own cache: the export folder. Nothing else
-  is shareable, so a bug in an intent cannot hand another app the database.
-  The database itself is deliberately not here.
+  Two directories, both inside the app's own cache: the export folder, and
+  the one file the camera app writes a photo into. Nothing else is shareable,
+  so a bug in an intent cannot hand another app the database. The database
+  itself, and the stored photos, are deliberately not here.
 -->
 <paths>
     <cache-path name="export" path="export/" />
+    <cache-path name="camera" path="camera/" />
 </paths>
