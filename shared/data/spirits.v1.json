@@ -16,8 +16,9 @@
       "class_type": "kentuckyStraightBourbon",
       "production_type": "smallBatch",
       "abv": 47.0,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://elijahcraig.com/small-batch",
+      "verified": true
     },
     {
       "id": "ec-barrel-proof",
@@ -198,8 +199,9 @@
       "production_type": "unspecified",
       "abv": 45.0,
       "stated_age_years": 10,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.buffalotracedistillery.com/our-brands/eagle-rare/eagle-rare-10/",
+      "verified": true
     },
     {
       "id": "weller-special-reserve",
@@ -316,8 +318,9 @@
       "class_type": "kentuckyStraightBourbon",
       "production_type": "unspecified",
       "abv": 50.5,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.wildturkeybourbon.com/products/wild-turkey-101/",
+      "verified": true
     },
     {
       "id": "wild-turkey-rare-breed",

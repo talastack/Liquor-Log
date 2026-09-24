@@ -1333,8 +1333,32 @@ def load_prices():
     return merged
 
 
+def load_verified():
+    """{product id: {source, source_url}} for rows somebody has checked.
+
+    Every row ships `verified: false` by default, which is the honest
+    default: nobody had looked. This is the file that says which ones have
+    been looked at, and against what.
+
+    A row here is not a claim that the app is right -- it is a claim that a
+    person opened the producer's page, read the figure, and compared it.
+    Where the page disagreed, the catalogue was corrected first.
+    """
+    directory = OUT.parent / "verified"
+    if not directory.exists():
+        return {}
+
+    merged = {}
+    for path in sorted(directory.glob("*.json")):
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        for pid, entry in payload.get("verified", {}).items():
+            merged[pid] = entry
+    return merged
+
+
 def main():
     prices = load_prices()
+    verified = load_verified()
     seen = set()
     products = []
 
@@ -1375,8 +1399,17 @@ def main():
             product["msrp_source"] = price["source"]
             product["msrp_as_of_year"] = price["as_of_year"]
 
-        product["source"] = "Producer label"
-        product["verified"] = False
+        # Checked against a page the producer publishes, or not yet. The
+        # app says which on every bottle rather than implying the whole
+        # catalogue is one or the other.
+        checked = verified.get(pid)
+        if checked:
+            product["source"] = checked["source"]
+            product["source_url"] = checked["source_url"]
+            product["verified"] = True
+        else:
+            product["source"] = "Producer label"
+            product["verified"] = False
         products.append(product)
 
     catalog = {
@@ -1417,8 +1450,10 @@ def main():
             print("  updated the count in %s" % doc.name)
     OUT.write_text(json.dumps(catalog, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     priced = sum(1 for p in products if p.get("msrp_cents") is not None)
-    print("wrote %s: %d products, %d with a cited shelf price"
-          % (OUT.name, len(products), priced))
+    checked = sum(1 for p in products if p.get("verified"))
+    print("wrote %s: %d products, %d with a cited shelf price, %d checked"
+          " against a producer page"
+          % (OUT.name, len(products), priced, checked))
     return 0
 
 

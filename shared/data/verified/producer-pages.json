@@ -1,0 +1,29 @@
+{
+  "note": "Rows checked against a page the PRODUCER publishes, one at a time.",
+  "how": [
+    "Every entry here was opened, read, and compared against the row in scripts/build_catalog.py.",
+    "The figure quoted is what the producer's own page states, verbatim. Where a page disagreed with the catalogue, the CATALOGUE was corrected and the correction noted in the commit, not the other way round.",
+    "TTB's Public COLA Registry is the better source and each approval has a permanent URL, but it has no bulk access and its search is a form, so it is not what this file is built from. A producer's own page is what the catalogue already claims as its source ('Producer label'); this makes that claim checkable.",
+    "checked_on is the date somebody looked. A page can change; a date says how stale the check is."
+  ],
+  "verified": {
+    "eagle-rare-10": {
+      "source": "Producer page",
+      "source_url": "https://www.buffalotracedistillery.com/our-brands/eagle-rare/eagle-rare-10/",
+      "states": "90 (45%), aged 10 years",
+      "checked_on": "2026-09-24"
+    },
+    "ec-small-batch": {
+      "source": "Producer page",
+      "source_url": "https://elijahcraig.com/small-batch",
+      "states": "94 Proof, 47% Alc./Vol.",
+      "checked_on": "2026-09-24"
+    },
+    "wild-turkey-101": {
+      "source": "Producer page",
+      "source_url": "https://www.wildturkeybourbon.com/products/wild-turkey-101/",
+      "states": "101 proof, aged between 6-8 years",
+      "checked_on": "2026-09-24"
+    }
+  }
+}
