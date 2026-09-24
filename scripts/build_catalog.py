@@ -1448,7 +1448,13 @@ def main():
         if after != before:
             doc.write_text(after, encoding="utf-8", newline="\n")
             print("  updated the count in %s" % doc.name)
-    OUT.write_text(json.dumps(catalog, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    # newline="\n" or Python turns every one into CRLF on Windows and the
+    # generated file stops matching the one the build staged from it.
+    OUT.write_text(
+        json.dumps(catalog, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
     priced = sum(1 for p in products if p.get("msrp_cents") is not None)
     checked = sum(1 for p in products if p.get("verified"))
     print("wrote %s: %d products, %d with a cited shelf price, %d checked"
