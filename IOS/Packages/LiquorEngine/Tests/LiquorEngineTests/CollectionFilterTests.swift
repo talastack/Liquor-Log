@@ -193,6 +193,34 @@ final class CollectionFilterTests: XCTestCase {
         XCTAssertEqual(CollectionFilter.apply(.init(kinds: [.infinity]), to: rows).map(\.id), ["inf"])
         XCTAssertFalse(CollectionFilter.availableKinds(in: shelf).contains(.infinity))
     }
+    // MARK: - What each pour cost
+
+    func testCostPerPourPutsTheCheapestFirstAndThePricelessLast() {
+        // Value for money on bottles somebody owns. Deliberately NOT a
+        // running total of what they have spent: CollectionValue refuses
+        // that figure, with the research behind the refusal written at the
+        // top of it.
+        let rows = [
+            CollectionFilter.Row(
+                id: "dear", name: "Dear", distillery: "A",
+                addedAt: day(1), fillFraction: 1, costPerPourCents: 1200),
+            CollectionFilter.Row(
+                id: "cheap", name: "Cheap", distillery: "B",
+                addedAt: day(1), fillFraction: 1, costPerPourCents: 300),
+            CollectionFilter.Row(
+                id: "unpriced", name: "No price", distillery: "C",
+                addedAt: day(1), fillFraction: 1),
+        ]
+        var criteria = CollectionFilter.Criteria()
+        criteria.status = .any
+        criteria.sort = .costPerPour
+        // A bottle nobody priced is unknown, not free, so it sorts last
+        // rather than first.
+        XCTAssertEqual(
+            CollectionFilter.apply(criteria, to: rows).map(\.id),
+            ["cheap", "dear", "unpriced"])
+    }
+
     // MARK: - What has been open longest
 
     func testLongestOpenPutsTheOldestOpenBottleFirst() {

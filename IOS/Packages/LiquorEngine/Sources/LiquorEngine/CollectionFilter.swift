@@ -44,6 +44,14 @@ public enum CollectionFilter: Sendable {
         public let rating: Int?
         /// 0...1. What is left, so "fullest" and "nearly gone" can sort.
         public let fillFraction: Double
+        /// What each pour from this bottle cost, where a price was recorded.
+        ///
+        /// Already shown on every card; carried here so the shelf can be
+        /// ORDERED by it. This is value for money on bottles somebody owns,
+        /// deliberately not a running total of what they have spent -- see
+        /// the note at the top of `CollectionValue` for why that figure is
+        /// not computed anywhere in this app.
+        public let costPerPourCents: Int?
 
         public init(
             id: String,
@@ -64,7 +72,8 @@ public enum CollectionFilter: Sendable {
             openedAt: Date? = nil,
             lastPouredAt: Date? = nil,
             rating: Int? = nil,
-            fillFraction: Double = 1
+            fillFraction: Double = 1,
+            costPerPourCents: Int? = nil
         ) {
             self.id = id
             self.name = name
@@ -85,6 +94,7 @@ public enum CollectionFilter: Sendable {
             self.lastPouredAt = lastPouredAt
             self.rating = rating
             self.fillFraction = fillFraction
+            self.costPerPourCents = costPerPourCents
         }
 
         /// Every token somebody might type to find this bottle.
@@ -232,6 +242,7 @@ public enum CollectionFilter: Sendable {
         case lastPoured
         case rating
         case longestOpen
+        case costPerPour
 
         public var label: String {
             switch self {
@@ -243,6 +254,7 @@ public enum CollectionFilter: Sendable {
             case .lastPoured: return "Last poured"
             case .rating: return "Rating"
             case .longestOpen: return "Longest open"
+            case .costPerPour: return "Cost per pour"
             }
         }
     }
@@ -381,6 +393,18 @@ public enum CollectionFilter: Sendable {
             return rows.sorted {
                 switch ($0.rating, $1.rating) {
                 case let (a?, b?): return a == b ? $0.addedAt > $1.addedAt : a > b
+                case (_?, nil): return true
+                case (nil, _?): return false
+                case (nil, nil): return $0.addedAt > $1.addedAt
+                }
+            }
+        case .costPerPour:
+            // Cheapest pour first; bottles with no price last rather than
+            // sorted as free. A bottle nobody priced is unknown, not a
+            // bargain.
+            return rows.sorted {
+                switch ($0.costPerPourCents, $1.costPerPourCents) {
+                case let (a?, b?): return a == b ? $0.addedAt > $1.addedAt : a < b
                 case (_?, nil): return true
                 case (nil, _?): return false
                 case (nil, nil): return $0.addedAt > $1.addedAt

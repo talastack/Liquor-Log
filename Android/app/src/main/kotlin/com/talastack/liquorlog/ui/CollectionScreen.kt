@@ -644,5 +644,6 @@ internal fun filterRow(
         } else {
             0.0
         },
+        costPerPourCents = summary.costPerPourCents,
     )
 }

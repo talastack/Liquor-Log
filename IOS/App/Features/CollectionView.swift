@@ -507,7 +507,8 @@ struct CollectionView: View {
             rating: summary.latestRating,
             fillFraction: capacity > 0
                 ? summary.status.remainingMilliliters / capacity
-                : 0)
+                : 0,
+            costPerPourCents: summary.costPerPourCents)
     }
 }
 

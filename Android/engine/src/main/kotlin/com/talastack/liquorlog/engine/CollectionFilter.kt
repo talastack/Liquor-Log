@@ -53,7 +53,17 @@ object CollectionFilter {
         val lastPouredAt: Instant? = null,
         val rating: Int? = null,
         /** 0..1. What is left, so "fullest" and "nearly gone" can sort. */
-        val fillFraction: Double = 1.0
+        val fillFraction: Double = 1.0,
+        /**
+         * What each pour from this bottle cost, where a price was recorded.
+         *
+         * Already shown on every card; carried here so the shelf can be
+         * ORDERED by it. Value for money on bottles somebody owns,
+         * deliberately not a running total of what they have spent -- see
+         * the note at the top of CollectionValue for why that figure is not
+         * computed anywhere in this app.
+         */
+        val costPerPourCents: Int? = null
     ) {
         /** Every token somebody might type to find this bottle. */
         internal val searchTokens: List<String>
@@ -198,7 +208,8 @@ object CollectionFilter {
         NEARLY_GONE("nearlyGone"),
         LAST_POURED("lastPoured"),
         RATING("rating"),
-        LONGEST_OPEN("longestOpen");
+        LONGEST_OPEN("longestOpen"),
+        COST_PER_POUR("costPerPour");
 
         val label: String
             get() = when (this) {
@@ -210,6 +221,7 @@ object CollectionFilter {
                 LAST_POURED -> "Last poured"
                 RATING -> "Rating"
                 LONGEST_OPEN -> "Longest open"
+                COST_PER_POUR -> "Cost per pour"
             }
     }
 
@@ -339,6 +351,22 @@ object CollectionFilter {
                 when {
                     x != null && y != null ->
                         if (x == y) b.addedAt.compareTo(a.addedAt) else y.compareTo(x)
+                    x != null -> -1
+                    y != null -> 1
+                    else -> b.addedAt.compareTo(a.addedAt)
+                }
+            }
+        )
+
+        // Cheapest pour first; bottles with no price last rather than sorted
+        // as free. A bottle nobody priced is unknown, not a bargain.
+        Sort.COST_PER_POUR -> rows.sortedWith(
+            Comparator { a, b ->
+                val x = a.costPerPourCents
+                val y = b.costPerPourCents
+                when {
+                    x != null && y != null ->
+                        if (x == y) b.addedAt.compareTo(a.addedAt) else x.compareTo(y)
                     x != null -> -1
                     y != null -> 1
                     else -> b.addedAt.compareTo(a.addedAt)
