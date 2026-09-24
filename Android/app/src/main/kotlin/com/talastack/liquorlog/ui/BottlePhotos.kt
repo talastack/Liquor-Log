@@ -31,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,6 +40,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
@@ -121,10 +123,22 @@ object BottlePhoto {
         return turned(bitmap, orientation)
     }
 
-    /** Null for no photo, no store, or a file that is not there. */
-    fun load(fileName: String?, store: BottlePhotoStore?): ImageBitmap? {
+    /**
+     * Null for no photo, no store, or a file that is not there.
+     *
+     * [longestPx] is the size it will be drawn at. A collection row draws a
+     * thumbnail at a few hundred pixels, and decoding the whole 1600 px file
+     * for it is several megabytes per row for detail nobody can see.
+     */
+    fun load(fileName: String?, store: BottlePhotoStore?, longestPx: Int = MAX_PIXELS): ImageBitmap? {
         if (fileName == null || store == null || !store.exists(fileName)) return null
-        return BitmapFactory.decodeFile(store.file(fileName).absolutePath)?.asImageBitmap()
+        val path = store.file(fileName).absolutePath
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeFile(path, bounds)
+        var sample = 1
+        while (max(bounds.outWidth, bounds.outHeight) / (sample * 2) >= longestPx) sample *= 2
+        val options = BitmapFactory.Options().apply { inSampleSize = sample }
+        return BitmapFactory.decodeFile(path, options)?.asImageBitmap()
     }
 
     private fun sampleSize(width: Int, height: Int): Int {
@@ -155,8 +169,13 @@ object BottlePhoto {
 fun BottleImage(fileName: String?, height: Dp = 58.dp) {
     val state = LocalAppState.current
     val colors = palette
-    val image = remember(fileName, state.changeCount) {
-        BottlePhoto.load(fileName, state.photos)
+    val longestPx = with(LocalDensity.current) { height.roundToPx() }
+    // Keyed on the name alone, not on changeCount: a photo is never
+    // overwritten under its name (a replacement is a new UUID), so the name
+    // IS the version. Keying on changeCount re-decoded every visible
+    // thumbnail on the main thread whenever anything was poured.
+    val image = remember(fileName, longestPx) {
+        BottlePhoto.load(fileName, state.photos, longestPx)
     }
     if (image == null) {
         BottleMark(height = height)
@@ -190,7 +209,7 @@ fun BottleHeroPhoto(bottleId: String, fileName: String?, onChange: () -> Unit) {
     val colors = palette
     val context = LocalContext.current
     val store = state.photos
-    val image = remember(fileName, state.changeCount) { BottlePhoto.load(fileName, store) }
+    val image = remember(fileName) { BottlePhoto.load(fileName, store) }
 
     if (image == null) {
         BottleMark(height = 104.dp)
@@ -237,12 +256,16 @@ fun BottleHeroPhoto(bottleId: String, fileName: String?, onChange: () -> Unit) {
     // The camera writes to a file we own in the cache, which the FileProvider
     // hands out for the life of the one intent. Kept in state so the result
     // callback can find it again after the camera app has taken over.
-    var pending by remember { mutableStateOf<File?>(null) }
+    // Saveable, and a path rather than a File, because the camera app is in
+    // front while this waits: turning the phone recreates the activity, and
+    // a plain remember came back empty -- the result then arrived with
+    // nothing pending and the photo was dropped without a word.
+    var pendingPath by rememberSaveable { mutableStateOf<String?>(null) }
     val camera = rememberLauncherForActivityResult(
         ActivityResultContracts.TakePicture(),
     ) { taken: Boolean ->
-        val file = pending
-        pending = null
+        val file = pendingPath?.let { File(it) }
+        pendingPath = null
         if (!taken || file == null) {
             file?.delete()
             return@rememberLauncherForActivityResult
@@ -287,7 +310,7 @@ fun BottleHeroPhoto(bottleId: String, fileName: String?, onChange: () -> Unit) {
                         open = false
                         val folder = File(context.cacheDir, "camera").apply { mkdirs() }
                         val file = File(folder, "taking.jpg")
-                        pending = file
+                        pendingPath = file.absolutePath
                         camera.launch(
                             FileProvider.getUriForFile(
                                 context,
