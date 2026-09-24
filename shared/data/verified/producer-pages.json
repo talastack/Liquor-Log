@@ -332,6 +332,78 @@
       "source_url": "https://heavenhilldistillery.com/old-fitzgerald.php",
       "states": "Proof: 100 Proof",
       "checked_on": "2026-09-24"
+    },
+    "four-roses-small-batch-select": {
+      "source": "Producer page",
+      "source_url": "https://www.fourrosesbourbon.com/bourbon/small-batch-select/",
+      "states": "104 Proof, Aged 6 - 7 Years",
+      "checked_on": "2026-09-24"
+    },
+    "knob-creek-rye": {
+      "source": "Producer page",
+      "source_url": "https://www.knobcreek.com/whiskies/7-year-old-rye-whiskey",
+      "states": "Proof 100.",
+      "checked_on": "2026-09-24"
+    },
+    "woodford-double-oaked": {
+      "source": "Producer page",
+      "source_url": "https://www.woodfordreserve.com/whiskey/double-oaked/",
+      "states": "Proof 90.4",
+      "checked_on": "2026-09-24"
+    },
+    "woodford-rye": {
+      "source": "Producer page",
+      "source_url": "https://www.woodfordreserve.com/whiskey/rye-whiskey/",
+      "states": "Proof 90.4",
+      "checked_on": "2026-09-24"
+    },
+    "woodford-wheat": {
+      "source": "Producer page",
+      "source_url": "https://www.woodfordreserve.com/whiskey/wheat-whiskey/",
+      "states": "Proof 90.4",
+      "checked_on": "2026-09-24"
+    },
+    "jim-beam-black": {
+      "source": "Producer page",
+      "source_url": "https://www.jimbeam.com/bourbons/jim-beam-black",
+      "states": "Now at 90-proof, enjoy Jim Beam Black neat, on the rocks, or any way you damn please.",
+      "checked_on": "2026-09-24"
+    },
+    "bells-two-hearted": {
+      "source": "Producer page",
+      "source_url": "https://www.bellsbeer.com/beer/two-hearted-ale/",
+      "states": "7%",
+      "checked_on": "2026-09-24"
+    },
+    "bells-expedition-stout": {
+      "source": "Producer page",
+      "source_url": "https://www.bellsbeer.com/beer/expedition-stout/",
+      "states": "10.5%",
+      "checked_on": "2026-09-24"
+    },
+    "founders-all-day-ipa": {
+      "source": "Producer page",
+      "source_url": "https://foundersbrewing.com/our-beer/all-day-ipa/",
+      "states": "4.7%",
+      "checked_on": "2026-09-24"
+    },
+    "founders-breakfast-stout": {
+      "source": "Producer page",
+      "source_url": "https://foundersbrewing.com/our-beer/breakfast-stout/",
+      "states": "8.3%",
+      "checked_on": "2026-09-24"
+    },
+    "founders-kbs": {
+      "source": "Producer page",
+      "source_url": "https://foundersbrewing.com/our-beer/kbs/",
+      "states": "12%",
+      "checked_on": "2026-09-24"
+    },
+    "guinness-draught": {
+      "source": "Producer page",
+      "source_url": "https://www.guinness.com/en-us/our-beers/guinness-draught",
+      "states": "Alcohol: 4.2%",
+      "checked_on": "2026-09-24"
     }
   },
   "blocked": {
@@ -358,6 +430,21 @@
     "balvenie-doublewood-12": {
       "source_url": "https://www.thebalvenie.com/en-int/range/doublewood-12",
       "why": "429 Too Many Requests -- rate limited before any content was served.",
+      "checked_on": "2026-09-24"
+    },
+    "sierra-nevada-pale-ale": {
+      "source_url": "https://sierranevada.com/beer/pale-ale/",
+      "why": "403 Forbidden.",
+      "checked_on": "2026-09-24"
+    },
+    "dogfish-60-minute": {
+      "source_url": "https://www.dogfish.com/brewery/beer/60-minute-ipa",
+      "why": "403 Forbidden.",
+      "checked_on": "2026-09-24"
+    },
+    "goose-island-ipa": {
+      "source_url": "https://www.gooseisland.com/our-beers",
+      "why": "The beer list loads through script the fetch does not run; the page arrives saying \"Loading beers...\" and nothing else.",
       "checked_on": "2026-09-24"
     }
   },
@@ -410,6 +497,11 @@
     "ec-18-year": {
       "source_url": "https://elijahcraig.com/18-year-old",
       "why": "The page states nothing for this expression; the only figure is the site footer, \"47% Alc./Vol.\", which is Elijah Craig Small Batch. The 18 Year is 90 proof, so the footer would have been wrong again.",
+      "checked_on": "2026-09-24"
+    },
+    "jim-beam-rye": {
+      "source_url": "https://www.jimbeam.com/bourbons/jim-beam-rye",
+      "why": "The page describes the whiskey at length and states no proof.",
       "checked_on": "2026-09-24"
     }
   }

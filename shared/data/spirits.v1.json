@@ -427,8 +427,9 @@
       "class_type": "straightRye",
       "production_type": "smallBatch",
       "abv": 50.0,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.knobcreek.com/whiskies/7-year-old-rye-whiskey",
+      "verified": true
     },
     {
       "id": "bookers",
@@ -531,8 +532,9 @@
       "class_type": "kentuckyStraightBourbon",
       "production_type": "smallBatch",
       "abv": 52.0,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.fourrosesbourbon.com/bourbon/small-batch-select/",
+      "verified": true
     },
     {
       "id": "four-roses-single-barrel",
@@ -614,8 +616,9 @@
       "class_type": "kentuckyStraightBourbon",
       "production_type": "smallBatch",
       "abv": 45.2,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.woodfordreserve.com/whiskey/double-oaked/",
+      "verified": true
     },
     {
       "id": "jack-daniels-no-7",
@@ -1558,8 +1561,9 @@
       "class_type": "kentuckyStraightBourbon",
       "production_type": "unspecified",
       "abv": 43.0,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.jimbeam.com/bourbons/jim-beam-black",
+      "verified": true
     },
     {
       "id": "jim-beam-rye",
@@ -1660,8 +1664,9 @@
       "class_type": "straightRye",
       "production_type": "unspecified",
       "abv": 45.2,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.woodfordreserve.com/whiskey/rye-whiskey/",
+      "verified": true
     },
     {
       "id": "woodford-wheat",
@@ -1671,8 +1676,9 @@
       "class_type": "straightWheatWhiskey",
       "production_type": "unspecified",
       "abv": 45.2,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.woodfordreserve.com/whiskey/wheat-whiskey/",
+      "verified": true
     },
     {
       "id": "coopers-craft",
@@ -8788,8 +8794,9 @@
       "class_type": "maltBeverage",
       "production_type": "unspecified",
       "abv": 4.2,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.guinness.com/en-us/our-beers/guinness-draught",
+      "verified": true
     },
     {
       "id": "pabst-blue-ribbon",
@@ -8854,8 +8861,9 @@
       "class_type": "maltBeverage",
       "production_type": "unspecified",
       "abv": 7.0,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.bellsbeer.com/beer/two-hearted-ale/",
+      "verified": true
     },
     {
       "id": "lagunitas-ipa",
@@ -8876,8 +8884,9 @@
       "class_type": "maltBeverage",
       "production_type": "unspecified",
       "abv": 4.7,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://foundersbrewing.com/our-beer/all-day-ipa/",
+      "verified": true
     },
     {
       "id": "stone-ipa",
@@ -8964,8 +8973,9 @@
       "class_type": "maltBeverage",
       "production_type": "unspecified",
       "abv": 8.3,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://foundersbrewing.com/our-beer/breakfast-stout/",
+      "verified": true
     },
     {
       "id": "old-rasputin",
@@ -9008,8 +9018,9 @@
       "class_type": "maltBeverage",
       "production_type": "unspecified",
       "abv": 10.5,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.bellsbeer.com/beer/expedition-stout/",
+      "verified": true
     },
     {
       "id": "firestone-walker-parabola",
@@ -10057,8 +10068,9 @@
       "class_type": "maltBeverage",
       "production_type": "unspecified",
       "abv": 12.0,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://foundersbrewing.com/our-beer/kbs/",
+      "verified": true
     },
     {
       "id": "jinro-is-back",
