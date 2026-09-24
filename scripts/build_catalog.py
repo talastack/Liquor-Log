@@ -1096,7 +1096,6 @@ ROWS = [
     ("rekorderlig-strawberry-lime", "Rekorderlig", "Rekorderlig", "Strawberry-Lime", "hardCider", "unspecified", 4.0, None, [], None),
     ("kopparberg-mixed-fruit", "Kopparberg", "Kopparberg", "Mixed Fruit", "hardCider", "unspecified", 4.0, None, [], None),
     ("downeast-cranberry", "Downeast Cider House", "Downeast", "Cranberry Blend", "hardCider", "unspecified", 5.1, None, [], None),
-    ("heaven-hill-7-bib", "Heaven Hill", "Heaven Hill", "7 Year Bottled in Bond", "kentuckyStraightBourbon", "unspecified", 50.0, 7, [BIB], None),
     ("fighting-cock", "Heaven Hill", "Fighting Cock", "6 Year", "kentuckyStraightBourbon", "unspecified", 51.5, 6, [], None),
     ("old-fitzgerald-decanter", "Heaven Hill", "Old Fitzgerald", "Bottled in Bond Decanter", "kentuckyStraightBourbon", "unspecified", 50.0, None, [BIB], None),
     ("old-tub-bib", "Jim Beam", "Old Tub", "Bottled in Bond", "kentuckyStraightBourbon", "unspecified", 50.0, None, [BIB], None),

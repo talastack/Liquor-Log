@@ -242,6 +242,96 @@
       "source_url": "https://www.glenmorangie.com/products/the-quinta-ruban/",
       "states": "46.0%, 14 Years Old",
       "checked_on": "2026-09-24"
+    },
+    "wild-turkey-81": {
+      "source": "Producer page",
+      "source_url": "https://www.wildturkeybourbon.com/products/wild-turkey-bourbon/",
+      "states": "Aged in No. 4 alligator char, 81 proof",
+      "checked_on": "2026-09-24"
+    },
+    "wild-turkey-101-rye": {
+      "source": "Producer page",
+      "source_url": "https://www.wildturkeybourbon.com/products/wild-turkey-101-rye/",
+      "states": "101 proof aged a minimum of 4 years",
+      "checked_on": "2026-09-24"
+    },
+    "wild-turkey-kentucky-spirit": {
+      "source": "Producer page",
+      "source_url": "https://www.wildturkeybourbon.com/products/kentucky-spirit/",
+      "states": "101 proof, from a single barrel aged 8 years",
+      "checked_on": "2026-09-24"
+    },
+    "wild-turkey-american-honey": {
+      "source": "Producer page",
+      "source_url": "https://www.wildturkeybourbon.com/products/american-honey/",
+      "states": "71 proof, blended with real honey",
+      "checked_on": "2026-09-24"
+    },
+    "larceny-small-batch": {
+      "source": "Producer page",
+      "source_url": "https://larcenybourbon.com/small-batch",
+      "states": "92 Proof",
+      "checked_on": "2026-09-24"
+    },
+    "elijah-craig-rye": {
+      "source": "Producer page",
+      "source_url": "https://elijahcraig.com/straight-rye",
+      "states": "Proof: 94 Proof",
+      "checked_on": "2026-09-24"
+    },
+    "ec-toasted-barrel": {
+      "source": "Producer page",
+      "source_url": "https://elijahcraig.com/toasted-barrel",
+      "states": "Proof: 94 Proof",
+      "checked_on": "2026-09-24"
+    },
+    "rittenhouse-rye-bib": {
+      "source": "Producer page",
+      "source_url": "https://heavenhilldistillery.com/rittenhouse-rye.php",
+      "states": "Proof: 100 Proof",
+      "checked_on": "2026-09-24"
+    },
+    "henry-mckenna-10": {
+      "source": "Producer page",
+      "source_url": "https://heavenhilldistillery.com/henry-mckenna-single-barrel.php",
+      "states": "Proof: 100 Proof, Age: 10 Years Old",
+      "checked_on": "2026-09-24"
+    },
+    "evan-williams-bib": {
+      "source": "Producer page",
+      "source_url": "https://heavenhilldistillery.com/ew-bottled-in-bond.php",
+      "states": "Proof: 100 Proof",
+      "checked_on": "2026-09-24"
+    },
+    "pikesville-rye": {
+      "source": "Producer page",
+      "source_url": "https://heavenhilldistillery.com/pikesville-straight-rye.php",
+      "states": "110 Proof, 6 Years Old",
+      "checked_on": "2026-09-24"
+    },
+    "mellow-corn": {
+      "source": "Producer page",
+      "source_url": "https://heavenhilldistillery.com/mellow-corn.php",
+      "states": "Proof: 100 Proof",
+      "checked_on": "2026-09-24"
+    },
+    "bernheim-wheat": {
+      "source": "Producer page",
+      "source_url": "https://heavenhilldistillery.com/bernheim-straight-wheat-whiskey.php",
+      "states": "Proof: 90 Proof",
+      "checked_on": "2026-09-24"
+    },
+    "heaven-hill-bib-7": {
+      "source": "Producer page",
+      "source_url": "https://heavenhilldistillery.com/hh-bottled-in-bond.php",
+      "states": "Proof: 100 Proof, Age: 7 Years Old",
+      "checked_on": "2026-09-24"
+    },
+    "old-fitzgerald-decanter": {
+      "source": "Producer page",
+      "source_url": "https://heavenhilldistillery.com/old-fitzgerald.php",
+      "states": "Proof: 100 Proof",
+      "checked_on": "2026-09-24"
     }
   },
   "blocked": {
@@ -315,6 +405,11 @@
     "monkey-47": {
       "source_url": "https://us.monkey47.com/",
       "why": "The producer's page states no ABV anywhere, footer included.",
+      "checked_on": "2026-09-24"
+    },
+    "ec-18-year": {
+      "source_url": "https://elijahcraig.com/18-year-old",
+      "why": "The page states nothing for this expression; the only figure is the site footer, \"47% Alc./Vol.\", which is Elijah Craig Small Batch. The 18 Year is 90 proof, so the footer would have been wrong again.",
       "checked_on": "2026-09-24"
     }
   }

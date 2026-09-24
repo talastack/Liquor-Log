@@ -52,8 +52,9 @@
       "class_type": "kentuckyStraightBourbon",
       "production_type": "smallBatch",
       "abv": 47.0,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://elijahcraig.com/toasted-barrel",
+      "verified": true
     },
     {
       "id": "henry-mckenna-10",
@@ -65,8 +66,9 @@
       "abv": 50.0,
       "is_bottled_in_bond": true,
       "stated_age_years": 10,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://heavenhilldistillery.com/henry-mckenna-single-barrel.php",
+      "verified": true
     },
     {
       "id": "evan-williams-black",
@@ -89,8 +91,9 @@
       "abv": 50.0,
       "is_bottled_in_bond": true,
       "stated_age_years": 4,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://heavenhilldistillery.com/ew-bottled-in-bond.php",
+      "verified": true
     },
     {
       "id": "evan-williams-single-barrel",
@@ -112,8 +115,9 @@
       "production_type": "smallBatch",
       "abv": 46.0,
       "mashbill_key": "wheated",
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://larcenybourbon.com/small-batch",
+      "verified": true
     },
     {
       "id": "larceny-barrel-proof",
@@ -151,8 +155,9 @@
       "abv": 50.0,
       "is_bottled_in_bond": true,
       "stated_age_years": 7,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://heavenhilldistillery.com/hh-bottled-in-bond.php",
+      "verified": true
     },
     {
       "id": "rittenhouse-rye-bib",
@@ -164,8 +169,9 @@
       "abv": 50.0,
       "is_bottled_in_bond": true,
       "stated_age_years": 4,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://heavenhilldistillery.com/rittenhouse-rye.php",
+      "verified": true
     },
     {
       "id": "pikesville-rye",
@@ -176,8 +182,9 @@
       "production_type": "unspecified",
       "abv": 55.0,
       "stated_age_years": 6,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://heavenhilldistillery.com/pikesville-straight-rye.php",
+      "verified": true
     },
     {
       "id": "buffalo-trace",
@@ -349,8 +356,9 @@
       "class_type": "straightRye",
       "production_type": "unspecified",
       "abv": 50.5,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.wildturkeybourbon.com/products/wild-turkey-101-rye/",
+      "verified": true
     },
     {
       "id": "wild-turkey-longbranch",
@@ -1488,8 +1496,9 @@
       "abv": 50.0,
       "is_bottled_in_bond": true,
       "stated_age_years": 4,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://heavenhilldistillery.com/mellow-corn.php",
+      "verified": true
     },
     {
       "id": "bernheim-wheat",
@@ -1500,8 +1509,9 @@
       "production_type": "smallBatch",
       "abv": 45.0,
       "stated_age_years": 7,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://heavenhilldistillery.com/bernheim-straight-wheat-whiskey.php",
+      "verified": true
     },
     {
       "id": "jts-brown-bib",
@@ -1985,8 +1995,9 @@
       "class_type": "kentuckyStraightBourbon",
       "production_type": "unspecified",
       "abv": 40.5,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.wildturkeybourbon.com/products/wild-turkey-bourbon/",
+      "verified": true
     },
     {
       "id": "russells-reserve-13",
@@ -3707,8 +3718,9 @@
       "class_type": "kentuckyStraightBourbon",
       "production_type": "singleBarrel",
       "abv": 50.5,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.wildturkeybourbon.com/products/kentucky-spirit/",
+      "verified": true
     },
     {
       "id": "russells-reserve-single-barrel-rye",
@@ -3751,8 +3763,9 @@
       "class_type": "straightRye",
       "production_type": "unspecified",
       "abv": 47.0,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://elijahcraig.com/straight-rye",
+      "verified": true
     },
     {
       "id": "michters-us1-sour-mash",
@@ -8422,8 +8435,9 @@
       "class_type": "flavoredWhiskey",
       "production_type": "unspecified",
       "abv": 35.5,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.wildturkeybourbon.com/products/american-honey/",
+      "verified": true
     },
     {
       "id": "absolut-citron",
@@ -9251,19 +9265,6 @@
       "verified": false
     },
     {
-      "id": "heaven-hill-7-bib",
-      "distillery": "Heaven Hill",
-      "brand": "Heaven Hill",
-      "expression": "7 Year Bottled in Bond",
-      "class_type": "kentuckyStraightBourbon",
-      "production_type": "unspecified",
-      "abv": 50.0,
-      "is_bottled_in_bond": true,
-      "stated_age_years": 7,
-      "source": "Producer label",
-      "verified": false
-    },
-    {
       "id": "fighting-cock",
       "distillery": "Heaven Hill",
       "brand": "Fighting Cock",
@@ -9284,8 +9285,9 @@
       "production_type": "unspecified",
       "abv": 50.0,
       "is_bottled_in_bond": true,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://heavenhilldistillery.com/old-fitzgerald.php",
+      "verified": true
     },
     {
       "id": "old-tub-bib",

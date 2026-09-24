@@ -199,6 +199,7 @@ def main():
     problems = []
     seen_ids = set()
     seen_products = set()
+    seen_shuffled = set()
     verified = 0
 
     for product in catalog.get("products", []):
@@ -224,11 +225,26 @@ def main():
         identity = (fold(product.get("distillery", "")),
                     fold(product.get("brand", "")),
                     generic_expression(product.get("expression", "")))
-        if identity in seen_products:
+        repeated = identity in seen_products
+        if repeated:
             problems.append(
                 "%s: duplicate product %s -- the shelf check must return one"
                 " answer, not two" % (where, identity))
         seen_products.add(identity)
+
+        # Word order is not a product. "Bottled in Bond 7 Year" and "7 Year
+        # Bottled in Bond" were two rows for one bourbon, and the check above
+        # compares the strings, so it read them as two bottles. Comparing the
+        # SET of words catches a label written the other way round. Only
+        # reported when the exact check did not already say so, so one row
+        # does not produce two complaints.
+        shuffled = (identity[0], identity[1], frozenset(identity[2].split()))
+        if shuffled in seen_shuffled and not repeated:
+            problems.append(
+                "%s: the same words in a different order as an earlier row"
+                " (%s) -- one bottle, written twice"
+                % (where, " ".join(sorted(shuffled[2]))))
+        seen_shuffled.add(shuffled)
 
         class_type = product.get("class_type")
         if class_type not in class_types:
