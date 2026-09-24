@@ -150,13 +150,13 @@ enum Palette {
                 line: (0x3E3228, 0xD5C7A8),
                 text: (0xF0E7D8, 0x1E1A14),
                 textSecondary: (0xBBAD97, 0x5A4F3F),
-                textMuted: (0x8E806B, 0x7E7160),
-                accent: (0xD0533C, 0x8B2E1F),
+                textMuted: (0x998B77, 0x6C6052),
+                accent: (0xD66F5A, 0x8B2E1F),
                 accentSoft: (0xE06A52, 0xA63D2C),
-                onAccent: (0xFFF6EA, 0xFBF5E8),
+                onAccent: (0x17120E, 0xFBF5E8),
                 haveTheLine: (0xB07A63, 0x9A5A45),
                 good: (0x7FAA72, 0x3E6B3A),
-                bad: (0xC07862, 0x9A3A22),
+                bad: (0xC17B66, 0x9A3A22),
                 glass: (0x5A4A38, 0xB8A57E))
         case .cellar:
             return Scheme(
@@ -166,8 +166,8 @@ enum Palette {
                 line: (0x2F4034, 0xC3D0C2),
                 text: (0xEAF0E9, 0x14201A),
                 textSecondary: (0xA9B8AC, 0x4A5A4F),
-                textMuted: (0x7C8C80, 0x6E7D72),
-                accent: (0xC97B4A, 0x9A5A33),
+                textMuted: (0x869589, 0x59685E),
+                accent: (0xCA7F4F, 0x915631),
                 accentSoft: (0xE09466, 0xB56E42),
                 onAccent: (0x10140F, 0xFFFBF6),
                 haveTheLine: (0xA5764F, 0x7E5A3C),
@@ -182,13 +182,13 @@ enum Palette {
                 line: (0x2E3E60, 0xC6CFDD),
                 text: (0xEEF1F7, 0x101828),
                 textSecondary: (0xB4BDD0, 0x475467),
-                textMuted: (0x8290AB, 0x667085),
+                textMuted: (0x8795AF, 0x5C657A),
                 accent: (0xC8A44A, 0x7A5D14),
                 accentSoft: (0xDDBB62, 0x94722A),
                 onAccent: (0x0D1626, 0xFFFFFF),
                 haveTheLine: (0xA48A4E, 0x6E5A22),
                 good: (0x7FAA72, 0x356038),
-                bad: (0xC07862, 0x94402A),
+                bad: (0xC58471, 0x94402A),
                 glass: (0x3A4A6A, 0xB9C4D6))
         case .amber:
             return Scheme(
@@ -199,7 +199,7 @@ enum Palette {
                 text: (0xF2E9DB, 0x1B1510),
                 textSecondary: (0xC0B19A, 0x4A4036),
                 textMuted: (0x968771, 0x6B5F50),
-                accent: (0xC9973A, 0x8A5F18),
+                accent: (0xC9973A, 0x875D18),
                 accentSoft: (0xE2B661, 0xA87C2C),
                 onAccent: (0x1A1309, 0xFFFDF7),
                 haveTheLine: (0xA5763C, 0x8A5F18),

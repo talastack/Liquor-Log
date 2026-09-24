@@ -173,6 +173,13 @@ jobs:
       - name: Check the App Store listing fits its fields
         run: python3 scripts/check_listing.py
 
+      # Eight hand-written colour schemes, spelled twice in two languages.
+      # This keeps the two spellings identical and every text colour at
+      # WCAG AA against what it sits on -- the first run found twenty-two
+      # pairs under the line.
+      - name: Check the palettes match and every text colour can be read
+        run: python3 scripts/check_palette.py
+
       - name: Validate shipped JSON
         run: |
           for file in shared/data/*.json; do
