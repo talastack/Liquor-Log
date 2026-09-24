@@ -5,7 +5,8 @@
     "The figure quoted is what the producer's own page states, verbatim. Where a page disagreed with the catalogue, the CATALOGUE was corrected and the correction noted in the commit, not the other way round.",
     "TTB's Public COLA Registry is the better source and each approval has a permanent URL, but it has no bulk access and its search is a form, so it is not what this file is built from. A producer's own page is what the catalogue already claims as its source ('Producer label'); this makes that claim checkable.",
     "checked_on is the date somebody looked. A page can change; a date says how stale the check is.",
-    "A figure in a site-wide footer is NOT a check of the row above it. The footer states the brand, and a brand is not one bottling: the Maker's Mark 46 page carries the 45% footer of standard Maker's Mark while 46 is bottled at 47%. Rows whose only figure was a footer are recorded under not_verified, unchanged."
+    "A figure in a site-wide footer is NOT a check of the row above it. The footer states the brand, and a brand is not one bottling: the Maker's Mark 46 page carries the 45% footer of standard Maker's Mark while 46 is bottled at 47%. Rows whose only figure was a footer are recorded under not_verified, unchanged.",
+    "Where a producer's page disagreed, the catalogue was corrected: Sazerac 18 Year was carried at 45% and Buffalo Trace states 95 proof (47.5%)."
   ],
   "verified": {
     "eagle-rare-10": {
@@ -163,6 +164,84 @@
       "source_url": "https://titosvodka.com/our-vodka",
       "states": "40% alcohol by volume",
       "checked_on": "2026-09-24"
+    },
+    "eh-taylor-small-batch": {
+      "source": "Producer page",
+      "source_url": "https://www.buffalotracedistillery.com/our-brands/e-h-taylor-jr/e-h-taylor-jr-small-batch/",
+      "states": "Proof: 100 (50%)",
+      "checked_on": "2026-09-24"
+    },
+    "eh-taylor-single-barrel": {
+      "source": "Producer page",
+      "source_url": "https://www.buffalotracedistillery.com/our-brands/e-h-taylor-jr/e-h-taylor-jr-single-barrel/",
+      "states": "Proof: 100 (50%)",
+      "checked_on": "2026-09-24"
+    },
+    "eh-taylor-rye": {
+      "source": "Producer page",
+      "source_url": "https://www.buffalotracedistillery.com/our-brands/e-h-taylor-jr/e-h-taylor-jr-straight-rye/",
+      "states": "100 proof (50%)",
+      "checked_on": "2026-09-24"
+    },
+    "eh-taylor-four-grain": {
+      "source": "Producer page",
+      "source_url": "https://www.buffalotracedistillery.com/our-brands/e-h-taylor-jr/e-h-taylor-jr-four-grain/",
+      "states": "Proof: 100 (50%)",
+      "checked_on": "2026-09-24"
+    },
+    "sazerac-rye": {
+      "source": "Producer page",
+      "source_url": "https://www.buffalotracedistillery.com/our-brands/sazerac-rye-whiskey/sazerac-straight-rye-whiskey/",
+      "states": "90 (45%)",
+      "checked_on": "2026-09-24"
+    },
+    "sazerac-18": {
+      "source": "Producer page",
+      "source_url": "https://www.buffalotracedistillery.com/our-brands/sazerac-rye-whiskey/sazerac-rye-18-year-old/",
+      "states": "Proof: 95 (47.5%)",
+      "checked_on": "2026-09-24"
+    },
+    "weller-antique-107": {
+      "source": "Producer page",
+      "source_url": "https://www.buffalotracedistillery.com/our-brands/w-l-weller/w-l-weller-antique-107/",
+      "states": "Proof: 107",
+      "checked_on": "2026-09-24"
+    },
+    "weller-full-proof": {
+      "source": "Producer page",
+      "source_url": "https://www.buffalotracedistillery.com/our-brands/w-l-weller/w-l-weller-full-proof/",
+      "states": "114 (57%)",
+      "checked_on": "2026-09-24"
+    },
+    "weller-single-barrel": {
+      "source": "Producer page",
+      "source_url": "https://www.buffalotracedistillery.com/our-brands/w-l-weller/w-l-weller-single-barrel/",
+      "states": "Proof: 97",
+      "checked_on": "2026-09-24"
+    },
+    "weller-cypb": {
+      "source": "Producer page",
+      "source_url": "https://www.buffalotracedistillery.com/our-brands/w-l-weller/w-l-weller-c-y-p-b/",
+      "states": "95 (47.5%)",
+      "checked_on": "2026-09-24"
+    },
+    "eagle-rare-17": {
+      "source": "Producer page",
+      "source_url": "https://www.buffalotracedistillery.com/our-brands/eagle-rare/eagle-rare-17/",
+      "states": "101 (50.5%)",
+      "checked_on": "2026-09-24"
+    },
+    "glenmorangie-lasanta": {
+      "source": "Producer page",
+      "source_url": "https://www.glenmorangie.com/products/glenmorangie-the-lasanta-15-years-old/",
+      "states": "ABV: 43.0% | Volume: 70cl, 15 Years Old",
+      "checked_on": "2026-09-24"
+    },
+    "glenmorangie-quinta-ruban": {
+      "source": "Producer page",
+      "source_url": "https://www.glenmorangie.com/products/the-quinta-ruban/",
+      "states": "46.0%, 14 Years Old",
+      "checked_on": "2026-09-24"
     }
   },
   "blocked": {
@@ -179,6 +258,16 @@
     "evan-williams-black": {
       "source_url": "https://www.evanwilliams.com/bourbons/black-label",
       "why": "500 Internal Server Error from the producer's own site.",
+      "checked_on": "2026-09-24"
+    },
+    "highland-park-12": {
+      "source_url": "https://www.highlandparkwhisky.com/en-int/our-whisky/12-year-old-viking-honour",
+      "why": "403 Forbidden.",
+      "checked_on": "2026-09-24"
+    },
+    "balvenie-doublewood-12": {
+      "source_url": "https://www.thebalvenie.com/en-int/range/doublewood-12",
+      "why": "429 Too Many Requests -- rate limited before any content was served.",
       "checked_on": "2026-09-24"
     }
   },
@@ -206,6 +295,26 @@
     "jack-daniels-no-7": {
       "source_url": "https://www.jackdaniels.com/en-us/whiskey/old-no-7",
       "why": "The page renders its content through script the fetch does not run; nothing but the title came back. Needs a person with a browser.",
+      "checked_on": "2026-09-24"
+    },
+    "glenmorangie-10": {
+      "source_url": "https://www.glenmorangie.com/collections/all",
+      "why": "The producer no longer lists a 10 year old. The Original is now \"The Original 12 Years Old\", stated at 40.0%. The 10 year at 43% is still on shelves and in people's collections, so the row stays as it is -- but the producer's page cannot check it.",
+      "checked_on": "2026-09-24"
+    },
+    "mount-gay-black-barrel": {
+      "source_url": "https://www.mountgayrum.com/our-rums/black-barrel/",
+      "why": "The producer's page states no ABV anywhere, footer included.",
+      "checked_on": "2026-09-24"
+    },
+    "sipsmith-london-dry": {
+      "source_url": "https://www.sipsmith.com/gins/london-dry-gin/",
+      "why": "The producer's page states no ABV anywhere, footer included.",
+      "checked_on": "2026-09-24"
+    },
+    "monkey-47": {
+      "source_url": "https://us.monkey47.com/",
+      "why": "The producer's page states no ABV anywhere, footer included.",
       "checked_on": "2026-09-24"
     }
   }

@@ -225,8 +225,9 @@
       "production_type": "unspecified",
       "abv": 53.5,
       "mashbill_key": "wheated",
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.buffalotracedistillery.com/our-brands/w-l-weller/w-l-weller-antique-107/",
+      "verified": true
     },
     {
       "id": "weller-12",
@@ -264,8 +265,9 @@
       "abv": 50.0,
       "is_bottled_in_bond": true,
       "stated_age_years": 4,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.buffalotracedistillery.com/our-brands/e-h-taylor-jr/e-h-taylor-jr-small-batch/",
+      "verified": true
     },
     {
       "id": "eh-taylor-single-barrel",
@@ -277,8 +279,9 @@
       "abv": 50.0,
       "is_bottled_in_bond": true,
       "stated_age_years": 4,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.buffalotracedistillery.com/our-brands/e-h-taylor-jr/e-h-taylor-jr-single-barrel/",
+      "verified": true
     },
     {
       "id": "sazerac-rye",
@@ -288,8 +291,9 @@
       "class_type": "straightRye",
       "production_type": "unspecified",
       "abv": 45.0,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.buffalotracedistillery.com/our-brands/sazerac-rye-whiskey/sazerac-straight-rye-whiskey/",
+      "verified": true
     },
     {
       "id": "ancient-age",
@@ -1221,8 +1225,9 @@
       "abv": 50.0,
       "is_bottled_in_bond": true,
       "stated_age_years": 4,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.buffalotracedistillery.com/our-brands/e-h-taylor-jr/e-h-taylor-jr-straight-rye/",
+      "verified": true
     },
     {
       "id": "eh-taylor-four-grain",
@@ -1234,8 +1239,9 @@
       "abv": 50.0,
       "is_bottled_in_bond": true,
       "stated_age_years": 4,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.buffalotracedistillery.com/our-brands/e-h-taylor-jr/e-h-taylor-jr-four-grain/",
+      "verified": true
     },
     {
       "id": "elmer-t-lee",
@@ -1279,8 +1285,9 @@
       "production_type": "unspecified",
       "abv": 57.0,
       "mashbill_key": "wheated",
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.buffalotracedistillery.com/our-brands/w-l-weller/w-l-weller-full-proof/",
+      "verified": true
     },
     {
       "id": "weller-single-barrel",
@@ -1291,8 +1298,9 @@
       "production_type": "singleBarrel",
       "abv": 48.5,
       "mashbill_key": "wheated",
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.buffalotracedistillery.com/our-brands/w-l-weller/w-l-weller-single-barrel/",
+      "verified": true
     },
     {
       "id": "weller-cypb",
@@ -1303,8 +1311,9 @@
       "production_type": "unspecified",
       "abv": 47.5,
       "mashbill_key": "wheated",
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.buffalotracedistillery.com/our-brands/w-l-weller/w-l-weller-c-y-p-b/",
+      "verified": true
     },
     {
       "id": "stagg",
@@ -1362,10 +1371,11 @@
       "expression": "18 Year",
       "class_type": "straightRye",
       "production_type": "unspecified",
-      "abv": 45.0,
+      "abv": 47.5,
       "stated_age_years": 18,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.buffalotracedistillery.com/our-brands/sazerac-rye-whiskey/sazerac-rye-18-year-old/",
+      "verified": true
     },
     {
       "id": "eagle-rare-17",
@@ -1376,8 +1386,9 @@
       "production_type": "unspecified",
       "abv": 50.5,
       "stated_age_years": 17,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.buffalotracedistillery.com/our-brands/eagle-rare/eagle-rare-17/",
+      "verified": true
     },
     {
       "id": "orvw-10",
@@ -2610,8 +2621,9 @@
       "production_type": "unspecified",
       "abv": 43.0,
       "stated_age_years": 12,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.glenmorangie.com/products/glenmorangie-the-lasanta-15-years-old/",
+      "verified": true
     },
     {
       "id": "glenmorangie-nectar-dor",
@@ -4236,8 +4248,9 @@
       "production_type": "unspecified",
       "abv": 46.0,
       "stated_age_years": 14,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.glenmorangie.com/products/the-quinta-ruban/",
+      "verified": true
     },
     {
       "id": "ardmore-legacy",

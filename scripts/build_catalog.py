@@ -212,7 +212,7 @@ ROWS = [
     ("george-t-stagg", "Buffalo Trace", "George T. Stagg", "", "kentuckyStraightBourbon", "unspecified", None, None, [BP], None),
     ("william-larue-weller", "Buffalo Trace", "William Larue Weller", "", "kentuckyStraightBourbon", "unspecified", None, None, [BP], "wheated"),
     ("thomas-h-handy", "Buffalo Trace", "Thomas H. Handy", "Sazerac Rye", "straightRye", "unspecified", None, None, [BP], None),
-    ("sazerac-18", "Buffalo Trace", "Sazerac", "18 Year", "straightRye", "unspecified", 45.0, 18, [], None),
+    ("sazerac-18", "Buffalo Trace", "Sazerac", "18 Year", "straightRye", "unspecified", 47.5, 18, [], None),
     ("eagle-rare-17", "Buffalo Trace", "Eagle Rare", "17 Year", "kentuckyStraightBourbon", "unspecified", 50.5, 17, [], None),
 
     # ------------------------------------------------------------- Van Winkle
