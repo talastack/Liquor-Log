@@ -4,7 +4,8 @@
     "Every entry here was opened, read, and compared against the row in scripts/build_catalog.py.",
     "The figure quoted is what the producer's own page states, verbatim. Where a page disagreed with the catalogue, the CATALOGUE was corrected and the correction noted in the commit, not the other way round.",
     "TTB's Public COLA Registry is the better source and each approval has a permanent URL, but it has no bulk access and its search is a form, so it is not what this file is built from. A producer's own page is what the catalogue already claims as its source ('Producer label'); this makes that claim checkable.",
-    "checked_on is the date somebody looked. A page can change; a date says how stale the check is."
+    "checked_on is the date somebody looked. A page can change; a date says how stale the check is.",
+    "A figure in a site-wide footer is NOT a check of the row above it. The footer states the brand, and a brand is not one bottling: the Maker's Mark 46 page carries the 45% footer of standard Maker's Mark while 46 is bottled at 47%. Rows whose only figure was a footer are recorded under not_verified, unchanged."
   ],
   "verified": {
     "eagle-rare-10": {
@@ -60,12 +61,151 @@
       "source_url": "https://www.buffalotracedistillery.com/our-brands/w-l-weller/w-l-weller-special-reserve/",
       "states": "bottled at 90 proof",
       "checked_on": "2026-09-24"
+    },
+    "blantons-single-barrel": {
+      "source": "Producer page",
+      "source_url": "https://www.blantonsbourbon.com/pages/our-bourbon",
+      "states": "Bottled at 46.5% alcohol by volume.",
+      "checked_on": "2026-09-24"
+    },
+    "blantons-gold": {
+      "source": "Producer page",
+      "source_url": "https://www.blantonsbourbon.com/pages/our-bourbon",
+      "states": "Bottled at 51.5% alcohol by volume.",
+      "checked_on": "2026-09-24"
+    },
+    "old-forester-100": {
+      "source": "Producer page",
+      "source_url": "https://www.oldforester.com/whisky/old-forester-100-proof/",
+      "states": "Spicy, robust, and bottled at 100 proof to maintain its distinct character and full flavor profile.",
+      "checked_on": "2026-09-24"
+    },
+    "four-roses-single-barrel": {
+      "source": "Producer page",
+      "source_url": "https://www.fourrosesbourbon.com/bourbon/single-barrel/",
+      "states": "100 Proof, Aged 7 - 9 Years",
+      "checked_on": "2026-09-24"
+    },
+    "russells-reserve-10": {
+      "source": "Producer page",
+      "source_url": "https://www.russellsreserve.com/products/10-year-old-bourbon",
+      "states": "bottled at 90 proof, 10-year-old",
+      "checked_on": "2026-09-24"
+    },
+    "michters-us1-bourbon": {
+      "source": "Producer page",
+      "source_url": "https://michters.com/whiskey/kentucky-straight-bourbon/",
+      "states": "BOTTLING STRENGTH 91.4 proof (45.7% Alcohol by Volume)",
+      "checked_on": "2026-09-24"
+    },
+    "michters-us1-rye": {
+      "source": "Producer page",
+      "source_url": "https://michters.com/whiskey/us1-kentucky-straight-rye/",
+      "states": "BOTTLING STRENGTH 84.8 proof (42.4% Alcohol by Volume)",
+      "checked_on": "2026-09-24"
+    },
+    "michters-us1-sour-mash": {
+      "source": "Producer page",
+      "source_url": "https://michters.com/whiskey/sour-mash/",
+      "states": "86 proof (43% Alcohol by Volume)",
+      "checked_on": "2026-09-24"
+    },
+    "michters-us1-american": {
+      "source": "Producer page",
+      "source_url": "https://michters.com/whiskey/us1-american-whiskey/",
+      "states": "BOTTLING STRENGTH 83.4 proof (41.7% Alcohol by Volume)",
+      "checked_on": "2026-09-24"
+    },
+    "michters-10-bourbon": {
+      "source": "Producer page",
+      "source_url": "https://michters.com/whiskey/10-year-kentucky-straight-bourbon/",
+      "states": "BOTTLING STRENGTH 94.4 proof (47.2% Alcohol by Volume)",
+      "checked_on": "2026-09-24"
+    },
+    "michters-10-rye": {
+      "source": "Producer page",
+      "source_url": "https://michters.com/whiskey/10-year-kentucky-straight-rye/",
+      "states": "BOTTLING STRENGTH 92.8 proof (46.4% Alcohol by Volume)",
+      "checked_on": "2026-09-24"
+    },
+    "ardbeg-10": {
+      "source": "Producer page",
+      "source_url": "https://www.ardbeg.com/en-int/products/ardbeg-ten-years-old",
+      "states": "46.0%",
+      "checked_on": "2026-09-24"
+    },
+    "ardbeg-uigeadail": {
+      "source": "Producer page",
+      "source_url": "https://www.ardbeg.com/en-int/products/ardbeg-uigeadail",
+      "states": "54.2%",
+      "checked_on": "2026-09-24"
+    },
+    "ardbeg-corryvreckan": {
+      "source": "Producer page",
+      "source_url": "https://www.ardbeg.com/en-int/products/ardbeg-corryvreckan",
+      "states": "57.1%",
+      "checked_on": "2026-09-24"
+    },
+    "ardbeg-wee-beastie": {
+      "source": "Producer page",
+      "source_url": "https://www.ardbeg.com/en-int/products/ardbeg-wee-beastie",
+      "states": "ABV 47.4%",
+      "checked_on": "2026-09-24"
+    },
+    "ardbeg-an-oa": {
+      "source": "Producer page",
+      "source_url": "https://www.ardbeg.com/en-int/products/ardbeg-an-oa",
+      "states": "46.6%",
+      "checked_on": "2026-09-24"
+    },
+    "titos": {
+      "source": "Producer page",
+      "source_url": "https://titosvodka.com/our-vodka",
+      "states": "40% alcohol by volume",
+      "checked_on": "2026-09-24"
     }
   },
   "blocked": {
     "jameson-original": {
       "source_url": "https://www.jamesonwhiskey.com/en-us/our-whiskey/jameson-irish-whiskey/",
       "why": "403 Forbidden. Age gates and bot protection stop an automated read; this row needs a person with a browser, or a COLA lookup.",
+      "checked_on": "2026-09-24"
+    },
+    "redbreast-12": {
+      "source_url": "https://www.redbreastwhiskey.com/en-us/whiskeys/redbreast-12-year-old/",
+      "why": "403 Forbidden. Same age-gate and bot protection as Jameson; both are Irish Distillers pages.",
+      "checked_on": "2026-09-24"
+    },
+    "evan-williams-black": {
+      "source_url": "https://www.evanwilliams.com/bourbons/black-label",
+      "why": "500 Internal Server Error from the producer's own site.",
+      "checked_on": "2026-09-24"
+    }
+  },
+  "not_verified": {
+    "makers-46": {
+      "source_url": "https://www.makersmark.com/bourbons/makers-mark-46",
+      "why": "The page's only alcohol figure is the site footer, \"45% Alc./Vol.\", which is standard Maker's Mark. The catalogue has 47% for 46, and taking the footer would have corrupted the row. This is the trap the how note above is about.",
+      "checked_on": "2026-09-24"
+    },
+    "buffalo-trace": {
+      "source_url": "https://www.buffalotracedistillery.com/our-brands/buffalo-trace.html",
+      "why": "Footer only, and it states two: \"Buffalo Trace, Kentucky Straight Bourbon Whiskey, 40% Alc./Vol. or 45% Alc./Vol.\" -- the US and export bottlings. A row cannot be checked against a figure that is two figures.",
+      "checked_on": "2026-09-24"
+    },
+    "espolon-blanco": {
+      "source_url": "https://www.espolontequila.com/en-us/our-tequila/",
+      "why": "No per-expression figure; the footer says \"Espolon(R) Tequila. 40% alc./vol. (80 Proof).\" for the whole brand, which does not say what any one expression is bottled at.",
+      "checked_on": "2026-09-24"
+    },
+    "glenfiddich-12": {
+      "source_url": "https://www.glenfiddich.com/us/collection/core-range/12-year-old/",
+      "why": "The product page states no ABV anywhere, footer included.",
+      "checked_on": "2026-09-24"
+    },
+    "jack-daniels-no-7": {
+      "source_url": "https://www.jackdaniels.com/en-us/whiskey/old-no-7",
+      "why": "The page renders its content through script the fetch does not run; nothing but the title came back. Needs a person with a browser.",
       "checked_on": "2026-09-24"
     }
   }

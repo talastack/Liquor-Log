@@ -250,8 +250,9 @@
       "class_type": "kentuckyStraightBourbon",
       "production_type": "singleBarrel",
       "abv": 46.5,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.blantonsbourbon.com/pages/our-bourbon",
+      "verified": true
     },
     {
       "id": "eh-taylor-small-batch",
@@ -367,8 +368,9 @@
       "production_type": "smallBatch",
       "abv": 45.0,
       "stated_age_years": 10,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.russellsreserve.com/products/10-year-old-bourbon",
+      "verified": true
     },
     {
       "id": "russells-reserve-single-barrel",
@@ -529,8 +531,9 @@
       "production_type": "singleBarrel",
       "abv": 50.0,
       "recipe_code": "OBSV",
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.fourrosesbourbon.com/bourbon/single-barrel/",
+      "verified": true
     },
     {
       "id": "old-forester-86",
@@ -551,8 +554,9 @@
       "class_type": "kentuckyStraightBourbon",
       "production_type": "unspecified",
       "abv": 50.0,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.oldforester.com/whisky/old-forester-100-proof/",
+      "verified": true
     },
     {
       "id": "old-forester-1897",
@@ -669,8 +673,9 @@
       "class_type": "kentuckyStraightBourbon",
       "production_type": "smallBatch",
       "abv": 45.7,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://michters.com/whiskey/kentucky-straight-bourbon/",
+      "verified": true
     },
     {
       "id": "michters-us1-rye",
@@ -680,8 +685,9 @@
       "class_type": "straightRye",
       "production_type": "singleBarrel",
       "abv": 42.4,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://michters.com/whiskey/us1-kentucky-straight-rye/",
+      "verified": true
     },
     {
       "id": "bulleit-bourbon",
@@ -828,8 +834,9 @@
       "production_type": "unspecified",
       "abv": 46.0,
       "stated_age_years": 10,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.ardbeg.com/en-int/products/ardbeg-ten-years-old",
+      "verified": true
     },
     {
       "id": "laphroaig-10",
@@ -1065,8 +1072,9 @@
       "class_type": "vodka",
       "production_type": "unspecified",
       "abv": 40.0,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://titosvodka.com/our-vodka",
+      "verified": true
     },
     {
       "id": "hennessy-vs",
@@ -1175,8 +1183,9 @@
       "class_type": "kentuckyStraightBourbon",
       "production_type": "singleBarrel",
       "abv": 51.5,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.blantonsbourbon.com/pages/our-bourbon",
+      "verified": true
     },
     {
       "id": "blantons-sftb",
@@ -1874,8 +1883,9 @@
       "production_type": "singleBarrel",
       "abv": 47.2,
       "stated_age_years": 10,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://michters.com/whiskey/10-year-kentucky-straight-bourbon/",
+      "verified": true
     },
     {
       "id": "michters-toasted-bourbon",
@@ -2622,8 +2632,9 @@
       "class_type": "singleMaltScotch",
       "production_type": "unspecified",
       "abv": 54.2,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.ardbeg.com/en-int/products/ardbeg-uigeadail",
+      "verified": true
     },
     {
       "id": "ardbeg-corryvreckan",
@@ -2633,8 +2644,9 @@
       "class_type": "singleMaltScotch",
       "production_type": "unspecified",
       "abv": 57.1,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.ardbeg.com/en-int/products/ardbeg-corryvreckan",
+      "verified": true
     },
     {
       "id": "lagavulin-8",
@@ -3738,8 +3750,9 @@
       "class_type": "blendedWhiskey",
       "production_type": "unspecified",
       "abv": 43.0,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://michters.com/whiskey/sour-mash/",
+      "verified": true
     },
     {
       "id": "michters-us1-american",
@@ -3749,8 +3762,9 @@
       "class_type": "blendedWhiskey",
       "production_type": "unspecified",
       "abv": 41.7,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://michters.com/whiskey/us1-american-whiskey/",
+      "verified": true
     },
     {
       "id": "michters-10-rye",
@@ -3761,8 +3775,9 @@
       "production_type": "singleBarrel",
       "abv": 46.4,
       "stated_age_years": 10,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://michters.com/whiskey/10-year-kentucky-straight-rye/",
+      "verified": true
     },
     {
       "id": "bardstown-origin-bourbon",
@@ -3975,8 +3990,9 @@
       "production_type": "unspecified",
       "abv": 47.4,
       "stated_age_years": 5,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.ardbeg.com/en-int/products/ardbeg-wee-beastie",
+      "verified": true
     },
     {
       "id": "ardbeg-an-oa",
@@ -3986,8 +4002,9 @@
       "class_type": "singleMaltScotch",
       "production_type": "unspecified",
       "abv": 46.6,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.ardbeg.com/en-int/products/ardbeg-an-oa",
+      "verified": true
     },
     {
       "id": "lagavulin-distillers-edition",
