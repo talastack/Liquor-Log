@@ -636,6 +636,7 @@ internal fun filterRow(
         isInfinity = summary.isInfinity,
         storageLocation = bottle.storage_location,
         addedAt = Instant.ofEpochMilli(bottle.created_at),
+        openedAt = bottle.opened_at?.let { Instant.ofEpochMilli(it) },
         lastPouredAt = summary.lastPouredAt?.let { Instant.ofEpochMilli(it) },
         rating = summary.latestRating,
         fillFraction = if (summary.status.capacityMilliliters > 0) {

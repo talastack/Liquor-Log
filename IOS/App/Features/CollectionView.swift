@@ -502,6 +502,7 @@ struct CollectionView: View {
             isInfinity: bottle.isInfinity,
             storageLocation: bottle.storageLocation,
             addedAt: Date(timeIntervalSince1970: Double(bottle.createdAt) / 1000),
+            openedAt: bottle.openedAt.map { Date(timeIntervalSince1970: Double($0) / 1000) },
             lastPouredAt: summary.lastPouredAt,
             rating: summary.latestRating,
             fillFraction: capacity > 0

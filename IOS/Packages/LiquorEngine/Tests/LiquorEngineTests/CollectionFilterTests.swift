@@ -193,6 +193,51 @@ final class CollectionFilterTests: XCTestCase {
         XCTAssertEqual(CollectionFilter.apply(.init(kinds: [.infinity]), to: rows).map(\.id), ["inf"])
         XCTAssertFalse(CollectionFilter.availableKinds(in: shelf).contains(.infinity))
     }
+    // MARK: - What has been open longest
+
+    func testLongestOpenPutsTheOldestOpenBottleFirst() {
+        // The question is about air in a bottle, not about drinking it: a
+        // bottle open two years is worth looking at whether it is full or
+        // nearly gone.
+        let rows = [
+            CollectionFilter.Row(
+                id: "recent", name: "Recent", distillery: "A",
+                isOpen: true, addedAt: day(1), openedAt: day(300), fillFraction: 0.2),
+            CollectionFilter.Row(
+                id: "ancient", name: "Ancient", distillery: "B",
+                isOpen: true, addedAt: day(1), openedAt: day(10), fillFraction: 0.9),
+            CollectionFilter.Row(
+                id: "sealed", name: "Sealed", distillery: "C",
+                addedAt: day(1), fillFraction: 1),
+        ]
+        var criteria = CollectionFilter.Criteria()
+        criteria.status = .any
+        criteria.sort = .longestOpen
+        // Oldest opening first; never opened last, whatever its fill.
+        XCTAssertEqual(
+            CollectionFilter.apply(criteria, to: rows).map(\.id),
+            ["ancient", "recent", "sealed"])
+    }
+
+    func testAFinishedBottleIsNotOpenAtAll() {
+        let rows = [
+            CollectionFilter.Row(
+                id: "done", name: "Finished", distillery: "A",
+                isOpen: true, isFinished: true,
+                addedAt: day(2), openedAt: day(1), fillFraction: 0),
+            CollectionFilter.Row(
+                id: "open", name: "Open", distillery: "B",
+                isOpen: true, addedAt: day(1), openedAt: day(50), fillFraction: 0.5),
+        ]
+        var criteria = CollectionFilter.Criteria()
+        criteria.status = .any
+        criteria.sort = .longestOpen
+        // The finished one was opened first and is still last: it is not
+        // oxidising, it is gone.
+        XCTAssertEqual(
+            CollectionFilter.apply(criteria, to: rows).map(\.id), ["open", "done"])
+    }
+
     // MARK: - Finding a bottle by what it tasted of
 
     func testABottleIsFoundByAFlavourYouRecorded() {

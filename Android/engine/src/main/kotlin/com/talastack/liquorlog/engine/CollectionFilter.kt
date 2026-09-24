@@ -41,6 +41,15 @@ object CollectionFilter {
         val isInfinity: Boolean = false,
         val storageLocation: String? = null,
         val addedAt: Instant,
+        /**
+         * When it was opened, for "longest open".
+         *
+         * An open bottle is oxidising whether or not anybody is drinking it,
+         * and the one open longest is the one worth looking at. This orders
+         * by AGE, never by how much is left: the app does not tell anybody
+         * to finish something.
+         */
+        val openedAt: Instant? = null,
         val lastPouredAt: Instant? = null,
         val rating: Int? = null,
         /** 0..1. What is left, so "fullest" and "nearly gone" can sort. */
@@ -188,7 +197,8 @@ object CollectionFilter {
         FULLEST("fullest"),
         NEARLY_GONE("nearlyGone"),
         LAST_POURED("lastPoured"),
-        RATING("rating");
+        RATING("rating"),
+        LONGEST_OPEN("longestOpen");
 
         val label: String
             get() = when (this) {
@@ -199,6 +209,7 @@ object CollectionFilter {
                 NEARLY_GONE -> "Nearly gone"
                 LAST_POURED -> "Last poured"
                 RATING -> "Rating"
+                LONGEST_OPEN -> "Longest open"
             }
     }
 
@@ -328,6 +339,23 @@ object CollectionFilter {
                 when {
                     x != null && y != null ->
                         if (x == y) b.addedAt.compareTo(a.addedAt) else y.compareTo(x)
+                    x != null -> -1
+                    y != null -> 1
+                    else -> b.addedAt.compareTo(a.addedAt)
+                }
+            }
+        )
+
+        // Open longest first; never opened last, and a finished bottle is
+        // not open at all. This answers "what has been sitting half-full
+        // since last year", which is a question about air in a bottle rather
+        // than a suggestion to drink it.
+        Sort.LONGEST_OPEN -> rows.sortedWith(
+            Comparator { a, b ->
+                val x = if (a.isFinished) null else a.openedAt
+                val y = if (b.isFinished) null else b.openedAt
+                when {
+                    x != null && y != null -> x.compareTo(y)
                     x != null -> -1
                     y != null -> 1
                     else -> b.addedAt.compareTo(a.addedAt)

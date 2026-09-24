@@ -33,6 +33,13 @@ public enum CollectionFilter: Sendable {
         public let isInfinity: Bool
         public let storageLocation: String?
         public let addedAt: Date
+        /// When it was opened, for "longest open".
+        ///
+        /// An open bottle is oxidising whether or not anybody is drinking
+        /// it, and the one that has been open longest is the one worth
+        /// looking at. This orders by AGE, never by how much is left: the
+        /// app does not tell anybody to finish something.
+        public let openedAt: Date?
         public let lastPouredAt: Date?
         public let rating: Int?
         /// 0...1. What is left, so "fullest" and "nearly gone" can sort.
@@ -54,6 +61,7 @@ public enum CollectionFilter: Sendable {
             isInfinity: Bool = false,
             storageLocation: String? = nil,
             addedAt: Date,
+            openedAt: Date? = nil,
             lastPouredAt: Date? = nil,
             rating: Int? = nil,
             fillFraction: Double = 1
@@ -73,6 +81,7 @@ public enum CollectionFilter: Sendable {
             self.isInfinity = isInfinity
             self.storageLocation = storageLocation
             self.addedAt = addedAt
+            self.openedAt = openedAt
             self.lastPouredAt = lastPouredAt
             self.rating = rating
             self.fillFraction = fillFraction
@@ -222,6 +231,7 @@ public enum CollectionFilter: Sendable {
         case nearlyGone
         case lastPoured
         case rating
+        case longestOpen
 
         public var label: String {
             switch self {
@@ -232,6 +242,7 @@ public enum CollectionFilter: Sendable {
             case .nearlyGone: return "Nearly gone"
             case .lastPoured: return "Last poured"
             case .rating: return "Rating"
+            case .longestOpen: return "Longest open"
             }
         }
     }
@@ -370,6 +381,21 @@ public enum CollectionFilter: Sendable {
             return rows.sorted {
                 switch ($0.rating, $1.rating) {
                 case let (a?, b?): return a == b ? $0.addedAt > $1.addedAt : a > b
+                case (_?, nil): return true
+                case (nil, _?): return false
+                case (nil, nil): return $0.addedAt > $1.addedAt
+                }
+            }
+        case .longestOpen:
+            // Open longest first; never opened last, and a finished bottle
+            // is not open at all. This answers "what has been sitting
+            // half-full since last year", which is a question about air in
+            // a bottle rather than a suggestion to drink it.
+            return rows.sorted {
+                let a = $0.isFinished ? nil : $0.openedAt
+                let b = $1.isFinished ? nil : $1.openedAt
+                switch (a, b) {
+                case let (x?, y?): return x < y
                 case (_?, nil): return true
                 case (nil, _?): return false
                 case (nil, nil): return $0.addedAt > $1.addedAt
