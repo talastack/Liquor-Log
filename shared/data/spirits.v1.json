@@ -212,8 +212,9 @@
       "production_type": "unspecified",
       "abv": 45.0,
       "mashbill_key": "wheated",
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.buffalotracedistillery.com/our-brands/w-l-weller/w-l-weller-special-reserve/",
+      "verified": true
     },
     {
       "id": "weller-antique-107",
@@ -237,8 +238,9 @@
       "abv": 45.0,
       "stated_age_years": 12,
       "mashbill_key": "wheated",
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.buffalotracedistillery.com/our-brands/w-l-weller/w-l-weller-12/",
+      "verified": true
     },
     {
       "id": "blantons-single-barrel",
@@ -388,8 +390,9 @@
       "production_type": "smallBatch",
       "abv": 50.0,
       "stated_age_years": 9,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.knobcreek.com/whiskies/9-year-old-bourbon-whiskey",
+      "verified": true
     },
     {
       "id": "knob-creek-single-barrel",
@@ -502,8 +505,9 @@
       "class_type": "kentuckyStraightBourbon",
       "production_type": "smallBatch",
       "abv": 45.0,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.fourrosesbourbon.com/bourbon/small-batch",
+      "verified": true
     },
     {
       "id": "four-roses-small-batch-select",
@@ -582,8 +586,9 @@
       "class_type": "kentuckyStraightBourbon",
       "production_type": "smallBatch",
       "abv": 45.2,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.woodfordreserve.com/whiskey/straight-bourbon-whiskey/",
+      "verified": true
     },
     {
       "id": "woodford-double-oaked",
@@ -627,8 +632,9 @@
       "production_type": "unspecified",
       "abv": 45.0,
       "mashbill_key": "wheated",
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.makersmark.com/en-us/bourbons/makers-mark",
+      "verified": true
     },
     {
       "id": "makers-46",

@@ -24,6 +24,49 @@
       "source_url": "https://www.wildturkeybourbon.com/products/wild-turkey-101/",
       "states": "101 proof, aged between 6-8 years",
       "checked_on": "2026-09-24"
+    },
+    "makers-mark": {
+      "source": "Producer page",
+      "source_url": "https://www.makersmark.com/en-us/bourbons/makers-mark",
+      "states": "90 proof, 45% Alc./Vol.",
+      "checked_on": "2026-09-24"
+    },
+    "knob-creek-9": {
+      "source": "Producer page",
+      "source_url": "https://www.knobcreek.com/whiskies/9-year-old-bourbon-whiskey",
+      "states": "Proof 100, patiently-aged in white oak barrels for nine years",
+      "checked_on": "2026-09-24"
+    },
+    "woodford-reserve": {
+      "source": "Producer page",
+      "source_url": "https://www.woodfordreserve.com/whiskey/straight-bourbon-whiskey/",
+      "states": "90.4 proof, 45.2% Alc. by Vol.",
+      "checked_on": "2026-09-24"
+    },
+    "four-roses-small-batch": {
+      "source": "Producer page",
+      "source_url": "https://www.fourrosesbourbon.com/bourbon/small-batch",
+      "states": "90 Proof / Aged 6 - 7 Years",
+      "checked_on": "2026-09-24"
+    },
+    "weller-12": {
+      "source": "Producer page",
+      "source_url": "https://www.buffalotracedistillery.com/our-brands/w-l-weller/w-l-weller-12/",
+      "states": "90 (45%), aged 12 years",
+      "checked_on": "2026-09-24"
+    },
+    "weller-special-reserve": {
+      "source": "Producer page",
+      "source_url": "https://www.buffalotracedistillery.com/our-brands/w-l-weller/w-l-weller-special-reserve/",
+      "states": "bottled at 90 proof",
+      "checked_on": "2026-09-24"
+    }
+  },
+  "blocked": {
+    "jameson-original": {
+      "source_url": "https://www.jamesonwhiskey.com/en-us/our-whiskey/jameson-irish-whiskey/",
+      "why": "403 Forbidden. Age gates and bot protection stop an automated read; this row needs a person with a browser, or a COLA lookup.",
+      "checked_on": "2026-09-24"
     }
   }
 }
