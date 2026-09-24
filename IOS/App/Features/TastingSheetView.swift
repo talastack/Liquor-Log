@@ -356,6 +356,12 @@ struct TastingSheetView: View {
                     Button { rating = (rating == value) ? nil : value } label: {
                         Text("\(value)")
                             .font(TypeScale.secondary())
+                            // Ten cells share the width. At the accessibility
+                            // sizes a "10" would otherwise break into "1" over
+                            // "0"; a digit shrinking to fit reads, a split one
+                            // does not.
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
                             .foregroundStyle(value == rating ? Palette.onGold : Palette.textSecondary)
                             .frame(maxWidth: .infinity, minHeight: Space.tapTarget)
                             .background(RoundedRectangle(cornerRadius: 9)

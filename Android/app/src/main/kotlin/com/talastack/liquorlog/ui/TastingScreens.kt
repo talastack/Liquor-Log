@@ -2,9 +2,12 @@ package com.talastack.liquorlog.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -14,7 +17,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -251,13 +253,32 @@ fun TastingSheetScreen(
 
             item { SectionLabel("Rating") }
             item {
+                // Ten equal cells across the full width, as on iOS. This was
+                // a sideways-scrolling row of chips, which on a phone showed
+                // 1 to 8 with the 8 cut in half: the two highest scores sat
+                // off the edge with nothing to say they were there.
                 Row(
-                    modifier = Modifier.horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(Space.s),
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(5.dp),
                 ) {
                     for (score in 1..10) {
-                        Chip(score.toString(), isOn = rating == score) {
-                            rating = if (rating == score) null else score
+                        val isOn = rating == score
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .weight(1f)
+                                .heightIn(min = Space.tapTarget)
+                                .clip(RoundedCornerShape(9.dp))
+                                .background(if (isOn) colors.accent else colors.surfaceRaised)
+                                .clickable { rating = if (isOn) null else score }
+                                .semantics { contentDescription = "Rate $score out of 10" },
+                        ) {
+                            Text(
+                                score.toString(),
+                                style = TypeScale.secondary,
+                                color = if (isOn) colors.onAccent else colors.textSecondary,
+                                maxLines = 1,
+                            )
                         }
                     }
                 }

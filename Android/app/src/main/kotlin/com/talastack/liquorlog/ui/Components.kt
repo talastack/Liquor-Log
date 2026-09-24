@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -206,24 +208,32 @@ object VolumeDisplay {
  * pours reads "17". The millilitres are what stop that rounding from carrying
  * weight on its own.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun FillBar(status: PourStatus, ounces: Boolean = false) {
     val colors = palette
     Column(verticalArrangement = Arrangement.spacedBy(Space.s)) {
-        Row(
+        // A flow, not a row. At a large text size the count took nearly the
+        // whole width and squeezed the millilitres into a column one word
+        // wide -- "750 / ml / left" -- whose last word ran into the count's.
+        // A flow measures each half against the whole width, so when both do
+        // not fit on one line the millilitres move to the next instead.
+        FlowRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Bottom,
+            verticalArrangement = Arrangement.spacedBy(Space.xs),
         ) {
             Text(
                 "${status.remainingPours} of ${status.totalPours} pours left",
                 style = TypeScale.code.copy(fontSize = TypeScale.body.fontSize),
                 color = colors.text,
+                modifier = Modifier.alignByBaseline().padding(end = Space.m),
             )
             Text(
                 VolumeDisplay.text(status.remainingMilliliters, ounces) + " left",
                 style = TypeScale.code.copy(fontSize = TypeScale.caption.fontSize),
                 color = colors.textSecondary,
+                modifier = Modifier.alignByBaseline(),
             )
         }
 
@@ -367,24 +377,33 @@ fun SectionLabel(text: String, modifier: Modifier = Modifier) {
 fun FactRow(label: String, value: String, isLast: Boolean = false) {
     val colors = palette
     Column(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 13.dp),
-            horizontalArrangement = Arrangement.spacedBy(Space.l),
-            verticalAlignment = Alignment.Top,
-        ) {
-            Text(
-                label,
-                style = TypeScale.secondary,
-                color = colors.textSecondary,
-                modifier = Modifier.weight(1f),
-            )
-            Text(
-                value,
-                style = TypeScale.secondary,
-                color = colors.text,
-                textAlign = TextAlign.End,
-                modifier = Modifier.weight(1.4f),
-            )
+        // The label takes the width it needs, up to a little over half, and
+        // the value the rest. This was a fixed 1 : 1.4 split, so a label never
+        // had more than 42% however short its value: at a large text size
+        // "With a price" broke over two lines beside a lone "3". The cap is
+        // still there for the other case -- a long class name or distillery
+        // wraps inside its own column instead of pushing the label off.
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+            val labelMax = maxWidth * 0.55f
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 13.dp),
+                horizontalArrangement = Arrangement.spacedBy(Space.l),
+                verticalAlignment = Alignment.Top,
+            ) {
+                Text(
+                    label,
+                    style = TypeScale.secondary,
+                    color = colors.textSecondary,
+                    modifier = Modifier.widthIn(max = labelMax),
+                )
+                Text(
+                    value,
+                    style = TypeScale.secondary,
+                    color = colors.text,
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.weight(1f),
+                )
+            }
         }
         if (!isLast) {
             Box(Modifier.fillMaxWidth().height(1.dp).background(colors.line))

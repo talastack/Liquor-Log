@@ -42,6 +42,7 @@ CLAIMS = [
     ("price", r"\bPriceScreen\b|\bPriceCheckScreen\b", "the price check"),
     ("photo", r"\bBottleHeroPhoto\b|\bBottleImage\b", "bottle photos"),
     ("sighting", r"\bBUY_SIGHTING\b|\bbuySighting\b", "buying from a sighting"),
+    ("insurance", r"\bInsuranceReportScreen\b", "the insurance report"),
 ]
 
 

@@ -122,14 +122,21 @@ struct FillBar: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Space.s) {
-            HStack(alignment: .firstTextBaseline, spacing: Space.m) {
-                Text("\(status.remainingPours) of \(status.totalPours) pours left")
-                    .font(TypeScale.code(16))
-                    .foregroundStyle(Palette.text)
-                Spacer(minLength: Space.s)
-                Text(millilitres)
-                    .font(TypeScale.code(13))
-                    .foregroundStyle(Palette.textSecondary)
+            // Side by side when both fit, stacked when they do not. On
+            // Android, at a large text size, the count took nearly the whole
+            // width and squeezed the millilitres into a column one word wide
+            // whose last word ran into the count's. The same two Texts in an
+            // HStack would do the same here at the accessibility sizes.
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: Space.m) {
+                    remaining
+                    Spacer(minLength: Space.s)
+                    millilitresLeft
+                }
+                VStack(alignment: .leading, spacing: 2) {
+                    remaining
+                    millilitresLeft
+                }
             }
 
             GeometryReader { geo in
@@ -153,6 +160,18 @@ struct FillBar: View {
                     .foregroundStyle(Palette.textMuted)
             }
         }
+    }
+
+    private var remaining: some View {
+        Text("\(status.remainingPours) of \(status.totalPours) pours left")
+            .font(TypeScale.code(16))
+            .foregroundStyle(Palette.text)
+    }
+
+    private var millilitresLeft: some View {
+        Text(millilitres)
+            .font(TypeScale.code(13))
+            .foregroundStyle(Palette.textSecondary)
     }
 
     private var fraction: Double {

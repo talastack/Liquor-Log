@@ -288,7 +288,7 @@ private val NOT_YET = listOf(
     "Price history and the community price check",
     "Backup and restore",
     "Flights and the shelf walk",
-    "Shelf labels and the insurance report",
+    "Printable shelf labels",
 )
 
 @Composable

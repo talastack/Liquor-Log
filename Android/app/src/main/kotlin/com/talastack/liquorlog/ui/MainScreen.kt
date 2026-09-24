@@ -28,6 +28,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -198,7 +199,7 @@ private fun TabBar(navController: NavHostController, route: String?) {
                     }
                 },
                 icon = { Icon(tab.icon, contentDescription = null) },
-                label = { Text(tab.title, style = TypeScale.caption) },
+                label = { TabLabel(tab.title) },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = colors.onAccent,
                     selectedTextColor = colors.accent,
@@ -429,3 +430,27 @@ private fun AppNavHost(navController: NavHostController, state: AppState) {
         }
     }
 }
+
+/**
+ * A tab's name, allowed to grow with the text-size setting up to 1.3x and
+ * no further.
+ *
+ * Four labels share the width of the phone. At the largest setting
+ * "Collection" broke in the middle of the word -- "Collecti / on" -- and
+ * "Shelf Check" took two lines. iOS does not grow tab labels with Dynamic
+ * Type at all, for the same reason; everything ABOVE the bar still scales
+ * in full, which is where the reading happens.
+ */
+@Composable
+private fun TabLabel(title: String) {
+    val fontScale = LocalDensity.current.fontScale
+    val base = TypeScale.caption
+    val capped = if (fontScale > MAX_TAB_LABEL_SCALE) {
+        base.copy(fontSize = base.fontSize * (MAX_TAB_LABEL_SCALE / fontScale))
+    } else {
+        base
+    }
+    Text(title, style = capped, maxLines = 1, softWrap = false)
+}
+
+private const val MAX_TAB_LABEL_SCALE = 1.3f
