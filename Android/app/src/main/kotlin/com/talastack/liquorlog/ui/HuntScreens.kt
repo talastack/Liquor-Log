@@ -182,6 +182,9 @@ fun HuntLogScreen(onBack: () -> Unit, onBuy: (String) -> Unit) {
         EntryActionsDialog(
             isLottery = entry?.kind == Hunt.Kind.ENTERED,
             isBought = entry?.boughtBottleId != null,
+            // A shelf sighting only, as on iOS: a lottery entry is a chance
+            // at a bottle, not a bottle on a shelf at a price to carry over.
+            canBuy = entry?.kind == Hunt.Kind.SEEN,
             onBuy = {
                 deciding = null
                 onBuy(id)
@@ -280,6 +283,7 @@ private fun LogSightingDialog(
 private fun EntryActionsDialog(
     isLottery: Boolean,
     isBought: Boolean,
+    canBuy: Boolean,
     onBuy: () -> Unit,
     onOutcome: (Hunt.Outcome?) -> Unit,
     onRemove: () -> Unit,
@@ -306,16 +310,19 @@ private fun EntryActionsDialog(
                     }
                 }
                 if (isBought) {
+                    // Not "on your shelf": the bottle may since have been
+                    // finished or removed, and this dialog does not know.
+                    // That it was bought is the one thing still true.
                     Text(
-                        "Already on your shelf.",
+                        "You bought this one.",
                         style = TypeScale.secondary,
                         color = colors.textSecondary,
                     )
-                } else {
+                } else if (canBuy) {
                     // The sighting knows the product, the shop and the price.
                     // Buying it should not be the same form typed a second
                     // time from memory.
-                    QuietButton("I bought it", modifier = Modifier.fillMaxWidth()) {
+                    QuietButton("Bought it", modifier = Modifier.fillMaxWidth()) {
                         onBuy()
                     }
                 }
