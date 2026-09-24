@@ -1250,6 +1250,10 @@ struct BottleDetailView: View {
                 }
             }
 
+            if let change = firstToLatest() {
+                thenAndNow(change)
+            }
+
             ForEach(tastings) { detail in
                 TastingHistoryRow(
                     detail: detail,
@@ -1269,6 +1273,90 @@ struct BottleDetailView: View {
                 }
             }
         }
+    }
+
+    /// The first tasting against the most recent one.
+    ///
+    /// No picker: "has it changed since I opened it" is the question people
+    /// have, and it is always these two. A bottle tasted once has nothing to
+    /// compare and gets nothing.
+    private func firstToLatest() -> TastingComparison.Result? {
+        guard tastings.count >= 2,
+              let latest = tastings.first,
+              let first = tastings.last,
+              latest.id != first.id else { return nil }
+
+        func side(_ detail: TastingDetail) -> TastingComparison.Side {
+            var byStage: [String: [String]] = [:]
+            for (stage, keys) in detail.notes {
+                byStage[stage.rawValue] = keys.compactMap { env.wheel.descriptor($0)?.label }
+            }
+            return TastingComparison.Side(
+                tastedAt: Date(timeIntervalSince1970: Double(detail.tasting.tastedAt) / 1000),
+                rating: detail.tasting.rating,
+                descriptors: byStage)
+        }
+
+        let result = TastingComparison.compare(
+            side(first), side(latest),
+            stageOrder: TastingStage.allCases.map(\.rawValue))
+        // Two tastings that recorded no descriptors at all are already
+        // covered by the trend line above; a card saying only "6 months
+        // apart" is noise.
+        return result.stages.isEmpty ? nil : result
+    }
+
+    @ViewBuilder
+    private func thenAndNow(_ change: TastingComparison.Result) -> some View {
+        VStack(alignment: .leading, spacing: Space.s) {
+            Text("Then and now")
+                .font(TypeScale.caption())
+                .textCase(nil)
+                .foregroundStyle(Palette.textMuted)
+            Text(change.text)
+                .font(TypeScale.secondary())
+                .foregroundStyle(Palette.text)
+                .fixedSize(horizontal: false, vertical: true)
+            ForEach(change.stages, id: \.stage) { stage in
+                stageChange(stage)
+            }
+        }
+        .padding(Space.l)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 12).fill(Palette.surface))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Palette.line, lineWidth: 1))
+    }
+
+    @ViewBuilder
+    private func stageChange(_ stage: TastingComparison.StageDiff) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(stage.stage.capitalized)
+                .font(TypeScale.caption())
+                .textCase(nil)
+                .foregroundStyle(Palette.textMuted)
+            if !stage.newSince.isEmpty {
+                Text("New: " + stage.newSince.joined(separator: ", "))
+                    .font(TypeScale.caption())
+                    .textCase(nil)
+                    .foregroundStyle(Palette.gold)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            if !stage.goneSince.isEmpty {
+                Text("Not this time: " + stage.goneSince.joined(separator: ", "))
+                    .font(TypeScale.caption())
+                    .textCase(nil)
+                    .foregroundStyle(Palette.textMuted)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            if stage.isUnchanged, !stage.shared.isEmpty {
+                Text("Both times: " + stage.shared.joined(separator: ", "))
+                    .font(TypeScale.caption())
+                    .textCase(nil)
+                    .foregroundStyle(Palette.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(.top, Space.xs)
     }
 
     private func trend(_ summary: BottleSummary) -> TastingTrend.Summary? {

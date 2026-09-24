@@ -43,12 +43,14 @@ import com.talastack.liquorlog.engine.ABV
 import com.talastack.liquorlog.engine.Blend
 import com.talastack.liquorlog.engine.CatalogProduct
 import com.talastack.liquorlog.engine.FillLevel
+import com.talastack.liquorlog.engine.FlavorWheel
 import com.talastack.liquorlog.engine.Money
 import com.talastack.liquorlog.engine.OxidationBand
 import com.talastack.liquorlog.engine.PourMath
 import com.talastack.liquorlog.engine.PourSize
 import com.talastack.liquorlog.engine.Replenish
 import com.talastack.liquorlog.engine.RecipeCode
+import com.talastack.liquorlog.engine.TastingComparison
 import com.talastack.liquorlog.engine.TastingTrend
 import com.talastack.liquorlog.ui.theme.Space
 import com.talastack.liquorlog.ui.theme.TypeScale
@@ -612,6 +614,8 @@ private fun HowItHasDrunk(
         trend?.let {
             Card { Text(it.text, style = TypeScale.body, color = colors.text) }
         }
+        val change = remember(tastings, state.wheel) { firstToLatest(tastings, state.wheel) }
+        change?.let { ThenAndNow(it) }
         for (detail in tastings) {
             // Tapping a tasting opens it for correction. Same reasoning as
             // the pour log above: the card is the only thing on its row,
@@ -647,6 +651,86 @@ private fun HowItHasDrunk(
                     Text(described, style = TypeScale.caption, color = colors.textMuted)
                 }
             }
+        }
+    }
+}
+
+/**
+ * The first tasting against the most recent one.
+ *
+ * No picker: "has it changed since I opened it" is the question people have,
+ * and it is always these two. A bottle tasted once has nothing to compare and
+ * gets nothing.
+ */
+private fun firstToLatest(
+    tastings: List<TastingRepository.Detail>,
+    wheel: FlavorWheel?,
+): TastingComparison.Result? {
+    if (tastings.size < 2) return null
+    val latest = tastings.first()
+    val first = tastings.last()
+    if (latest.id == first.id) return null
+
+    fun side(detail: TastingRepository.Detail) = TastingComparison.Side(
+        tastedAt = Instant.ofEpochMilli(detail.tastedAt),
+        rating = detail.rating,
+        descriptors = detail.descriptors.entries.associate { (stage, keys) ->
+            stage.storageKey to keys.mapNotNull { key -> wheel?.descriptor(key)?.label }
+        },
+    )
+
+    val result = TastingComparison.compare(
+        side(first),
+        side(latest),
+        TastingRepository.Stage.entries.map { it.storageKey },
+    )
+    // Two tastings that recorded no descriptors at all are already covered by
+    // the trend line above; a card saying only "6 months apart" is noise.
+    return if (result.stages.isEmpty()) null else result
+}
+
+/** What the second glass had that the first did not, stage by stage. */
+@Composable
+private fun ThenAndNow(change: TastingComparison.Result) {
+    val colors = palette
+    Card {
+        Text("Then and now", style = TypeScale.caption, color = colors.textMuted)
+        Text(change.text, style = TypeScale.secondary, color = colors.text)
+        for (stage in change.stages) {
+            StageChange(stage)
+        }
+    }
+}
+
+@Composable
+private fun StageChange(stage: TastingComparison.StageDiff) {
+    val colors = palette
+    Column(verticalArrangement = Arrangement.spacedBy(Space.xs)) {
+        Text(
+            TastingRepository.Stage.fromStorageKey(stage.stage)?.label ?: stage.stage,
+            style = TypeScale.caption,
+            color = colors.textMuted,
+        )
+        if (stage.newSince.isNotEmpty()) {
+            Text(
+                "New: " + stage.newSince.joinToString(", "),
+                style = TypeScale.caption,
+                color = colors.accent,
+            )
+        }
+        if (stage.goneSince.isNotEmpty()) {
+            Text(
+                "Not this time: " + stage.goneSince.joinToString(", "),
+                style = TypeScale.caption,
+                color = colors.textMuted,
+            )
+        }
+        if (stage.isUnchanged && stage.shared.isNotEmpty()) {
+            Text(
+                "Both times: " + stage.shared.joinToString(", "),
+                style = TypeScale.caption,
+                color = colors.textSecondary,
+            )
         }
     }
 }
