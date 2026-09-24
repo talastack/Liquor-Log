@@ -198,7 +198,7 @@ struct CollectionView: View {
             HStack(spacing: Space.m) {
                 Image(systemName: "magnifyingglass").foregroundStyle(Palette.textMuted)
                     .accessibilityHidden(true)
-                TextField("Name, distillery, barrel, store, shelf", text: $criteria.query)
+                TextField("Name, distillery, barrel, store, flavour", text: $criteria.query)
                     .font(TypeScale.body())
                     .foregroundStyle(Palette.text)
                     .autocorrectionDisabled()
@@ -428,7 +428,21 @@ struct CollectionView: View {
             // a typed-in bottle's class and proof flags live on its entry.
             let custom = Dictionary(
                 uniqueKeysWithValues: try env.bottles.customProducts().map { ($0.id, $0) })
-            rows = summaries.map { row(for: $0, custom: custom) }
+            // What each bottle tasted of, by bottle, so the search box can
+            // answer "dried fig". The picks are already recorded on every
+            // tasting and nothing could reach them.
+            var flavours: [String: Set<String>] = [:]
+            for detail in try env.tastings.allDetails() {
+                guard let bottleId = detail.tasting.bottleId else { continue }
+                for keys in detail.notes.values {
+                    for key in keys {
+                        if let label = env.wheel.descriptor(key)?.label {
+                            flavours[bottleId, default: []].insert(label)
+                        }
+                    }
+                }
+            }
+            rows = summaries.map { row(for: $0, custom: custom, flavours: flavours) }
             places = Multiples.places(in: summaries.map { summary in
                 Multiples.Bottle(
                     id: summary.id,
@@ -457,7 +471,8 @@ struct CollectionView: View {
     /// one, so both filter the same way.
     private func row(
         for summary: BottleSummary,
-        custom: [String: CustomCatalogEntry]
+        custom: [String: CustomCatalogEntry],
+        flavours: [String: Set<String>] = [:]
     ) -> CollectionFilter.Row {
         let bottle = summary.bottle
         let product = env.product(for: bottle)
@@ -471,7 +486,11 @@ struct CollectionView: View {
                 bottle.releaseLabel, bottle.barrelNumber, bottle.batchNumber,
                 bottle.pickStore, bottle.purchaseStore, bottle.pickGroup,
                 bottle.customName, bottle.sampleFrom,
-            ].compactMap { $0 },
+            ].compactMap { $0 }
+                // Your own words about the whiskey, from your own tastings.
+                // Not a critic's note and not the catalogue's: "dried fig"
+                // finds the bottle only if YOU tasted dried fig in it.
+                + (flavours[bottle.id].map { $0.sorted() } ?? []),
             classType: product?.classType ?? entry?.classType,
             productionType: product?.productionType ?? entry?.productionType ?? .unspecified,
             isBarrelProof: product?.isBarrelProof ?? entry?.isBarrelProof ?? false,

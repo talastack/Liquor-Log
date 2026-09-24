@@ -193,6 +193,35 @@ final class CollectionFilterTests: XCTestCase {
         XCTAssertEqual(CollectionFilter.apply(.init(kinds: [.infinity]), to: rows).map(\.id), ["inf"])
         XCTAssertFalse(CollectionFilter.availableKinds(in: shelf).contains(.infinity))
     }
+    // MARK: - Finding a bottle by what it tasted of
+
+    func testABottleIsFoundByAFlavourYouRecorded() {
+        // The descriptors on your own tastings are carried in
+        // extraSearchText, so the same prefix matching that finds a barrel
+        // number finds "dried fig". This is the one search in the app that
+        // answers from YOUR words rather than anybody's catalogue.
+        let rows = [
+            CollectionFilter.Row(
+                id: "ec", name: "Elijah Craig Barrel Proof", distillery: "Heaven Hill",
+                extraSearchText: ["Dried fig", "Charred oak"],
+                classType: .kentuckyStraightBourbon, addedAt: day(1), fillFraction: 1),
+            CollectionFilter.Row(
+                id: "plain", name: "Something Else", distillery: "Nowhere",
+                classType: .kentuckyStraightBourbon, addedAt: day(1), fillFraction: 1),
+        ]
+        var criteria = CollectionFilter.Criteria()
+        criteria.status = .any
+        criteria.query = "dried fig"
+        XCTAssertEqual(CollectionFilter.apply(criteria, to: rows).map(\.id), ["ec"])
+
+        // A prefix of one word is enough, the same rule the shop search uses.
+        criteria.query = "fig"
+        XCTAssertEqual(CollectionFilter.apply(criteria, to: rows).map(\.id), ["ec"])
+
+        criteria.query = "peat"
+        XCTAssertTrue(CollectionFilter.apply(criteria, to: rows).isEmpty)
+    }
+
     // MARK: - Family chips
 
     func testFamilyChipsAppearOnlyForShelvesThatHaveThem() {

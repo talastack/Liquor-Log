@@ -81,7 +81,21 @@ fun CollectionScreen(onOpenBottle: (String) -> Unit, onAddBottle: () -> Unit) {
         state.bottles.customEntries().associateBy { it.id }
     }
     val rows = remember(summaries, entries) {
-        summaries.map { filterRow(state, it, entries) }
+        // What each bottle tasted of, by bottle, so the search box can answer
+        // "dried fig". The picks are recorded on every tasting and nothing
+        // could reach them.
+        val flavours = mutableMapOf<String, MutableSet<String>>()
+        for (detail in state.tastings.allDetails()) {
+            val bottleId = detail.bottleId ?: continue
+            for (keys in detail.descriptors.values) {
+                for (key in keys) {
+                    state.wheel?.descriptor(key)?.label?.let {
+                        flavours.getOrPut(bottleId) { mutableSetOf() }.add(it)
+                    }
+                }
+            }
+        }
+        summaries.map { filterRow(state, it, entries, flavours) }
     }
     val places = remember(summaries) {
         Multiples.places(
@@ -220,7 +234,7 @@ private fun Finder(
                 onValueChange = { onChange(criteria.copy(query = it)) },
                 placeholder = {
                     Text(
-                        "Name, distillery, barrel, store, shelf",
+                        "Name, distillery, barrel, store, flavour",
                         style = TypeScale.secondary,
                         color = colors.textMuted,
                         maxLines = 1,
@@ -591,6 +605,7 @@ internal fun filterRow(
     state: AppState,
     summary: BottleRepository.Summary,
     entries: Map<String, com.talastack.liquorlog.data.Custom_catalog_entries>,
+    flavours: Map<String, Set<String>> = emptyMap(),
 ): CollectionFilter.Row {
     val bottle = summary.bottle
     val product = state.product(bottle.catalog_product_id)
@@ -603,7 +618,10 @@ internal fun filterRow(
             summary.releaseLabel, bottle.barrel_number, bottle.batch_number,
             bottle.pick_store, bottle.purchase_store, bottle.pick_group,
             bottle.custom_name, bottle.sample_from,
-        ),
+            // Your own words about the whiskey, from your own tastings. Not a
+            // critic's note and not the catalogue's: "dried fig" finds the
+            // bottle only if YOU tasted dried fig in it.
+        ) + flavours[bottle.id].orEmpty().sorted(),
         classType = product?.classType
             ?: entry?.class_type?.let { ClassType.fromStorageKey(it) },
         productionType = product?.productionType
