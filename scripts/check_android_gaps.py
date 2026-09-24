@@ -41,6 +41,7 @@ CLAIMS = [
     ("scan", r"\bScanScreen\b|\bLabelScanner\b", "label scanning"),
     ("price", r"\bPriceScreen\b|\bPriceCheckScreen\b", "the price check"),
     ("photo", r"\bBottleHeroPhoto\b|\bBottleImage\b", "bottle photos"),
+    ("sighting", r"\bBUY_SIGHTING\b|\bbuySighting\b", "buying from a sighting"),
 ]
 
 

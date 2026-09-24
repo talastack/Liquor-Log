@@ -39,7 +39,7 @@ import kotlin.math.roundToInt
 // The hunt log
 
 @Composable
-fun HuntLogScreen(onBack: () -> Unit) {
+fun HuntLogScreen(onBack: () -> Unit, onBuy: (String) -> Unit) {
     val state = LocalAppState.current
     val colors = palette
     var adding by remember { mutableStateOf(false) }
@@ -181,6 +181,11 @@ fun HuntLogScreen(onBack: () -> Unit) {
         val entry = entries.firstOrNull { it.id == id }
         EntryActionsDialog(
             isLottery = entry?.kind == Hunt.Kind.ENTERED,
+            isBought = entry?.boughtBottleId != null,
+            onBuy = {
+                deciding = null
+                onBuy(id)
+            },
             onOutcome = {
                 state.sightings.setOutcome(id, it)
                 state.noteChange()
@@ -274,6 +279,8 @@ private fun LogSightingDialog(
 @Composable
 private fun EntryActionsDialog(
     isLottery: Boolean,
+    isBought: Boolean,
+    onBuy: () -> Unit,
     onOutcome: (Hunt.Outcome?) -> Unit,
     onRemove: () -> Unit,
     onDismiss: () -> Unit,
@@ -296,6 +303,20 @@ private fun EntryActionsDialog(
                             Chip(outcome.label, isOn = false) { onOutcome(outcome) }
                         }
                         Chip("Still waiting", isOn = false) { onOutcome(null) }
+                    }
+                }
+                if (isBought) {
+                    Text(
+                        "Already on your shelf.",
+                        style = TypeScale.secondary,
+                        color = colors.textSecondary,
+                    )
+                } else {
+                    // The sighting knows the product, the shop and the price.
+                    // Buying it should not be the same form typed a second
+                    // time from memory.
+                    QuietButton("I bought it", modifier = Modifier.fillMaxWidth()) {
+                        onBuy()
                     }
                 }
                 QuietButton("Remove this entry", modifier = Modifier.fillMaxWidth()) {

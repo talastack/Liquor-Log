@@ -43,14 +43,38 @@ import kotlin.math.roundToInt
  * and makes a custom entry instead.
  */
 @Composable
-fun AddBottleScreen(bottleId: String?, onDone: () -> Unit) {
+fun AddBottleScreen(
+    bottleId: String?,
+    onDone: () -> Unit,
+    /**
+     * The hunt log entry this bottle came from, when it came from one.
+     *
+     * A sighting already knows what it was, where, and what it cost, so
+     * buying one should not be a form typed twice. Saving ties the two
+     * records together, which is how the log can later say a hunt ended in a
+     * bottle rather than trailing off.
+     */
+    fromSightingId: String? = null,
+) {
     val state = LocalAppState.current
     val colors = palette
     val existing = remember(bottleId) { bottleId?.let { state.bottles.byId(it) } }
+    val sighting = remember(fromSightingId) {
+        fromSightingId?.let { state.sightings.byId(it) }
+    }
 
-    var name by remember { mutableStateOf(existing?.name ?: "") }
+    var name by remember {
+        mutableStateOf(
+            existing?.name
+                ?: sighting?.catalogProductId?.let { state.identity(it)?.displayName }
+                ?: sighting?.customName
+                ?: ""
+        )
+    }
     var matched by remember {
-        mutableStateOf(state.product(existing?.bottle?.catalog_product_id))
+        mutableStateOf(
+            state.product(existing?.bottle?.catalog_product_id ?: sighting?.catalogProductId)
+        )
     }
     var distillery by remember { mutableStateOf(matched?.distillery ?: "") }
     var size by remember { mutableStateOf((existing?.volumeMl ?: 750.0).roundToInt().toString()) }
@@ -77,12 +101,14 @@ fun AddBottleScreen(bottleId: String?, onDone: () -> Unit) {
     var bottledInBond by remember { mutableStateOf(matched?.isBottledInBond ?: false) }
     var price by remember {
         mutableStateOf(
-            existing?.purchasePriceCents?.let {
+            (existing?.purchasePriceCents ?: sighting?.cents?.toLong())?.let {
                 String.format(java.util.Locale.ROOT, "%.2f", it / 100.0)
             } ?: ""
         )
     }
-    var store by remember { mutableStateOf(existing?.bottle?.purchase_store ?: "") }
+    var store by remember {
+        mutableStateOf(existing?.bottle?.purchase_store ?: sighting?.store ?: "")
+    }
     var location by remember { mutableStateOf(existing?.storageLocation ?: "") }
     var barrel by remember { mutableStateOf(existing?.bottle?.barrel_number ?: "") }
     var batch by remember { mutableStateOf(existing?.bottle?.batch_number ?: "") }
@@ -120,7 +146,7 @@ fun AddBottleScreen(bottleId: String?, onDone: () -> Unit) {
                                 ?.takeIf { it > 0 }
                                 ?.let { (it * 100).roundToInt().toLong() }
                             if (bottleId == null) {
-                                state.bottles.add(
+                                val newId = state.bottles.add(
                                     name = name.trim(),
                                     volumeMl = volume,
                                     // The catalogue's own id when one was
@@ -145,6 +171,12 @@ fun AddBottleScreen(bottleId: String?, onDone: () -> Unit) {
                                     sampleFrom = sampleFrom.trim().ifBlank { null },
                                     openNow = openNow,
                                 )
+                                // The hunt ended in this bottle. Written
+                                // after the bottle exists, so a log entry can
+                                // never point at an id that does not.
+                                if (fromSightingId != null) {
+                                    state.sightings.setBought(fromSightingId, newId)
+                                }
                             } else {
                                 state.bottles.update(
                                     id = bottleId,

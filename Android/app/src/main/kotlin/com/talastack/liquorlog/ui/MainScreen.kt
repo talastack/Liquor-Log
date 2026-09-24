@@ -89,6 +89,7 @@ object Route {
     const val EXPORT = "export"
     const val IMPORT = "import"
     const val HUNT_LOG = "huntLog"
+    const val BUY_SIGHTING = "buySighting"
     const val PASSPORT = "passport"
     const val PEOPLE = "people"
 
@@ -103,6 +104,8 @@ object Route {
     fun tastingSheet(bottleId: String?) = TASTING_SHEET + "/" + (bottleId ?: "-")
 
     fun tastingEdit(tastingId: String) = TASTING_EDIT + "/" + tastingId
+
+    fun buySighting(sightingId: String) = BUY_SIGHTING + "/" + sightingId
 }
 
 /**
@@ -316,6 +319,16 @@ private fun AppNavHost(navController: NavHostController, state: AppState) {
             )
         }
         composable(
+            Route.BUY_SIGHTING + "/{id}",
+            arguments = listOf(navArgument("id") { type = NavType.StringType }),
+        ) { entry ->
+            AddBottleScreen(
+                bottleId = null,
+                onDone = { navController.popBackStack() },
+                fromSightingId = entry.arguments?.getString("id"),
+            )
+        }
+        composable(
             Route.EDIT_BOTTLE + "/{id}",
             arguments = listOf(navArgument("id") { type = NavType.StringType }),
         ) { entry ->
@@ -403,7 +416,10 @@ private fun AppNavHost(navController: NavHostController, state: AppState) {
             ImportScreen(onBack = { navController.popBackStack() })
         }
         composable(Route.HUNT_LOG) {
-            HuntLogScreen(onBack = { navController.popBackStack() })
+            HuntLogScreen(
+                onBack = { navController.popBackStack() },
+                onBuy = { navController.navigate(Route.buySighting(it)) },
+            )
         }
         composable(Route.PASSPORT) {
             PassportScreen(onBack = { navController.popBackStack() })
