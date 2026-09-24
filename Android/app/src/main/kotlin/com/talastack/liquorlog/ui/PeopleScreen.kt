@@ -5,6 +5,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
@@ -124,21 +127,32 @@ private fun PersonCard(person: People.Person, now: Instant, ounces: Boolean) {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ExchangeRow(bottle: String, volume: String, date: String) {
     val colors = palette
-    Row(
+    // The bottle first and at full width, the amount and date after it when
+    // they fit and on the next line when they do not. As three columns, the
+    // amount and date took their whole width and left the name what was
+    // over: at a large text size "Elijah Craig Barrel Proof" stood one word
+    // to a line.
+    FlowRow(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(Space.s),
-        verticalAlignment = Alignment.Top,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         Text(
             bottle,
             style = TypeScale.secondary,
             color = colors.text,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.padding(end = Space.s),
         )
-        Text(volume, style = TypeScale.code, color = colors.textSecondary)
-        Text(date, style = TypeScale.caption, color = colors.textMuted)
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(Space.s),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(volume, style = TypeScale.code, color = colors.textSecondary)
+            Text(date, style = TypeScale.caption, color = colors.textMuted)
+        }
     }
 }

@@ -249,7 +249,12 @@ private fun AddSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         containerColor = colors.surface,
-        sheetState = rememberModalBottomSheetState(),
+        // Straight to its full height. The default stops half way, which at
+        // a normal text size shows all three choices anyway -- and at the
+        // largest one left "Start an infinity bottle" under the gesture bar
+        // until somebody thought to drag the sheet up. Three choices do not
+        // need a half-open state.
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
     ) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(Space.l),
