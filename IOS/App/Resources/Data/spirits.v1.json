@@ -1021,8 +1021,9 @@
       "production_type": "blend",
       "abv": 43.0,
       "stated_age_years": 12,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.appletonestate.com/rums/12-year-old/",
+      "verified": true
     },
     {
       "id": "plantation-xaymaca",
@@ -3160,8 +3161,9 @@
       "class_type": "rum",
       "production_type": "blend",
       "abv": 40.0,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.appletonestate.com/rums/signature/",
+      "verified": true
     },
     {
       "id": "mount-gay-black-barrel",
@@ -3438,8 +3440,9 @@
       "class_type": "distilledGin",
       "production_type": "unspecified",
       "abv": 42.0,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.aviationgin.com/",
+      "verified": true
     },
     {
       "id": "hennessy-vsop",
@@ -7423,8 +7426,9 @@
       "class_type": "maltBeverage",
       "production_type": "unspecified",
       "abv": 5.4,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.weihenstephaner.de/en/our-beers/hefeweissbier/",
+      "verified": true
     },
     {
       "id": "paulaner-hefe-weizen",
@@ -10702,8 +10706,9 @@
       "class_type": "hardCider",
       "production_type": "unspecified",
       "abv": 5.1,
-      "source": "Producer label",
-      "verified": false
+      "source": "Producer page",
+      "source_url": "https://www.downeastcider.com/products/original-blend",
+      "verified": true
     },
     {
       "id": "ace-pineapple",

@@ -404,6 +404,36 @@
       "source_url": "https://www.guinness.com/en-us/our-beers/guinness-draught",
       "states": "Alcohol: 4.2%",
       "checked_on": "2026-09-24"
+    },
+    "appleton-12": {
+      "source": "Producer page",
+      "source_url": "https://www.appletonestate.com/rums/12-year-old/",
+      "states": "Alcohol by Volume (ABV): 43%",
+      "checked_on": "2026-09-24"
+    },
+    "appleton-signature": {
+      "source": "Producer page",
+      "source_url": "https://www.appletonestate.com/rums/signature/",
+      "states": "Alcohol by Volume (ABV): 40%",
+      "checked_on": "2026-09-24"
+    },
+    "downeast-original": {
+      "source": "Producer page",
+      "source_url": "https://www.downeastcider.com/products/original-blend",
+      "states": "tastes just like farm fresh cider you enjoyed as a kid, just now at 5.1% abv",
+      "checked_on": "2026-09-24"
+    },
+    "aviation-gin": {
+      "source": "Producer page",
+      "source_url": "https://www.aviationgin.com/",
+      "states": "the desired 84 proof, 42% Alc/Vol",
+      "checked_on": "2026-09-24"
+    },
+    "weihenstephaner-hefeweissbier": {
+      "source": "Producer page",
+      "source_url": "https://www.weihenstephaner.de/en/our-beers/hefeweissbier/",
+      "states": "5,4 % by volume",
+      "checked_on": "2026-09-24"
     }
   },
   "blocked": {
@@ -445,6 +475,21 @@
     "goose-island-ipa": {
       "source_url": "https://www.gooseisland.com/our-beers",
       "why": "The beer list loads through script the fetch does not run; the page arrives saying \"Loading beers...\" and nothing else.",
+      "checked_on": "2026-09-24"
+    },
+    "angry-orchard-crisp": {
+      "source_url": "https://www.angryorchard.com/ciders/crisp-apple",
+      "why": "403 Forbidden.",
+      "checked_on": "2026-09-24"
+    },
+    "beefeater": {
+      "source_url": "https://www.beefeatergin.com/our-gins/beefeater-london-dry/",
+      "why": "403 Forbidden.",
+      "checked_on": "2026-09-24"
+    },
+    "fortaleza-blanco": {
+      "source_url": "https://www.tequilafortaleza.com/our-tequila",
+      "why": "The host does not resolve; the producer appears to have no site at that name.",
       "checked_on": "2026-09-24"
     }
   },
@@ -502,6 +547,26 @@
     "jim-beam-rye": {
       "source_url": "https://www.jimbeam.com/bourbons/jim-beam-rye",
       "why": "The page describes the whiskey at length and states no proof.",
+      "checked_on": "2026-09-24"
+    },
+    "chimay-blue": {
+      "source_url": "https://www.chimay.com/en/our-beers/chimay-blue/",
+      "why": "The brewery states \"9% vol. alc.\" for the ordinary formats and \"10.5% vol. alc.\" for the 75 cl Grande Reserve. The row is named \"Blue Grande Reserve\", which is what the US label says for the 9% beer, so the page states two figures and the row's name matches the wrong one. Left at 9% and not claimed as checked.",
+      "checked_on": "2026-09-24"
+    },
+    "paulaner-hefe-weizen": {
+      "source_url": "https://www.paulaner.com/en/our-beers/hefe-weissbier-naturtrueb",
+      "why": "The producer's page states no alcohol figure.",
+      "checked_on": "2026-09-24"
+    },
+    "2-towns-bright-cider": {
+      "source_url": "https://www.2townsciderhouse.com/ciders/bright-cider/",
+      "why": "The producer's page states no alcohol figure.",
+      "checked_on": "2026-09-24"
+    },
+    "white-claw-black-cherry": {
+      "source_url": "https://www.whiteclaw.com/",
+      "why": "The producer's page states no alcohol figure.",
       "checked_on": "2026-09-24"
     }
   }
